@@ -1,0 +1,17 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "host": "[%key:common::config_flow::data::host%]"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "insufficient_permission": "[%key:common::config_flow::error::insufficient_permission%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    }
+  }
+}

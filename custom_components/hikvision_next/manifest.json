@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "domain": "hikvision_next",
+  "name": "Hikvision NVR / IP Camera",
+  "integration_type": "device",
+  "documentation": "",
+  "codeowners": ["@maciej-or"],
+  "config_flow": true,
+  "dependencies": [],
+  "requirements": [
+    "xmltodict==0.13.0",
+    "hikvisionapi==0.3.2",
+    "requests-toolbelt==0.10.1"
+  ],
+  "iot_class": "local_polling"
+}
