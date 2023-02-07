@@ -20,16 +20,25 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 - Region Exiting
 
 #### Preview
-![IP Camera](/assets/ipcam.jpg)
-![NVR](/assets/nvr.jpg)
+![Integration card](/assets/card.jpg "Integration card")
+![IP Camera](/assets/ipcam.jpg "IP Camera device view")
+![NVR](/assets/nvr.jpg "NVR device view")
 
 
 The scope supported features depends on device model, setup and firmware version.
 
 ## Installation
+### With HACS
+1. on `HACS / Integrations` page open `Custom repositories` dialog from three dots menu
+2. add repository https://github.com/maciej-or/hikvision_next
+3. click `Hikvision NVR / IP Camera` card and press `Download` button
+4. on `Settings / Devices & Services` page press `+ Add Integration`
+5. Search for `Hikvision NVR / IP Camera` and add your Hikvision device using config dialog, repeat the last 2 steps for more devices
+### Manual
 1. copy `custom_components/hikvision_next` folder into `conifg/custom_components`
 2. restart Home Assistant
-3. add Hikvision device from `Settings / Devices & Services` page
+3. on `Settings / Devices & Services` page press `+ Add Integration`
+4. search for `Hikvision NVR / IP Camera` and add your Hikvision device using config dialog, repeat the last 2 steps for more devices
 
 ## Hikvision device setup checklist
 - Network settings
