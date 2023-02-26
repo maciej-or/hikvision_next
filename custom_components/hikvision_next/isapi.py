@@ -84,7 +84,9 @@ class ISAPI:
         """Return device registry information for IP camera from NVR's subnet."""
 
         channel_descriptor = channel["sourceInputPortDescriptor"]
-        serial_number = channel_descriptor["serialNumber"]
+        serial_number = channel_descriptor.get("serialNumber")
+        if not serial_number:
+            serial_number = channel.get("devIndex")
         # serial_number is None for offline device
         if serial_number:
             return DeviceInfo(
