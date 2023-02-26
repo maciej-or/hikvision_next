@@ -92,9 +92,9 @@ class ISAPI:
             return DeviceInfo(
                 manufacturer="Hikvision",  # may be not accurate, no manufacturer info provided
                 identifiers={(DOMAIN, serial_number)},
-                model=channel_descriptor["model"],
+                model=channel_descriptor.get("model", "?"),
                 name=channel["name"],
-                sw_version=channel_descriptor["firmwareVersion"],
+                sw_version=channel_descriptor.get("firmwareVersion", "?"),
                 via_device=(DOMAIN, self.serial_no),
             )
 
