@@ -84,15 +84,17 @@ class ISAPI:
         """Return device registry information for IP camera from NVR's subnet."""
 
         channel_descriptor = channel["sourceInputPortDescriptor"]
-        serial_number = channel_descriptor["serialNumber"]
+        serial_number = channel_descriptor.get("serialNumber")
+        if not serial_number:
+            serial_number = channel.get("devIndex")
         # serial_number is None for offline device
         if serial_number:
             return DeviceInfo(
                 manufacturer="Hikvision",  # may be not accurate, no manufacturer info provided
                 identifiers={(DOMAIN, serial_number)},
-                model=channel_descriptor["model"],
+                model=channel_descriptor.get("model", "?"),
                 name=channel["name"],
-                sw_version=channel_descriptor["firmwareVersion"],
+                sw_version=channel_descriptor.get("firmwareVersion", "?"),
                 via_device=(DOMAIN, self.serial_no),
             )
 
@@ -300,8 +302,8 @@ class ISAPI:
         host = self._get_event_notification_host(data)
         if (
             host["protocolType"] == address.scheme.upper()
-            and host["ipAddress"] == address.hostname
-            and host["portNo"] == str(address.port)
+            and host.get("ipAddress") == address.hostname
+            and host.get("portNo") == str(address.port)
             and host["url"] == path
         ):
             return
