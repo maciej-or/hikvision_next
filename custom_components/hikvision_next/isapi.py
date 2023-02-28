@@ -302,8 +302,8 @@ class ISAPI:
         host = self._get_event_notification_host(data)
         if (
             host["protocolType"] == address.scheme.upper()
-            and host["ipAddress"] == address.hostname
-            and host["portNo"] == str(address.port)
+            and host.get("ipAddress") == address.hostname
+            and host.get("portNo") == str(address.port)
             and host["url"] == path
         ):
             return
