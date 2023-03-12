@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from homeassistant.components.sensor import ENTITY_ID_FORMAT
+from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import Entity, EntityCategory
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -40,7 +40,7 @@ async def async_setup_entry(
     async_add_entities(entities, True)
 
 
-class AlarmServerSensor(CoordinatorEntity, Entity):
+class AlarmServerSensor(CoordinatorEntity, SensorEntity):
     """Alarm Server settings sensor."""
 
     _attr_has_entity_name = True
@@ -58,12 +58,7 @@ class AlarmServerSensor(CoordinatorEntity, Entity):
         )
         self.key = key
 
-    async def async_update(self) -> None:
-        """Get Alarm Server settings"""
-        await super().async_update()
-        self._attr_state = await self.async_get_state()
-
-    async def async_get_state(self):
-        """Get Alarm Server option value"""
+    @property
+    def native_value(self) -> str | None:
         host = self.coordinator.data.get(DATA_ALARM_SERVER_HOST)
         return host.get(self.key) if host else None
