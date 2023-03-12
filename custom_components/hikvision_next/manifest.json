@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "domain": "hikvision_next",
   "name": "Hikvision NVR / IP Camera",
   "integration_type": "device",
