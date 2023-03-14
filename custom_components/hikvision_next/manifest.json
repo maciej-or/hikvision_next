@@ -7,7 +7,8 @@
   "codeowners": ["@maciej-or"],
   "config_flow": true,
   "dependencies": [],
-  "after_dependencies": ["http"],
+  "after_dependencies": ["http", "network"],
+  "issue_tracker": "https://github.com/maciej-or/hikvision_next/issues",
   "requirements": [
     "xmltodict==0.13.0",
     "hikvisionapi==0.3.2",
