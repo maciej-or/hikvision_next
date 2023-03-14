@@ -7,6 +7,7 @@
   "codeowners": ["@maciej-or"],
   "config_flow": true,
   "dependencies": [],
+  "after_dependencies": ["http"],
   "requirements": [
     "xmltodict==0.13.0",
     "hikvisionapi==0.3.2",
