@@ -1,18 +1,18 @@
 {
-  "version": "1.0.1",
   "domain": "hikvision_next",
   "name": "Hikvision NVR / IP Camera",
-  "integration_type": "device",
-  "documentation": "https://github.com/maciej-or/hikvision_next",
+  "after_dependencies": ["http", "network"],
   "codeowners": ["@maciej-or"],
   "config_flow": true,
   "dependencies": [],
-  "after_dependencies": ["http", "network"],
+  "documentation": "https://github.com/maciej-or/hikvision_next",
+  "integration_type": "device",
+  "iot_class": "local_polling",
   "issue_tracker": "https://github.com/maciej-or/hikvision_next/issues",
   "requirements": [
     "xmltodict==0.13.0",
     "hikvisionapi==0.3.2",
     "requests-toolbelt==0.10.1"
   ],
-  "iot_class": "local_polling"
+  "version": "1.0.1"
 }
