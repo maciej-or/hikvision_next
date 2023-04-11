@@ -51,7 +51,7 @@ The scope supported features depends on device model, setup and firmware version
     - Regions if needed
     - Arming Schedule
 - Storage Schedule Settings - set continuous recording in Holiday mode for desired cameras
-- Alarm Server (optional) - can be set by this integration if checked `Set alarm server` checkbox in the configuration dialog. It will be reverted to `http://0.0.0.0:80/` on integration unload.
+- Alarm Server - IP address of Home Assistant instance for event notifications. Can be set manually or by this integration if checked `Set alarm server` checkbox in the configuration dialog. It will be reverted to `http://0.0.0.0:80/` on integration unload.
 
 ## Reporting issues
 
@@ -69,6 +69,14 @@ Restart Home Assistant
 Download logs from `Settings / System / Logs`
 ## Tested models
 #### NVR
-- 7608NXI-I2/8P/S
+- DS-7616NXI-I2/16P/S
+- DS-7608NXI-I2/8P/S
+- DS-7608NI-I2/8P
 #### IP Camera
+- DS-2DE4425IW-DE (PTZ)
+- DS-2CD2T87G2P-LSU/SL
+- DS-2CD2546G2-IS
+- DS-2CD2387G2-LU
 - DS-2CD2386G2-IU
+- DS-2CD2346G2-IU
+- DS-2CD2047G2-LU/SL
