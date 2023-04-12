@@ -1,0 +1,25 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "O dispositivo já está configurado"
+    },
+    "step": {
+      "user": {
+        "description": "Insira as credenciais para NVR ou câmera IP",
+        "data": {
+          "host": "URL",
+          "password": "Senha",
+          "username": "Nome de usuário",
+          "set_alarm_server": "Defina o servidor de alarme usando o seguinte endereço:",
+          "alarm_server": "Endereço do Home Assistant acessível pelo dispositivo Hikvison"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Falhou ao conectar",
+      "invalid_auth": "Autenticação inválida",
+      "insufficient_permission": "Acesso proibido, verifique as permissões do usuário",
+      "unknown": "Erro inesperado"
+    }
+  }
+}
