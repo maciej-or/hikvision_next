@@ -1,4 +1,5 @@
 # Hikvision Next
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
 
 The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and switches detection of alarm events.
 
@@ -69,6 +70,7 @@ Restart Home Assistant
 Download logs from `Settings / System / Logs`
 ## Tested models
 #### NVR
+- DS-7716NI-I4/16P
 - DS-7616NXI-I2/16P/S
 - DS-7608NXI-I2/8P/S
 - DS-7608NI-I2/8P
@@ -76,6 +78,7 @@ Download logs from `Settings / System / Logs`
 - DS-2DE4425IW-DE (PTZ)
 - DS-2CD2T87G2P-LSU/SL
 - DS-2CD2546G2-IS
+- DS-2CD2425FWD-IW
 - DS-2CD2387G2-LU
 - DS-2CD2386G2-IU
 - DS-2CD2346G2-IU
