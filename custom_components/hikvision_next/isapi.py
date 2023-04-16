@@ -97,16 +97,23 @@ class ISAPI:
                 sw_version=channel_descriptor.get("firmwareVersion", "?"),
                 via_device=(DOMAIN, self.serial_no),
             )
+        _LOGGER.warning("No device identifier provided: %s", channel["name"])
 
     async def get_nvr_capabilities(self) -> None:
         """Get NVR capabilities."""
 
         events = []
         channels = await self.isapi.ContentMgmt.InputProxy.channels(method=GET)
+        input_proxy_channel_node = channels["InputProxyChannelList"][
+            "InputProxyChannel"
+        ]
+        if not isinstance(input_proxy_channel_node, list):
+            input_proxy_channel_node = [input_proxy_channel_node]
+
         _LOGGER.debug(
             "%s/ISAPI/ContentMgmt/InputProxy/channels %s", self.isapi.host, channels
         )
-        for channel in channels["InputProxyChannelList"]["InputProxyChannel"]:
+        for channel in input_proxy_channel_node:
             channel_info = self.get_nvr_channel_device_info(channel)
             if channel_info:
                 events += await self._get_channel_events(channel_info, channel["id"])
