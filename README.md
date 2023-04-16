@@ -1,5 +1,5 @@
 # Hikvision Next
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/maciej-or/hikvision_next?style=flat-square) [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/hacs/integration)
 
 The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and switches detection of alarm events.
 
@@ -30,9 +30,7 @@ The scope supported features depends on device model, setup and firmware version
 
 ## Installation
 ### With HACS
-1. on `HACS / Integrations` page open `Custom repositories` dialog from three dots menu
-2. add repository https://github.com/maciej-or/hikvision_next
-3. click `Hikvision NVR / IP Camera` card and press `Download` button
+1. This integration you will find in the default HACS store. Search for `Hikvision NVR / IP Camera` on `HACS / Integrations` page and press `Download` button
 4. on `Settings / Devices & Services` page press `+ Add Integration`
 5. Search for `Hikvision NVR / IP Camera` and add your Hikvision device using config dialog, repeat the last 2 steps for more devices
 ### Manual
