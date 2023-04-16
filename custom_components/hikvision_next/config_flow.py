@@ -1,6 +1,7 @@
 """Config flow for hikvision_next integration."""
 
 from __future__ import annotations
+import asyncio
 
 from http import HTTPStatus
 import logging
@@ -10,7 +11,7 @@ from httpx import ConnectTimeout, HTTPStatusError
 import voluptuous as vol
 
 from homeassistant.components.network import async_get_source_ip
-from homeassistant.config_entries import ConfigFlow
+from homeassistant.config_entries import ConfigEntry, ConfigFlow
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import device_registry as dr
@@ -25,6 +26,7 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for hikvision device."""
 
     VERSION = 1
+    _reauth_entry: ConfigEntry | None = None
 
     async def get_schema(self, user_input: dict[str, Any]):
         """Get schema with default values or entered by user"""
@@ -70,6 +72,17 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                 isapi = ISAPI(host, username, password)
                 await isapi.get_hardware_info()
 
+                if self._reauth_entry:
+                    self.hass.config_entries.async_update_entry(
+                        self._reauth_entry, data=user_input
+                    )
+                    self.hass.async_create_task(
+                        self.hass.config_entries.async_reload(
+                            self._reauth_entry.entry_id
+                        )
+                    )
+                    return self.async_abort(reason="reauth_successful")
+
                 registry = dr.async_get(self.hass)
                 if registry.async_get_device(identifiers={(DOMAIN, isapi.serial_no)}):
                     return self.async_abort(reason="already_configured")
@@ -91,3 +104,12 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
 
         schema = await self.get_schema(user_input or {})
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+
+    async def async_step_reauth(self, entry_data: dict[str, Any]) -> FlowResult:
+        """Schedule reauth."""
+        _LOGGER.warning("Attempt to reauth in 120s")
+        self._reauth_entry = self.hass.config_entries.async_get_entry(
+            self.context["entry_id"]
+        )
+        await asyncio.sleep(120)
+        return await self.async_step_user(entry_data)

@@ -332,19 +332,29 @@ class ISAPI:
     def handle_exception(self, ex: Exception, details: str = "") -> bool:
         """Common exception handler, returns False if exception remains unhandled"""
 
+        def is_reauth_needed():
+            if isinstance(ex, HTTPStatusError):
+                status_code = ex.response.status_code
+                if status_code in (
+                    HTTPStatus.UNAUTHORIZED,
+                    HTTPStatus.FORBIDDEN,
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                ):
+                    return True
+            return False
+
         host = self.isapi.host
-        if isinstance(ex, HTTPStatusError):
-            status_code = ex.response.status_code
-            if status_code == HTTPStatus.UNAUTHORIZED:
-                raise ConfigEntryAuthFailed(
-                    f"Credentials expired for {host} {details}"
-                ) from ex
+        if is_reauth_needed():
+            raise ConfigEntryAuthFailed(
+                f"Credentials expired for {host} {details}"
+            ) from ex
+
         elif isinstance(ex, (asyncio.TimeoutError, TimeoutException)):
             raise ConfigEntryNotReady(
                 f"Timeout while connecting to {host} {details}"
             ) from ex
 
-        _LOGGER.warning("Unexpected exception %s %s", details, ex)
+        _LOGGER.warning("Unexpected exception | %s | %s", details, ex)
         return False
 
     @staticmethod

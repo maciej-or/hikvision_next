@@ -84,8 +84,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         config = hass.data[DOMAIN][entry.entry_id]
         if config[DATA_SET_ALARM_SERVER]:
             isapi = config[DATA_ISAPI]
-            await isapi.set_alarm_server("http://0.0.0.0:80", "/")
-
+            try:
+                await isapi.set_alarm_server("http://0.0.0.0:80", "/")
+            except Exception:  # pylint: disable=broad-except
+                pass
         if unload_ok:
             del hass.data[DOMAIN][entry.entry_id]
 
