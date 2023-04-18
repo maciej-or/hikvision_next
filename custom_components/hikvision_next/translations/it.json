@@ -1,11 +1,11 @@
- 	{
+{
   "config": {
     "abort": {
       "already_configured": "Dispositivo già configurato"
     },
     "step": {
       "user": {
-        "description": "Per favore inserisci le credenzialei dell NVR o della telecamera IP",
+        "description": "Per favore inserisci le credenziali dell NVR o della telecamera IP",
         "data": {
           "host": "URL",
           "password": "Password",
