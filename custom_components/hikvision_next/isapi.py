@@ -468,7 +468,7 @@ class ISAPI:
     ):
         """Get camera snapshot."""
         params = {}
-        if width and width > 100:
+        if not width or width > 100:
             params = {
                 "videoResolutionWidth": stream.width,
                 "videoResolutionHeight": stream.height,

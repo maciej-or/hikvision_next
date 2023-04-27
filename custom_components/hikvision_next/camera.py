@@ -8,9 +8,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
-from .const import DOMAIN, DATA_ISAPI, STREAM_TYPE
+from .const import DOMAIN, DATA_ISAPI
 
-from .isapi import StreamInfo, get_stream_id
+from .isapi import StreamInfo
 
 
 async def async_setup_entry(
