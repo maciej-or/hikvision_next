@@ -76,3 +76,10 @@ EVENTS = {
 }
 
 EVENTS_ALTERNATE_ID = {"vmd": "motiondetection", "shelteralarm": "tamperdetection"}
+
+STREAM_TYPE = {
+    1: "Main Stream",
+    2: "Sub-stream",
+    3: "Third Stream",
+    4: "Transcoded Stream",
+}

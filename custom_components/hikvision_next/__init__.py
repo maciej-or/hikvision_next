@@ -20,7 +20,7 @@ from .coordinator import EventsCoordinator, SecondaryCoordinator
 from .isapi import ISAPI
 from .notifications import EventNotificationsView
 
-PLATFORMS = [Platform.SWITCH, Platform.BINARY_SENSOR, Platform.SENSOR]
+PLATFORMS = [Platform.SWITCH, Platform.BINARY_SENSOR, Platform.SENSOR, Platform.CAMERA]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -79,7 +79,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
 
     if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
-
         # reset alarm server if has been set
         config = hass.data[DOMAIN][entry.entry_id]
         if config[DATA_SET_ALARM_SERVER]:

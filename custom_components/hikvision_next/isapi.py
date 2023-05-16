@@ -21,7 +21,14 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import slugify
 
-from .const import DEVICE_TYPE_NVR, DOMAIN, EVENT_BASIC, EVENTS, EVENTS_ALTERNATE_ID
+from .const import (
+    DEVICE_TYPE_NVR,
+    DOMAIN,
+    EVENT_BASIC,
+    EVENTS,
+    EVENTS_ALTERNATE_ID,
+    STREAM_TYPE,
+)
 
 Node = dict[str, Any]
 
@@ -43,6 +50,19 @@ class EventInfo:
     url: str = attr.ib()
 
 
+@attr.s
+class StreamInfo:
+    """Stream info of particular channel"""
+
+    id: int = attr.ib()
+    name: str = attr.ib()
+    channel_id: str = attr.ib()
+    device_info: DeviceInfo = attr.ib()
+    width: int = attr.ib()
+    height: int = attr.ib()
+    audio: bool = attr.ib()
+
+
 class ISAPI:
     """hikvisionapi async client wrapper."""
 
@@ -51,10 +71,13 @@ class ISAPI:
         self.holidays_support = False
         self.alarm_server_support = False
         self.events_info: list[EventInfo] = []
+        self.streams_info: list[StreamInfo] = []
         self.hw_info = {}
         self.serial_no = ""
         self.is_nvr = False
         self.device_name = ""
+        address = urlparse(host)
+        self.ip = address.hostname
 
     async def get_hardware_info(self) -> dict[str, str]:
         """Get hardware info"""
@@ -99,25 +122,62 @@ class ISAPI:
             )
         _LOGGER.warning("No device identifier provided: %s", channel["name"])
 
+    def get_channel_streams(
+        self,
+        device_info,
+        channel_id,
+        stream_list,
+    ) -> list[StreamInfo]:
+        """Return stream info for channel."""
+
+        streams = []
+        channels = stream_list["StreamingChannelList"]["StreamingChannel"]
+        for channel in channels:
+            for stream_type in (1, 2):
+                stream_id = get_stream_id(channel_id, stream_type)
+                stream_name = device_info["name"]
+                if stream_type > 1:
+                    stream_name += f" {STREAM_TYPE[stream_type]}"
+                if channel["id"] == str(stream_id):
+                    streams.append(
+                        StreamInfo(
+                            id=stream_id,
+                            name=stream_name,
+                            channel_id=channel_id,
+                            device_info=device_info,
+                            width=int(channel["Video"]["videoResolutionWidth"]),
+                            height=int(channel["Video"]["videoResolutionHeight"]),
+                            audio=str_to_bool(channel["Audio"]["enabled"]),
+                        )
+                    )
+        return streams
+
     async def get_nvr_capabilities(self) -> None:
         """Get NVR capabilities."""
 
         events = []
         channels = await self.isapi.ContentMgmt.InputProxy.channels(method=GET)
-        input_proxy_channel_node = channels["InputProxyChannelList"][
-            "InputProxyChannel"
-        ]
-        if not isinstance(input_proxy_channel_node, list):
-            input_proxy_channel_node = [input_proxy_channel_node]
-
         _LOGGER.debug(
             "%s/ISAPI/ContentMgmt/InputProxy/channels %s", self.isapi.host, channels
         )
-        for channel in input_proxy_channel_node:
+        channel_list = channels["InputProxyChannelList"]["InputProxyChannel"]
+        if not isinstance(channel_list, list):
+            channel_list = [channel_list]
+
+        streams = []
+        stream_list = await self.isapi.Streaming.channels(method=GET)
+        _LOGGER.debug("%s/ISAPI/Streaming/channels %s", self.isapi.host, stream_list)
+
+        for channel in channel_list:
             channel_info = self.get_nvr_channel_device_info(channel)
             if channel_info:
                 events += await self._get_channel_events(channel_info, channel["id"])
+                streams += self.get_channel_streams(
+                    channel_info, channel["id"], stream_list
+                )
+
         self.events_info = events
+        self.streams_info = streams
 
         try:
             await self.get_holiday_enabled_state()
@@ -137,6 +197,10 @@ class ISAPI:
         """Get standalone IP camera capabilities."""
 
         self.events_info = await self._get_channel_events(self.device_info, "1")
+
+        stream_list = await self.isapi.Streaming.channels(method=GET)
+        _LOGGER.debug("%s/ISAPI/Streaming/channels %s", self.isapi.host, stream_list)
+        self.streams_info = self.get_channel_streams(self.device_info, "1", stream_list)
 
         try:
             await self.get_alarm_server()
@@ -399,6 +463,26 @@ class ISAPI:
 
         return AlertInfo(channel_id, event_id, device_serial, mac)
 
+    async def get_camera_image(
+        self, stream: StreamInfo, width: int | None = None, height: int | None = None
+    ):
+        """Get camera snapshot."""
+        params = {}
+        if not width or width > 100:
+            params = {
+                "videoResolutionWidth": stream.width,
+                "videoResolutionHeight": stream.height,
+            }
+        chunks = self.isapi.Streaming.channels[stream.id].picture(
+            method=GET, type="opaque_data", params=params
+        )
+        image_bytes = b"".join([chunk async for chunk in chunks])
+        return image_bytes
+
+    def get_stream_source(self, stream: StreamInfo) -> str:
+        """Get stream source."""
+        return f"rtsp://{self.isapi.login}:{self.isapi.password}@{self.ip}/Streaming/channels/{stream.id}"
+
 
 def get_event_url(event_id: str, channel_id: str, is_proxy: bool) -> str:
     """Get event ISAPI URL."""
@@ -425,3 +509,8 @@ def str_to_bool(value: str) -> bool:
 def bool_to_str(value: bool) -> str:
     """Convert boolean to 'true' or 'false'."""
     return "true" if value else "false"
+
+
+def get_stream_id(channel_id: str, stream_type: int = 1) -> int:
+    """Get stream id."""
+    return int(channel_id) * 100 + stream_type
