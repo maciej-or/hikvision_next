@@ -177,19 +177,20 @@ class ISAPI:
 
         events = []
         streams = []
-        channels = await self.isapi.ContentMgmt.InputProxy.channels(method=GET)
-        _LOGGER.debug(
-            "%s/ISAPI/ContentMgmt/InputProxy/channels %s", self.isapi.host, channels
-        )
+        stream_list = await self.isapi.Streaming.channels(method=GET)
+        _LOGGER.debug("%s/ISAPI/Streaming/channels %s", self.isapi.host, stream_list)
+
         try:
+            # Add IP cameras
+            channels = await self.isapi.ContentMgmt.InputProxy.channels(method=GET)
+            _LOGGER.debug(
+                "%s/ISAPI/ContentMgmt/InputProxy/channels %s", self.isapi.host, channels
+            )
             channel_list = channels["InputProxyChannelList"]["InputProxyChannel"]
             if not isinstance(channel_list, list):
                 channel_list = [channel_list]
-        except KeyError:
+        except (KeyError, HTTPStatusError):
             channel_list = []
-
-        stream_list = await self.isapi.Streaming.channels(method=GET)
-        _LOGGER.debug("%s/ISAPI/Streaming/channels %s", self.isapi.host, stream_list)
 
         for channel in channel_list:
             channel_info = self.get_nvr_channel_device_info(channel)
@@ -199,16 +200,18 @@ class ISAPI:
                     channel_info, channel["id"], stream_list
                 )
 
-        # Add analog video channels
-        video_inputs = await self.isapi.System.Video.inputs.channels(method=GET)
-        _LOGGER.debug("%s/ISAPI/System/Video/inputs %s", self.isapi.host, video_inputs)
         try:
+            # Add analog video channels
+            video_inputs = await self.isapi.System.Video.inputs.channels(method=GET)
+            _LOGGER.debug(
+                "%s/ISAPI/System/Video/inputs %s", self.isapi.host, video_inputs
+            )
             video_input_list = video_inputs["VideoInputChannelList"][
                 "VideoInputChannel"
             ]
             if not isinstance(video_input_list, list):
                 video_input_list = [video_input_list]
-        except KeyError:
+        except (KeyError, HTTPStatusError):
             video_input_list = []
 
         for video_input in video_input_list:
