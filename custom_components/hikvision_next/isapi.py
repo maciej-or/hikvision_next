@@ -16,7 +16,11 @@ from httpx import HTTPStatusError, TimeoutException
 from requests import HTTPError
 import xmltodict
 
-from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
+from homeassistant.exceptions import (
+    ConfigEntryAuthFailed,
+    ConfigEntryNotReady,
+    HomeAssistantError,
+)
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import slugify
@@ -85,7 +89,7 @@ class ISAPI:
         self.hw_info = await self.isapi.System.deviceInfo(method=GET)
         _LOGGER.debug("%s/ISAPI/System/deviceInfo %s", self.isapi.host, self.hw_info)
         self.serial_no = self.hw_info["DeviceInfo"]["serialNumber"]
-        self.is_nvr = self.hw_info["DeviceInfo"]["deviceType"] == DEVICE_TYPE_NVR
+        self.is_nvr = self.hw_info["DeviceInfo"]["deviceType"] in DEVICE_TYPE_NVR
         self.device_name = self.hw_info["DeviceInfo"]["deviceName"]
         return self.hw_info
 
@@ -102,6 +106,22 @@ class ISAPI:
             name=self.device_name,
             sw_version=info["firmwareVersion"],
         )
+
+    def get_video_input_channel_device_info(self, channel: Node) -> DeviceInfo | None:
+        """Return device registry information for POC camera"""
+        serial_number = f"{self.serial_no}-VI{channel['inputPort']}"
+        if not serial_number:
+            serial_number = channel.get("devIndex")
+        # serial_number is None for offline device
+        if serial_number:
+            return DeviceInfo(
+                manufacturer="Hikvision",  # may be not accurate, no manufacturer info provided
+                identifiers={(DOMAIN, serial_number)},
+                model=f"Video Camera",
+                name=channel["name"],
+                via_device=(DOMAIN, self.serial_no),
+            )
+        _LOGGER.warning("No device identifier provided: %s", channel["name"])
 
     def get_nvr_channel_device_info(self, channel: Node) -> DeviceInfo | None:
         """Return device registry information for IP camera from NVR's subnet."""
@@ -156,15 +176,18 @@ class ISAPI:
         """Get NVR capabilities."""
 
         events = []
+        streams = []
         channels = await self.isapi.ContentMgmt.InputProxy.channels(method=GET)
         _LOGGER.debug(
             "%s/ISAPI/ContentMgmt/InputProxy/channels %s", self.isapi.host, channels
         )
-        channel_list = channels["InputProxyChannelList"]["InputProxyChannel"]
-        if not isinstance(channel_list, list):
-            channel_list = [channel_list]
+        try:
+            channel_list = channels["InputProxyChannelList"]["InputProxyChannel"]
+            if not isinstance(channel_list, list):
+                channel_list = [channel_list]
+        except KeyError:
+            channel_list = []
 
-        streams = []
         stream_list = await self.isapi.Streaming.channels(method=GET)
         _LOGGER.debug("%s/ISAPI/Streaming/channels %s", self.isapi.host, stream_list)
 
@@ -175,6 +198,29 @@ class ISAPI:
                 streams += self.get_channel_streams(
                     channel_info, channel["id"], stream_list
                 )
+
+        # Add analog video channels
+        video_inputs = await self.isapi.System.Video.inputs.channels(method=GET)
+        _LOGGER.debug("%s/ISAPI/System/Video/inputs %s", self.isapi.host, video_inputs)
+        try:
+            video_input_list = video_inputs["VideoInputChannelList"][
+                "VideoInputChannel"
+            ]
+            if not isinstance(video_input_list, list):
+                video_input_list = [video_input_list]
+        except KeyError:
+            video_input_list = []
+
+        for video_input in video_input_list:
+            if str_to_bool(video_input["videoInputEnabled"]):
+                video_input_info = self.get_video_input_channel_device_info(video_input)
+                if video_input_info:
+                    events += await self._get_channel_events(
+                        video_input_info, video_input["id"]
+                    )
+                    streams += self.get_channel_streams(
+                        video_input_info, video_input["id"], stream_list
+                    )
 
         self.events_info = events
         self.streams_info = streams
@@ -396,9 +442,14 @@ class ISAPI:
         """Send request"""
 
         full_url = f"{self.isapi.host}/{self.isapi.isapi_prefix}/{url}"
-        return await self.isapi.common_request(
-            method, full_url, "dict", self.isapi.timeout, **data
-        )
+        try:
+            return await self.isapi.common_request(
+                method, full_url, "dict", self.isapi.timeout, **data
+            )
+        except HTTPStatusError as ex:
+            raise HomeAssistantError(
+                f"Unable to perform requested action. Error is {ex}"
+            )
 
     def handle_exception(self, ex: Exception, details: str = "") -> bool:
         """Common exception handler, returns False if exception remains unhandled"""
