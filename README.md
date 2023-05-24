@@ -4,6 +4,7 @@
 The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and switches detection of alarm events.
 
 ## Features
+- Camera entities for main and sub streams
 - Real-time Acusense events notifications through binary sensors
 - Switches for Acusense events detection
 - Holiday mode switch (allows to switch continuous recording with appropriate NVR setup)
@@ -45,6 +46,7 @@ The scope supported features depends on device model, setup and firmware version
 - User Management - create user with permissions:
     - Remote: Parameters Settings
     - Remote: Log Search / Interrogate Working Status
+    - Remote: Live View
 - Events
     - Notify Surveillance Center
     - Regions if needed
@@ -72,6 +74,8 @@ Download logs from `Settings / System / Logs`
 - DS-7616NXI-I2/16P/S
 - DS-7608NXI-I2/8P/S
 - DS-7608NI-I2/8P
+#### DVR
+- iDS-7204HUHI-M1/P
 #### IP Camera
 - DS-2DE4425IW-DE (PTZ)
 - DS-2CD2T87G2P-LSU/SL
