@@ -298,8 +298,14 @@ class ISAPI:
         for alt_id, event_id in EVENTS_ALTERNATE_ID.items():
             supported_events = supported_events.replace(alt_id, event_id)
 
+        # Add generic other event types that are supported but not reported as supported
+
         # videoloss is not listed but I assume any NVR supports it
         supported_events += ",videoloss"
+
+        # analog cameras support video tampering
+        if camera_type == DEVICE_TYPE_ANALOG_CAMERA:
+            supported_events += ", tamperdetection"
 
         for event_id in EVENTS:
             if event_id in supported_events:
@@ -453,6 +459,10 @@ class ISAPI:
         self, event: EventInfo, channel_id: int
     ) -> list[MutexIssue]:
         mutex_issues = []
+
+        if not EVENTS[event.id].get("mutex"):
+            return mutex_issues
+
         # Use alt event ID for mutex due to crap API!
         event_id = event.id
         if MUTEX_ALTERNATE_IDS.get(event.id):
