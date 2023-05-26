@@ -21,6 +21,7 @@ ALARM_SERVER_SENSOR_LABEL_FORMAT = "Alarm Server {}"
 
 DEVICE_TYPE_NVR = ["NVR", "DVR"]
 DEVICE_TYPE_IP_CAMERA = "IPCamera"
+DEVICE_TYPE_ANALOG_CAMERA = "AnalogCamera"
 
 EVENT_BASIC: Final = "basic"
 EVENT_SMART: Final = "smart"
@@ -75,7 +76,13 @@ EVENTS = {
     },
 }
 
-EVENTS_ALTERNATE_ID = {"vmd": "motiondetection", "shelteralarm": "tamperdetection"}
+EVENTS_ALTERNATE_ID = {
+    "vmd": "motiondetection",
+    "shelteralarm": "tamperdetection",
+    "VMDHumanVehicle": "motiondetection",
+}
+
+MUTEX_ALTERNATE_IDS = {"motiondetection": "VMDHumanVehicle"}
 
 STREAM_TYPE = {
     1: "Main Stream",

@@ -34,13 +34,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         await isapi.get_hardware_info()
 
-        if isapi.is_nvr:
-            nvr_device_info = isapi.device_info
+        if isapi.device_info.nvr:
+            nvr_device_info = isapi.get_device_info()
             device_registry = dr.async_get(hass)
             device_registry.async_get_or_create(
                 config_entry_id=entry.entry_id, **nvr_device_info
             )
-            await isapi.get_nvr_capabilities()
+            # await isapi.get_nvr_capabilities()
         else:
             await isapi.get_ip_camera_capabilities()
     except Exception as ex:  # pylint: disable=broad-except
@@ -49,10 +49,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     coordinators = {}
     coordinators[EVENTS_COORDINATOR] = EventsCoordinator(hass, isapi)
-    if isapi.holidays_support or isapi.alarm_server_support:
+    if isapi.device_info.support_holiday_mode or isapi.device_info.support_alarm_server:
         coordinators[SECONDARY_COORDINATOR] = SecondaryCoordinator(hass, isapi)
 
-    if entry.data[DATA_SET_ALARM_SERVER] and isapi.alarm_server_support:
+    if entry.data[DATA_SET_ALARM_SERVER] and isapi.device_info.support_alarm_server:
         await isapi.set_alarm_server(
             entry.data[DATA_ALARM_SERVER_HOST], ALARM_SERVER_PATH
         )

@@ -33,10 +33,13 @@ async def async_setup_entry(
     secondary_coordinator = config.get(SECONDARY_COORDINATOR)
 
     entities = []
-    for event in events_coordinator.isapi.events_info:
-        entities.append(EventSwitch(event, events_coordinator))
+    for camera in events_coordinator.isapi.cameras:
+        for event in camera.supported_events:
+            entities.append(EventSwitch(camera, event, events_coordinator))
+    # for event in events_coordinator.isapi.events_info:
+    #    entities.append(EventSwitch(event, events_coordinator))
 
-    if secondary_coordinator.isapi.holidays_support:
+    if secondary_coordinator.isapi.device_info.support_holiday_mode:
         entities.append(HolidaySwitch(secondary_coordinator))
 
     async_add_entities(entities)
@@ -48,12 +51,13 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
     _attr_has_entity_name = True
     _attr_icon = "mdi:eye-outline"
 
-    def __init__(self, event: EventInfo, coordinator) -> None:
+    def __init__(self, camera, event: EventInfo, coordinator) -> None:
         super().__init__(coordinator)
         self.entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
         self._attr_unique_id = self.entity_id
-        self._attr_device_info = event.device_info
+        self._attr_device_info = coordinator.isapi.get_device_info(camera.id)
         self._attr_name = EVENT_SWITCH_LABEL_FORMAT.format(EVENTS[event.id]["label"])
+        self.camera = camera
         self.event = event
 
     @property
@@ -61,11 +65,15 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
         return self.coordinator.data.get(self.entity_id)
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        await self.coordinator.isapi.set_event_enabled_state(self.event, True)
+        await self.coordinator.isapi.set_event_enabled_state(
+            self.camera.id, self.event, True
+        )
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
-        await self.coordinator.isapi.set_event_enabled_state(self.event, False)
+        await self.coordinator.isapi.set_event_enabled_state(
+            self.camera.id, self.event, False
+        )
         await self.coordinator.async_request_refresh()
 
 
@@ -78,10 +86,10 @@ class HolidaySwitch(CoordinatorEntity, SwitchEntity):
     def __init__(self, coordinator) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = (
-            f"{slugify(coordinator.isapi.serial_no.lower())}_{HOLIDAY_MODE}"
+            f"{slugify(coordinator.isapi.device_info.serial.lower())}_{HOLIDAY_MODE}"
         )
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
-        self._attr_device_info = coordinator.isapi.device_info
+        self._attr_device_info = coordinator.isapi.get_device_info()
         self._attr_name = HOLIDAY_MODE_SWITCH_LABEL
 
     @property
