@@ -65,16 +65,24 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
         return self.coordinator.data.get(self.entity_id)
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        await self.coordinator.isapi.set_event_enabled_state(
-            self.camera.id, self.event, True
-        )
-        await self.coordinator.async_request_refresh()
+        try:
+            await self.coordinator.isapi.set_event_enabled_state(
+                self.camera.id, self.event, True
+            )
+        except Exception as ex:
+            raise ex
+        finally:
+            await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
-        await self.coordinator.isapi.set_event_enabled_state(
-            self.camera.id, self.event, False
-        )
-        await self.coordinator.async_request_refresh()
+        try:
+            await self.coordinator.isapi.set_event_enabled_state(
+                self.camera.id, self.event, False
+            )
+        except Exception as ex:
+            raise ex
+        finally:
+            await self.coordinator.async_request_refresh()
 
 
 class HolidaySwitch(CoordinatorEntity, SwitchEntity):
