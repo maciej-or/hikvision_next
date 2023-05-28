@@ -72,6 +72,7 @@ Download logs from `Settings / System / Logs`
 #### NVR
 - DS-7716NI-I4/16P
 - DS-7616NXI-I2/16P/S
+- DS-7616NI-E2/16P
 - DS-7608NXI-I2/8P/S
 - DS-7608NI-I2/8P
 #### DVR
@@ -79,6 +80,7 @@ Download logs from `Settings / System / Logs`
 #### IP Camera
 - DS-2DE4425IW-DE (PTZ)
 - DS-2CD2T87G2P-LSU/SL
+- DS-2CD2785G1-IZS
 - DS-2CD2546G2-IS
 - DS-2CD2425FWD-IW
 - DS-2CD2387G2-LU
