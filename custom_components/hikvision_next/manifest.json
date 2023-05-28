@@ -14,5 +14,5 @@
     "hikvisionapi==0.3.2",
     "requests-toolbelt==0.10.1"
   ],
-  "version": "1.0.4"
+  "version": "1.0.5"
 }
