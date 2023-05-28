@@ -159,6 +159,7 @@ class ISAPI:
                 if stream_type > 1:
                     stream_name += f" {STREAM_TYPE[stream_type]}"
                 if channel["id"] == str(stream_id):
+                    audio_node = channel.get("Audio")
                     streams.append(
                         StreamInfo(
                             id=stream_id,
@@ -167,7 +168,7 @@ class ISAPI:
                             device_info=device_info,
                             width=int(channel["Video"]["videoResolutionWidth"]),
                             height=int(channel["Video"]["videoResolutionHeight"]),
-                            audio=str_to_bool(channel["Audio"]["enabled"]),
+                            audio=str_to_bool(audio_node.get("enabled")) if audio_node else False,
                         )
                     )
         return streams
@@ -557,7 +558,8 @@ def get_event_url(event_id: str, channel_id: str, is_proxy: bool) -> str:
 
 def str_to_bool(value: str) -> bool:
     """Convert text to boolean."""
-    return value.lower() == "true"
+    if value:
+        return value.lower() == "true"
 
 
 def bool_to_str(value: bool) -> str:
