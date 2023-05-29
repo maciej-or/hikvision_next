@@ -10,7 +10,7 @@ from homeassistant.util import slugify
 
 from .const import DOMAIN, DATA_ISAPI
 
-from .isapi import BaseCamera, CameraStreamInfo, StreamInfo
+from .isapi import BaseCamera, CameraStreamInfo
 
 
 async def async_setup_entry(

@@ -3,19 +3,28 @@
 from __future__ import annotations
 
 from http import HTTPStatus
+import json
 import logging
+import xmltodict
 
 from aiohttp import web
 from requests_toolbelt.multipart import MultipartDecoder
 
 from homeassistant import core
 from homeassistant.components.http import HomeAssistantView
+from homeassistant.core import HomeAssistant
 from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN, STATE_ON
 from homeassistant.helpers import device_registry as dr
 from homeassistant.util import slugify
 
-from .const import ALARM_SERVER_PATH, DOMAIN
-from .isapi import ISAPI
+from .const import (
+    ALARM_SERVER_PATH,
+    DOMAIN,
+    EVENTS,
+    EVENTS_ALTERNATE_ID,
+    HIKVISION_EVENT,
+)
+from .isapi import AlertInfo
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,9 +50,9 @@ class EventNotificationsView(HomeAssistantView):
 
         try:
             _LOGGER.debug("--- Incoming event notification ---")
-            xml = await parse_event_request(request)
+            xml = await self.parse_event_request(request)
             _LOGGER.debug("alert info: %s", xml)
-            trigger_sensor(request.app["hass"], xml)
+            self.trigger_sensor(request.app["hass"], xml)
         except Exception as ex:  # pylint: disable=broad-except
             _LOGGER.warning("Cannot process incoming event %s", ex)
 
@@ -52,60 +61,129 @@ class EventNotificationsView(HomeAssistantView):
         )
         return response
 
-
-def trigger_sensor(hass: core.HomeAssistant, xml: str) -> None:
-    """Determine entity and set binary sensor state"""
-
-    alert = ISAPI.parse_event_notification(xml)
-
-    device_serial = alert.device_serial
-
-    if not device_serial and alert.mac:
-        # get device_serial by mac
+    def fire_hass_event(
+        self, hass: HomeAssistant, device_serial: str, alert: AlertInfo
+    ):
         device_registry = dr.async_get(hass)
-        hass_device = device_registry.async_get_device(
-            set(),
-            connections={(dr.CONNECTION_NETWORK_MAC, alert.mac)},
-        )
+        if alert.mac:
+            hass_device = device_registry.async_get_device(
+                identifiers={(DOMAIN, device_serial)},
+                connections=None,
+            )
+        else:
+            serial = f"{device_serial}-VI{alert.channel_id}"
+            hass_device = device_registry.async_get_device(
+                identifiers={(DOMAIN, serial)},
+                connections=None,
+            )
+
         if hass_device:
-            device_serial = list(hass_device.identifiers)[0][1]
+            device_name = hass_device.name
+        else:
+            device_name = "Unknown"
 
-    if not device_serial or alert.channel_id == 0:
-        raise ValueError("Cannot determine entity")
+        message = {
+            "channel_id": alert.channel_id,
+            "camera_name": device_name,
+            "event_id": alert.event_id,
+        }
 
-    device_serial = slugify(device_serial.lower())
-    entity_id = f"binary_sensor.{device_serial}_{alert.channel_id}_{alert.event_id}"
-    entity = hass.states.get(entity_id)
-    if entity:
-        hass.states.async_set(entity_id, STATE_ON, entity.attributes)
-    else:
-        raise ValueError(f"Entity not found {entity_id}")
+        hass.bus.fire(
+            HIKVISION_EVENT,
+            message,
+        )
 
+    def trigger_sensor(self, hass: HomeAssistant, xml: str) -> None:
+        """Determine entity and set binary sensor state"""
 
-async def parse_event_request(request: web.Request) -> str:
-    """Extract XML content from multipart request or from simple request"""
+        alert = self.parse_event_notification(xml)
+        _LOGGER.debug(alert)
+        device_serial = alert.device_serial
 
-    data = await request.read()
-    content_type_header = request.headers.get(CONTENT_TYPE)
+        if not device_serial and alert.mac:
+            # get device_serial by mac
+            device_registry = dr.async_get(hass)
+            hass_device = device_registry.async_get_device(
+                set(),
+                connections={(dr.CONNECTION_NETWORK_MAC, alert.mac)},
+            )
+            if hass_device:
+                device_serial = list(hass_device.identifiers)[0][1]
 
-    _LOGGER.debug("request headers: %s", request.headers)
-    xml = None
-    if content_type_header in CONTENT_TYPE_XML:
-        xml = data.decode("utf-8")
-    else:
-        # "multipart/form-data; boundary=boundary"
-        decoder = MultipartDecoder(data, content_type_header)
-        for part in decoder.parts:
-            headers = {}
-            for key, value in part.headers.items():
-                assert isinstance(key, bytes)
-                headers[key.decode("ascii")] = value.decode("ascii")
-            _LOGGER.debug("part headers: %s", headers)
-            if headers.get(CONTENT_TYPE) in CONTENT_TYPE_XML:
-                xml = part.text
-            if headers.get(CONTENT_TYPE) == CONTENT_TYPE_IMAGE:
-                _LOGGER.debug("image found")
+        if not device_serial or alert.channel_id == 0:
+            raise ValueError("Cannot determine entity")
 
-    if not xml:
-        raise ValueError(f"Unexpected event Content-Type {content_type_header}")
-    return xml
+        # device_serial = slugify(device_serial.lower())
+        entity_id = f"binary_sensor.{slugify(device_serial.lower())}_{alert.channel_id}_{alert.event_id}"
+        entity = hass.states.get(entity_id)
+        if entity:
+            hass.states.async_set(entity_id, STATE_ON, entity.attributes)
+            self.fire_hass_event(hass, device_serial, alert)
+        else:
+            raise ValueError(f"Entity not found {entity_id}")
+
+    async def parse_event_request(self, request: web.Request) -> str:
+        """Extract XML content from multipart request or from simple request"""
+
+        data = await request.read()
+
+        content_type_header = request.headers.get(CONTENT_TYPE)
+
+        _LOGGER.debug("request headers: %s", request.headers)
+        xml = None
+        if content_type_header in CONTENT_TYPE_XML:
+            xml = data.decode("utf-8")
+        else:
+            # "multipart/form-data; boundary=boundary"
+            decoder = MultipartDecoder(data, content_type_header)
+            for part in decoder.parts:
+                headers = {}
+                for key, value in part.headers.items():
+                    assert isinstance(key, bytes)
+                    headers[key.decode("ascii")] = value.decode("ascii")
+                _LOGGER.debug("part headers: %s", headers)
+                if headers.get(CONTENT_TYPE) in CONTENT_TYPE_XML:
+                    xml = part.text
+                if headers.get(CONTENT_TYPE) == CONTENT_TYPE_IMAGE:
+                    _LOGGER.debug("image found")
+
+        if not xml:
+            raise ValueError(f"Unexpected event Content-Type {content_type_header}")
+        return xml
+
+    def parse_event_notification(self, xml: str) -> AlertInfo:
+        """Parse incoming EventNotificationAlert XML message."""
+
+        # Fix for some cameras sending non html encoded data
+        xml = xml.replace("&", "&amp;")
+
+        data = xmltodict.parse(xml)
+        alert = data["EventNotificationAlert"]
+
+        channel_id = int(alert.get("channelID", alert.get("dynChannelID", "0")))
+        if channel_id > 32:
+            # workaround for wrong channelId provided by NVR
+            # model: DS-7608NXI-I2/8P/S, Firmware: V4.61.067 or V4.62.200
+            channel_id = channel_id - 32
+
+        event_id = alert.get("eventType")
+        if not event_id or event_id == "duration":
+            # <EventNotificationAlert version="2.0"
+            event_id = alert["DurationList"]["Duration"]["relationEvent"]
+        event_id = event_id.lower()
+        # handle alternate event type
+        if EVENTS_ALTERNATE_ID.get(event_id):
+            event_id = EVENTS_ALTERNATE_ID[event_id]
+
+        device_serial = None
+        if alert.get("Extensions"):
+            # <EventNotificationAlert version="1.0"
+            device_serial = alert["Extensions"]["serialNumber"]["#text"]
+
+        # <EventNotificationAlert version="2.0"
+        mac = alert.get("macAddress")
+
+        if not EVENTS[event_id]:
+            raise ValueError(f"Unsupported event {event_id}")
+
+        return AlertInfo(channel_id, event_id, device_serial, mac)

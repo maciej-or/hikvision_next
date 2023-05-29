@@ -22,6 +22,7 @@ ALARM_SERVER_SENSOR_LABEL_FORMAT = "Alarm Server {}"
 DEVICE_TYPE_IP_CAMERA = "IPCamera"
 DEVICE_TYPE_ANALOG_CAMERA = "AnalogCamera"
 
+HIKVISION_EVENT = f"{DOMAIN}_event"
 EVENT_BASIC: Final = "basic"
 EVENT_SMART: Final = "smart"
 EVENTS = {
