@@ -77,6 +77,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
 
     # Only initialise view once if multiple instances of integration
+    # TODO: Is this needed to check for unique instance?
     if get_first_instance_unique_id(hass) == entry.unique_id:
         hass.http.register_view(EventNotificationsView)
 
