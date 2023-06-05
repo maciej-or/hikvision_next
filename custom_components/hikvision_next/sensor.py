@@ -1,6 +1,7 @@
 """Platform for sensor integration."""
 
 from __future__ import annotations
+from .isapi import HDDInfo
 
 from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorEntity
 from homeassistant.config_entries import ConfigEntry
@@ -13,6 +14,7 @@ from .const import (
     ALARM_SERVER_SENSOR_LABEL_FORMAT,
     DATA_ALARM_SERVER_HOST,
     DOMAIN,
+    EVENTS_COORDINATOR,
     SECONDARY_COORDINATOR,
 )
 
@@ -37,6 +39,11 @@ async def async_setup_entry(
         for key in ALARM_SERVER_SETTINGS:
             entities.append(AlarmServerSensor(coordinator, key))
 
+    events_coordinator = config.get(EVENTS_COORDINATOR)
+    if events_coordinator:
+        for hdd in list(events_coordinator.isapi.device_info.storage):
+            entities.append(HDDSensor(coordinator, hdd))
+
     async_add_entities(entities, True)
 
 
@@ -51,7 +58,7 @@ class AlarmServerSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         isapi = coordinator.isapi
         self._attr_unique_id = (
-            f"{isapi.device_info.serial}_{DATA_ALARM_SERVER_HOST}_{key}"
+            f"{isapi.device_info.serial_no}_{DATA_ALARM_SERVER_HOST}_{key}"
         )
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
         self._attr_device_info = isapi.get_device_info()
@@ -64,3 +71,33 @@ class AlarmServerSensor(CoordinatorEntity, SensorEntity):
     def native_value(self) -> str | None:
         host = self.coordinator.data.get(DATA_ALARM_SERVER_HOST)
         return host.get(self.key) if host else None
+
+
+class HDDSensor(CoordinatorEntity, SensorEntity):
+    """HDD Status Sensor"""
+
+    _attr_has_entity_name = True
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_icon = "mdi:harddisk"
+
+    def __init__(self, coordinator, hdd: HDDInfo) -> None:
+        super().__init__(coordinator)
+        isapi = coordinator.isapi
+        self._attr_unique_id = f"{isapi.device_info.serial_no}_{hdd.id}_{hdd.name}"
+        self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
+        self._attr_device_info = isapi.get_device_info()
+        self._attr_name = f"HDD {hdd.id}"
+        self.hdd = hdd
+
+    @property
+    def native_value(self) -> str | None:
+        hdd = self.coordinator.isapi.device_info.storage[self.hdd.id - 1]
+        return str(hdd.status).upper() if hdd else None
+
+    @property
+    def extra_state_attributes(self):
+        attrs = {}
+        attrs["type"] = self.hdd.type
+        attrs["capacity"] = self.hdd.capacity
+        attrs["freespace"] = self.hdd.freespace
+        return attrs
