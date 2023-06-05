@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DATA_ISAPI, DOMAIN, EVENTS
-from .isapi import BaseCamera, EventInfo
+from .isapi import AnalogCamera, EventInfo, IPCamera
 
 
 async def async_setup_entry(
@@ -33,7 +33,9 @@ class EventBinarySensor(BinarySensorEntity):
     _attr_has_entity_name = True
     _attr_is_on = False
 
-    def __init__(self, isapi, camera: BaseCamera, event: EventInfo) -> None:
+    def __init__(
+        self, isapi, camera: AnalogCamera | IPCamera, event: EventInfo
+    ) -> None:
         self.entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
         self._attr_unique_id = self.entity_id
         self._attr_name = EVENTS[event.id]["label"]
