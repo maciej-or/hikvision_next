@@ -2,18 +2,17 @@
 
 from __future__ import annotations
 
-from http import HTTPStatus
-import json
+import html
 import logging
 import xmltodict
 
+from http import HTTPStatus
 from aiohttp import web
 from requests_toolbelt.multipart import MultipartDecoder
 
-from homeassistant import core
 from homeassistant.components.http import HomeAssistantView
-from homeassistant.core import HomeAssistant
 from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN, STATE_ON
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.util import slugify
 
@@ -61,67 +60,6 @@ class EventNotificationsView(HomeAssistantView):
         )
         return response
 
-    def fire_hass_event(
-        self, hass: HomeAssistant, device_serial: str, alert: AlertInfo
-    ):
-        device_registry = dr.async_get(hass)
-        if alert.mac:
-            hass_device = device_registry.async_get_device(
-                identifiers={(DOMAIN, device_serial)},
-                connections=None,
-            )
-        else:
-            serial = f"{device_serial}-VI{alert.channel_id}"
-            hass_device = device_registry.async_get_device(
-                identifiers={(DOMAIN, serial)},
-                connections=None,
-            )
-
-        if hass_device:
-            device_name = hass_device.name
-        else:
-            device_name = "Unknown"
-
-        message = {
-            "channel_id": alert.channel_id,
-            "camera_name": device_name,
-            "event_id": alert.event_id,
-        }
-
-        hass.bus.fire(
-            HIKVISION_EVENT,
-            message,
-        )
-
-    def trigger_sensor(self, hass: HomeAssistant, xml: str) -> None:
-        """Determine entity and set binary sensor state"""
-
-        alert = self.parse_event_notification(xml)
-        _LOGGER.debug(alert)
-        device_serial = alert.device_serial
-
-        if not device_serial and alert.mac:
-            # get device_serial by mac
-            device_registry = dr.async_get(hass)
-            hass_device = device_registry.async_get_device(
-                set(),
-                connections={(dr.CONNECTION_NETWORK_MAC, alert.mac)},
-            )
-            if hass_device:
-                device_serial = list(hass_device.identifiers)[0][1]
-
-        if not device_serial or alert.channel_id == 0:
-            raise ValueError("Cannot determine entity")
-
-        # device_serial = slugify(device_serial.lower())
-        entity_id = f"binary_sensor.{slugify(device_serial.lower())}_{alert.channel_id}_{alert.event_id}"
-        entity = hass.states.get(entity_id)
-        if entity:
-            hass.states.async_set(entity_id, STATE_ON, entity.attributes)
-            self.fire_hass_event(hass, device_serial, alert)
-        else:
-            raise ValueError(f"Entity not found {entity_id}")
-
     async def parse_event_request(self, request: web.Request) -> str:
         """Extract XML content from multipart request or from simple request"""
 
@@ -155,9 +93,8 @@ class EventNotificationsView(HomeAssistantView):
         """Parse incoming EventNotificationAlert XML message."""
 
         # Fix for some cameras sending non html encoded data
-        xml = xml.replace("&", "&amp;")
+        data = xmltodict.parse(html.escape(xml))
 
-        data = xmltodict.parse(xml)
         alert = data["EventNotificationAlert"]
 
         channel_id = int(alert.get("channelID", alert.get("dynChannelID", "0")))
@@ -187,3 +124,61 @@ class EventNotificationsView(HomeAssistantView):
             raise ValueError(f"Unsupported event {event_id}")
 
         return AlertInfo(channel_id, event_id, device_serial, mac)
+
+    def trigger_sensor(self, hass: HomeAssistant, xml: str) -> None:
+        """Determine entity and set binary sensor state"""
+
+        alert = self.parse_event_notification(xml)
+        _LOGGER.debug(alert)
+        device_serial = alert.device_serial
+
+        if not device_serial and alert.mac:
+            # get device_serial by mac
+            device_registry = dr.async_get(hass)
+            hass_device = device_registry.async_get_device(
+                set(),
+                connections={(dr.CONNECTION_NETWORK_MAC, alert.mac)},
+            )
+            if hass_device:
+                device_serial = list(hass_device.identifiers)[0][1]
+
+        if not device_serial or alert.channel_id == 0:
+            raise ValueError("Cannot determine entity")
+
+        entity_id = f"binary_sensor.{slugify(device_serial.lower())}_{alert.channel_id}_{alert.event_id}"
+        entity = hass.states.get(entity_id)
+        if entity:
+            hass.states.async_set(entity_id, STATE_ON, entity.attributes)
+            self.fire_hass_event(hass, device_serial, alert)
+        else:
+            raise ValueError(f"Entity not found {entity_id}")
+
+    def fire_hass_event(
+        self, hass: HomeAssistant, device_serial: str, alert: AlertInfo
+    ):
+        device_registry = dr.async_get(hass)
+        if not alert.mac:
+            # Must be analog camera
+            device_serial = f"{device_serial}-VI{alert.channel_id}"
+
+        device_serial = f"{device_serial}-VI{alert.channel_id}"
+        hass_device = device_registry.async_get_device(
+            identifiers={(DOMAIN, device_serial)},
+            connections=None,
+        )
+
+        if hass_device:
+            device_name = hass_device.name
+        else:
+            device_name = "Unknown"
+
+        message = {
+            "channel_id": alert.channel_id,
+            "camera_name": device_name,
+            "event_id": alert.event_id,
+        }
+
+        hass.bus.fire(
+            HIKVISION_EVENT,
+            message,
+        )
