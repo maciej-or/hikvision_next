@@ -10,7 +10,7 @@ from homeassistant.util import slugify
 
 from .const import DOMAIN, DATA_ISAPI
 
-from .isapi import BaseCamera, CameraStreamInfo
+from .isapi import ISAPI, AnalogCamera, CameraStreamInfo, IPCamera
 
 
 async def async_setup_entry(
@@ -19,7 +19,7 @@ async def async_setup_entry(
     """Set up a Hikvision IP Camera."""
 
     config = hass.data[DOMAIN][entry.entry_id]
-    isapi = config[DATA_ISAPI]
+    isapi: ISAPI = config[DATA_ISAPI]
 
     entities = []
     for camera in isapi.cameras:
@@ -35,7 +35,10 @@ class HikvisionCamera(Camera):
     _attr_supported_features: CameraEntityFeature = CameraEntityFeature.STREAM
 
     def __init__(
-        self, isapi, camera: BaseCamera, stream_info: CameraStreamInfo
+        self,
+        isapi: ISAPI,
+        camera: AnalogCamera | IPCamera,
+        stream_info: CameraStreamInfo,
     ) -> None:
         """Initialize Hikvision camera stream."""
         Camera.__init__(self)
@@ -43,7 +46,7 @@ class HikvisionCamera(Camera):
         self._attr_device_info = isapi.get_device_info(camera.id)
         self._attr_name = camera.name if stream_info.type_id == 1 else stream_info.type
         self._attr_unique_id = slugify(
-            f"{isapi.device_info.serial.lower()}_{stream_info.id}"
+            f"{isapi.device_info.serial_no.lower()}_{stream_info.id}"
         )
         self.entity_id = f"camera.{self.unique_id}"
         self.isapi = isapi
