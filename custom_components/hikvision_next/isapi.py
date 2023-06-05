@@ -13,7 +13,6 @@ from urllib.parse import urlparse
 
 from hikvisionapi import AsyncClient
 from httpx import HTTPStatusError, TimeoutException
-from requests import HTTPError
 import xmltodict
 
 from homeassistant.exceptions import (
@@ -47,21 +46,25 @@ POST = "post"
 
 @dataclass
 class AlertInfo:
+    """Holds NVR/Camera event notification info"""
+
     channel_id: int
     event_id: str
-    device_serial: str
+    device_serial_no: str
     mac: str = ""
 
 
 @dataclass
 class MutexIssue:
+    """Holds mutually exclusive event checking info"""
+
     event_id: str
     channels: list = field(default_factory=list)
 
 
 @dataclass
 class EventInfo:
-    """Event info of particular device"""
+    """Holds event info of particular device"""
 
     id: str
     unique_id: str
@@ -70,6 +73,8 @@ class EventInfo:
 
 @dataclass
 class CameraStreamInfo:
+    """Holds info of a camera stream"""
+
     id: int
     name: str
     type_id: int
@@ -82,16 +87,29 @@ class CameraStreamInfo:
 
 
 @dataclass
+class HDDInfo:
+    id: int
+    name: str
+    type: str
+    status: str
+    capacity: int
+    freespace: int
+    property: str
+
+
+@dataclass
 class HIKDeviceInfo:
+    """Holds info of an NVR/DVR or single IP Camera"""
+
     name: str
     manufacturer: str
     model: str
-    serial: str
+    serial_no: str
     firmware: str
     mac_address: str
     ip_address: str
     device_type: str
-    nvr: bool = False
+    is_nvr: bool = False
     support_analog_cameras: int = 0
     support_digital_cameras: int = 0
     support_holiday_mode: bool = False
@@ -99,26 +117,26 @@ class HIKDeviceInfo:
     support_channel_zero: bool = False
     input_ports: int = 0
     output_ports: int = 0
+    storage: list[HDDInfo] = field(default_factory=list)
 
 
 @dataclass
-class BaseCamera:
+class AnalogCamera:
+    """Base class for IP(digital) and Analog cameras"""
+
     id: int
     name: str
     model: str
-    serial: str
+    serial_no: str
     input_port: int
     streams: list[CameraStreamInfo] = field(default_factory=list)
     supported_events: list[EventInfo] = field(default_factory=list)
 
 
 @dataclass
-class AnalogCamera(BaseCamera):
-    pass
+class IPCamera(AnalogCamera):
+    """IP/Digital camera info"""
 
-
-@dataclass
-class IPCamera(BaseCamera):
     firmware: str = ""
     ip_addr: str = ""
     ip_port: int = 0
@@ -149,7 +167,7 @@ class ISAPI:
             name=hw_info.get("deviceName"),
             manufacturer=str(hw_info.get("manufacturer", "Hikvision")).title(),
             model=hw_info.get("model"),
-            serial=hw_info.get("serialNumber"),
+            serial_no=hw_info.get("serialNumber"),
             firmware=hw_info.get("firmwareVersion"),
             mac_address=hw_info.get("macAddress"),
             ip_address=urlparse(self.host).hostname,
@@ -179,27 +197,58 @@ class ISAPI:
                 .get("IOCap", {})
                 .get("IOOutputPortNums", 0)
             ),
+            storage=await self.get_storage_devices(),
         )
 
-        # Set if NVR
+        # Set if NVR based on whether more than 1 supported IP or analog cameras
+        # Single IP camera will show 0 supported devices in total
         if (
             self.device_info.support_analog_cameras
             + self.device_info.support_digital_cameras
             > 1
         ):
-            self.device_info.nvr = True
+            self.device_info.is_nvr = True
 
         await self.get_cameras()
 
+    async def get_storage_devices(self):
+        storage_list = []
+        storage_info = (
+            (await self.isapi.ContentMgmt.Storage(method=GET))
+            .get("storage", {})
+            .get("hddList", {})
+        )
+
+        if not isinstance(storage_info, list):
+            storage_info = [storage_info]
+
+        _LOGGER.debug("%s/ISAPI/ContentMgmt/Storage %s", self.isapi.host, storage_info)
+
+        for storage in storage_info:
+            storage = storage.get("hdd")
+            storage_list.append(
+                HDDInfo(
+                    id=int(storage.get("id")),
+                    name=storage.get("hddName"),
+                    type=storage.get("hddType"),
+                    status=storage.get("status"),
+                    capacity=int(storage.get("capacity")),
+                    freespace=int(storage.get("freeSpace")),
+                    property=storage.get("property"),
+                )
+            )
+
+        return storage_list
+
     async def get_cameras(self):
         # Get digital cameras
-        if not self.device_info.nvr:
+        if not self.device_info.is_nvr:
             self.cameras.append(
                 IPCamera(
                     id=1,
                     name=self.device_info.name,
                     model=self.device_info.model,
-                    serial=self.device_info.serial,
+                    serial_no=self.device_info.serial_no,
                     firmware=self.device_info.firmware,
                     input_port=1,
                     ip_addr=self.device_info.ip_address,
@@ -235,7 +284,7 @@ class ISAPI:
                             model=digital_camera.get(
                                 "sourceInputPortDescriptor", {}
                             ).get("model"),
-                            serial=digital_camera.get(
+                            serial_no=digital_camera.get(
                                 "sourceInputPortDescriptor", {}
                             ).get("serialNumber"),
                             firmware=digital_camera.get(
@@ -274,14 +323,14 @@ class ISAPI:
 
                 for analog_camera in analog_cameras:
                     camera_id = analog_camera.get("id")
-                    device_serial = f"{self.device_info.serial}-VI{camera_id}"
+                    device_serial_no = f"{self.device_info.serial_no}-VI{camera_id}"
 
                     self.cameras.append(
                         AnalogCamera(
                             id=int(camera_id),
                             name=analog_camera.get("name"),
                             model=analog_camera.get("resDesc"),
-                            serial=device_serial,
+                            serial_no=device_serial_no,
                             input_port=analog_camera.get("inputPort"),
                             streams=await self.get_camera_streams(camera_id),
                             supported_events=await self.get_camera_event_capabilities(
@@ -296,7 +345,7 @@ class ISAPI:
         self, channel_id: int, camera_type: str
     ) -> list[EventInfo]:
         events = []
-        if self.device_info.nvr:
+        if self.device_info.is_nvr:
             supported_events = await self.isapi.Event.channels[channel_id].capabilities(
                 method=GET
             )
@@ -325,9 +374,9 @@ class ISAPI:
             if event_id in list(set(supported_events)):
                 event_info = EventInfo(
                     id=event_id,
-                    unique_id=f"{slugify(self.device_info.serial.lower())}_{channel_id}_{event_id}",
+                    unique_id=f"{slugify(self.device_info.serial_no.lower())}_{channel_id}_{event_id}",
                     url=self.get_event_url(
-                        event_id, channel_id, self.device_info.nvr, camera_type
+                        event_id, channel_id, self.device_info.is_nvr, camera_type
                     ),
                 )
                 events.append(event_info)
@@ -359,6 +408,7 @@ class ISAPI:
         return url
 
     async def get_camera_streams(self, channel_id: int) -> list[CameraStreamInfo]:
+        # TODO - Improve efficiency of this by reading once and adding to each camera
         streams = []
         for id, stream_type in STREAM_TYPE.items():
             try:
@@ -402,7 +452,7 @@ class ISAPI:
         if device_id == 0:
             return DeviceInfo(
                 manufacturer=self.device_info.manufacturer,
-                identifiers={(DOMAIN, self.device_info.serial)},
+                identifiers={(DOMAIN, self.device_info.serial_no)},
                 connections={(dr.CONNECTION_NETWORK_MAC, self.device_info.mac_address)},
                 model=self.device_info.model,
                 name=self.device_info.name,
@@ -414,54 +464,14 @@ class ISAPI:
 
             return DeviceInfo(
                 manufacturer=self.device_info.manufacturer,
-                identifiers={(DOMAIN, camera_info.serial)},
+                identifiers={(DOMAIN, camera_info.serial_no)},
                 model=camera_info.model,
                 name=camera_info.name,
                 sw_version=self.device_info.firmware if is_ip_camera else "Unknown",
-                via_device=(DOMAIN, self.device_info.serial)
-                if self.device_info.nvr
+                via_device=(DOMAIN, self.device_info.serial_no)
+                if self.device_info.is_nvr
                 else None,
             )
-
-    async def get_ip_camera_capabilities(self) -> None:
-        """Get standalone IP camera capabilities."""
-        # TODO: Review this
-
-        self.events_info = await self._get_channel_events(self.device_info, "1")
-
-        stream_list = await self.isapi.Streaming.channels(method=GET)
-        _LOGGER.debug("%s/ISAPI/Streaming/channels %s", self.isapi.host, stream_list)
-        self.streams_info = self.get_channel_streams(self.device_info, "1", stream_list)
-
-        try:
-            await self.get_alarm_server()
-            self.alarm_server_support = True
-        except HTTPError as ex:
-            _LOGGER.debug(
-                "%s/ISAPI/Event/notification/httpHosts %s", self.isapi.host, ex
-            )
-
-    async def _get_camera_events_capabilities(self) -> list[str]:
-        """Get available camera events."""
-        # TODO: Review this
-
-        data = await self.isapi.Event.capabilities(method=GET)
-        _LOGGER.debug("%s/ISAPI/Event/capabilities %s", self.isapi.host, data)
-        basic_events = [
-            event_id.lower().replace("issupport", "")
-            for event_id, is_supported in data["EventCap"].items()
-            if str_to_bool(is_supported)
-        ]
-
-        data = await self.isapi.Smart.capabilities(method=GET)
-        _LOGGER.debug("%s/ISAPI/Smart/capabilities %s", self.isapi.host, data)
-        smart_events = [
-            event_id.lower().replace("issupport", "")
-            for event_id, is_supported in data["SmartCap"].items()
-            if str_to_bool(is_supported)
-        ]
-
-        return basic_events + smart_events
 
     async def get_event_enabled_state(self, event: EventInfo) -> bool:
         """Get event detection state."""
