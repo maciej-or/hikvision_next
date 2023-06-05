@@ -82,7 +82,7 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                     )
                     return self.async_abort(reason="reauth_successful")
 
-                await self.async_set_unique_id({(DOMAIN, isapi.device_info.serial)})
+                await self.async_set_unique_id({(DOMAIN, isapi.device_info.serial_no)})
                 self._abort_if_unique_id_configured()
 
             except HTTPStatusError as error:
