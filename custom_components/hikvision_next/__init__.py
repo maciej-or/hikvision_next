@@ -38,8 +38,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     isapi = ISAPI(host, username, password)
     try:
         await isapi.get_hardware_info()
-
-        # if isapi.device_info.nvr:
         device_info = isapi.get_device_info()
         device_registry = dr.async_get(hass)
         device_registry.async_get_or_create(
@@ -66,10 +64,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     for coordinator in coordinators.values():
         await coordinator.async_config_entry_first_refresh()
 
-    for platform in PLATFORMS:
-        hass.async_add_job(
-            hass.config_entries.async_forward_entry_setup(entry, platform)
-        )
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     if entry.data[DATA_SET_ALARM_SERVER] and isapi.device_info.support_alarm_server:
         await isapi.set_alarm_server(
