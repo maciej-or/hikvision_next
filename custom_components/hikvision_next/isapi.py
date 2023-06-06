@@ -72,6 +72,15 @@ class EventInfo:
 
 
 @dataclass
+class SupportedEventsInfo:
+    """Holds event info for video channel"""
+
+    channel_id: int
+    event_id: str
+    notifications: list[str] = field(default_factory=list)
+
+
+@dataclass
 class CameraStreamInfo:
     """Holds info of a camera stream"""
 
@@ -149,6 +158,7 @@ class ISAPI:
         self.isapi = AsyncClient(host, username, password, timeout=20)
         self.host = host
         self.device_info = None
+        self.supported_events: list[SupportedEventsInfo] = []
         self.cameras: list[IPCamera | AnalogCamera] = []
 
     async def get_hardware_info(self):
@@ -199,7 +209,7 @@ class ISAPI:
             ),
             storage=await self.get_storage_devices(),
         )
-
+        # storage=await self.get_storage_devices(),
         # Set if NVR based on whether more than 1 supported IP or analog cameras
         # Single IP camera will show 0 supported devices in total
         if (
@@ -226,21 +236,25 @@ class ISAPI:
 
         for storage in storage_info:
             storage = storage.get("hdd")
-            storage_list.append(
-                HDDInfo(
-                    id=int(storage.get("id")),
-                    name=storage.get("hddName"),
-                    type=storage.get("hddType"),
-                    status=storage.get("status"),
-                    capacity=int(storage.get("capacity")),
-                    freespace=int(storage.get("freeSpace")),
-                    property=storage.get("property"),
+            if storage:
+                storage_list.append(
+                    HDDInfo(
+                        id=int(storage.get("id")),
+                        name=storage.get("hddName"),
+                        type=storage.get("hddType"),
+                        status=storage.get("status"),
+                        capacity=int(storage.get("capacity")),
+                        freespace=int(storage.get("freeSpace")),
+                        property=storage.get("property"),
+                    )
                 )
-            )
 
         return storage_list
 
     async def get_cameras(self):
+        # Get all supported events to reduce isapi queries
+        supported_events = await self.get_supported_events_info()
+
         # Get digital cameras
         if not self.device_info.is_nvr:
             self.cameras.append(
@@ -254,7 +268,7 @@ class ISAPI:
                     ip_addr=self.device_info.ip_address,
                     streams=await self.get_camera_streams(1),
                     supported_events=await self.get_camera_event_capabilities(
-                        1, DEVICE_TYPE_IP_CAMERA
+                        supported_events, 1, DEVICE_TYPE_IP_CAMERA
                     ),
                 )
             )
@@ -301,7 +315,7 @@ class ISAPI:
                             ).get("managePortNo"),
                             streams=await self.get_camera_streams(camera_id),
                             supported_events=await self.get_camera_event_capabilities(
-                                camera_id, DEVICE_TYPE_IP_CAMERA
+                                supported_events, camera_id, DEVICE_TYPE_IP_CAMERA
                             ),
                         )
                     )
@@ -334,7 +348,7 @@ class ISAPI:
                             input_port=analog_camera.get("inputPort"),
                             streams=await self.get_camera_streams(camera_id),
                             supported_events=await self.get_camera_event_capabilities(
-                                camera_id, DEVICE_TYPE_ANALOG_CAMERA
+                                supported_events, camera_id, DEVICE_TYPE_ANALOG_CAMERA
                             ),
                         )
                     )
@@ -342,48 +356,82 @@ class ISAPI:
         _LOGGER.debug(self.cameras)
 
     async def get_camera_event_capabilities(
-        self, channel_id: int, camera_type: str
+        self,
+        supported_events: list[SupportedEventsInfo],
+        channel_id: int,
+        camera_type: str,
     ) -> list[EventInfo]:
         events = []
-        if self.device_info.is_nvr:
-            supported_events = await self.isapi.Event.channels[channel_id].capabilities(
-                method=GET
-            )
-            supported_events = supported_events["ChannelEventCap"]["eventType"][
-                "@opt"
-            ].lower()
-            for alt_id, event_id in EVENTS_ALTERNATE_ID.items():
-                supported_events = supported_events.replace(alt_id, event_id)
-            supported_events = supported_events.split(",")
 
-            # videoloss is not listed but I assume any NVR supports it
-            supported_events.append("videoloss")
+        camera_supported_events = [
+            s for s in supported_events if s.channel_id == int(channel_id)
+        ]
 
-            # analog cameras support video tampering
-            if camera_type == DEVICE_TYPE_ANALOG_CAMERA:
-                supported_events.append("tamperdetection")
-        else:
-            supported_events = await self.isapi.Event.capabilities(method=GET)
-            supported_events = [
-                event_id.lower().replace("issupport", "")
-                for event_id, is_supported in supported_events["EventCap"].items()
-                if str_to_bool(is_supported)
-            ]
-
-        for event_id in EVENTS:
-            if event_id in list(set(supported_events)):
+        for event in camera_supported_events:
+            if EVENTS.get(event.event_id):
                 event_info = EventInfo(
-                    id=event_id,
-                    unique_id=f"{slugify(self.device_info.serial_no.lower())}_{channel_id}_{event_id}",
+                    id=event.event_id,
+                    unique_id=f"{slugify(self.device_info.serial_no.lower())}_{channel_id}_{event.event_id}",
                     url=self.get_event_url(
-                        event_id, channel_id, self.device_info.is_nvr, camera_type
+                        event.event_id, channel_id, self.device_info.is_nvr, camera_type
                     ),
                 )
                 events.append(event_info)
         return events
 
-    async def get_camera_event_capabilities2(self):
-        pass
+    async def get_supported_events_info(self):
+        events = []
+        if self.device_info.is_nvr:
+            supported_events = (
+                (await self.isapi.Event.triggers(method=GET))
+                .get("EventTriggerList", {})
+                .get("EventTrigger")
+            )
+        else:
+            supported_events = (
+                (await self.isapi.Event.triggers(method=GET))
+                .get("EventNotification", {})
+                .get("EventTriggerList", {})
+                .get("EventTrigger")
+            )
+
+        _LOGGER.debug("%s/ISAPI/Event/triggers %s", self.isapi.host, supported_events)
+
+        for support_event in supported_events:
+            event_type = support_event.get("eventType")
+            channel = support_event.get("videoInputChannelID", "0")
+            notifications = support_event.get("EventTriggerNotificationList", {})
+
+            # Fix for empty EventTriggerNotificationList in IP camera
+            if not notifications:
+                continue
+
+            notifications = notifications.get("EventTriggerNotification", [])
+
+            if not isinstance(notifications, list):
+                notifications = [notifications]
+
+            # Translate to alternate IDs
+            if event_type.lower() in EVENTS_ALTERNATE_ID.keys():
+                event_type = EVENTS_ALTERNATE_ID[event_type.lower()]
+
+            _LOGGER.warning(f"Notifications: {notifications}")
+
+            events.append(
+                SupportedEventsInfo(
+                    channel_id=int(channel),
+                    event_id=event_type.lower(),
+                    notifications=[
+                        notify.get("notificationMethod") for notify in notifications
+                    ]
+                    if notifications
+                    else [],
+                )
+            )
+
+        _LOGGER.warning(f"Events: {events}")
+
+        return events
 
     def get_event_url(
         self, event_id: str, channel_id: int, is_nvr: bool, camera_type: str
