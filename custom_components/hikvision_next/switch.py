@@ -36,8 +36,6 @@ async def async_setup_entry(
     for camera in events_coordinator.isapi.cameras:
         for event in camera.supported_events:
             entities.append(EventSwitch(camera, event, events_coordinator))
-    # for event in events_coordinator.isapi.events_info:
-    #    entities.append(EventSwitch(event, events_coordinator))
 
     if secondary_coordinator.isapi.device_info.support_holiday_mode:
         entities.append(HolidaySwitch(secondary_coordinator))
