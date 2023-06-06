@@ -49,6 +49,10 @@ class EventsCoordinator(DataUpdateCoordinator):
                         self.isapi.handle_exception(
                             ex, f"Cannot fetch state for {event.id}"
                         )
+
+            # Refresh HDD data
+            self.isapi.device_info.storage = await self.isapi.get_storage_devices()
+
             return data
 
 
