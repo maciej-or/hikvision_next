@@ -25,7 +25,7 @@ from .notifications import EventNotificationsView
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = [Platform.SWITCH, Platform.BINARY_SENSOR, Platform.SENSOR, Platform.CAMERA]
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.CAMERA, Platform.SENSOR, Platform.SWITCH]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -38,6 +38,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     isapi = ISAPI(host, username, password)
     try:
         await isapi.get_hardware_info()
+        await isapi.get_cameras()
         device_info = isapi.get_device_info()
         device_registry = dr.async_get(hass)
         device_registry.async_get_or_create(

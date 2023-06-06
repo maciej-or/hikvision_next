@@ -220,38 +220,6 @@ class ISAPI:
         ):
             self.device_info.is_nvr = True
 
-        await self.get_cameras()
-
-    async def get_storage_devices(self):
-        storage_list = []
-        storage_info = (
-            (await self.isapi.ContentMgmt.Storage(method=GET))
-            .get("storage", {})
-            .get("hddList", {})
-        )
-
-        if not isinstance(storage_info, list):
-            storage_info = [storage_info]
-
-        _LOGGER.debug("%s/ISAPI/ContentMgmt/Storage %s", self.isapi.host, storage_info)
-
-        for storage in storage_info:
-            storage = storage.get("hdd")
-            if storage:
-                storage_list.append(
-                    HDDInfo(
-                        id=int(storage.get("id")),
-                        name=storage.get("hddName"),
-                        type=storage.get("hddType"),
-                        status=storage.get("status"),
-                        capacity=int(storage.get("capacity")),
-                        freespace=int(storage.get("freeSpace")),
-                        property=storage.get("property"),
-                    )
-                )
-
-        return storage_list
-
     async def get_cameras(self):
         # Get all supported events to reduce isapi queries
         supported_events = await self.get_supported_events_info()
@@ -497,6 +465,36 @@ class ISAPI:
         except IndexError:
             # Camera id does not exist
             return None
+
+    async def get_storage_devices(self):
+        storage_list = []
+        storage_info = (
+            (await self.isapi.ContentMgmt.Storage(method=GET))
+            .get("storage", {})
+            .get("hddList", {})
+        )
+
+        if not isinstance(storage_info, list):
+            storage_info = [storage_info]
+
+        _LOGGER.debug("%s/ISAPI/ContentMgmt/Storage %s", self.isapi.host, storage_info)
+
+        for storage in storage_info:
+            storage = storage.get("hdd")
+            if storage:
+                storage_list.append(
+                    HDDInfo(
+                        id=int(storage.get("id")),
+                        name=storage.get("hddName"),
+                        type=storage.get("hddType"),
+                        status=storage.get("status"),
+                        capacity=int(storage.get("capacity")),
+                        freespace=int(storage.get("freeSpace")),
+                        property=storage.get("property"),
+                    )
+                )
+
+        return storage_list
 
     def get_device_info(self, device_id: int = 0) -> DeviceInfo:
         """Return device registry information."""
