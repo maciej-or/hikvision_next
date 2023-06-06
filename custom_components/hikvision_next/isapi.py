@@ -209,7 +209,7 @@ class ISAPI:
             ),
             storage=await self.get_storage_devices(),
         )
-        # storage=await self.get_storage_devices(),
+
         # Set if NVR based on whether more than 1 supported IP or analog cameras
         # Single IP camera will show 0 supported devices in total
         if (
@@ -415,8 +415,6 @@ class ISAPI:
             if event_type.lower() in EVENTS_ALTERNATE_ID.keys():
                 event_type = EVENTS_ALTERNATE_ID[event_type.lower()]
 
-            _LOGGER.warning(f"Notifications: {notifications}")
-
             events.append(
                 SupportedEventsInfo(
                     channel_id=int(channel),
@@ -428,8 +426,6 @@ class ISAPI:
                     else [],
                 )
             )
-
-        _LOGGER.warning(f"Events: {events}")
 
         return events
 
