@@ -93,7 +93,9 @@ class EventNotificationsView(HomeAssistantView):
         """Parse incoming EventNotificationAlert XML message."""
 
         # Fix for some cameras sending non html encoded data
-        data = xmltodict.parse(html.escape(xml))
+        xml = xml.replace("&", "&amp;")
+
+        data = xmltodict.parse(xml)
 
         alert = data["EventNotificationAlert"]
 
@@ -130,7 +132,7 @@ class EventNotificationsView(HomeAssistantView):
 
         alert = self.parse_event_notification(xml)
         _LOGGER.debug(alert)
-        device_serial = alert.device_serial
+        device_serial = alert.device_serial_no
 
         if not device_serial and alert.mac:
             # get device_serial by mac
