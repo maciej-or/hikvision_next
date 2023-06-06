@@ -205,7 +205,7 @@ class ISAPI:
         if (
             self.device_info.support_analog_cameras
             + self.device_info.support_digital_cameras
-            > 1
+            > 0
         ):
             self.device_info.is_nvr = True
 
@@ -381,6 +381,9 @@ class ISAPI:
                 )
                 events.append(event_info)
         return events
+
+    async def get_camera_event_capabilities2(self):
+        pass
 
     def get_event_url(
         self, event_id: str, channel_id: int, is_nvr: bool, camera_type: str
