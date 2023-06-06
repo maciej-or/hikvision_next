@@ -73,7 +73,7 @@ class EventInfo:
 
 @dataclass
 class SupportedEventsInfo:
-    """Holds event info for video channel"""
+    """Holds supported event info for NVR/IP Camera"""
 
     channel_id: int
     event_id: str
@@ -97,6 +97,8 @@ class CameraStreamInfo:
 
 @dataclass
 class HDDInfo:
+    """Holds info for internal storage devices"""
+
     id: int
     name: str
     type: str
@@ -131,7 +133,7 @@ class HIKDeviceInfo:
 
 @dataclass
 class AnalogCamera:
-    """Base class for IP(digital) and Analog cameras"""
+    """Analog cameras info"""
 
     id: int
     name: str
@@ -158,7 +160,6 @@ class ISAPI:
         self.isapi = AsyncClient(host, username, password, timeout=20)
         self.host = host
         self.device_info = None
-        self.supported_events: list[SupportedEventsInfo] = []
         self.cameras: list[IPCamera | AnalogCamera] = []
 
     async def get_hardware_info(self):
@@ -215,7 +216,7 @@ class ISAPI:
         if (
             self.device_info.support_analog_cameras
             + self.device_info.support_digital_cameras
-            > 0
+            > 1
         ):
             self.device_info.is_nvr = True
 
@@ -255,8 +256,8 @@ class ISAPI:
         # Get all supported events to reduce isapi queries
         supported_events = await self.get_supported_events_info()
 
-        # Get digital cameras
         if not self.device_info.is_nvr:
+            # Get single IP camera
             self.cameras.append(
                 IPCamera(
                     id=1,
@@ -273,6 +274,7 @@ class ISAPI:
                 )
             )
         else:
+            # Get analog and digital cameras attached to NVR
             if self.device_info.support_digital_cameras > 0:
                 digital_cameras = (
                     (await self.isapi.ContentMgmt.InputProxy.channels(method=GET))
@@ -361,6 +363,7 @@ class ISAPI:
         channel_id: int,
         camera_type: str,
     ) -> list[EventInfo]:
+        """Get events support by camera device and integration"""
         events = []
 
         camera_supported_events = [
@@ -380,6 +383,7 @@ class ISAPI:
         return events
 
     async def get_supported_events_info(self):
+        """Get list of all supported events available"""
         events = []
         if self.device_info.is_nvr:
             supported_events = (
