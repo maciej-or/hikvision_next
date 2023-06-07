@@ -12,6 +12,12 @@
 
 3. Support for multiple installs by making notification a class and only loading if first instance.  Prevented multiple events being fired.
 
+4. Used different method to establish supported events and removed need for guess for videoloss and tamperdetection.
+
+5. Added diagnostics download option to help with debugging issues.  More endpoints can be added in future if needed.
+
+6. Added fix for non HIKVision cameras not supplying a serial number and generated one from proxyProtocol and IP address if that is the case - shoud be unique!
+
 ### Minor Changes
 
 1. Used unique id in config flow instead of looking for device - seemed an issue when removing and re-adding if Onvif installed
@@ -21,10 +27,6 @@
 5. Added ability to delete devices via UI
 6. Added return xml html encode check as some camera return invalid xml
 
-### Known Issues and To Do's
+### Issues That Should Be Resolved By This Update
 
-1. When installing, only shows single device.  If refresh page after install, shows all.  Need to look at building camera objects more efficiently.
-2. Found a better way to establish supported events from web admin page javascript.  Need to update code to use this instead.  Shows videoloss and tampering support instead of guessing.
-3. Add diagnostics download option from UI
-4. Code clean up - maybe some code/constants not now used that need cleaning up.
-5. Update documentation
+5, 19, 34, 38, 45, 51, 52 (probably), 54
