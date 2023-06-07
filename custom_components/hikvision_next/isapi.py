@@ -45,6 +45,16 @@ POST = "post"
 
 
 @dataclass
+class AlarmServer:
+    """Holds alarm server info"""
+
+    ipAddress: str
+    portNo: int
+    url: str
+    protocolType: str
+
+
+@dataclass
 class AlertInfo:
     """Holds NVR/Camera event notification info"""
 
@@ -626,7 +636,7 @@ class ISAPI:
         _LOGGER.debug("[PUT] %s/ISAPI/System/Holidays %s", self.isapi.host, response)
 
     def _get_event_notification_host(self, data: Node) -> Node:
-        hosts = data["HttpHostNotificationList"]["HttpHostNotification"]
+        hosts = data.get("HttpHostNotificationList", {}).get("HttpHostNotification", {})
         if isinstance(hosts, list):
             # <HttpHostNotificationList xmlns="http://www.hikvision.com/ver20/XMLSchema">
             return hosts[0]
@@ -637,8 +647,18 @@ class ISAPI:
         """Get event notifications listener server URL."""
 
         data = await self.isapi.Event.notification.httpHosts(method=GET)
+        _LOGGER.debug("%s/ISAPI/Event/notification/httpHosts %s", self.isapi.host, data)
+
         host = self._get_event_notification_host(data)
-        return host
+
+        alarm_server = AlarmServer(
+            ipAddress=host.get("ipAddress"),
+            portNo=int(host.get("portNo")),
+            url=host.get("url"),
+            protocolType=host.get("protocolType"),
+        )
+        _LOGGER.debug(f"Alarm Server: {alarm_server}")
+        return alarm_server
 
     async def set_alarm_server(self, base_url: str, path: str) -> None:
         """Set event notifications listener server."""

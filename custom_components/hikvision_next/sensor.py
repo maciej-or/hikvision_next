@@ -70,7 +70,7 @@ class AlarmServerSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self) -> str | None:
         host = self.coordinator.data.get(DATA_ALARM_SERVER_HOST)
-        return host.get(self.key) if host else None
+        return getattr(host, self.key) if host else None
 
 
 class HDDSensor(CoordinatorEntity, SensorEntity):
