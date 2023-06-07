@@ -717,9 +717,7 @@ class ISAPI:
                 method, full_url, present, self.isapi.timeout, **data
             )
         except HTTPStatusError as ex:
-            raise HomeAssistantError(
-                f"Unable to perform requested action. Error is {ex}"
-            )
+            raise ex
 
     def handle_exception(self, ex: Exception, details: str = "") -> bool:
         """Common exception handler, returns False if exception remains unhandled"""
@@ -727,22 +725,20 @@ class ISAPI:
         def is_reauth_needed():
             if isinstance(ex, HTTPStatusError):
                 status_code = ex.response.status_code
-                if status_code in (
-                    HTTPStatus.UNAUTHORIZED,
-                    HTTPStatus.FORBIDDEN,
-                    HTTPStatus.SERVICE_UNAVAILABLE,
-                ):
+                if status_code in (HTTPStatus.UNAUTHORIZED,):
                     return True
             return False
 
         host = self.isapi.host
         if is_reauth_needed():
-            raise ConfigEntryAuthFailed(
-                f"Credentials expired for {host} {details}"
-            ) from ex
+            # Re-establish session
+            self.isapi = AsyncClient(
+                self.isapi.host, self.isapi.login, self.isapi.password, timeout=20
+            )
+            return True
 
         elif isinstance(ex, (asyncio.TimeoutError, TimeoutException)):
-            raise ConfigEntryNotReady(
+            raise HomeAssistantError(
                 f"Timeout while connecting to {host} {details}"
             ) from ex
 

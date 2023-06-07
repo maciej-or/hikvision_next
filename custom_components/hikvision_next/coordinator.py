@@ -14,7 +14,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .const import DATA_ALARM_SERVER_HOST, DOMAIN, HOLIDAY_MODE
 from .isapi import ISAPI
 
-SCAN_INTERVAL_EVENTS = timedelta(seconds=300)
+SCAN_INTERVAL_EVENTS = timedelta(seconds=120)
 SCAN_INTERVAL_HOLIDAYS = timedelta(minutes=60)
 
 _LOGGER = logging.getLogger(__name__)
@@ -51,7 +51,10 @@ class EventsCoordinator(DataUpdateCoordinator):
                         )
 
             # Refresh HDD data
-            self.isapi.device_info.storage = await self.isapi.get_storage_devices()
+            try:
+                self.isapi.device_info.storage = await self.isapi.get_storage_devices()
+            except Exception as ex:  # pylint: disable=broad-except
+                self.isapi.handle_exception(ex, f"Cannot fetch state for HDD")
 
             return data
 

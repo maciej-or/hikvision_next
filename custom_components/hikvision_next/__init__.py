@@ -4,9 +4,14 @@ from __future__ import annotations
 import asyncio
 import logging
 
+from httpx import TimeoutException
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
+
+
 from homeassistant.helpers import device_registry as dr
 
 from .const import (
@@ -44,9 +49,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device_registry.async_get_or_create(
             config_entry_id=entry.entry_id, **device_info
         )
+    except (asyncio.TimeoutError, TimeoutException):
+        raise ConfigEntryNotReady(
+            f"Timeout while connecting to {host}. Cannot initialize {DOMAIN}"
+        )
     except Exception as ex:  # pylint: disable=broad-except
-        if not isapi.handle_exception(ex, f"Cannot initialize {DOMAIN}"):
-            raise ex
+        raise ConfigEntryNotReady(
+            f"Unkown error connecting to {host}. Cannot initialize {DOMAIN}"
+        )
 
     coordinators = {}
 
