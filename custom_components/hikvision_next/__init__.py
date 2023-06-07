@@ -73,7 +73,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     # Only initialise view once if multiple instances of integration
-    # TODO: Is this needed to check for unique instance?
     if get_first_instance_unique_id(hass) == entry.unique_id:
         hass.http.register_view(EventNotificationsView)
 
@@ -87,9 +86,6 @@ async def async_remove_config_entry_device(hass, config_entry, device_entry) -> 
             "You cannot delete the NVR device via the device delete method.  Please remove the integration instead."
         )
         return False
-
-    # TODO: Remove all device entities
-
     return True
 
 
@@ -97,8 +93,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
 
     config = hass.data[DOMAIN][entry.entry_id]
-
-    # Unregister view
 
     # Unload a config entry
     unload_ok = all(
