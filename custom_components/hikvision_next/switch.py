@@ -82,6 +82,12 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
         finally:
             await self.coordinator.async_request_refresh()
 
+    @property
+    def extra_state_attributes(self):
+        attrs = {}
+        attrs["notify_HA"] = True if "center" in self.event.notifiers else False
+        return attrs
+
 
 class HolidaySwitch(CoordinatorEntity, SwitchEntity):
     """Holidays mode switch."""

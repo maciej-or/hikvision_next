@@ -69,6 +69,7 @@ class EventInfo:
     id: str
     unique_id: str
     url: str
+    notifiers: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -346,6 +347,7 @@ class ISAPI:
                     url=self.get_event_url(
                         event.event_id, channel_id, self.device_info.is_nvr, camera_type
                     ),
+                    notifiers=event.notifications,
                 )
                 events.append(event_info)
         return events
