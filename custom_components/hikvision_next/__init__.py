@@ -62,15 +62,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         **coordinators,
     }
 
-    for coordinator in coordinators.values():
-        await coordinator.async_config_entry_first_refresh()
-
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
     if entry.data[DATA_SET_ALARM_SERVER] and isapi.device_info.support_alarm_server:
         await isapi.set_alarm_server(
             entry.data[DATA_ALARM_SERVER_HOST], ALARM_SERVER_PATH
         )
+
+    for coordinator in coordinators.values():
+        await coordinator.async_config_entry_first_refresh()
+
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     # Only initialise view once if multiple instances of integration
     # TODO: Is this needed to check for unique instance?
