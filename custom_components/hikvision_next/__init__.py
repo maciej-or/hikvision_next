@@ -55,7 +55,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
     except Exception as ex:  # pylint: disable=broad-except
         raise ConfigEntryNotReady(
-            f"Unkown error connecting to {host}. Cannot initialize {DOMAIN}"
+            f"Unknown error connecting to {host}. Cannot initialize {DOMAIN}. Error is {ex}"
         )
 
     coordinators = {}
