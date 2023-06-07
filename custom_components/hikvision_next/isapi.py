@@ -401,7 +401,9 @@ class ISAPI:
 
         for support_event in supported_events:
             event_type = support_event.get("eventType")
-            channel = support_event.get("videoInputChannelID", "0")
+            channel = support_event.get(
+                "videoInputChannelID", support_event.get("dynVideoInputChannelID", 0)
+            )
             notifications = support_event.get("EventTriggerNotificationList", {})
 
             # Fix for empty EventTriggerNotificationList in IP camera
@@ -604,7 +606,11 @@ class ISAPI:
         """Set event detection state."""
 
         # Validate that this event switch is not mutually exclusive with another enabled one
-        if not (mutex_issues := await self.get_event_switch_mutex(event, channel_id)):
+        mutex_issues = []
+        if is_enabled:
+            mutex_issues = await self.get_event_switch_mutex(event, channel_id)
+
+        if not mutex_issues:
             data = await self.request(GET, event.url)
             _LOGGER.debug("%s/ISAPI/%s %s", self.isapi.host, event.url, data)
             slug = EVENTS[event.id]["slug"]
