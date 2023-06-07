@@ -735,7 +735,8 @@ class ISAPI:
 
 def str_to_bool(value: str) -> bool:
     """Convert text to boolean."""
-    return value.lower() == "true"
+    if value:
+        return value.lower() == "true"
 
 
 def bool_to_str(value: bool) -> str:
