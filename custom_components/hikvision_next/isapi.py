@@ -272,16 +272,34 @@ class ISAPI:
 
                 for digital_camera in digital_cameras:
                     camera_id = digital_camera.get("id")
+
+                    # Generate serial number if not provided by camera
+                    # As combination of protocol and IP
+                    serial_no = digital_camera.get("sourceInputPortDescriptor", {}).get(
+                        "serialNumber"
+                    )
+
+                    if not serial_no:
+                        serial_no = str(
+                            digital_camera.get("sourceInputPortDescriptor", {}).get(
+                                "proxyProtocol"
+                            )
+                        ) + str(
+                            digital_camera.get("sourceInputPortDescriptor", {}).get(
+                                "ipAddress", ""
+                            )
+                        ).replace(
+                            ".", ""
+                        )
+
                     self.cameras.append(
                         IPCamera(
                             id=camera_id,
                             name=digital_camera.get("name"),
                             model=digital_camera.get(
                                 "sourceInputPortDescriptor", {}
-                            ).get("model"),
-                            serial_no=digital_camera.get(
-                                "sourceInputPortDescriptor", {}
-                            ).get("serialNumber"),
+                            ).get("model", "Unknown"),
+                            serial_no=serial_no,
                             firmware=digital_camera.get(
                                 "sourceInputPortDescriptor", {}
                             ).get("firmwareVersion"),
