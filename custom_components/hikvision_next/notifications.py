@@ -3,26 +3,18 @@
 from __future__ import annotations
 
 import logging
-import xmltodict
 
-from http import HTTPStatus
 from aiohttp import web
-from requests_toolbelt.multipart import MultipartDecoder
-
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN, STATE_ON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.util import slugify
+from http import HTTPStatus
+from requests_toolbelt.multipart import MultipartDecoder
 
-from .const import (
-    ALARM_SERVER_PATH,
-    DOMAIN,
-    EVENTS,
-    EVENTS_ALTERNATE_ID,
-    HIKVISION_EVENT,
-)
-from .isapi import AlertInfo
+from .const import ALARM_SERVER_PATH, DOMAIN, HIKVISION_EVENT
+from .isapi import ISAPI, AlertInfo
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -88,48 +80,10 @@ class EventNotificationsView(HomeAssistantView):
             raise ValueError(f"Unexpected event Content-Type {content_type_header}")
         return xml
 
-    def parse_event_notification(self, xml: str) -> AlertInfo:
-        """Parse incoming EventNotificationAlert XML message."""
-
-        # Fix for some cameras sending non html encoded data
-        xml = xml.replace("&", "&amp;")
-
-        data = xmltodict.parse(xml)
-
-        alert = data["EventNotificationAlert"]
-
-        channel_id = int(alert.get("channelID", alert.get("dynChannelID", "0")))
-        if channel_id > 32:
-            # workaround for wrong channelId provided by NVR
-            # model: DS-7608NXI-I2/8P/S, Firmware: V4.61.067 or V4.62.200
-            channel_id = channel_id - 32
-
-        event_id = alert.get("eventType")
-        if not event_id or event_id == "duration":
-            # <EventNotificationAlert version="2.0"
-            event_id = alert["DurationList"]["Duration"]["relationEvent"]
-        event_id = event_id.lower()
-        # handle alternate event type
-        if EVENTS_ALTERNATE_ID.get(event_id):
-            event_id = EVENTS_ALTERNATE_ID[event_id]
-
-        device_serial = None
-        if alert.get("Extensions"):
-            # <EventNotificationAlert version="1.0"
-            device_serial = alert["Extensions"]["serialNumber"]["#text"]
-
-        # <EventNotificationAlert version="2.0"
-        mac = alert.get("macAddress")
-
-        if not EVENTS[event_id]:
-            raise ValueError(f"Unsupported event {event_id}")
-
-        return AlertInfo(channel_id, event_id, device_serial, mac)
-
     def trigger_sensor(self, hass: HomeAssistant, xml: str) -> None:
         """Determine entity and set binary sensor state"""
 
-        alert = self.parse_event_notification(xml)
+        alert = ISAPI.parse_event_notification(xml)
         _LOGGER.debug(alert)
         device_serial = alert.device_serial_no
 

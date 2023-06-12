@@ -3,33 +3,25 @@
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass, field
 import datetime
-from http import HTTPStatus
 import json
 import logging
+from dataclasses import dataclass, field
+from http import HTTPStatus
 from typing import Any
 from urllib.parse import urlparse
 
-from hikvisionapi import AsyncClient
-from httpx import HTTPStatusError, TimeoutException
 import xmltodict
-
+from hikvisionapi import AsyncClient
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import slugify
+from httpx import HTTPStatusError, TimeoutException
 
-from .const import (
-    DEVICE_TYPE_ANALOG_CAMERA,
-    DEVICE_TYPE_IP_CAMERA,
-    DOMAIN,
-    EVENT_BASIC,
-    EVENTS,
-    EVENTS_ALTERNATE_ID,
-    MUTEX_ALTERNATE_IDS,
-    STREAM_TYPE,
-)
+from .const import (DEVICE_TYPE_ANALOG_CAMERA, DEVICE_TYPE_IP_CAMERA, DOMAIN,
+                    EVENT_BASIC, EVENTS, EVENTS_ALTERNATE_ID,
+                    MUTEX_ALTERNATE_IDS, STREAM_TYPE)
 
 Node = dict[str, Any]
 
@@ -751,6 +743,45 @@ class ISAPI:
 
         _LOGGER.warning("Unexpected exception | %s | %s", details, ex)
         return False
+
+    @staticmethod
+    def parse_event_notification(xml: str) -> AlertInfo:
+        """Parse incoming EventNotificationAlert XML message."""
+
+        # Fix for some cameras sending non html encoded data
+        xml = xml.replace("&", "&amp;")
+
+        data = xmltodict.parse(xml)
+
+        alert = data["EventNotificationAlert"]
+
+        channel_id = int(alert.get("channelID", alert.get("dynChannelID", "0")))
+        if channel_id > 32:
+            # workaround for wrong channelId provided by NVR
+            # model: DS-7608NXI-I2/8P/S, Firmware: V4.61.067 or V4.62.200
+            channel_id = channel_id - 32
+
+        event_id = alert.get("eventType")
+        if not event_id or event_id == "duration":
+            # <EventNotificationAlert version="2.0"
+            event_id = alert["DurationList"]["Duration"]["relationEvent"]
+        event_id = event_id.lower()
+        # handle alternate event type
+        if EVENTS_ALTERNATE_ID.get(event_id):
+            event_id = EVENTS_ALTERNATE_ID[event_id]
+
+        device_serial = None
+        if alert.get("Extensions"):
+            # <EventNotificationAlert version="1.0"
+            device_serial = alert["Extensions"]["serialNumber"]["#text"]
+
+        # <EventNotificationAlert version="2.0"
+        mac = alert.get("macAddress")
+
+        if not EVENTS[event_id]:
+            raise ValueError(f"Unsupported event {event_id}")
+
+        return AlertInfo(channel_id, event_id, device_serial, mac)
 
     async def get_camera_image(
         self,
