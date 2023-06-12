@@ -42,10 +42,10 @@ async def _async_get_diagnostics(
     info = {}
 
     # Add device info
-    info.update({"Device Info": toJSON(isapi.device_info)})
+    info.update({"Device Info": to_json(isapi.device_info)})
 
     # Add camera info
-    info.update({"Cameras": [toJSON(camera) for camera in isapi.cameras]})
+    info.update({"Cameras": [to_json(camera) for camera in isapi.cameras]})
 
     # Add event enabled states
     event_states = []
@@ -124,16 +124,18 @@ async def _async_get_diagnostics(
 
 
 async def get_isapi_data(title: str, path: object, filter_key: str = "") -> dict:
+    """Get data from ISAPI."""
     try:
         response = await path(method=GET)
         if filter_key:
             response = response.get(filter_key, {})
         return {title: anonymise_data(response)}
-    except Exception as ex:
+    except Exception as ex: # pylint: disable=broad-except
         return {title: ex}
 
 
-def toJSON(obj):
+def to_json(obj):
+    """Convert object to json."""
     result = json.dumps(obj, cls=ObjectEncoder, sort_keys=True, indent=2)
     result = json.loads(result)
     result = anonymise_data(result)
@@ -141,6 +143,7 @@ def toJSON(obj):
 
 
 def anonymise_data(data):
+    """Anonymise sensitive data."""
     for key in ANON_KEYS:
         if data.get(key):
             data[key] = "**REDACTED**"
@@ -148,13 +151,15 @@ def anonymise_data(data):
 
 
 class ObjectEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if hasattr(obj, "to_json"):
-            return self.default(obj.to_json())
-        elif hasattr(obj, "__dict__"):
-            d = dict(
+    """Class to encode object to json."""
+    def default(self, o):
+        if hasattr(o, "to_json"):
+            return self.default(o.to_json())
+
+        if hasattr(o, "__dict__"):
+            data = dict(
                 (key, value)
-                for key, value in inspect.getmembers(obj)
+                for key, value in inspect.getmembers(o)
                 if not key.startswith("__")
                 and not inspect.isabstract(value)
                 and not inspect.isbuiltin(value)
@@ -165,5 +170,5 @@ class ObjectEncoder(json.JSONEncoder):
                 and not inspect.ismethoddescriptor(value)
                 and not inspect.isroutine(value)
             )
-            return self.default(d)
-        return obj
+            return self.default(data)
+        return o

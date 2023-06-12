@@ -15,11 +15,7 @@ from hikvisionapi import AsyncClient
 from httpx import HTTPStatusError, TimeoutException
 import xmltodict
 
-from homeassistant.exceptions import (
-    ConfigEntryAuthFailed,
-    ConfigEntryNotReady,
-    HomeAssistantError,
-)
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import slugify
@@ -47,11 +43,11 @@ POST = "post"
 @dataclass
 class AlarmServer:
     """Holds alarm server info"""
-
-    ipAddress: str
-    portNo: int
-    url: str
-    protocolType: str
+    # Uses pylint invalid names to not break previous versions
+    ipAddress: str # pylint: disable=invalid-name
+    portNo: int # pylint: disable=invalid-name
+    url: str # pylint: disable=invalid-name
+    protocolType: str # pylint: disable=invalid-name
 
 
 @dataclass
@@ -174,6 +170,7 @@ class ISAPI:
         self.cameras: list[IPCamera | AnalogCamera] = []
 
     async def get_hardware_info(self):
+        """Get base device data."""
         # Get base hw info
         hw_info = (await self.isapi.System.deviceInfo(method=GET)).get("DeviceInfo", {})
         _LOGGER.debug("%s/ISAPI/System/deviceInfo %s", self.isapi.host, hw_info)
@@ -232,6 +229,8 @@ class ISAPI:
             self.device_info.is_nvr = True
 
     async def get_cameras(self):
+        """Get camera objects for all connected cameras."""
+
         # Get all supported events to reduce isapi queries
         supported_events = await self.get_supported_events_info()
 
@@ -352,7 +351,7 @@ class ISAPI:
                         )
                     )
 
-        _LOGGER.debug(self.cameras)
+        _LOGGER.debug("Cameras: %s", self.cameras)
 
     async def get_camera_event_capabilities(
         self,
@@ -416,7 +415,7 @@ class ISAPI:
                 notifications = [notifications]
 
             # Translate to alternate IDs
-            if event_type.lower() in EVENTS_ALTERNATE_ID.keys():
+            if event_type.lower() in EVENTS_ALTERNATE_ID:
                 event_type = EVENTS_ALTERNATE_ID[event_type.lower()]
 
             events.append(
@@ -459,11 +458,11 @@ class ISAPI:
         return url
 
     async def get_camera_streams(self, channel_id: int) -> list[CameraStreamInfo]:
-        # TODO - Improve efficiency of this by reading once and adding to each camera
+        """Get stream info for all cameras"""
         streams = []
-        for id, stream_type in STREAM_TYPE.items():
+        for stream_type_id, stream_type in STREAM_TYPE.items():
             try:
-                stream_id = f"{channel_id}0{id}"
+                stream_id = f"{channel_id}0{stream_type_id}"
                 stream_info = (
                     await self.isapi.Streaming.channels[stream_id](method=GET)
                 ).get("StreamingChannel")
@@ -486,19 +485,21 @@ class ISAPI:
                         audio=stream_info.get("Audio", {}).get("enabled", False),
                     )
                 )
-            except HTTPStatusError as ex:
+            except HTTPStatusError:
                 # If http 400 then does not support this stream type
                 continue
         return streams
 
-    def get_camera_by_id(self, id: int) -> IPCamera | AnalogCamera | None:
+    def get_camera_by_id(self, camera_id: int) -> IPCamera | AnalogCamera | None:
+        """Get camera object by id."""
         try:
-            return [camera for camera in self.cameras if camera.id == id][0]
+            return [camera for camera in self.cameras if camera.id == camera_id][0]
         except IndexError:
             # Camera id does not exist
             return None
 
     async def get_storage_devices(self):
+        """Get HDD storage devices."""
         storage_list = []
         storage_info = (
             (await self.isapi.ContentMgmt.Storage(method=GET))
@@ -565,6 +566,7 @@ class ISAPI:
     async def get_event_switch_mutex(
         self, event: EventInfo, channel_id: int
     ) -> list[MutexIssue]:
+        """Get if event is mutually exclusive with enabled events"""
         mutex_issues = []
 
         if not EVENTS[event.id].get("mutex"):
@@ -581,8 +583,7 @@ class ISAPI:
             response = await self.request(
                 POST, url, present="json", data=json.dumps(data)
             )
-        except HTTPStatusError as ex:
-            # TODO: validate this if getting a 403 error!
+        except HTTPStatusError:
             return True
 
         response = json.loads(response)
@@ -681,7 +682,7 @@ class ISAPI:
             url=host.get("url"),
             protocolType=host.get("protocolType"),
         )
-        _LOGGER.debug(f"Alarm Server: {alarm_server}")
+        _LOGGER.debug("Alarm Server: %s", alarm_server)
         return alarm_server
 
     async def set_alarm_server(self, base_url: str, path: str) -> None:

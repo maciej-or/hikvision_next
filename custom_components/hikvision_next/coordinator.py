@@ -54,7 +54,7 @@ class EventsCoordinator(DataUpdateCoordinator):
             try:
                 self.isapi.device_info.storage = await self.isapi.get_storage_devices()
             except Exception as ex:  # pylint: disable=broad-except
-                self.isapi.handle_exception(ex, f"Cannot fetch state for HDD")
+                self.isapi.handle_exception(ex, "Cannot fetch state for HDD")
 
             return data
 

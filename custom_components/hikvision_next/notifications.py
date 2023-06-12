@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import html
 import logging
 import xmltodict
 
@@ -158,6 +157,7 @@ class EventNotificationsView(HomeAssistantView):
     def fire_hass_event(
         self, hass: HomeAssistant, device_serial: str, alert: AlertInfo
     ):
+        """ Fire HASS event"""
         device_registry = dr.async_get(hass)
         if not alert.mac:
             # Must be analog camera

@@ -49,14 +49,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device_registry.async_get_or_create(
             config_entry_id=entry.entry_id, **device_info
         )
-    except (asyncio.TimeoutError, TimeoutException):
+    except (asyncio.TimeoutError, TimeoutException) as ex:
         raise ConfigEntryNotReady(
             f"Timeout while connecting to {host}. Cannot initialize {DOMAIN}"
-        )
+        ) from ex
     except Exception as ex:  # pylint: disable=broad-except
         raise ConfigEntryNotReady(
             f"Unknown error connecting to {host}. Cannot initialize {DOMAIN}. Error is {ex}"
-        )
+        ) from ex
 
     coordinators = {}
 
@@ -89,11 +89,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def async_remove_config_entry_device(hass, config_entry, device_entry) -> bool:
+async def async_remove_config_entry_device(hass: HomeAssistant, config_entry, device_entry) -> bool:
     """Delete device if not entities"""
     if not device_entry.via_device_id:
         _LOGGER.error(
-            "You cannot delete the NVR device via the device delete method.  Please remove the integration instead."
+            "You cannot delete the NVR device via the device delete method.  Please remove the integration instead"
         )
         return False
     return True
@@ -128,7 +128,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return unload_ok
 
 
-def get_first_instance_unique_id(hass) -> int:
+def get_first_instance_unique_id(hass: HomeAssistant) -> int:
+    """Get entry unique_id for first instance of integration"""
     entry = [
         entry
         for entry in hass.config_entries.async_entries(DOMAIN)
