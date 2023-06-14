@@ -14,7 +14,6 @@ from homeassistant.components.network import async_get_source_ip
 from homeassistant.config_entries import ConfigEntry, ConfigFlow
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.helpers import device_registry as dr
 
 from .const import DATA_ALARM_SERVER_HOST, DATA_SET_ALARM_SERVER, DOMAIN
 from .isapi import ISAPI
@@ -63,7 +62,6 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-
             try:
                 host = user_input[CONF_HOST]
                 username = user_input[CONF_USERNAME]
@@ -83,9 +81,8 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                     )
                     return self.async_abort(reason="reauth_successful")
 
-                registry = dr.async_get(self.hass)
-                if registry.async_get_device(identifiers={(DOMAIN, isapi.serial_no)}):
-                    return self.async_abort(reason="already_configured")
+                await self.async_set_unique_id({(DOMAIN, isapi.device_info.serial_no)})
+                self._abort_if_unique_id_configured()
 
             except HTTPStatusError as error:
                 status_code = error.response.status_code
@@ -100,7 +97,9 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                 _LOGGER.error("Unexpected exception %s", ex)
                 errors["base"] = "unknown"
             else:
-                return self.async_create_entry(title=isapi.device_name, data=user_input)
+                return self.async_create_entry(
+                    title=isapi.device_info.name, data=user_input
+                )
 
         schema = await self.get_schema(user_input or {})
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)

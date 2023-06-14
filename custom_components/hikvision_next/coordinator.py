@@ -14,7 +14,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .const import DATA_ALARM_SERVER_HOST, DOMAIN, HOLIDAY_MODE
 from .isapi import ISAPI
 
-SCAN_INTERVAL_EVENTS = timedelta(seconds=300)
+SCAN_INTERVAL_EVENTS = timedelta(seconds=120)
 SCAN_INTERVAL_HOLIDAYS = timedelta(minutes=60)
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,14 +38,24 @@ class EventsCoordinator(DataUpdateCoordinator):
         """Update data via ISAPI"""
         async with async_timeout.timeout(30):
             data = {}
-            for event in self.isapi.events_info:
-                try:
-                    entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
-                    data[entity_id] = await self.isapi.get_event_enabled_state(event)
-                except Exception as ex:  # pylint: disable=broad-except
-                    self.isapi.handle_exception(
-                        ex, f"Cannot fetch state for {event.id}"
-                    )
+            for camera in self.isapi.cameras:
+                for event in camera.supported_events:
+                    try:
+                        entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
+                        data[entity_id] = await self.isapi.get_event_enabled_state(
+                            event
+                        )
+                    except Exception as ex:  # pylint: disable=broad-except
+                        self.isapi.handle_exception(
+                            ex, f"Cannot fetch state for {event.id}"
+                        )
+
+            # Refresh HDD data
+            try:
+                self.isapi.device_info.storage = await self.isapi.get_storage_devices()
+            except Exception as ex:  # pylint: disable=broad-except
+                self.isapi.handle_exception(ex, "Cannot fetch state for HDD")
+
             return data
 
 
@@ -68,14 +78,14 @@ class SecondaryCoordinator(DataUpdateCoordinator):
         async with async_timeout.timeout(20):
             data = {}
             try:
-                if self.isapi.holidays_support:
+                if self.isapi.device_info.support_holiday_mode:
                     data[HOLIDAY_MODE] = await self.isapi.get_holiday_enabled_state()
             except Exception as ex:  # pylint: disable=broad-except
                 self.isapi.handle_exception(
                     ex, f"Cannot fetch state for {HOLIDAY_MODE}"
                 )
             try:
-                if self.isapi.alarm_server_support:
+                if self.isapi.device_info.support_alarm_server:
                     alarm_server = await self.isapi.get_alarm_server()
                     data[DATA_ALARM_SERVER_HOST] = alarm_server
             except Exception as ex:  # pylint: disable=broad-except
