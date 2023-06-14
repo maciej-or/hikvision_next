@@ -19,9 +19,16 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import slugify
 from httpx import HTTPStatusError, TimeoutException
 
-from .const import (DEVICE_TYPE_ANALOG_CAMERA, DEVICE_TYPE_IP_CAMERA, DOMAIN,
-                    EVENT_BASIC, EVENTS, EVENTS_ALTERNATE_ID,
-                    MUTEX_ALTERNATE_IDS, STREAM_TYPE)
+from .const import (
+    DEVICE_TYPE_ANALOG_CAMERA,
+    DEVICE_TYPE_IP_CAMERA,
+    DOMAIN,
+    EVENT_BASIC,
+    EVENTS,
+    EVENTS_ALTERNATE_ID,
+    MUTEX_ALTERNATE_IDS,
+    STREAM_TYPE,
+)
 
 Node = dict[str, Any]
 
@@ -35,11 +42,12 @@ POST = "post"
 @dataclass
 class AlarmServer:
     """Holds alarm server info"""
+
     # Uses pylint invalid names to not break previous versions
-    ipAddress: str # pylint: disable=invalid-name
-    portNo: int # pylint: disable=invalid-name
-    url: str # pylint: disable=invalid-name
-    protocolType: str # pylint: disable=invalid-name
+    ipAddress: str  # pylint: disable=invalid-name
+    portNo: int  # pylint: disable=invalid-name
+    url: str  # pylint: disable=invalid-name
+    protocolType: str  # pylint: disable=invalid-name
 
 
 @dataclass
@@ -374,21 +382,18 @@ class ISAPI:
     async def get_supported_events_info(self):
         """Get list of all supported events available"""
         events = []
-        if self.device_info.is_nvr:
-            supported_events = (
-                (await self.isapi.Event.triggers(method=GET))
-                .get("EventTriggerList", {})
-                .get("EventTrigger")
+        event_triggers = await self.isapi.Event.triggers(method=GET)
+        event_notification = event_triggers.get("EventNotification")
+        _LOGGER.debug("%s/ISAPI/Event/triggers %s", self.isapi.host, event_triggers)
+        if event_notification:
+            supported_events = event_notification.get("EventTriggerList", {}).get(
+                "EventTrigger"
             )
         else:
-            supported_events = (
-                (await self.isapi.Event.triggers(method=GET))
-                .get("EventNotification", {})
-                .get("EventTriggerList", {})
-                .get("EventTrigger")
+            supported_events = event_triggers.get("EventTriggerList", {}).get(
+                "EventTrigger"
             )
 
-        _LOGGER.debug("%s/ISAPI/Event/triggers %s", self.isapi.host, supported_events)
 
         for support_event in supported_events:
             event_type = support_event.get("eventType")
