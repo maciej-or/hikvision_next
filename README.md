@@ -93,10 +93,12 @@ Download logs from `Settings / System / Logs`
 - DS-7616NI-E2/16P
 - DS-7608NXI-I2/8P/S
 - DS-7608NI-I2/8P
+- DS-7108NI-Q1/8P
 
 ### DVR
 
 - iDS-7204HUHI-M1/P
+- iDS-7204HUHI-M1/FA/A
 
 ### IP Camera
 
@@ -108,4 +110,5 @@ Download logs from `Settings / System / Logs`
 - DS-2CD2387G2-LU
 - DS-2CD2386G2-IU
 - DS-2CD2346G2-IU
+- DS-2CD2155FWD-I
 - DS-2CD2047G2-LU/SL
