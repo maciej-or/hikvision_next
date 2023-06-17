@@ -27,7 +27,9 @@ ALARM_SERVER_SETTINGS = {
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Add diagnostic sensors for hikvision alarm server settings."""
 
@@ -83,7 +85,9 @@ class HDDSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, hdd: HDDInfo) -> None:
         super().__init__(coordinator)
         isapi = coordinator.isapi
-        self._attr_unique_id = f"{isapi.device_info.serial_no}_{hdd.id}_{hdd.name}"
+        self._attr_unique_id = (
+            f"{isapi.device_info.serial_no}_{hdd.id}_{hdd.name}"
+        )
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
         self._attr_device_info = isapi.get_device_info()
         self._attr_name = f"HDD {hdd.id}"
@@ -91,7 +95,7 @@ class HDDSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self) -> str | None:
-        hdd = self.coordinator.isapi.device_info.storage[self.hdd.id - 1]
+        hdd = self.coordinator.isapi.get_storage_device_by_id(self.hdd.id)
         return str(hdd.status).upper() if hdd else None
 
     @property

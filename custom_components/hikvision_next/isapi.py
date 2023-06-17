@@ -172,14 +172,20 @@ class ISAPI:
     async def get_hardware_info(self):
         """Get base device data."""
         # Get base hw info
-        hw_info = (await self.isapi.System.deviceInfo(method=GET)).get("DeviceInfo", {})
-        _LOGGER.debug("%s/ISAPI/System/deviceInfo %s", self.isapi.host, hw_info)
+        hw_info = (await self.isapi.System.deviceInfo(method=GET)).get(
+            "DeviceInfo", {}
+        )
+        _LOGGER.debug(
+            "%s/ISAPI/System/deviceInfo %s", self.isapi.host, hw_info
+        )
 
         # Get device capabilities
         capabilities = (await self.isapi.System.capabilities(method=GET)).get(
             "DeviceCap", {}
         )
-        _LOGGER.debug("%s/ISAPI/System/capabilities %s", self.isapi.host, capabilities)
+        _LOGGER.debug(
+            "%s/ISAPI/System/capabilities %s", self.isapi.host, capabilities
+        )
 
         # Set DeviceInfo
         self.device_info = HIKDeviceInfo(
@@ -202,7 +208,9 @@ class ISAPI:
             support_holiday_mode=capabilities.get("SysCap", {}).get(
                 "isSupportHolidy", False
             ),
-            support_alarm_server=True if await self.get_alarm_server() else False,
+            support_alarm_server=True
+            if await self.get_alarm_server()
+            else False,
             support_channel_zero=capabilities.get("RacmCap", {}).get(
                 "isSupportZeroChan", False
             ),
@@ -255,7 +263,11 @@ class ISAPI:
             # Get analog and digital cameras attached to NVR
             if self.device_info.support_digital_cameras > 0:
                 digital_cameras = (
-                    (await self.isapi.ContentMgmt.InputProxy.channels(method=GET))
+                    (
+                        await self.isapi.ContentMgmt.InputProxy.channels(
+                            method=GET
+                        )
+                    )
                     .get("InputProxyChannelList", {})
                     .get("InputProxyChannel", [])
                 )
@@ -274,19 +286,19 @@ class ISAPI:
 
                     # Generate serial number if not provided by camera
                     # As combination of protocol and IP
-                    serial_no = digital_camera.get("sourceInputPortDescriptor", {}).get(
-                        "serialNumber"
-                    )
+                    serial_no = digital_camera.get(
+                        "sourceInputPortDescriptor", {}
+                    ).get("serialNumber")
 
                     if not serial_no:
                         serial_no = str(
-                            digital_camera.get("sourceInputPortDescriptor", {}).get(
-                                "proxyProtocol"
-                            )
+                            digital_camera.get(
+                                "sourceInputPortDescriptor", {}
+                            ).get("proxyProtocol")
                         ) + str(
-                            digital_camera.get("sourceInputPortDescriptor", {}).get(
-                                "ipAddress", ""
-                            )
+                            digital_camera.get(
+                                "sourceInputPortDescriptor", {}
+                            ).get("ipAddress", "")
                         ).replace(
                             ".", ""
                         )
@@ -313,7 +325,9 @@ class ISAPI:
                             ).get("managePortNo"),
                             streams=await self.get_camera_streams(camera_id),
                             supported_events=await self.get_camera_event_capabilities(
-                                supported_events, camera_id, DEVICE_TYPE_IP_CAMERA
+                                supported_events,
+                                camera_id,
+                                DEVICE_TYPE_IP_CAMERA,
                             ),
                         )
                     )
@@ -330,12 +344,16 @@ class ISAPI:
                     analog_cameras = [analog_cameras]
 
                 _LOGGER.debug(
-                    "%s/ISAPI/System/Video/inputs %s", self.isapi.host, analog_cameras
+                    "%s/ISAPI/System/Video/inputs %s",
+                    self.isapi.host,
+                    analog_cameras,
                 )
 
                 for analog_camera in analog_cameras:
                     camera_id = analog_camera.get("id")
-                    device_serial_no = f"{self.device_info.serial_no}-VI{camera_id}"
+                    device_serial_no = (
+                        f"{self.device_info.serial_no}-VI{camera_id}"
+                    )
 
                     self.cameras.append(
                         AnalogCamera(
@@ -346,7 +364,9 @@ class ISAPI:
                             input_port=analog_camera.get("inputPort"),
                             streams=await self.get_camera_streams(camera_id),
                             supported_events=await self.get_camera_event_capabilities(
-                                supported_events, camera_id, DEVICE_TYPE_ANALOG_CAMERA
+                                supported_events,
+                                camera_id,
+                                DEVICE_TYPE_ANALOG_CAMERA,
                             ),
                         )
                     )
@@ -372,7 +392,10 @@ class ISAPI:
                     id=event.event_id,
                     unique_id=f"{slugify(self.device_info.serial_no.lower())}_{channel_id}_{event.event_id}",
                     url=self.get_event_url(
-                        event.event_id, channel_id, self.device_info.is_nvr, camera_type
+                        event.event_id,
+                        channel_id,
+                        self.device_info.is_nvr,
+                        camera_type,
                     ),
                     notifiers=event.notifications,
                 )
@@ -384,23 +407,27 @@ class ISAPI:
         events = []
         event_triggers = await self.isapi.Event.triggers(method=GET)
         event_notification = event_triggers.get("EventNotification")
-        _LOGGER.debug("%s/ISAPI/Event/triggers %s", self.isapi.host, event_triggers)
+        _LOGGER.debug(
+            "%s/ISAPI/Event/triggers %s", self.isapi.host, event_triggers
+        )
         if event_notification:
-            supported_events = event_notification.get("EventTriggerList", {}).get(
-                "EventTrigger"
-            )
+            supported_events = event_notification.get(
+                "EventTriggerList", {}
+            ).get("EventTrigger")
         else:
             supported_events = event_triggers.get("EventTriggerList", {}).get(
                 "EventTrigger"
             )
 
-
         for support_event in supported_events:
             event_type = support_event.get("eventType")
             channel = support_event.get(
-                "videoInputChannelID", support_event.get("dynVideoInputChannelID", 0)
+                "videoInputChannelID",
+                support_event.get("dynVideoInputChannelID", 0),
             )
-            notifications = support_event.get("EventTriggerNotificationList", {})
+            notifications = support_event.get(
+                "EventTriggerNotificationList", {}
+            )
 
             # Fix for empty EventTriggerNotificationList in IP camera
             if not notifications:
@@ -420,7 +447,8 @@ class ISAPI:
                     channel_id=int(channel),
                     event_id=event_type.lower(),
                     notifications=[
-                        notify.get("notificationMethod") for notify in notifications
+                        notify.get("notificationMethod")
+                        for notify in notifications
                     ]
                     if notifications
                     else [],
@@ -454,7 +482,9 @@ class ISAPI:
             url = f"Smart/{slug}/{channel_id}"
         return url
 
-    async def get_camera_streams(self, channel_id: int) -> list[CameraStreamInfo]:
+    async def get_camera_streams(
+        self, channel_id: int
+    ) -> list[CameraStreamInfo]:
         """Get stream info for all cameras"""
         streams = []
         for stream_type_id, stream_type in STREAM_TYPE.items():
@@ -479,7 +509,9 @@ class ISAPI:
                         codec=stream_info["Video"]["videoCodecType"],
                         width=stream_info["Video"]["videoResolutionWidth"],
                         height=stream_info["Video"]["videoResolutionHeight"],
-                        audio=stream_info.get("Audio", {}).get("enabled", False),
+                        audio=stream_info.get("Audio", {}).get(
+                            "enabled", False
+                        ),
                     )
                 )
             except HTTPStatusError:
@@ -487,10 +519,14 @@ class ISAPI:
                 continue
         return streams
 
-    def get_camera_by_id(self, camera_id: int) -> IPCamera | AnalogCamera | None:
+    def get_camera_by_id(
+        self, camera_id: int
+    ) -> IPCamera | AnalogCamera | None:
         """Get camera object by id."""
         try:
-            return [camera for camera in self.cameras if camera.id == camera_id][0]
+            return [
+                camera for camera in self.cameras if camera.id == camera_id
+            ][0]
         except IndexError:
             # Camera id does not exist
             return None
@@ -507,7 +543,9 @@ class ISAPI:
         if not isinstance(storage_info, list):
             storage_info = [storage_info]
 
-        _LOGGER.debug("%s/ISAPI/ContentMgmt/Storage %s", self.isapi.host, storage_info)
+        _LOGGER.debug(
+            "%s/ISAPI/ContentMgmt/Storage %s", self.isapi.host, storage_info
+        )
 
         for storage in storage_info:
             storage = storage.get("hdd")
@@ -526,13 +564,27 @@ class ISAPI:
 
         return storage_list
 
+    def get_storage_device_by_id(self, device_id: int) -> HDDInfo | None:
+        """Get storage object by id."""
+        try:
+            return [
+                storage_device
+                for storage_device in self.device_info.storage
+                if storage_device.id == device_id
+            ][0]
+        except IndexError:
+            # Storage id does not exist
+            return None
+
     def get_device_info(self, device_id: int = 0) -> DeviceInfo:
         """Return device registry information."""
         if device_id == 0:
             return DeviceInfo(
                 manufacturer=self.device_info.manufacturer,
                 identifiers={(DOMAIN, self.device_info.serial_no)},
-                connections={(dr.CONNECTION_NETWORK_MAC, self.device_info.mac_address)},
+                connections={
+                    (dr.CONNECTION_NETWORK_MAC, self.device_info.mac_address)
+                },
                 model=self.device_info.model,
                 name=self.device_info.name,
                 sw_version=self.device_info.firmware,
@@ -546,7 +598,9 @@ class ISAPI:
                 identifiers={(DOMAIN, camera_info.serial_no)},
                 model=camera_info.model,
                 name=camera_info.name,
-                sw_version=self.device_info.firmware if is_ip_camera else "Unknown",
+                sw_version=self.device_info.firmware
+                if is_ip_camera
+                else "Unknown",
                 via_device=(DOMAIN, self.device_info.serial_no)
                 if self.device_info.is_nvr
                 else None,
@@ -593,7 +647,8 @@ class ISAPI:
 
                 mutex_issues.append(
                     MutexIssue(
-                        event_id=mutex_event_id, channels=mutex_item.get("channelID")
+                        event_id=mutex_event_id,
+                        channels=mutex_item.get("channelID"),
                     )
                 )
         return mutex_issues
@@ -619,7 +674,9 @@ class ISAPI:
             data[node]["enabled"] = new_state
             xml = xmltodict.unparse(data)
             response = await self.request(PUT, event.url, data=xml)
-            _LOGGER.debug("[PUT] %s/ISAPI/%s %s", self.isapi.host, event.url, response)
+            _LOGGER.debug(
+                "[PUT] %s/ISAPI/%s %s", self.isapi.host, event.url, response
+            )
         else:
             raise HomeAssistantError(
                 f"You cannot enable {EVENTS[event.id]['label']} events.  Please disable {EVENTS[mutex_issues[0].event_id]['label']} on channels {mutex_issues[0].channels} first"
@@ -649,16 +706,22 @@ class ISAPI:
             holiday["holidayMode"]["#text"] = "date"
             holiday["holidayDate"] = {
                 "startDate": today.strftime("%Y-%m-%d"),
-                "endDate": today.replace(year=today.year + 1).strftime("%Y-%m-%d"),
+                "endDate": today.replace(year=today.year + 1).strftime(
+                    "%Y-%m-%d"
+                ),
             }
             holiday.pop("holidayWeek", None)
             holiday.pop("holidayMonth", None)
         xml = xmltodict.unparse(data)
         response = await self.isapi.System.Holidays(method=PUT, data=xml)
-        _LOGGER.debug("[PUT] %s/ISAPI/System/Holidays %s", self.isapi.host, response)
+        _LOGGER.debug(
+            "[PUT] %s/ISAPI/System/Holidays %s", self.isapi.host, response
+        )
 
     def _get_event_notification_host(self, data: Node) -> Node:
-        hosts = data.get("HttpHostNotificationList", {}).get("HttpHostNotification", {})
+        hosts = data.get("HttpHostNotificationList", {}).get(
+            "HttpHostNotification", {}
+        )
         if isinstance(hosts, list):
             # <HttpHostNotificationList xmlns="http://www.hikvision.com/ver20/XMLSchema">
             return hosts[0]
@@ -669,7 +732,9 @@ class ISAPI:
         """Get event notifications listener server URL."""
 
         data = await self.isapi.Event.notification.httpHosts(method=GET)
-        _LOGGER.debug("%s/ISAPI/Event/notification/httpHosts %s", self.isapi.host, data)
+        _LOGGER.debug(
+            "%s/ISAPI/Event/notification/httpHosts %s", self.isapi.host, data
+        )
 
         host = self._get_event_notification_host(data)
 
@@ -687,7 +752,9 @@ class ISAPI:
 
         address = urlparse(base_url)
         data = await self.isapi.Event.notification.httpHosts(method=GET)
-        _LOGGER.debug("%s/ISAPI/Event/notification/httpHosts %s", self.isapi.host, data)
+        _LOGGER.debug(
+            "%s/ISAPI/Event/notification/httpHosts %s", self.isapi.host, data
+        )
         host = self._get_event_notification_host(data)
         if (
             host["protocolType"] == address.scheme.upper()
@@ -705,9 +772,13 @@ class ISAPI:
         host["httpAuthenticationMethod"] = "none"
 
         xml = xmltodict.unparse(data)
-        response = await self.isapi.Event.notification.httpHosts(method=PUT, data=xml)
+        response = await self.isapi.Event.notification.httpHosts(
+            method=PUT, data=xml
+        )
         _LOGGER.debug(
-            "[PUT] %s/ISAPI/Event/notification/httpHosts %s", self.isapi.host, response
+            "[PUT] %s/ISAPI/Event/notification/httpHosts %s",
+            self.isapi.host,
+            response,
         )
 
     async def request(
@@ -737,7 +808,10 @@ class ISAPI:
         if is_reauth_needed():
             # Re-establish session
             self.isapi = AsyncClient(
-                self.isapi.host, self.isapi.login, self.isapi.password, timeout=20
+                self.isapi.host,
+                self.isapi.login,
+                self.isapi.password,
+                timeout=20,
             )
             return True
 
@@ -760,7 +834,9 @@ class ISAPI:
 
         alert = data["EventNotificationAlert"]
 
-        channel_id = int(alert.get("channelID", alert.get("dynChannelID", "0")))
+        channel_id = int(
+            alert.get("channelID", alert.get("dynChannelID", "0"))
+        )
         if channel_id > 32:
             # workaround for wrong channelId provided by NVR
             # model: DS-7608NXI-I2/8P/S, Firmware: V4.61.067 or V4.62.200
