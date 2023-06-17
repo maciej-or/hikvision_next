@@ -305,7 +305,7 @@ class ISAPI:
 
                     self.cameras.append(
                         IPCamera(
-                            id=camera_id,
+                            id=int(camera_id),
                             name=digital_camera.get("name"),
                             model=digital_camera.get(
                                 "sourceInputPortDescriptor", {}
@@ -314,9 +314,11 @@ class ISAPI:
                             firmware=digital_camera.get(
                                 "sourceInputPortDescriptor", {}
                             ).get("firmwareVersion"),
-                            input_port=digital_camera.get(
-                                "sourceInputPortDescriptor", {}
-                            ).get("srcInputPort"),
+                            input_port=int(
+                                digital_camera.get(
+                                    "sourceInputPortDescriptor", {}
+                                ).get("srcInputPort")
+                            ),
                             ip_addr=digital_camera.get(
                                 "sourceInputPortDescriptor", {}
                             ).get("ipAddress"),
@@ -361,7 +363,7 @@ class ISAPI:
                             name=analog_camera.get("name"),
                             model=analog_camera.get("resDesc"),
                             serial_no=device_serial_no,
-                            input_port=analog_camera.get("inputPort"),
+                            input_port=int(analog_camera.get("inputPort")),
                             streams=await self.get_camera_streams(camera_id),
                             supported_events=await self.get_camera_event_capabilities(
                                 supported_events,
@@ -679,7 +681,7 @@ class ISAPI:
             )
         else:
             raise HomeAssistantError(
-                f"You cannot enable {EVENTS[event.id]['label']} events.  Please disable {EVENTS[mutex_issues[0].event_id]['label']} on channels {mutex_issues[0].channels} first"
+                f"You cannot enable {EVENTS[event.id]['label']} events. Please disable {EVENTS[mutex_issues[0].event_id]['label']} on channels {mutex_issues[0].channels} first"
             )
 
     async def get_holiday_enabled_state(self, holiday_index=0) -> bool:
@@ -837,10 +839,6 @@ class ISAPI:
         channel_id = int(
             alert.get("channelID", alert.get("dynChannelID", "0"))
         )
-        if channel_id > 32:
-            # workaround for wrong channelId provided by NVR
-            # model: DS-7608NXI-I2/8P/S, Firmware: V4.61.067 or V4.62.200
-            channel_id = channel_id - 32
 
         event_id = alert.get("eventType")
         if not event_id or event_id == "duration":
