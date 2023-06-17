@@ -637,7 +637,7 @@ class ISAPI:
                 POST, url, present="json", data=json.dumps(data)
             )
         except HTTPStatusError:
-            return True
+            return []
 
         response = json.loads(response)
 
