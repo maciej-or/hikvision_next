@@ -7,7 +7,12 @@ import logging
 from httpx import TimeoutException
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, Platform
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+    Platform,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
@@ -30,7 +35,12 @@ from .notifications import EventNotificationsView
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = [Platform.BINARY_SENSOR, Platform.CAMERA, Platform.SENSOR, Platform.SWITCH]
+PLATFORMS = [
+    Platform.BINARY_SENSOR,
+    Platform.CAMERA,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -62,7 +72,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     coordinators[EVENTS_COORDINATOR] = EventsCoordinator(hass, isapi)
 
-    if isapi.device_info.support_holiday_mode or isapi.device_info.support_alarm_server:
+    if (
+        isapi.device_info.support_holiday_mode
+        or isapi.device_info.support_alarm_server
+    ):
         coordinators[SECONDARY_COORDINATOR] = SecondaryCoordinator(hass, isapi)
 
     hass.data[DOMAIN][entry.entry_id] = {
@@ -72,7 +85,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         **coordinators,
     }
 
-    if entry.data[DATA_SET_ALARM_SERVER] and isapi.device_info.support_alarm_server:
+    if (
+        entry.data[DATA_SET_ALARM_SERVER]
+        and isapi.device_info.support_alarm_server
+    ):
         await isapi.set_alarm_server(
             entry.data[DATA_ALARM_SERVER_HOST], ALARM_SERVER_PATH
         )
@@ -84,12 +100,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Only initialise view once if multiple instances of integration
     if get_first_instance_unique_id(hass) == entry.unique_id:
-        hass.http.register_view(EventNotificationsView)
+        hass.http.register_view(EventNotificationsView(hass))
 
     return True
 
 
-async def async_remove_config_entry_device(hass: HomeAssistant, config_entry, device_entry) -> bool:
+async def async_remove_config_entry_device(
+    hass: HomeAssistant, config_entry, device_entry
+) -> bool:
     """Delete device if not entities"""
     if not device_entry.via_device_id:
         _LOGGER.error(
