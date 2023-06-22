@@ -133,6 +133,7 @@ class HIKDeviceInfo:
     support_holiday_mode: bool = False
     support_alarm_server: bool = False
     support_channel_zero: bool = False
+    support_event_mutex_checking: bool = False
     input_ports: int = 0
     output_ports: int = 0
     storage: list[HDDInfo] = field(default_factory=list)
@@ -213,6 +214,9 @@ class ISAPI:
             else False,
             support_channel_zero=capabilities.get("RacmCap", {}).get(
                 "isSupportZeroChan", False
+            ),
+            support_event_mutex_checking=capabilities.get(
+                "isSupportGetmutexFuncErrMsg", False
             ),
             input_ports=int(
                 capabilities.get("SysCap", {})
@@ -662,7 +666,7 @@ class ISAPI:
 
         # Validate that this event switch is not mutually exclusive with another enabled one
         mutex_issues = []
-        if is_enabled:
+        if is_enabled and self.device_info.support_event_mutex_checking:
             mutex_issues = await self.get_event_switch_mutex(event, channel_id)
 
         if not mutex_issues:
