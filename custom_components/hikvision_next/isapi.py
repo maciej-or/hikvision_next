@@ -3,21 +3,23 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import dataclass, field
 import datetime
+from functools import reduce
+from http import HTTPStatus
 import json
 import logging
-from dataclasses import dataclass, field
-from http import HTTPStatus
 from typing import Any
 from urllib.parse import urlparse
 
-import xmltodict
 from hikvisionapi import AsyncClient
+from httpx import HTTPStatusError, TimeoutException
+import xmltodict
+
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import slugify
-from httpx import HTTPStatusError, TimeoutException
 
 from .const import (
     DEVICE_TYPE_ANALOG_CAMERA,
@@ -133,6 +135,7 @@ class HIKDeviceInfo:
     support_holiday_mode: bool = False
     support_alarm_server: bool = False
     support_channel_zero: bool = False
+    support_event_mutex_checking: bool = False
     input_ports: int = 0
     output_ports: int = 0
     storage: list[HDDInfo] = field(default_factory=list)
@@ -195,34 +198,29 @@ class ISAPI:
             serial_no=hw_info.get("serialNumber"),
             firmware=hw_info.get("firmwareVersion"),
             mac_address=hw_info.get("macAddress"),
-            ip_address=urlparse(self.host).hostname,
+            ip_address=urlparse(self.host).hostname,  # type: ignore
             device_type=hw_info.get("deviceType"),
             support_analog_cameras=int(
-                capabilities.get("SysCap", {})
-                .get("VideoCap", {})
-                .get("videoInputPortNums", 0)
+                deep_get(capabilities, "SysCap.VideoCap.videoInputPortNums", 0)
             ),
             support_digital_cameras=int(
-                capabilities.get("RacmCap", {}).get("inputProxyNums", 0)
+                deep_get(capabilities, "RacmCap.inputProxyNums", 0)
             ),
-            support_holiday_mode=capabilities.get("SysCap", {}).get(
-                "isSupportHolidy", False
+            support_holiday_mode=deep_get(
+                capabilities, "SysCap.isSupportHolidy", False
             ),
-            support_alarm_server=True
-            if await self.get_alarm_server()
-            else False,
-            support_channel_zero=capabilities.get("RacmCap", {}).get(
-                "isSupportZeroChan", False
+            support_alarm_server=bool(await self.get_alarm_server()),
+            support_channel_zero=deep_get(
+                capabilities, "RacmCap.isSupportZeroChan", False
+            ),
+            support_event_mutex_checking=capabilities.get(
+                "isSupportGetmutexFuncErrMsg", False
             ),
             input_ports=int(
-                capabilities.get("SysCap", {})
-                .get("IOCap", {})
-                .get("IOInputPortNums", 0)
+                deep_get(capabilities, "SysCap.IOCap.IOInputPortNums", 0)
             ),
             output_ports=int(
-                capabilities.get("SysCap", {})
-                .get("IOCap", {})
-                .get("IOOutputPortNums", 0)
+                deep_get(capabilities, "SysCap.IOCap.IOOutputPortNums", 0)
             ),
             storage=await self.get_storage_devices(),
         )
@@ -283,48 +281,29 @@ class ISAPI:
 
                 for digital_camera in digital_cameras:
                     camera_id = digital_camera.get("id")
+                    source = digital_camera.get("sourceInputPortDescriptor")
+                    if not source:
+                        continue
 
                     # Generate serial number if not provided by camera
                     # As combination of protocol and IP
-                    serial_no = digital_camera.get(
-                        "sourceInputPortDescriptor", {}
-                    ).get("serialNumber")
+                    serial_no = source.get("serialNumber")
 
                     if not serial_no:
-                        serial_no = str(
-                            digital_camera.get(
-                                "sourceInputPortDescriptor", {}
-                            ).get("proxyProtocol")
-                        ) + str(
-                            digital_camera.get(
-                                "sourceInputPortDescriptor", {}
-                            ).get("ipAddress", "")
-                        ).replace(
-                            ".", ""
-                        )
+                        serial_no = str(source.get("proxyProtocol")) + str(
+                            source.get("ipAddress", "")
+                        ).replace(".", "")
 
                     self.cameras.append(
                         IPCamera(
                             id=int(camera_id),
                             name=digital_camera.get("name"),
-                            model=digital_camera.get(
-                                "sourceInputPortDescriptor", {}
-                            ).get("model", "Unknown"),
+                            model=source.get("model", "Unknown"),
                             serial_no=serial_no,
-                            firmware=digital_camera.get(
-                                "sourceInputPortDescriptor", {}
-                            ).get("firmwareVersion"),
-                            input_port=int(
-                                digital_camera.get(
-                                    "sourceInputPortDescriptor", {}
-                                ).get("srcInputPort")
-                            ),
-                            ip_addr=digital_camera.get(
-                                "sourceInputPortDescriptor", {}
-                            ).get("ipAddress"),
-                            ip_port=digital_camera.get(
-                                "sourceInputPortDescriptor", {}
-                            ).get("managePortNo"),
+                            firmware=source.get("firmwareVersion"),
+                            input_port=int(source.get("srcInputPort")),
+                            ip_addr=source.get("ipAddress"),
+                            ip_port=source.get("managePortNo"),
                             streams=await self.get_camera_streams(camera_id),
                             supported_events=await self.get_camera_event_capabilities(
                                 supported_events,
@@ -413,12 +392,12 @@ class ISAPI:
             "%s/ISAPI/Event/triggers %s", self.isapi.host, event_triggers
         )
         if event_notification:
-            supported_events = event_notification.get(
-                "EventTriggerList", {}
-            ).get("EventTrigger")
+            supported_events = deep_get(
+                event_notification, "EventTriggerList.EventTrigger"
+            )
         else:
-            supported_events = event_triggers.get("EventTriggerList", {}).get(
-                "EventTrigger"
+            supported_events = deep_get(
+                event_triggers, "EventTriggerList.EventTrigger"
             )
 
         for support_event in supported_events:
@@ -511,9 +490,7 @@ class ISAPI:
                         codec=stream_info["Video"]["videoCodecType"],
                         width=stream_info["Video"]["videoResolutionWidth"],
                         height=stream_info["Video"]["videoResolutionHeight"],
-                        audio=stream_info.get("Audio", {}).get(
-                            "enabled", False
-                        ),
+                        audio=deep_get(stream_info, "Audio.enabled", False),
                     )
                 )
             except HTTPStatusError:
@@ -662,7 +639,7 @@ class ISAPI:
 
         # Validate that this event switch is not mutually exclusive with another enabled one
         mutex_issues = []
-        if is_enabled:
+        if is_enabled and self.device_info.support_event_mutex_checking:
             mutex_issues = await self.get_event_switch_mutex(event, channel_id)
 
         if not mutex_issues:
@@ -721,8 +698,8 @@ class ISAPI:
         )
 
     def _get_event_notification_host(self, data: Node) -> Node:
-        hosts = data.get("HttpHostNotificationList", {}).get(
-            "HttpHostNotification", {}
+        hosts = deep_get(
+            data, "HttpHostNotificationList.HttpHostNotification", {}
         )
         if isinstance(hosts, list):
             # <HttpHostNotificationList xmlns="http://www.hikvision.com/ver20/XMLSchema">
@@ -730,10 +707,14 @@ class ISAPI:
         # <HttpHostNotificationList xmlns="http://www.isapi.org/ver20/XMLSchema">
         return hosts
 
-    async def get_alarm_server(self) -> Node:
+    async def get_alarm_server(self) -> Node | None:
         """Get event notifications listener server URL."""
 
-        data = await self.isapi.Event.notification.httpHosts(method=GET)
+        try:
+            data = await self.isapi.Event.notification.httpHosts(method=GET)
+        except HTTPStatusError:
+            return None
+
         _LOGGER.debug(
             "%s/ISAPI/Event/notification/httpHosts %s", self.isapi.host, data
         )
@@ -900,3 +881,12 @@ def bool_to_str(value: bool) -> str:
 def get_stream_id(channel_id: str, stream_type: int = 1) -> int:
     """Get stream id."""
     return int(channel_id) * 100 + stream_type
+
+
+def deep_get(dictionary: dict, path: str, default: Any = None) -> Any:
+    """Get safely nested dictionary attribute"""
+    return reduce(
+        lambda d, key: d.get(key, default) if isinstance(d, dict) else default,
+        path.split("."),
+        dictionary,
+    )
