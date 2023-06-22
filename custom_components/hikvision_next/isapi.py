@@ -3,21 +3,22 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import dataclass, field
 import datetime
+from http import HTTPStatus
 import json
 import logging
-from dataclasses import dataclass, field
-from http import HTTPStatus
 from typing import Any
 from urllib.parse import urlparse
 
-import xmltodict
 from hikvisionapi import AsyncClient
+from httpx import HTTPStatusError, TimeoutException
+import xmltodict
+
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import slugify
-from httpx import HTTPStatusError, TimeoutException
 
 from .const import (
     DEVICE_TYPE_ANALOG_CAMERA,
@@ -209,9 +210,7 @@ class ISAPI:
             support_holiday_mode=capabilities.get("SysCap", {}).get(
                 "isSupportHolidy", False
             ),
-            support_alarm_server=True
-            if await self.get_alarm_server()
-            else False,
+            support_alarm_server=bool(await self.get_alarm_server()),
             support_channel_zero=capabilities.get("RacmCap", {}).get(
                 "isSupportZeroChan", False
             ),
@@ -734,10 +733,14 @@ class ISAPI:
         # <HttpHostNotificationList xmlns="http://www.isapi.org/ver20/XMLSchema">
         return hosts
 
-    async def get_alarm_server(self) -> Node:
+    async def get_alarm_server(self) -> Node | None:
         """Get event notifications listener server URL."""
 
-        data = await self.isapi.Event.notification.httpHosts(method=GET)
+        try:
+            data = await self.isapi.Event.notification.httpHosts(method=GET)
+        except HTTPStatusError:
+            return None
+
         _LOGGER.debug(
             "%s/ISAPI/Event/notification/httpHosts %s", self.isapi.host, data
         )
