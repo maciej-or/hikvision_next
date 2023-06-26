@@ -9,7 +9,7 @@ from functools import reduce
 from http import HTTPStatus
 import json
 import logging
-from typing import Any
+from typing import Any, Optional
 from urllib.parse import urlparse
 
 from hikvisionapi import AsyncClient
@@ -58,7 +58,7 @@ class AlertInfo:
 
     channel_id: int
     event_id: str
-    device_serial_no: str
+    device_serial_no: Optional[str]
     mac: str = ""
 
 
@@ -118,17 +118,17 @@ class HDDInfo:
 
 
 @dataclass
-class HIKDeviceInfo:
+class HikDeviceInfo:
     """Holds info of an NVR/DVR or single IP Camera"""
 
-    name: str
-    manufacturer: str
-    model: str
-    serial_no: str
-    firmware: str
-    mac_address: str
-    ip_address: str
-    device_type: str
+    name: str = ""
+    manufacturer: str = ""
+    model: str = ""
+    serial_no: str = ""
+    firmware: str = ""
+    mac_address: str = ""
+    ip_address: str = ""
+    device_type: str = ""
     is_nvr: bool = False
     support_analog_cameras: int = 0
     support_digital_cameras: int = 0
@@ -170,7 +170,7 @@ class ISAPI:
     def __init__(self, host: str, username: str, password: str) -> None:
         self.isapi = AsyncClient(host, username, password, timeout=20)
         self.host = host
-        self.device_info = None
+        self.device_info = HikDeviceInfo()
         self.cameras: list[IPCamera | AnalogCamera] = []
 
     async def get_hardware_info(self):
@@ -192,7 +192,7 @@ class ISAPI:
         )
 
         # Set DeviceInfo
-        self.device_info = HIKDeviceInfo(
+        self.device_info = HikDeviceInfo(
             name=hw_info.get("deviceName"),
             manufacturer=str(hw_info.get("manufacturer", "Hikvision")).title(),
             model=hw_info.get("model"),
@@ -509,7 +509,7 @@ class ISAPI:
                     CameraStreamInfo(
                         id=stream_info["id"],
                         name=stream_info["channelName"],
-                        type_id=id,
+                        type_id=stream_info["id"],
                         type=stream_type,
                         enabled=stream_info["enabled"],
                         codec=stream_info["Video"]["videoCodecType"],
@@ -595,7 +595,7 @@ class ISAPI:
             )
         else:
             camera_info = self.get_camera_by_id(device_id)
-            is_ip_camera = True if isinstance(camera_info, IPCamera) else False
+            is_ip_camera = isinstance(camera_info, IPCamera)
 
             return DeviceInfo(
                 manufacturer=self.device_info.manufacturer,
@@ -732,7 +732,7 @@ class ISAPI:
         # <HttpHostNotificationList xmlns="http://www.isapi.org/ver20/XMLSchema">
         return hosts
 
-    async def get_alarm_server(self) -> Node | None:
+    async def get_alarm_server(self) -> AlarmServer | None:
         """Get event notifications listener server URL."""
 
         try:
@@ -896,6 +896,7 @@ def str_to_bool(value: str) -> bool:
     """Convert text to boolean."""
     if value:
         return value.lower() == "true"
+    return False
 
 
 def bool_to_str(value: bool) -> str:
