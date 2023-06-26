@@ -138,6 +138,7 @@ class HIKDeviceInfo:
     support_event_mutex_checking: bool = False
     input_ports: int = 0
     output_ports: int = 0
+    rtsp_port: int = 554
     storage: list[HDDInfo] = field(default_factory=list)
 
 
@@ -224,6 +225,8 @@ class ISAPI:
             ),
             storage=await self.get_storage_devices(),
         )
+
+        await self.get_protocols()
 
         # Set if NVR based on whether more than 1 supported IP or analog cameras
         # Single IP camera will show 0 supported devices in total
@@ -353,6 +356,28 @@ class ISAPI:
                     )
 
         _LOGGER.debug("Cameras: %s", self.cameras)
+
+    async def get_protocols(self):
+        """Get protocols and ports"""
+        try:
+            protocols = deep_get(
+                await self.isapi.Security.adminAccesses(method=GET),
+                "AdminAccessProtocolList.AdminAccessProtocol",
+                [],
+            )
+            _LOGGER.debug(
+                "%s/ISAPI/Security/adminAccesses %s",
+                self.isapi.host,
+                protocols,
+            )
+
+            for item in protocols:
+                if item.get("protocol") == "RTSP" and item.get("portNo"):
+                    self.device_info.rtsp_port = item.get("portNo")
+                    break
+
+        except HTTPStatusError:
+            pass
 
     async def get_camera_event_capabilities(
         self,
@@ -864,7 +889,7 @@ class ISAPI:
 
     def get_stream_source(self, stream: CameraStreamInfo) -> str:
         """Get stream source."""
-        return f"rtsp://{self.isapi.login}:{self.isapi.password}@{self.device_info.ip_address}/Streaming/channels/{stream.id}"
+        return f"rtsp://{self.isapi.login}:{self.isapi.password}@{self.device_info.ip_address}:{self.device_info.rtsp_port}/Streaming/channels/{stream.id}"
 
 
 def str_to_bool(value: str) -> bool:
