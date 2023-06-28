@@ -11,9 +11,7 @@ from .const import DATA_ISAPI, DOMAIN, EVENTS
 from .isapi import AnalogCamera, EventInfo, IPCamera
 
 
-async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
-) -> None:
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     """Add binary sensors for hikvision events states."""
 
     config = hass.data[DOMAIN][entry.entry_id]
@@ -33,9 +31,7 @@ class EventBinarySensor(BinarySensorEntity):
     _attr_has_entity_name = True
     _attr_is_on = False
 
-    def __init__(
-        self, isapi, camera: AnalogCamera | IPCamera, event: EventInfo
-    ) -> None:
+    def __init__(self, isapi, camera: AnalogCamera | IPCamera, event: EventInfo) -> None:
         self.entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
         self._attr_unique_id = self.entity_id
         self._attr_name = EVENTS[event.id]["label"]

@@ -42,13 +42,9 @@ class EventsCoordinator(DataUpdateCoordinator):
                 for event in camera.supported_events:
                     try:
                         entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
-                        data[entity_id] = await self.isapi.get_event_enabled_state(
-                            event
-                        )
+                        data[entity_id] = await self.isapi.get_event_enabled_state(event)
                     except Exception as ex:  # pylint: disable=broad-except
-                        self.isapi.handle_exception(
-                            ex, f"Cannot fetch state for {event.id}"
-                        )
+                        self.isapi.handle_exception(ex, f"Cannot fetch state for {event.id}")
 
             # Refresh HDD data
             try:
@@ -81,15 +77,11 @@ class SecondaryCoordinator(DataUpdateCoordinator):
                 if self.isapi.device_info.support_holiday_mode:
                     data[HOLIDAY_MODE] = await self.isapi.get_holiday_enabled_state()
             except Exception as ex:  # pylint: disable=broad-except
-                self.isapi.handle_exception(
-                    ex, f"Cannot fetch state for {HOLIDAY_MODE}"
-                )
+                self.isapi.handle_exception(ex, f"Cannot fetch state for {HOLIDAY_MODE}")
             try:
                 if self.isapi.device_info.support_alarm_server:
                     alarm_server = await self.isapi.get_alarm_server()
                     data[DATA_ALARM_SERVER_HOST] = alarm_server
             except Exception as ex:  # pylint: disable=broad-except
-                self.isapi.handle_exception(
-                    ex, f"Cannot fetch state for {DATA_ALARM_SERVER_HOST}"
-                )
+                self.isapi.handle_exception(ex, f"Cannot fetch state for {DATA_ALARM_SERVER_HOST}")
             return data

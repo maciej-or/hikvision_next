@@ -1,8 +1,8 @@
 """Diagnostics support for Wiser"""
 from __future__ import annotations
+
 import inspect
 import json
-
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -23,9 +23,7 @@ ANON_KEYS = [
 ]
 
 
-async def async_get_config_entry_diagnostics(
-    hass: HomeAssistant, entry: ConfigEntry
-) -> dict[str, Any]:
+async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
     """Return diagnostics for a config entry."""
     return await _async_get_diagnostics(hass, entry)
 
@@ -61,11 +59,7 @@ async def _async_get_diagnostics(
     info.update({"Event States": event_states})
 
     # Add raw device info
-    info.update(
-        await get_isapi_data(
-            "RAW Device Info", isapi.isapi.System.deviceInfo, "DeviceInfo"
-        )
-    )
+    info.update(await get_isapi_data("RAW Device Info", isapi.isapi.System.deviceInfo, "DeviceInfo"))
 
     # Add raw camera info
     info.update(
@@ -84,32 +78,16 @@ async def _async_get_diagnostics(
     )
 
     # Add raw capabilities
-    info.update(
-        await get_isapi_data(
-            "RAW Capabilities Info", isapi.isapi.System.capabilities, "DeviceCap"
-        )
-    )
+    info.update(await get_isapi_data("RAW Capabilities Info", isapi.isapi.System.capabilities, "DeviceCap"))
 
     # Add raw supported events
-    info.update(
-        await get_isapi_data(
-            "RAW Events Info", isapi.isapi.Event.triggers, "EventTriggerList"
-        )
-    )
+    info.update(await get_isapi_data("RAW Events Info", isapi.isapi.Event.triggers, "EventTriggerList"))
 
     # Add raw streams info
-    info.update(
-        await get_isapi_data(
-            "RAW Streams Info", isapi.isapi.Streaming.channels, "StreamingChannelList"
-        )
-    )
+    info.update(await get_isapi_data("RAW Streams Info", isapi.isapi.Streaming.channels, "StreamingChannelList"))
 
     # Add raw holiday info
-    info.update(
-        await get_isapi_data(
-            "RAW Holiday Info", isapi.isapi.System.Holidays, "HolidayList"
-        )
-    )
+    info.update(await get_isapi_data("RAW Holiday Info", isapi.isapi.System.Holidays, "HolidayList"))
 
     # Add alarms server info
     info.update(
@@ -130,7 +108,7 @@ async def get_isapi_data(title: str, path: object, filter_key: str = "") -> dict
         if filter_key:
             response = response.get(filter_key, {})
         return {title: anonymise_data(response)}
-    except Exception as ex: # pylint: disable=broad-except
+    except Exception as ex:  # pylint: disable=broad-except
         return {title: ex}
 
 
@@ -152,6 +130,7 @@ def anonymise_data(data):
 
 class ObjectEncoder(json.JSONEncoder):
     """Class to encode object to json."""
+
     def default(self, o):
         if hasattr(o, "to_json"):
             return self.default(o.to_json())

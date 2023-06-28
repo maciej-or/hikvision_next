@@ -1,7 +1,6 @@
 """Platform for sensor integration."""
 
 from __future__ import annotations
-from .isapi import HDDInfo
 
 from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorEntity
 from homeassistant.config_entries import ConfigEntry
@@ -17,6 +16,7 @@ from .const import (
     EVENTS_COORDINATOR,
     SECONDARY_COORDINATOR,
 )
+from .isapi import HDDInfo
 
 ALARM_SERVER_SETTINGS = {
     "protocolType": "Protocol",
@@ -59,14 +59,10 @@ class AlarmServerSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, key: str) -> None:
         super().__init__(coordinator)
         isapi = coordinator.isapi
-        self._attr_unique_id = (
-            f"{isapi.device_info.serial_no}_{DATA_ALARM_SERVER_HOST}_{key}"
-        )
+        self._attr_unique_id = f"{isapi.device_info.serial_no}_{DATA_ALARM_SERVER_HOST}_{key}"
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
         self._attr_device_info = isapi.get_device_info()
-        self._attr_name = ALARM_SERVER_SENSOR_LABEL_FORMAT.format(
-            ALARM_SERVER_SETTINGS[key]
-        )
+        self._attr_name = ALARM_SERVER_SENSOR_LABEL_FORMAT.format(ALARM_SERVER_SETTINGS[key])
         self.key = key
 
     @property
@@ -85,9 +81,7 @@ class HDDSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, hdd: HDDInfo) -> None:
         super().__init__(coordinator)
         isapi = coordinator.isapi
-        self._attr_unique_id = (
-            f"{isapi.device_info.serial_no}_{hdd.id}_{hdd.name}"
-        )
+        self._attr_unique_id = f"{isapi.device_info.serial_no}_{hdd.id}_{hdd.name}"
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
         self._attr_device_info = isapi.get_device_info()
         self._attr_name = f"HDD {hdd.id}"

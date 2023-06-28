@@ -1,22 +1,16 @@
 """hikvision component"""
 
 from __future__ import annotations
+
 import asyncio
 import logging
 
 from httpx import TimeoutException
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (
-    CONF_HOST,
-    CONF_PASSWORD,
-    CONF_USERNAME,
-    Platform,
-)
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-
-
 from homeassistant.helpers import device_registry as dr
 
 from .const import (
@@ -31,7 +25,6 @@ from .const import (
 from .coordinator import EventsCoordinator, SecondaryCoordinator
 from .isapi import ISAPI
 from .notifications import EventNotificationsView
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -56,13 +49,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await isapi.get_cameras()
         device_info = isapi.get_device_info()
         device_registry = dr.async_get(hass)
-        device_registry.async_get_or_create(
-            config_entry_id=entry.entry_id, **device_info
-        )
+        device_registry.async_get_or_create(config_entry_id=entry.entry_id, **device_info)
     except (asyncio.TimeoutError, TimeoutException) as ex:
-        raise ConfigEntryNotReady(
-            f"Timeout while connecting to {host}. Cannot initialize {DOMAIN}"
-        ) from ex
+        raise ConfigEntryNotReady(f"Timeout while connecting to {host}. Cannot initialize {DOMAIN}") from ex
     except Exception as ex:  # pylint: disable=broad-except
         raise ConfigEntryNotReady(
             f"Unknown error connecting to {host}. Cannot initialize {DOMAIN}. Error is {ex}"
@@ -72,10 +61,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     coordinators[EVENTS_COORDINATOR] = EventsCoordinator(hass, isapi)
 
-    if (
-        isapi.device_info.support_holiday_mode
-        or isapi.device_info.support_alarm_server
-    ):
+    if isapi.device_info.support_holiday_mode or isapi.device_info.support_alarm_server:
         coordinators[SECONDARY_COORDINATOR] = SecondaryCoordinator(hass, isapi)
 
     hass.data[DOMAIN][entry.entry_id] = {
@@ -85,13 +71,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         **coordinators,
     }
 
-    if (
-        entry.data[DATA_SET_ALARM_SERVER]
-        and isapi.device_info.support_alarm_server
-    ):
-        await isapi.set_alarm_server(
-            entry.data[DATA_ALARM_SERVER_HOST], ALARM_SERVER_PATH
-        )
+    if entry.data[DATA_SET_ALARM_SERVER] and isapi.device_info.support_alarm_server:
+        await isapi.set_alarm_server(entry.data[DATA_ALARM_SERVER_HOST], ALARM_SERVER_PATH)
 
     for coordinator in coordinators.values():
         await coordinator.async_config_entry_first_refresh()
@@ -105,9 +86,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-async def async_remove_config_entry_device(
-    hass: HomeAssistant, config_entry, device_entry
-) -> bool:
+async def async_remove_config_entry_device(hass: HomeAssistant, config_entry, device_entry) -> bool:
     """Delete device if not entities"""
     if not device_entry.via_device_id:
         _LOGGER.error(
@@ -125,10 +104,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Unload a config entry
     unload_ok = all(
         await asyncio.gather(
-            *[
-                hass.config_entries.async_forward_entry_unload(entry, platform)
-                for platform in PLATFORMS
-            ]
+            *[hass.config_entries.async_forward_entry_unload(entry, platform) for platform in PLATFORMS]
         )
     )
 
@@ -148,9 +124,5 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 def get_first_instance_unique_id(hass: HomeAssistant) -> int:
     """Get entry unique_id for first instance of integration"""
-    entry = [
-        entry
-        for entry in hass.config_entries.async_entries(DOMAIN)
-        if not entry.disabled_by
-    ][0]
+    entry = [entry for entry in hass.config_entries.async_entries(DOMAIN) if not entry.disabled_by][0]
     return entry.unique_id

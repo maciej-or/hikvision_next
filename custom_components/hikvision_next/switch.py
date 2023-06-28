@@ -23,9 +23,7 @@ from .const import (
 from .isapi import EventInfo
 
 
-async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
-) -> None:
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     """Add hikvision_next entities from a config_entry."""
 
     config = hass.data[DOMAIN][entry.entry_id]
@@ -64,9 +62,7 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         try:
-            await self.coordinator.isapi.set_event_enabled_state(
-                self.camera.id, self.event, True
-            )
+            await self.coordinator.isapi.set_event_enabled_state(self.camera.id, self.event, True)
         except Exception as ex:
             raise ex
         finally:
@@ -74,9 +70,7 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         try:
-            await self.coordinator.isapi.set_event_enabled_state(
-                self.camera.id, self.event, False
-            )
+            await self.coordinator.isapi.set_event_enabled_state(self.camera.id, self.event, False)
         except Exception as ex:
             raise ex
         finally:
@@ -97,9 +91,7 @@ class HolidaySwitch(CoordinatorEntity, SwitchEntity):
 
     def __init__(self, coordinator) -> None:
         super().__init__(coordinator)
-        self._attr_unique_id = (
-            f"{slugify(coordinator.isapi.device_info.serial_no.lower())}_{HOLIDAY_MODE}"
-        )
+        self._attr_unique_id = f"{slugify(coordinator.isapi.device_info.serial_no.lower())}_{HOLIDAY_MODE}"
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
         self._attr_device_info = coordinator.isapi.get_device_info()
         self._attr_name = HOLIDAY_MODE_SWITCH_LABEL

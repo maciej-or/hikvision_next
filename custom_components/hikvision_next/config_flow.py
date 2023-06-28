@@ -1,8 +1,8 @@
 """Config flow for hikvision_next integration."""
 
 from __future__ import annotations
-import asyncio
 
+import asyncio
 from http import HTTPStatus
 import logging
 from typing import Any
@@ -32,31 +32,21 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
         local_ip = await async_get_source_ip(self.hass)
         return vol.Schema(
             {
-                vol.Required(
-                    CONF_HOST, default=user_input.get(CONF_HOST, "http://")
-                ): str,
-                vol.Required(
-                    CONF_USERNAME, default=user_input.get(CONF_USERNAME, "")
-                ): str,
-                vol.Required(
-                    CONF_PASSWORD, default=user_input.get(CONF_PASSWORD, "")
-                ): str,
+                vol.Required(CONF_HOST, default=user_input.get(CONF_HOST, "http://")): str,
+                vol.Required(CONF_USERNAME, default=user_input.get(CONF_USERNAME, "")): str,
+                vol.Required(CONF_PASSWORD, default=user_input.get(CONF_PASSWORD, "")): str,
                 vol.Required(
                     DATA_SET_ALARM_SERVER,
                     default=user_input.get(DATA_SET_ALARM_SERVER, True),
                 ): bool,
                 vol.Required(
                     DATA_ALARM_SERVER_HOST,
-                    default=user_input.get(
-                        DATA_ALARM_SERVER_HOST, f"http://{local_ip}:8123"
-                    ),
+                    default=user_input.get(DATA_ALARM_SERVER_HOST, f"http://{local_ip}:8123"),
                 ): str,
             }
         )
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Handle a flow initiated by the user."""
 
         errors = {}
@@ -71,14 +61,8 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                 await isapi.get_hardware_info()
 
                 if self._reauth_entry:
-                    self.hass.config_entries.async_update_entry(
-                        self._reauth_entry, data=user_input
-                    )
-                    self.hass.async_create_task(
-                        self.hass.config_entries.async_reload(
-                            self._reauth_entry.entry_id
-                        )
-                    )
+                    self.hass.config_entries.async_update_entry(self._reauth_entry, data=user_input)
+                    self.hass.async_create_task(self.hass.config_entries.async_reload(self._reauth_entry.entry_id))
                     return self.async_abort(reason="reauth_successful")
 
                 await self.async_set_unique_id({(DOMAIN, isapi.device_info.serial_no)})
@@ -97,9 +81,7 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                 _LOGGER.error("Unexpected exception %s", ex)
                 errors["base"] = "unknown"
             else:
-                return self.async_create_entry(
-                    title=isapi.device_info.name, data=user_input
-                )
+                return self.async_create_entry(title=isapi.device_info.name, data=user_input)
 
         schema = await self.get_schema(user_input or {})
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
@@ -107,8 +89,6 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
     async def async_step_reauth(self, entry_data: dict[str, Any]) -> FlowResult:
         """Schedule reauth."""
         _LOGGER.warning("Attempt to reauth in 120s")
-        self._reauth_entry = self.hass.config_entries.async_get_entry(
-            self.context["entry_id"]
-        )
+        self._reauth_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
         await asyncio.sleep(120)
         return await self.async_step_user(entry_data)
