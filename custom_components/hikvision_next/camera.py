@@ -8,14 +8,11 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
-from .const import DOMAIN, DATA_ISAPI
-
+from .const import DATA_ISAPI, DOMAIN
 from .isapi import ISAPI, AnalogCamera, CameraStreamInfo, IPCamera
 
 
-async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
-) -> None:
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     """Set up a Hikvision IP Camera."""
 
     config = hass.data[DOMAIN][entry.entry_id]
@@ -45,9 +42,7 @@ class HikvisionCamera(Camera):
 
         self._attr_device_info = isapi.get_device_info(camera.id)
         self._attr_name = camera.name if stream_info.type_id == 1 else stream_info.type
-        self._attr_unique_id = slugify(
-            f"{isapi.device_info.serial_no.lower()}_{stream_info.id}"
-        )
+        self._attr_unique_id = slugify(f"{isapi.device_info.serial_no.lower()}_{stream_info.id}")
         self.entity_id = f"camera.{self.unique_id}"
         self.isapi = isapi
         self.stream_info = stream_info
@@ -56,8 +51,6 @@ class HikvisionCamera(Camera):
         """Return the source of the stream."""
         return self.isapi.get_stream_source(self.stream_info)
 
-    async def async_camera_image(
-        self, width: int | None = None, height: int | None = None
-    ) -> bytes | None:
+    async def async_camera_image(self, width: int | None = None, height: int | None = None) -> bytes | None:
         """Return a still image response from the camera."""
         return await self.isapi.get_camera_image(self.stream_info, width, height)

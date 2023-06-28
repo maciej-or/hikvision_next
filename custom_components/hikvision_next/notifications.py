@@ -2,24 +2,20 @@
 
 from __future__ import annotations
 
-import logging
 from http import HTTPStatus
+import logging
 from urllib.parse import urlparse
 
 from aiohttp import web
+from requests_toolbelt.multipart import MultipartDecoder
+
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN, STATE_ON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.util import slugify
-from requests_toolbelt.multipart import MultipartDecoder
 
-from .const import (
-    ALARM_SERVER_PATH,
-    DATA_ISAPI,
-    DOMAIN,
-    HIKVISION_EVENT,
-)
+from .const import ALARM_SERVER_PATH, DATA_ISAPI, DOMAIN, HIKVISION_EVENT
 from .isapi import ISAPI, AlertInfo, IPCamera
 
 _LOGGER = logging.getLogger(__name__)
@@ -57,9 +53,7 @@ class EventNotificationsView(HomeAssistantView):
         except Exception as ex:  # pylint: disable=broad-except
             _LOGGER.warning("Cannot process incoming event %s", ex)
 
-        response = web.Response(
-            status=HTTPStatus.OK, content_type=CONTENT_TYPE_TEXT_PLAIN
-        )
+        response = web.Response(status=HTTPStatus.OK, content_type=CONTENT_TYPE_TEXT_PLAIN)
         return response
 
     def get_isapi_instance(self, device_ip) -> ISAPI:
@@ -69,8 +63,7 @@ class EventNotificationsView(HomeAssistantView):
             entry = [
                 entry
                 for entry in self.hass.config_entries.async_entries(DOMAIN)
-                if not entry.disabled_by
-                and urlparse(entry.data.get("host")).hostname == device_ip
+                if not entry.disabled_by and urlparse(entry.data.get("host")).hostname == device_ip
             ][0]
 
             config = self.hass.data[DOMAIN][entry.entry_id]
@@ -106,9 +99,7 @@ class EventNotificationsView(HomeAssistantView):
                     _LOGGER.debug("image found")
 
         if not xml:
-            raise ValueError(
-                f"Unexpected event Content-Type {content_type_header}"
-            )
+            raise ValueError(f"Unexpected event Content-Type {content_type_header}")
         return xml
 
     def get_alert_info(self, xml: str) -> AlertInfo:
@@ -124,8 +115,7 @@ class EventNotificationsView(HomeAssistantView):
                 alert.channel_id = [
                     camera.id
                     for camera in self.isapi.cameras
-                    if isinstance(camera, IPCamera)
-                    and camera.input_port == alert.channel_id - 32
+                    if isinstance(camera, IPCamera) and camera.input_port == alert.channel_id - 32
                 ][0]
             except IndexError:
                 alert.channel_id = alert.channel_id - 32
@@ -139,10 +129,7 @@ class EventNotificationsView(HomeAssistantView):
         _LOGGER.debug("Alert: %s", alert)
 
         serial_no = self.isapi.device_info.serial_no.lower()
-        entity_id = (
-            f"binary_sensor.{slugify(serial_no)}_{alert.channel_id}"
-            f"_{alert.event_id}"
-        )
+        entity_id = f"binary_sensor.{slugify(serial_no)}_{alert.channel_id}" f"_{alert.event_id}"
         entity = hass.states.get(entity_id)
         if entity:
             hass.states.async_set(entity_id, STATE_ON, entity.attributes)
