@@ -484,18 +484,21 @@ class ISAPI:
 
         for storage in storage_info:
             storage = storage.get("hdd")
+            if not isinstance(storage, list):
+                storage = [storage]
             if storage:
-                storage_list.append(
-                    HDDInfo(
-                        id=int(storage.get("id")),
-                        name=storage.get("hddName"),
-                        type=storage.get("hddType"),
-                        status=storage.get("status"),
-                        capacity=int(storage.get("capacity")),
-                        freespace=int(storage.get("freeSpace")),
-                        property=storage.get("property"),
+                for hdd in storage:
+                    storage_list.append(
+                        HDDInfo(
+                            id=int(hdd.get("id")),
+                            name=hdd.get("hddName"),
+                            type=hdd.get("hddType"),
+                            status=hdd.get("status"),
+                            capacity=int(hdd.get("capacity")),
+                            freespace=int(hdd.get("freeSpace")),
+                            property=hdd.get("property"),
+                        )
                     )
-                )
 
         return storage_list
 
