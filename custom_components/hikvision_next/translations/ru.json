@@ -1,0 +1,26 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Устройство уже настроено"
+    },
+    "step": {
+      "user": {
+        "description": "Пожалуйста, введите учетные данные видеорегистратора или IP камеры",
+        "data": {
+          "host": "URL",
+          "password": "Пароль",
+          "username": "Имя пользователя",
+          "set_alarm_server": "Установить сервер тревоги используя следующий адрес:",
+          "alarm_server": "Home Assistant адрес, доступный Hikvison устройству"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Ошибка присоединения",
+      "invalid_auth": "Ошибка аутентификации",
+      "insufficient_permission": "Доступ запрещен, проверьте свои права доступа",
+      "unknown": "Неизвестная ошибка"
+    }
+  }
+}
+
