@@ -90,6 +90,7 @@ Download logs from `Settings / System / Logs`
 
 - ERI-K104-P4
 - DS-7716NI-I4/16P
+- DS-7616NI-I2/16P
 - DS-7616NXI-I2/16P/S
 - DS-7616NI-E2/16P
 - DS-7608NXI-I2/8P/S
