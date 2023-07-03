@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from http import HTTPStatus
 import logging
+import ipaddress, socket
 from urllib.parse import urlparse
 
 from aiohttp import web
@@ -63,7 +64,7 @@ class EventNotificationsView(HomeAssistantView):
             entry = [
                 entry
                 for entry in self.hass.config_entries.async_entries(DOMAIN)
-                if not entry.disabled_by and urlparse(entry.data.get("host")).hostname == device_ip
+                if not entry.disabled_by and get_ip(urlparse(entry.data.get("host")).hostname) == device_ip
             ][0]
 
             config = self.hass.data[DOMAIN][entry.entry_id]
@@ -150,3 +151,15 @@ class EventNotificationsView(HomeAssistantView):
             HIKVISION_EVENT,
             message,
         )
+        
+def get_ip(ip_string: str) -> str:
+    """Return an IP if either hostname or IP is provided"""
+
+    try:
+        ipaddress.ip_address(ip_string)
+        return ip_string
+    except ValueError:
+        resolved_hostname = socket.gethostbyname(ip_string)
+        _LOGGER.debug("Resolve host %s resolves to IP %s", ip_string, resolved_hostname)
+
+        return resolved_hostname
