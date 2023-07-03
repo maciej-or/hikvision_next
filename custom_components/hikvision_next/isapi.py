@@ -530,7 +530,7 @@ class ISAPI:
                 identifiers={(DOMAIN, camera_info.serial_no)},
                 model=camera_info.model,
                 name=camera_info.name,
-                sw_version=self.device_info.firmware if is_ip_camera else "Unknown",
+                sw_version=camera_info.firmware if is_ip_camera else "Unknown",
                 via_device=(DOMAIN, self.device_info.serial_no) if self.device_info.is_nvr else None,
             )
 
