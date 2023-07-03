@@ -81,7 +81,7 @@ async def _async_get_diagnostics(
     info.update(await get_isapi_data("RAW Capabilities Info", isapi.isapi.System.capabilities, "DeviceCap"))
 
     # Add raw supported events
-    info.update(await get_isapi_data("RAW Events Info", isapi.isapi.Event.triggers, "EventTriggerList"))
+    info.update(await get_isapi_data("RAW Events Info", isapi.isapi.Event.triggers, ""))
 
     # Add raw streams info
     info.update(await get_isapi_data("RAW Streams Info", isapi.isapi.Streaming.channels, "StreamingChannelList"))
