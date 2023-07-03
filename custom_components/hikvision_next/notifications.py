@@ -3,17 +3,18 @@
 from __future__ import annotations
 
 from http import HTTPStatus
+import ipaddress
 import logging
+import socket
 from urllib.parse import urlparse
 
 from aiohttp import web
 from requests_toolbelt.multipart import MultipartDecoder
 
 from homeassistant.components.http import HomeAssistantView
-from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN, STATE_ON
+from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import device_registry as dr
-from homeassistant.util import slugify
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 
 from .const import ALARM_SERVER_PATH, DATA_ISAPI, DOMAIN, HIKVISION_EVENT
 from .isapi import ISAPI, AlertInfo, IPCamera
@@ -49,7 +50,7 @@ class EventNotificationsView(HomeAssistantView):
             self.isapi = self.get_isapi_instance(request.remote)
             xml = await self.parse_event_request(request)
             _LOGGER.debug("alert info: %s", xml)
-            self.trigger_sensor(request.app["hass"], xml)
+            self.trigger_sensor(xml)
         except Exception as ex:  # pylint: disable=broad-except
             _LOGGER.warning("Cannot process incoming event %s", ex)
 
@@ -63,7 +64,7 @@ class EventNotificationsView(HomeAssistantView):
             entry = [
                 entry
                 for entry in self.hass.config_entries.async_entries(DOMAIN)
-                if not entry.disabled_by and urlparse(entry.data.get("host")).hostname == device_ip
+                if not entry.disabled_by and self.get_ip(urlparse(entry.data.get("host")).hostname) == device_ip
             ][0]
 
             config = self.hass.data[DOMAIN][entry.entry_id]
@@ -72,6 +73,18 @@ class EventNotificationsView(HomeAssistantView):
 
         except IndexError:
             return None
+        
+    def get_ip(self, ip_string: str) -> str:
+        """Return an IP if either hostname or IP is provided"""
+
+        try:
+            ipaddress.ip_address(ip_string)
+            return ip_string
+        except ValueError:
+            resolved_hostname = socket.gethostbyname(ip_string)
+            _LOGGER.debug("Resolve host %s resolves to IP %s", ip_string, resolved_hostname)
+
+            return resolved_hostname
 
     async def parse_event_request(self, request: web.Request) -> str:
         """Extract XML content from multipart request or from simple request"""
@@ -122,22 +135,17 @@ class EventNotificationsView(HomeAssistantView):
 
         return alert
 
-    def trigger_sensor(self, hass: HomeAssistant, xml: str) -> None:
+    def trigger_sensor(self, xml: str) -> None:
         """Determine entity and set binary sensor state"""
 
         alert = self.get_alert_info(xml)
         _LOGGER.debug("Alert: %s", alert)
 
-        serial_no = self.isapi.device_info.serial_no.lower()
-        entity_id = f"binary_sensor.{slugify(serial_no)}_{alert.channel_id}" f"_{alert.event_id}"
-        entity = hass.states.get(entity_id)
-        if entity:
-            hass.states.async_set(entity_id, STATE_ON, entity.attributes)
-            self.fire_hass_event(hass, alert)
-        else:
-            raise ValueError(f"Entity not found {entity_id}")
+        event_signal = f"{HIKVISION_EVENT}-{self.isapi.device_info.serial_no}"
+        async_dispatcher_send(self.hass, event_signal, alert)
+        self.fire_hass_event(alert)
 
-    def fire_hass_event(self, hass: HomeAssistant, alert: AlertInfo):
+    def fire_hass_event(self, alert: AlertInfo):
         """Fire HASS event"""
         camera = self.isapi.get_camera_by_id(alert.channel_id)
         message = {
@@ -146,7 +154,7 @@ class EventNotificationsView(HomeAssistantView):
             "event_id": alert.event_id,
         }
 
-        hass.bus.fire(
+        self.hass.bus.fire(
             HIKVISION_EVENT,
             message,
         )
