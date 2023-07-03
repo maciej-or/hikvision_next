@@ -450,7 +450,7 @@ class ISAPI:
                     CameraStreamInfo(
                         id=int(stream_info["id"]),
                         name=stream_info["channelName"],
-                        type_id=int(stream_info["id"]),
+                        type_id=stream_type_id,
                         type=stream_type,
                         enabled=stream_info["enabled"],
                         codec=stream_info["Video"]["videoCodecType"],
