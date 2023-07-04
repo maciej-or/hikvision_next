@@ -12,9 +12,9 @@ from aiohttp import web
 from requests_toolbelt.multipart import MultipartDecoder
 
 from homeassistant.components.http import HomeAssistantView
-from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN
+from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN, STATE_ON
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.dispatcher import async_dispatcher_send
+from homeassistant.util import slugify
 
 from .const import ALARM_SERVER_PATH, DATA_ISAPI, DOMAIN, HIKVISION_EVENT
 from .isapi import ISAPI, AlertInfo, IPCamera
@@ -73,7 +73,7 @@ class EventNotificationsView(HomeAssistantView):
 
         except IndexError:
             return None
-        
+
     def get_ip(self, ip_string: str) -> str:
         """Return an IP if either hostname or IP is provided"""
 
@@ -141,9 +141,14 @@ class EventNotificationsView(HomeAssistantView):
         alert = self.get_alert_info(xml)
         _LOGGER.debug("Alert: %s", alert)
 
-        event_signal = f"{HIKVISION_EVENT}-{self.isapi.device_info.serial_no}"
-        async_dispatcher_send(self.hass, event_signal, alert)
-        self.fire_hass_event(alert)
+        serial_no = self.isapi.device_info.serial_no.lower()
+        entity_id = f"binary_sensor.{slugify(serial_no)}_{alert.channel_id}" f"_{alert.event_id}"
+        entity = self.hass.states.get(entity_id)
+        if entity:
+            self.hass.states.async_set(entity_id, STATE_ON, entity.attributes)
+            self.fire_hass_event(alert)
+        else:
+            raise ValueError(f"Entity not found {entity_id}")
 
     def fire_hass_event(self, alert: AlertInfo):
         """Fire HASS event"""
