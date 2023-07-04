@@ -12,8 +12,9 @@ from aiohttp import web
 from requests_toolbelt.multipart import MultipartDecoder
 
 from homeassistant.components.http import HomeAssistantView
-from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN, STATE_ON
+from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN, STATE_ON, Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_registry import async_get_registry
 from homeassistant.util import slugify
 
 from .const import ALARM_SERVER_PATH, DATA_ISAPI, DOMAIN, HIKVISION_EVENT
@@ -50,7 +51,7 @@ class EventNotificationsView(HomeAssistantView):
             self.isapi = self.get_isapi_instance(request.remote)
             xml = await self.parse_event_request(request)
             _LOGGER.debug("alert info: %s", xml)
-            self.trigger_sensor(xml)
+            await self.trigger_sensor(xml)
         except Exception as ex:  # pylint: disable=broad-except
             _LOGGER.warning("Cannot process incoming event %s", ex)
 
@@ -135,20 +136,23 @@ class EventNotificationsView(HomeAssistantView):
 
         return alert
 
-    def trigger_sensor(self, xml: str) -> None:
+    async def trigger_sensor(self, xml: str) -> None:
         """Determine entity and set binary sensor state"""
 
         alert = self.get_alert_info(xml)
         _LOGGER.debug("Alert: %s", alert)
 
         serial_no = self.isapi.device_info.serial_no.lower()
-        entity_id = f"binary_sensor.{slugify(serial_no)}_{alert.channel_id}" f"_{alert.event_id}"
-        entity = self.hass.states.get(entity_id)
-        if entity:
-            self.hass.states.async_set(entity_id, STATE_ON, entity.attributes)
-            self.fire_hass_event(alert)
-        else:
-            raise ValueError(f"Entity not found {entity_id}")
+        unique_id = f"binary_sensor.{slugify(serial_no)}_{alert.channel_id}" f"_{alert.event_id}"
+        entity_registry = await async_get_registry(self.hass)
+        entity_id = entity_registry.async_get_entity_id(Platform.BINARY_SENSOR, DOMAIN, unique_id)
+        if entity_id:
+            entity = self.hass.states.get(entity_id)
+            if entity:
+                self.hass.states.async_set(entity_id, STATE_ON, entity.attributes)
+                self.fire_hass_event(alert)
+            return
+        raise ValueError(f"Entity not found {entity_id}")
 
     def fire_hass_event(self, alert: AlertInfo):
         """Fire HASS event"""
