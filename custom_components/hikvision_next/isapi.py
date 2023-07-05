@@ -382,7 +382,7 @@ class ISAPI:
                 )
                 events.append(event_info)
         return events
-    
+
     async def get_nvr_event_capabilities(
         self, serial_no: str, supported_events: list[SupportedEventsInfo]
     ) -> list[EventInfo]:
@@ -393,13 +393,11 @@ class ISAPI:
             s.event_id in EVENTS and EVENTS[s.event_id].get("type") == EVENT_NVR_BASIC
         )]
 
-        _LOGGER.debug("NVR SUPPORTED EVENTS: %s", nvr_supported_events)
-
         for event in nvr_supported_events:
             event_info = EventInfo(
                 id=event.event_id,
                 channel_id=event.channel_id,
-                unique_id=f"{slugify(serial_no)}_{event.channel_id}_{event.event_id}",
+                unique_id=f"{slugify(serial_no.lower())}_{event.channel_id}_{event.event_id}",
                 url=self.get_event_url(
                     event.event_id,
                     event.channel_id,
@@ -552,7 +550,7 @@ class ISAPI:
         except IndexError:
             # Storage id does not exist
             return None
-        
+
     async def get_port_status(self, port_type: str, port_no: int) -> str:
         """Get status of physical ports"""
         if port_type == "input":
@@ -573,7 +571,6 @@ class ISAPI:
         else:
             data["IOPortData"] = {"outputState": "low"}
 
-        _LOGGER.debug("STATUS: %s", data)
         xml = xmltodict.unparse(data)
         response = await self.isapi.System.IO.outputs[port_no].trigger(method=PUT, data=xml)
         _LOGGER.debug("[PUT] %s/ISAPI/System/IO/outputs/%s/trigger %s", self.isapi.host, port_no, response)
