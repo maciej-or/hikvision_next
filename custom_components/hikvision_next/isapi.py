@@ -552,6 +552,31 @@ class ISAPI:
         except IndexError:
             # Storage id does not exist
             return None
+        
+    async def get_port_status(self, port_type: str, port_no: int) -> str:
+        """Get status of physical ports"""
+        if port_type == "input":
+            status = await self.isapi.System.IO.inputs[port_no].status(method=GET)
+            _LOGGER.debug("%s/ISAPI/System/IO/inputs/%s/status %s", self.isapi.host, port_no, status)
+        else:
+            status = await self.isapi.System.IO.outputs[port_no].status(method=GET)
+            _LOGGER.debug("%s/ISAPI/System/IO/outputs/%s/status %s", self.isapi.host, port_no, status)
+
+        if status.get("IOPortStatus"):
+            return status["IOPortStatus"].get("ioState")
+
+    async def set_port_state(self, port_no: int, turn_on: bool):
+        """Set status of output port"""
+        data = {}
+        if turn_on:
+            data["IOPortData"] = {"outputState": "high"}
+        else:
+            data["IOPortData"] = {"outputState": "low"}
+
+        _LOGGER.debug("STATUS: %s", data)
+        xml = xmltodict.unparse(data)
+        response = await self.isapi.System.IO.outputs[port_no].trigger(method=PUT, data=xml)
+        _LOGGER.debug("[PUT] %s/ISAPI/System/IO/outputs/%s/trigger %s", self.isapi.host, port_no, response)
 
     def get_device_info(self, device_id: int = 0) -> DeviceInfo:
         """Return device registry information."""

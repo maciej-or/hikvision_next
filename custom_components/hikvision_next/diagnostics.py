@@ -9,7 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntry
 
-from .const import DATA_ISAPI, DOMAIN
+from .const import DATA_ISAPI, DOMAIN, EVENTS_COORDINATOR
 
 GET = "get"
 
@@ -35,6 +35,7 @@ async def _async_get_diagnostics(
     device: DeviceEntry | None = None,
 ) -> dict[str, Any]:
     isapi = hass.data[DOMAIN][entry.entry_id][DATA_ISAPI]
+    coordinator = hass.data[DOMAIN][entry.entry_id][EVENTS_COORDINATOR]
 
     # Get info set
     info = {}
@@ -57,6 +58,9 @@ async def _async_get_diagnostics(
                 }
             )
     info.update({"Event States": event_states})
+
+    # Event coordinator data
+    info.update({"Entity Data": to_json(coordinator.data)})
 
     # Add raw device info
     info.update(await get_isapi_data("RAW Device Info", isapi.isapi.System.deviceInfo, "DeviceInfo"))
