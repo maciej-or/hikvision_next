@@ -156,6 +156,7 @@ class EventNotificationsView(HomeAssistantView):
 
     def fire_hass_event(self, alert: AlertInfo):
         """Fire HASS event"""
+
         camera = self.isapi.get_camera_by_id(alert.channel_id)
         message = {
             "channel_id": alert.channel_id,
