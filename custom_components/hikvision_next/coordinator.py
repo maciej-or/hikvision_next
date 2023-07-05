@@ -38,6 +38,8 @@ class EventsCoordinator(DataUpdateCoordinator):
         """Update data via ISAPI"""
         async with async_timeout.timeout(30):
             data = {}
+
+            # Get camera event status
             for camera in self.isapi.cameras:
                 for event in camera.supported_events:
                     try:
@@ -45,6 +47,14 @@ class EventsCoordinator(DataUpdateCoordinator):
                         data[entity_id] = await self.isapi.get_event_enabled_state(event)
                     except Exception as ex:  # pylint: disable=broad-except
                         self.isapi.handle_exception(ex, f"Cannot fetch state for {event.id}")
+
+            # Get NVR event status
+            for event in self.isapi.device_info.supported_events:
+                try:
+                    entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
+                    data[entity_id] = await self.isapi.get_event_enabled_state(event)
+                except Exception as ex:  # pylint: disable=broad-except
+                    self.isapi.handle_exception(ex, f"Cannot fetch state for {event.id}")
 
             # Refresh HDD data
             try:

@@ -21,9 +21,11 @@ ALARM_SERVER_SENSOR_LABEL_FORMAT = "Alarm Server {}"
 
 DEVICE_TYPE_IP_CAMERA = "IPCamera"
 DEVICE_TYPE_ANALOG_CAMERA = "AnalogCamera"
+DEVICE_TYPE_NVR = "NVR"
 
 HIKVISION_EVENT = f"{DOMAIN}_event"
 EVENT_BASIC: Final = "basic"
+EVENT_NVR_BASIC: Final = "nvr_basic"
 EVENT_SMART: Final = "smart"
 EVENTS = {
     "motiondetection": {
@@ -78,6 +80,14 @@ EVENTS = {
         "slug": "regionExiting",
         "device_class": BinarySensorDeviceClass.MOTION,
     },
+    "io": {
+        "type": EVENT_NVR_BASIC,
+        "label": "Alarm Input",
+        "channel_attr": "inputIOPortID",
+        "url_path": "IO/inputs",
+        "slug": "IOInputPort",
+        "device_class": BinarySensorDeviceClass.MOTION
+    }
 }
 
 EVENTS_ALTERNATE_ID = {
