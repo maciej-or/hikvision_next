@@ -63,44 +63,28 @@ async def _async_get_diagnostics(
     info.update({"Entity Data": to_json(coordinator.data)})
 
     # Add raw device info
-    info.update(await get_isapi_data("RAW Device Info", isapi.isapi.System.deviceInfo, "DeviceInfo"))
+    info.update(await get_isapi_data("RAW Device Info", isapi.isapi.System.deviceInfo))
 
-    # Add raw camera info
-    info.update(
-        await get_isapi_data(
-            "RAW Analog Camera Info",
-            isapi.isapi.System.Video.inputs.channels,
-            "VideoInputChannelList",
-        )
-    )
-    info.update(
-        await get_isapi_data(
-            "RAW IP Camera Info",
-            isapi.isapi.ContentMgmt.InputProxy.channels,
-            "InputProxyChannelList",
-        )
-    )
+    # Add raw camera info - Direct connected
+    info.update(await get_isapi_data("RAW Analog Camera Info", isapi.isapi.System.Video.inputs.channels))
+
+    # Add raw camera info - Proxy connected
+    info.update(await get_isapi_data("RAW IP Camera Info", isapi.isapi.ContentMgmt.InputProxy.channels))
 
     # Add raw capabilities
-    info.update(await get_isapi_data("RAW Capabilities Info", isapi.isapi.System.capabilities, "DeviceCap"))
+    info.update(await get_isapi_data("RAW Capabilities Info", isapi.isapi.System.capabilities))
 
     # Add raw supported events
-    info.update(await get_isapi_data("RAW Events Info", isapi.isapi.Event.triggers, ""))
+    info.update(await get_isapi_data("RAW Events Info", isapi.isapi.Event.triggers))
 
     # Add raw streams info
-    info.update(await get_isapi_data("RAW Streams Info", isapi.isapi.Streaming.channels, "StreamingChannelList"))
+    info.update(await get_isapi_data("RAW Streams Info", isapi.isapi.Streaming.channels))
 
     # Add raw holiday info
-    info.update(await get_isapi_data("RAW Holiday Info", isapi.isapi.System.Holidays, "HolidayList"))
+    info.update(await get_isapi_data("RAW Holiday Info", isapi.isapi.System.Holidays))
 
     # Add alarms server info
-    info.update(
-        await get_isapi_data(
-            "RAW Alarm Server Info",
-            isapi.isapi.Event.notification.httpHosts,
-            "HttpHostNotificationList",
-        )
-    )
+    info.update(await get_isapi_data("RAW Alarm Server Info", isapi.isapi.Event.notification.httpHosts))
 
     return info
 
