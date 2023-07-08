@@ -77,6 +77,14 @@ async def _async_get_diagnostics(
     # Add raw supported events
     info.update(await get_isapi_data("RAW Events Info", isapi.isapi.Event.triggers))
 
+    # Add IO info - direct connected
+    info.update(await get_isapi_data("Direct IO Inputs", isapi.isapi.System.IO.inputs))
+    info.update(await get_isapi_data("Direct IO Outputs", isapi.isapi.System.IO.outputs))
+
+    # Add IO info - proxy connected
+    info.update(await get_isapi_data("Proxied IO Inputs", isapi.isapi.ContentMgmt.IOProxy.inputs))
+    info.update(await get_isapi_data("Proxied IO Outputs", isapi.isapi.ContentMgmt.IOProxy.outputs))
+
     # Add raw streams info
     info.update(await get_isapi_data("RAW Streams Info", isapi.isapi.Streaming.channels))
 
