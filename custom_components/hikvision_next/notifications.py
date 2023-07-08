@@ -143,7 +143,16 @@ class EventNotificationsView(HomeAssistantView):
         _LOGGER.debug("Alert: %s", alert)
 
         serial_no = self.isapi.device_info.serial_no.lower()
-        unique_id = f"binary_sensor.{slugify(serial_no)}_{alert.channel_id}" f"_{alert.event_id}"
+
+        device_id_param = f"_{alert.channel_id}" if alert.channel_id != 0 else ""
+        io_port_id_param = f"_{alert.io_port_id}" if alert.io_port_id != 0 else ""
+        unique_id = (
+            f"binary_sensor.{slugify(serial_no)}{device_id_param}{io_port_id_param}_{alert.event_id}"
+        )
+
+        _LOGGER.debug("UNIQUE_ID: %s", unique_id)
+
+        # unique_id = f"binary_sensor.{slugify(serial_no)}_{alert.channel_id}" f"_{alert.event_id}"
         entity_registry = async_get(self.hass)
         entity_id = entity_registry.async_get_entity_id(Platform.BINARY_SENSOR, DOMAIN, unique_id)
         if entity_id:
@@ -156,11 +165,14 @@ class EventNotificationsView(HomeAssistantView):
 
     def fire_hass_event(self, alert: AlertInfo):
         """Fire HASS event"""
+        camera_name = ""
+        if camera := self.isapi.get_camera_by_id(alert.channel_id):
+            camera_name = camera.name
 
-        camera = self.isapi.get_camera_by_id(alert.channel_id)
         message = {
             "channel_id": alert.channel_id,
-            "camera_name": camera.name,
+            "io_port_id": alert.io_port_id,
+            "camera_name": camera_name,
             "event_id": alert.event_id,
         }
 

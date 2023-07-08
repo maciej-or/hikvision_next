@@ -31,36 +31,43 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     secondary_coordinator = config.get(SECONDARY_COORDINATOR)
 
     entities = []
+
+    # Camera supported events
     for camera in events_coordinator.isapi.cameras:
         for event in camera.supported_events:
-            entities.append(CameraEventSwitch(camera, event, events_coordinator))
+            entities.append(EventSwitch(camera.id, event, events_coordinator))
 
+    # NVR supported events
     if events_coordinator.isapi.device_info.is_nvr:
         for event in events_coordinator.isapi.device_info.supported_events:
-            entities.append(NVREventSwitch(event, events_coordinator))
+            entities.append(EventSwitch(0, event, events_coordinator))
 
-        for i in range(1, events_coordinator.isapi.device_info.output_ports + 1):
-            entities.append(NVROutputSwitch(events_coordinator, i))
+    # Output port switch
+    for i in range(1, events_coordinator.isapi.device_info.output_ports + 1):
+        entities.append(NVROutputSwitch(events_coordinator, i))
 
+    # Holiday mode switch
     if secondary_coordinator.isapi.device_info.support_holiday_mode:
         entities.append(HolidaySwitch(secondary_coordinator))
 
     async_add_entities(entities)
 
 
-class CameraEventSwitch(CoordinatorEntity, SwitchEntity):
+class EventSwitch(CoordinatorEntity, SwitchEntity):
     """Detection events switch."""
 
     _attr_has_entity_name = True
     _attr_icon = "mdi:eye-outline"
 
-    def __init__(self, camera, event: EventInfo, coordinator) -> None:
+    def __init__(self, device_id: int, event: EventInfo, coordinator) -> None:
         super().__init__(coordinator)
         self.entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
         self._attr_unique_id = self.entity_id
-        self._attr_device_info = coordinator.isapi.get_device_info(camera.id)
-        self._attr_name = EVENT_SWITCH_LABEL_FORMAT.format(EVENTS[event.id]["label"])
-        self.camera = camera
+        self._attr_device_info = coordinator.isapi.get_device_info(device_id)
+        self._attr_name = EVENT_SWITCH_LABEL_FORMAT.format(
+            f"{EVENTS[event.id]['label']}{' ' + str(event.io_port_id) if event.io_port_id != 0 else ''}"
+        )
+        self.device_id = device_id
         self.event = event
 
     @property
@@ -69,7 +76,7 @@ class CameraEventSwitch(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         try:
-            await self.coordinator.isapi.set_event_enabled_state(self.camera.id, self.event, True)
+            await self.coordinator.isapi.set_event_enabled_state(self.device_id, self.event, True)
         except Exception as ex:
             raise ex
         finally:
@@ -77,48 +84,7 @@ class CameraEventSwitch(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         try:
-            await self.coordinator.isapi.set_event_enabled_state(self.camera.id, self.event, False)
-        except Exception as ex:
-            raise ex
-        finally:
-            await self.coordinator.async_request_refresh()
-
-    @property
-    def extra_state_attributes(self):
-        attrs = {}
-        attrs["notify_HA"] = True if "center" in self.event.notifiers else False
-        return attrs
-
-
-class NVREventSwitch(CoordinatorEntity, SwitchEntity):
-    """Detection events switch."""
-
-    _attr_has_entity_name = True
-    _attr_icon = "mdi:eye-outline"
-
-    def __init__(self, event: EventInfo, coordinator) -> None:
-        super().__init__(coordinator)
-        self.entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
-        self._attr_unique_id = self.entity_id
-        self._attr_device_info = coordinator.isapi.get_device_info(0)
-        self._attr_name = EVENT_SWITCH_LABEL_FORMAT.format(f"{EVENTS[event.id]['label']} {event.channel_id}")
-        self.event = event
-
-    @property
-    def is_on(self) -> bool | None:
-        return self.coordinator.data.get(self.entity_id)
-
-    async def async_turn_on(self, **kwargs: Any) -> None:
-        try:
-            await self.coordinator.isapi.set_event_enabled_state(self.event.channel_id, self.event, True)
-        except Exception as ex:
-            raise ex
-        finally:
-            await self.coordinator.async_request_refresh()
-
-    async def async_turn_off(self, **kwargs: Any) -> None:
-        try:
-            await self.coordinator.isapi.set_event_enabled_state(self.event.channel_id, self.event, False)
+            await self.coordinator.isapi.set_event_enabled_state(self.device_id, self.event, False)
         except Exception as ex:
             raise ex
         finally:
