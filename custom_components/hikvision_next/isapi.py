@@ -368,7 +368,7 @@ class ISAPI:
         device_id: int,
         connection_type: str = CONNECTION_TYPE_DIRECT,
     ) -> list[EventInfo]:
-        """Get events support by device (device id  NVR = 0, camera > 0) and integration"""
+        """Get events support by device (device id:  NVR = 0, camera > 0)"""
         events = []
 
         if device_id == 0:  # NVR
@@ -546,30 +546,6 @@ class ISAPI:
             # Storage id does not exist
             return None
 
-    async def get_port_status(self, port_type: str, port_no: int) -> str:
-        """Get status of physical ports"""
-        if port_type == "input":
-            status = await self.isapi.System.IO.inputs[port_no].status(method=GET)
-            _LOGGER.debug("%s/ISAPI/System/IO/inputs/%s/status %s", self.isapi.host, port_no, status)
-        else:
-            status = await self.isapi.System.IO.outputs[port_no].status(method=GET)
-            _LOGGER.debug("%s/ISAPI/System/IO/outputs/%s/status %s", self.isapi.host, port_no, status)
-
-        if status.get("IOPortStatus"):
-            return status["IOPortStatus"].get("ioState")
-
-    async def set_port_state(self, port_no: int, turn_on: bool):
-        """Set status of output port"""
-        data = {}
-        if turn_on:
-            data["IOPortData"] = {"outputState": "high"}
-        else:
-            data["IOPortData"] = {"outputState": "low"}
-
-        xml = xmltodict.unparse(data)
-        response = await self.isapi.System.IO.outputs[port_no].trigger(method=PUT, data=xml)
-        _LOGGER.debug("[PUT] %s/ISAPI/System/IO/outputs/%s/trigger %s", self.isapi.host, port_no, response)
-
     def get_device_info(self, device_id: int = 0) -> DeviceInfo:
         """Return device registry information."""
         if device_id == 0:
@@ -593,7 +569,7 @@ class ISAPI:
                 sw_version=camera_info.firmware if is_ip_camera else "Unknown",
                 via_device=(DOMAIN, self.device_info.serial_no) if self.device_info.is_nvr else None,
             )
-        
+
     def get_event_state_node(self, event: EventInfo) -> str:
         """Get xml key for event state"""
         slug = EVENTS[event.id]["slug"]
@@ -677,6 +653,30 @@ class ISAPI:
             raise HomeAssistantError(
                 f"You cannot enable {EVENTS[event.id]['label']} events. Please disable {EVENTS[mutex_issues[0].event_id]['label']} on channels {mutex_issues[0].channels} first"
             )
+
+    async def get_port_status(self, port_type: str, port_no: int) -> str:
+        """Get status of physical ports"""
+        if port_type == "input":
+            status = await self.isapi.System.IO.inputs[port_no].status(method=GET)
+            _LOGGER.debug("%s/ISAPI/System/IO/inputs/%s/status %s", self.isapi.host, port_no, status)
+        else:
+            status = await self.isapi.System.IO.outputs[port_no].status(method=GET)
+            _LOGGER.debug("%s/ISAPI/System/IO/outputs/%s/status %s", self.isapi.host, port_no, status)
+
+        if status.get("IOPortStatus"):
+            return status["IOPortStatus"].get("ioState")
+
+    async def set_port_state(self, port_no: int, turn_on: bool):
+        """Set status of output port"""
+        data = {}
+        if turn_on:
+            data["IOPortData"] = {"outputState": "high"}
+        else:
+            data["IOPortData"] = {"outputState": "low"}
+
+        xml = xmltodict.unparse(data)
+        response = await self.isapi.System.IO.outputs[port_no].trigger(method=PUT, data=xml)
+        _LOGGER.debug("[PUT] %s/ISAPI/System/IO/outputs/%s/trigger %s", self.isapi.host, port_no, response)
 
     async def get_holiday_enabled_state(self, holiday_index=0) -> bool:
         """Get holiday state"""
