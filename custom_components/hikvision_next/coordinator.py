@@ -10,6 +10,7 @@ import async_timeout
 from homeassistant.components.switch import ENTITY_ID_FORMAT
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.util import slugify
 
 from .const import DATA_ALARM_SERVER_HOST, DOMAIN, HOLIDAY_MODE
 from .isapi import ISAPI
@@ -38,11 +39,32 @@ class EventsCoordinator(DataUpdateCoordinator):
         """Update data via ISAPI"""
         async with async_timeout.timeout(30):
             data = {}
+
+            # Get camera event status
             for camera in self.isapi.cameras:
                 for event in camera.supported_events:
                     try:
                         entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
                         data[entity_id] = await self.isapi.get_event_enabled_state(event)
+                    except Exception as ex:  # pylint: disable=broad-except
+                        self.isapi.handle_exception(ex, f"Cannot fetch state for {event.id}")
+
+            # Get NVR event status
+            for event in self.isapi.device_info.supported_events:
+                try:
+                    entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
+                    data[entity_id] = await self.isapi.get_event_enabled_state(event)
+                except Exception as ex:  # pylint: disable=broad-except
+                    self.isapi.handle_exception(ex, f"Cannot fetch state for {event.id}")
+
+            # Get NVR outputs status
+            if self.isapi.device_info.is_nvr:
+                for i in range(1, self.isapi.device_info.output_ports + 1):
+                    try:
+                        entity_id = ENTITY_ID_FORMAT.format(
+                            f"{slugify(self.isapi.device_info.serial_no.lower())}_{i}_alarm_output"
+                        )
+                        data[entity_id] = await self.isapi.get_port_status("output", i)
                     except Exception as ex:  # pylint: disable=broad-except
                         self.isapi.handle_exception(ex, f"Cannot fetch state for {event.id}")
 
