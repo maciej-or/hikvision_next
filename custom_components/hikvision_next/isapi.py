@@ -414,11 +414,11 @@ class ISAPI:
 
         for support_event in supported_events:
             notifications = support_event.get("EventTriggerNotificationList", {})
+            event_type = support_event.get("eventType")
             # Fix for empty EventTriggerNotificationList in IP camera
-            if not notifications:
+            if not notifications or not event_type:
                 continue
 
-            event_type = support_event.get("eventType")
             channel = support_event.get("videoInputChannelID", support_event.get("dynVideoInputChannelID", 0))
             io_port = support_event.get("inputIOPortID", support_event.get("dynInputIOPortID", 0))
             notifications = notifications.get("EventTriggerNotification", [])
