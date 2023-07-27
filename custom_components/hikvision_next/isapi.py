@@ -181,20 +181,10 @@ class ISAPI:
         self.cameras: list[IPCamera | AnalogCamera] = []
         self.supported_events: list[SupportedEventsInfo] = []
 
-    async def get_hardware_info(self):
-        """Get base device data."""
-        # Get base hw info
+    async def get_device_info(self):
+        """Get device info"""
         hw_info = (await self.isapi.System.deviceInfo(method=GET)).get("DeviceInfo", {})
         _LOGGER.debug("%s/ISAPI/System/deviceInfo %s", self.isapi.host, hw_info)
-
-        # Get device capabilities
-        capabilities = (await self.isapi.System.capabilities(method=GET)).get("DeviceCap", {})
-        _LOGGER.debug("%s/ISAPI/System/capabilities %s", self.isapi.host, capabilities)
-
-        # Get all supported events to reduce isapi queries
-        self.supported_events = await self.get_supported_events_info()
-
-        # Set DeviceInfo
         self.device_info = HikDeviceInfo(
             name=hw_info.get("deviceName"),
             manufacturer=str(hw_info.get("manufacturer", "Hikvision")).title(),
@@ -204,19 +194,34 @@ class ISAPI:
             mac_address=hw_info.get("macAddress"),
             ip_address=urlparse(self.host).hostname,  # type: ignore
             device_type=hw_info.get("deviceType"),
-            support_analog_cameras=int(deep_get(capabilities, "SysCap.VideoCap.videoInputPortNums", 0)),
-            support_digital_cameras=int(deep_get(capabilities, "RacmCap.inputProxyNums", 0)),
-            support_holiday_mode=deep_get(capabilities, "SysCap.isSupportHolidy", False),
-            support_alarm_server=bool(await self.get_alarm_server()),
-            support_channel_zero=deep_get(capabilities, "RacmCap.isSupportZeroChan", False),
-            support_event_mutex_checking=capabilities.get("isSupportGetmutexFuncErrMsg", False),
-            input_ports=int(deep_get(capabilities, "SysCap.IOCap.IOInputPortNums", 0)),
-            output_ports=int(deep_get(capabilities, "SysCap.IOCap.IOOutputPortNums", 0)),
-            storage=await self.get_storage_devices(),
-            supported_events=await self.get_device_event_capabilities(
-                self.supported_events, hw_info.get("serialNumber"), 0
-            )
         )
+
+    async def get_hardware_info(self):
+        """Get base device data."""
+        # Get base hw info
+        await self.get_device_info()
+
+        # Get device capabilities
+        capabilities = (await self.isapi.System.capabilities(method=GET)).get("DeviceCap", {})
+        _LOGGER.debug("%s/ISAPI/System/capabilities %s", self.isapi.host, capabilities)
+
+        # Get all supported events to reduce isapi queries
+        self.supported_events = await self.get_supported_events_info()
+
+        # Set DeviceInfo
+        self.device_info.support_analog_cameras = int(deep_get(capabilities, "SysCap.VideoCap.videoInputPortNums", 0))
+        self.device_info.support_digital_cameras = int(deep_get(capabilities, "RacmCap.inputProxyNums", 0))
+        self.device_info.support_holiday_mode = deep_get(capabilities, "SysCap.isSupportHolidy", False)
+        self.device_info.support_channel_zero = deep_get(capabilities, "RacmCap.isSupportZeroChan", False)
+        self.device_info.support_event_mutex_checking = capabilities.get("isSupportGetmutexFuncErrMsg", False)
+        self.device_info.input_ports = int(deep_get(capabilities, "SysCap.IOCap.IOInputPortNums", 0))
+        self.device_info.output_ports = int(deep_get(capabilities, "SysCap.IOCap.IOOutputPortNums", 0))
+
+        self.device_info.storage = await self.get_storage_devices()
+        self.device_info.supported_events = await self.get_device_event_capabilities(
+            self.supported_events, self.device_info.serial_no, 0
+        )
+        self.device_info.support_alarm_server = bool(await self.get_alarm_server())
 
         await self.get_protocols()
 
@@ -329,10 +334,7 @@ class ISAPI:
                             connection_type=CONNECTION_TYPE_DIRECT,
                             streams=await self.get_camera_streams(camera_id),
                             supported_events=await self.get_device_event_capabilities(
-                                self.supported_events,
-                                self.device_info.serial_no,
-                                camera_id,
-                                CONNECTION_TYPE_DIRECT,
+                                self.supported_events, self.device_info.serial_no, camera_id, CONNECTION_TYPE_DIRECT
                             ),
                         )
                     )
@@ -372,22 +374,19 @@ class ISAPI:
         events = []
 
         if device_id == 0:  # NVR
-            device_supported_events = [s for s in supported_events if (
-                s.event_id in EVENTS and EVENTS[s.event_id].get("type") == EVENT_IO
-            )]
+            device_supported_events = [
+                s for s in supported_events if (s.event_id in EVENTS and EVENTS[s.event_id].get("type") == EVENT_IO)
+            ]
         else:  # Camera
-            device_supported_events = [s for s in supported_events if (
-                s.channel_id == int(device_id)
-                and s.event_id in EVENTS
-            )]
+            device_supported_events = [
+                s for s in supported_events if (s.channel_id == int(device_id) and s.event_id in EVENTS)
+            ]
 
         for event in device_supported_events:
             # Build unique_id
             device_id_param = f"_{device_id}" if device_id != 0 else ""
             io_port_id_param = f"_{event.io_port_id}" if event.io_port_id != 0 else ""
-            unique_id = (
-                f"{slugify(serial_no.lower())}{device_id_param}{io_port_id_param}_{event.event_id}"
-            )
+            unique_id = f"{slugify(serial_no.lower())}{device_id_param}{io_port_id_param}_{event.event_id}"
 
             if EVENTS.get(event.event_id):
                 event_info = EventInfo(
@@ -546,8 +545,8 @@ class ISAPI:
             # Storage id does not exist
             return None
 
-    def get_device_info(self, device_id: int = 0) -> DeviceInfo:
-        """Return device registry information."""
+    def hass_device_info(self, device_id: int = 0) -> DeviceInfo:
+        """Return Home Assistant entity device information."""
         if device_id == 0:
             return DeviceInfo(
                 manufacturer=self.device_info.manufacturer,
