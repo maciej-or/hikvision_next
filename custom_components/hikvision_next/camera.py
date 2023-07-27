@@ -40,7 +40,7 @@ class HikvisionCamera(Camera):
         """Initialize Hikvision camera stream."""
         Camera.__init__(self)
 
-        self._attr_device_info = isapi.get_device_info(camera.id)
+        self._attr_device_info = isapi.hass_device_info(camera.id)
         self._attr_name = f"{camera.name} {stream_info.type}"
         self._attr_unique_id = slugify(f"{isapi.device_info.serial_no.lower()}_{stream_info.id}")
         self.entity_id = f"camera.{self.unique_id}"

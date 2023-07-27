@@ -43,4 +43,4 @@ class EventBinarySensor(BinarySensorEntity):
         self._attr_unique_id = self.entity_id
         self._attr_name = f"{EVENTS[event.id]['label']}{' ' + str(event.io_port_id) if event.io_port_id != 0 else ''}"
         self._attr_device_class = EVENTS[event.id]["device_class"]
-        self._attr_device_info = isapi.get_device_info(device_id)
+        self._attr_device_info = isapi.hass_device_info(device_id)

@@ -61,7 +61,7 @@ class AlarmServerSensor(CoordinatorEntity, SensorEntity):
         isapi = coordinator.isapi
         self._attr_unique_id = f"{isapi.device_info.serial_no}_{DATA_ALARM_SERVER_HOST}_{key}"
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
-        self._attr_device_info = isapi.get_device_info()
+        self._attr_device_info = isapi.hass_device_info()
         self._attr_name = ALARM_SERVER_SENSOR_LABEL_FORMAT.format(ALARM_SERVER_SETTINGS[key])
         self.key = key
 
@@ -83,7 +83,7 @@ class HDDSensor(CoordinatorEntity, SensorEntity):
         isapi = coordinator.isapi
         self._attr_unique_id = f"{isapi.device_info.serial_no}_{hdd.id}_{hdd.name}"
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
-        self._attr_device_info = isapi.get_device_info()
+        self._attr_device_info = isapi.hass_device_info()
         self._attr_name = f"HDD {hdd.id}"
         self.hdd = hdd
 

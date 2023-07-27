@@ -63,7 +63,7 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
         super().__init__(coordinator)
         self.entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
         self._attr_unique_id = self.entity_id
-        self._attr_device_info = coordinator.isapi.get_device_info(device_id)
+        self._attr_device_info = coordinator.isapi.hass_device_info(device_id)
         self._attr_name = EVENT_SWITCH_LABEL_FORMAT.format(
             f"{EVENTS[event.id]['label']}{' ' + str(event.io_port_id) if event.io_port_id != 0 else ''}"
         )
@@ -109,7 +109,7 @@ class NVROutputSwitch(CoordinatorEntity, SwitchEntity):
             f"{slugify(coordinator.isapi.device_info.serial_no.lower())}_{port_no}_alarm_output"
         )
         self._attr_unique_id = self.entity_id
-        self._attr_device_info = coordinator.isapi.get_device_info(0)
+        self._attr_device_info = coordinator.isapi.hass_device_info(0)
         self._attr_name = f"Alarm Output {port_no}"
         self._port_no = port_no
 
@@ -144,7 +144,7 @@ class HolidaySwitch(CoordinatorEntity, SwitchEntity):
         super().__init__(coordinator)
         self._attr_unique_id = f"{slugify(coordinator.isapi.device_info.serial_no.lower())}_{HOLIDAY_MODE}"
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
-        self._attr_device_info = coordinator.isapi.get_device_info()
+        self._attr_device_info = coordinator.isapi.hass_device_info()
         self._attr_name = HOLIDAY_MODE_SWITCH_LABEL
 
     @property
