@@ -517,23 +517,25 @@ class ISAPI:
 
         _LOGGER.debug("%s/ISAPI/ContentMgmt/Storage %s", self.isapi.host, storage_info)
 
+        if "hdd" not in storage_info: return storage_list
+
         for storage in storage_info:
-            if storage := storage.get("hdd"):
-                if not isinstance(storage, list):
-                    storage = [storage]
-                if storage:
-                    for hdd in storage:
-                        storage_list.append(
-                            HDDInfo(
-                                id=int(hdd.get("id")),
-                                name=hdd.get("hddName"),
-                                type=hdd.get("hddType"),
-                                status=hdd.get("status"),
-                                capacity=int(hdd.get("capacity")),
-                                freespace=int(hdd.get("freeSpace")),
-                                property=hdd.get("property"),
-                            )
+            storage = storage.get("hdd")
+            if not isinstance(storage, list):
+                storage = [storage]
+            if storage:
+                for hdd in storage:
+                    storage_list.append(
+                        HDDInfo(
+                            id=int(hdd.get("id")),
+                            name=hdd.get("hddName"),
+                            type=hdd.get("hddType"),
+                            status=hdd.get("status"),
+                            capacity=int(hdd.get("capacity")),
+                            freespace=int(hdd.get("freeSpace")),
+                            property=hdd.get("property"),
                         )
+                    )
 
         return storage_list
 
