@@ -92,6 +92,7 @@ Download logs from `Settings / System / Logs`
 
 - Annke N46PCK
 - DS-7108NI-Q1/8P
+- DS-7608NI-I2
 - DS-7608NI-I2/8P
 - DS-7608NXI-I2/8P/S
 - DS-7608NXI-K1/8P
@@ -109,6 +110,7 @@ Download logs from `Settings / System / Logs`
 ### IP Camera
 
 - DS-2CD2047G2-LU/SL
+- DS-2CD2087G2-LU
 - DS-2CD2155FWD-I
 - DS-2CD2346G2-IU
 - DS-2CD2386G2-IU
@@ -118,5 +120,6 @@ Download logs from `Settings / System / Logs`
 - DS-2CD2747G2-LZS
 - DS-2CD2785G1-IZS
 - DS-2CD2H46G2-IZS (C)
+- DS-2CD2T87G2-L
 - DS-2CD2T87G2P-LSU/SL
 - DS-2DE4425IW-DE (PTZ)
