@@ -518,8 +518,8 @@ class ISAPI:
         _LOGGER.debug("%s/ISAPI/ContentMgmt/Storage %s", self.isapi.host, storage_info)
 
         if "hdd" not in storage_info: return storage_list
-                
-        for storage in storage_info:               
+
+        for storage in storage_info:
             storage = storage.get("hdd")
             if not isinstance(storage, list):
                 storage = [storage]
@@ -535,6 +535,7 @@ class ISAPI:
                             freespace=int(hdd.get("freeSpace")),
                             property=hdd.get("property"),
                         )
+                    )
 
         return storage_list
 
