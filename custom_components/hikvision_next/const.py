@@ -19,11 +19,12 @@ EVENT_SWITCH_LABEL_FORMAT = "{} Detection"
 HOLIDAY_MODE_SWITCH_LABEL = "Holiday mode"
 ALARM_SERVER_SENSOR_LABEL_FORMAT = "Alarm Server {}"
 
-DEVICE_TYPE_IP_CAMERA = "IPCamera"
-DEVICE_TYPE_ANALOG_CAMERA = "AnalogCamera"
+CONNECTION_TYPE_DIRECT = "Direct"
+CONNECTION_TYPE_PROXIED = "Proxied"
 
 HIKVISION_EVENT = f"{DOMAIN}_event"
 EVENT_BASIC: Final = "basic"
+EVENT_IO: Final = "io"
 EVENT_SMART: Final = "smart"
 EVENTS = {
     "motiondetection": {
@@ -78,6 +79,14 @@ EVENTS = {
         "slug": "regionExiting",
         "device_class": BinarySensorDeviceClass.MOTION,
     },
+    "io": {
+        "type": EVENT_IO,
+        "label": "Alarm Input",
+        "slug": "inputs",
+        "direct_node": "IOInputPort",
+        "proxied_node": "IOProxyInputPort",
+        "device_class": BinarySensorDeviceClass.MOTION
+    }
 }
 
 EVENTS_ALTERNATE_ID = {

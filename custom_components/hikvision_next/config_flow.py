@@ -58,7 +58,7 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                 password = user_input[CONF_PASSWORD]
 
                 isapi = ISAPI(host, username, password)
-                await isapi.get_hardware_info()
+                await isapi.get_device_info()
 
                 if self._reauth_entry:
                     self.hass.config_entries.async_update_entry(self._reauth_entry, data=user_input)

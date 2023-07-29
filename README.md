@@ -9,6 +9,7 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 - Camera entities for main and sub streams
 - Real-time Acusense events notifications through binary sensors and HA events (hikvision_next_event)
 - Switches for Acusense events detection
+- Switches for NVR Outputs
 - Holiday mode switch (allows to switch continuous recording with appropriate NVR setup)
 - Tracking Alarm Server settings for diagnostic purposes
 - Basic and digest authentication support
@@ -23,6 +24,7 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 - Line Crossing
 - Region Entrance
 - Region Exiting
+- NVR Input Triggers
 
 **NOTE**
 Events must be set to alert the surveillance center in Linkage Action for HA to be notified.  An attribute on the event switch shows if this is set.

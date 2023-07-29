@@ -47,7 +47,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         await isapi.get_hardware_info()
         await isapi.get_cameras()
-        device_info = isapi.get_device_info()
+        device_info = isapi.hass_device_info()
         device_registry = dr.async_get(hass)
         device_registry.async_get_or_create(config_entry_id=entry.entry_id, **device_info)
     except (asyncio.TimeoutError, TimeoutException) as ex:

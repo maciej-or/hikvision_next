@@ -40,7 +40,7 @@ class HikvisionCamera(Camera):
         """Initialize Hikvision camera stream."""
         Camera.__init__(self)
 
-        self._attr_device_info = isapi.get_device_info(camera.id)
+        self._attr_device_info = isapi.hass_device_info(camera.id)
         self._attr_name = f"{camera.name} {stream_info.type}"
         self._attr_unique_id = slugify(f"{isapi.device_info.serial_no.lower()}_{stream_info.id}")
         self.entity_id = f"camera.{self.unique_id}"
@@ -53,4 +53,8 @@ class HikvisionCamera(Camera):
 
     async def async_camera_image(self, width: int | None = None, height: int | None = None) -> bytes | None:
         """Return a still image response from the camera."""
-        return await self.isapi.get_camera_image(self.stream_info, width, height)
+        data = await self.isapi.get_camera_image(self.stream_info, width, height)
+        if data.startswith(b'<?xml '):
+            # retry if got XML error response
+            data = await self.isapi.get_camera_image(self.stream_info, width, height)
+        return data
