@@ -123,3 +123,4 @@ Download logs from `Settings / System / Logs`
 - DS-2CD2T87G2-L
 - DS-2CD2T87G2P-LSU/SL
 - DS-2DE4425IW-DE (PTZ)
+- Annke C800 (I91BM)
