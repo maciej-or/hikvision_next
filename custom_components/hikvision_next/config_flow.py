@@ -64,8 +64,7 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                     self.hass.config_entries.async_update_entry(self._reauth_entry, data=user_input)
                     self.hass.async_create_task(self.hass.config_entries.async_reload(self._reauth_entry.entry_id))
                     return self.async_abort(reason="reauth_successful")
-
-                await self.async_set_unique_id({(DOMAIN, isapi.device_info.serial_no)})
+                await self.async_set_unique_id(isapi.device_info.serial_no)
                 self._abort_if_unique_id_configured()
 
             except HTTPStatusError as error:
