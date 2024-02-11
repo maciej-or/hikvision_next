@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from typing import Hashable
 
 from httpx import TimeoutException
 
@@ -126,3 +127,30 @@ def get_first_instance_unique_id(hass: HomeAssistant) -> int:
     """Get entry unique_id for first instance of integration"""
     entry = [entry for entry in hass.config_entries.async_entries(DOMAIN) if not entry.disabled_by][0]
     return entry.unique_id
+
+
+# Example migration function
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
+    """Migrate old entry."""
+    _LOGGER.debug("Migrating from version %s", config_entry.version)
+
+    # 1 -> 2: Config entry unique_id format changed
+    if config_entry.version == 1:
+        unique_id = config_entry.unique_id
+        if isinstance(unique_id, list) and len(unique_id) == 1 and isinstance(unique_id[0], list):
+            new_unique_id = unique_id[0][1]
+            hass.config_entries.async_update_entry(
+                config_entry,
+                data={**config_entry.data},
+                unique_id=new_unique_id,
+            )
+
+        config_entry.version = 2
+
+    _LOGGER.debug(
+        "Migration to version %s.%s successful",
+        config_entry.version,
+        config_entry.minor_version,
+    )
+
+    return True

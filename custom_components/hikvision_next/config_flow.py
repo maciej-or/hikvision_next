@@ -24,7 +24,7 @@ _LOGGER = logging.getLogger(__name__)
 class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for hikvision device."""
 
-    VERSION = 1
+    VERSION = 2
     _reauth_entry: ConfigEntry | None = None
 
     async def get_schema(self, user_input: dict[str, Any]):
@@ -65,7 +65,7 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                     self.hass.async_create_task(self.hass.config_entries.async_reload(self._reauth_entry.entry_id))
                     return self.async_abort(reason="reauth_successful")
 
-                await self.async_set_unique_id({(DOMAIN, isapi.device_info.serial_no)})
+                await self.async_set_unique_id(isapi.device_info.serial_no)
                 self._abort_if_unique_id_configured()
 
             except HTTPStatusError as error:
