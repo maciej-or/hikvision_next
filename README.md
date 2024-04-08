@@ -69,7 +69,7 @@ The scope supported features depends on device model, setup and firmware version
 
 ## Reporting issues
 
-There are a lot of Hikvision devices with different firmawers in the world. In most cases logs are crucial to solve your problem, so please attach them to the report.
+There are a lot of Hikvision devices with different firmwares in the world. In most cases logs are crucial to solve your problem, so please attach them to the report.
 Keep in mind that logs include MAC addresses, serial numbers and local IP addresses of your devices. Consider using [pastebin.com](https://pastebin.com) or similar services for sharing logs.
 
 You can also download a diagnostic output to provide essential information about your device.  This redacts all sensitive data and can be provided in the github issue.
