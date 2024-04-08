@@ -47,6 +47,7 @@ class AlarmServer:
     """Holds alarm server info"""
 
     # Uses pylint invalid names to not break previous versions
+    id: int # pylint: disable=invalid-name
     ipAddress: str  # pylint: disable=invalid-name
     portNo: int  # pylint: disable=invalid-name
     url: str  # pylint: disable=invalid-name
@@ -141,6 +142,7 @@ class HikDeviceInfo:
     support_alarm_server: bool = False
     support_channel_zero: bool = False
     support_event_mutex_checking: bool = False
+    support_event_subscription: bool = False
     input_ports: int = 0
     output_ports: int = 0
     rtsp_port: int = 554
@@ -214,6 +216,7 @@ class ISAPI:
         self.device_info.support_holiday_mode = deep_get(capabilities, "SysCap.isSupportHolidy", False)
         self.device_info.support_channel_zero = deep_get(capabilities, "RacmCap.isSupportZeroChan", False)
         self.device_info.support_event_mutex_checking = capabilities.get("isSupportGetmutexFuncErrMsg", False)
+        self.device_info.support_event_subscription = deep_get(capabilities, "SysCap.isSupportSubscribeEvent", False)
         self.device_info.input_ports = int(deep_get(capabilities, "SysCap.IOCap.IOInputPortNums", 0))
         self.device_info.output_ports = int(deep_get(capabilities, "SysCap.IOCap.IOOutputPortNums", 0))
 
@@ -222,6 +225,10 @@ class ISAPI:
             self.supported_events, self.device_info.serial_no, 0
         )
         self.device_info.support_alarm_server = bool(await self.get_alarm_server())
+
+        _LOGGER.debug(f"support_event_subscription: {self.device_info.support_event_subscription}")
+        _LOGGER.debug(f"support_alarm_server: {self.device_info.support_alarm_server}")
+        _LOGGER.debug(f"supported_events: {self.supported_events}")
 
         await self.get_protocols()
 
@@ -648,6 +655,7 @@ class ISAPI:
                 return
             data[node]["enabled"] = new_state
             xml = xmltodict.unparse(data)
+            _LOGGER.debug(f"[PUT] {self.isapi.host}/ISAPI/{event.url} request data is {xml}")
             response = await self.request(PUT, event.url, data=xml)
             _LOGGER.debug("[PUT] %s/ISAPI/%s %s", self.isapi.host, event.url, response)
         else:
@@ -717,9 +725,41 @@ class ISAPI:
         # <HttpHostNotificationList xmlns="http://www.isapi.org/ver20/XMLSchema">
         return hosts
 
+    async def _get_alarm_server_capabilities(self) -> None:
+        """Get capability set of HTTP listening server."""
+
+        try:
+            data = await self.isapi.Event.notification.httpHosts.capabilities(method=GET)
+        except HTTPStatusError as ex:
+            _LOGGER.error(f"Cannot GET {self.isapi.host}/ISAPI/Event/notification/httpHosts/capabilities. {ex}")
+            return
+
+        _LOGGER.debug("%s/ISAPI/Event/notification/httpHosts/capabilities %s", self.isapi.host, data)
+
+    async def _test_alarm_server_by_id(self, id: int) -> None:
+        """Detect whether the listening server is working normally."""
+
+        try:
+            data = await self.isapi.Event.notification.httpHosts[id](method=GET)
+        except HTTPStatusError as ex:
+            _LOGGER.error(f"Cannot GET {self.isapi.host}/ISAPI/Event/notification/httpHosts/{id}. {ex}")
+            return None
+        _LOGGER.debug("%s/ISAPI/Event/notification/httpHosts/%d %s", self.isapi.host, id, data)
+        
+        xml = xmltodict.unparse(data)
+        _LOGGER.debug(f"[POST] {self.isapi.host}/ISAPI/Event/notification/httpHosts/{id}/test request data is {xml}")
+        try:
+            data = await self.isapi.Event.notification.httpHosts[id].test(method=POST, data=xml)
+        except HTTPStatusError as ex:
+            _LOGGER.error(f"Cannot POST {self.isapi.host}/ISAPI/Event/notification/httpHosts/{id}/test. {ex}")
+            return
+
+        _LOGGER.debug("[POST] %s/ISAPI/Event/notification/httpHosts/%d/test %s", self.isapi.host, id, data)
+
     async def get_alarm_server(self) -> AlarmServer | None:
         """Get event notifications listener server URL."""
 
+        await self._get_alarm_server_capabilities()
         try:
             data = await self.isapi.Event.notification.httpHosts(method=GET)
         except HTTPStatusError:
@@ -730,6 +770,7 @@ class ISAPI:
         host = self._get_event_notification_host(data)
 
         alarm_server = AlarmServer(
+            id=int(host.get("id")),
             ipAddress=host.get("ipAddress"),
             portNo=int(host.get("portNo")),
             url=host.get("url"),
@@ -741,6 +782,7 @@ class ISAPI:
     async def set_alarm_server(self, base_url: str, path: str) -> None:
         """Set event notifications listener server."""
 
+        await self._get_alarm_server_capabilities()
         address = urlparse(base_url)
         data = await self.isapi.Event.notification.httpHosts(method=GET)
         _LOGGER.debug("%s/ISAPI/Event/notification/httpHosts %s", self.isapi.host, data)
@@ -751,6 +793,7 @@ class ISAPI:
             and host.get("portNo") == str(address.port)
             and host["url"] == path
         ):
+            await self._test_alarm_server_by_id(int(host.get("id")))
             return
         host["url"] = path
         host["protocolType"] = address.scheme.upper()
@@ -761,12 +804,15 @@ class ISAPI:
         host["httpAuthenticationMethod"] = "none"
 
         xml = xmltodict.unparse(data)
+        _LOGGER.debug(f"[PUT] {self.isapi.host}/ISAPI/Event/notification/httpHosts request data is {xml}")
         response = await self.isapi.Event.notification.httpHosts(method=PUT, data=xml)
         _LOGGER.debug(
             "[PUT] %s/ISAPI/Event/notification/httpHosts %s",
             self.isapi.host,
             response,
         )
+        await self._get_alarm_server_capabilities()
+        await self._test_alarm_server_by_id(int(host.get("id")))
 
     async def request(self, method: str, url: str, present: str = "dict", **data) -> Any:
         """Send request"""
