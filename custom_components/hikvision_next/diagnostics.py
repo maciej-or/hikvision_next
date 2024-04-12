@@ -1,4 +1,5 @@
-"""Diagnostics support for Wiser"""
+"""Diagnostics support for Wiser."""
+
 from __future__ import annotations
 
 import inspect
@@ -112,8 +113,7 @@ def to_json(obj):
     """Convert object to json."""
     result = json.dumps(obj, cls=ObjectEncoder, sort_keys=True, indent=2)
     result = json.loads(result)
-    result = anonymise_data(result)
-    return result
+    return anonymise_data(result)
 
 
 def anonymise_data(data):
@@ -128,12 +128,13 @@ class ObjectEncoder(json.JSONEncoder):
     """Class to encode object to json."""
 
     def default(self, o):
+        """Implement encoding logic."""
         if hasattr(o, "to_json"):
             return self.default(o.to_json())
 
         if hasattr(o, "__dict__"):
-            data = dict(
-                (key, value)
+            data = {
+                key: value
                 for key, value in inspect.getmembers(o)
                 if not key.startswith("__")
                 and not inspect.isabstract(value)
@@ -144,6 +145,6 @@ class ObjectEncoder(json.JSONEncoder):
                 and not inspect.ismethod(value)
                 and not inspect.ismethoddescriptor(value)
                 and not inspect.isroutine(value)
-            )
+            }
             return self.default(data)
         return o

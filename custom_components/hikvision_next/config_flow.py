@@ -28,7 +28,8 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
     _reauth_entry: ConfigEntry | None = None
 
     async def get_schema(self, user_input: dict[str, Any]):
-        """Get schema with default values or entered by user"""
+        """Get schema with default values or entered by user."""
+
         local_ip = await async_get_source_ip(self.hass)
         return vol.Schema(
             {

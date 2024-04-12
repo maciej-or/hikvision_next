@@ -1,4 +1,4 @@
-"""Events listener"""
+"""Events listener."""
 
 from __future__ import annotations
 
@@ -36,6 +36,7 @@ class EventNotificationsView(HomeAssistantView):
     """Event notifications listener."""
 
     def __init__(self, hass: HomeAssistant):
+        """Initialize."""
         self.requires_auth = False
         self.url = ALARM_SERVER_PATH
         self.name = DOMAIN
@@ -43,7 +44,7 @@ class EventNotificationsView(HomeAssistantView):
         self.hass = hass
 
     async def post(self, request: web.Request):
-        """Accept the POST request from NVR or IP Camera"""
+        """Accept the POST request from NVR or IP Camera."""
 
         try:
             _LOGGER.debug("--- Incoming event notification ---")
@@ -59,7 +60,7 @@ class EventNotificationsView(HomeAssistantView):
         return response
 
     def get_isapi_instance(self, device_ip) -> ISAPI:
-        """Get isapi instance for device sending alert"""
+        """Get isapi instance for device sending alert."""
         # Get list of instances
         try:
             entry = [
@@ -76,7 +77,7 @@ class EventNotificationsView(HomeAssistantView):
             return None
 
     def get_ip(self, ip_string: str) -> str:
-        """Return an IP if either hostname or IP is provided"""
+        """Return an IP if either hostname or IP is provided."""
 
         try:
             ipaddress.ip_address(ip_string)
@@ -88,7 +89,7 @@ class EventNotificationsView(HomeAssistantView):
             return resolved_hostname
 
     async def parse_event_request(self, request: web.Request) -> str:
-        """Extract XML content from multipart request or from simple request"""
+        """Extract XML content from multipart request or from simple request."""
 
         data = await request.read()
 
@@ -137,7 +138,7 @@ class EventNotificationsView(HomeAssistantView):
         return alert
 
     def trigger_sensor(self, xml: str) -> None:
-        """Determine entity and set binary sensor state"""
+        """Determine entity and set binary sensor state."""
 
         alert = self.get_alert_info(xml)
         _LOGGER.debug("Alert: %s", alert)
@@ -146,9 +147,7 @@ class EventNotificationsView(HomeAssistantView):
 
         device_id_param = f"_{alert.channel_id}" if alert.channel_id != 0 else ""
         io_port_id_param = f"_{alert.io_port_id}" if alert.io_port_id != 0 else ""
-        unique_id = (
-            f"binary_sensor.{slugify(serial_no)}{device_id_param}{io_port_id_param}_{alert.event_id}"
-        )
+        unique_id = f"binary_sensor.{slugify(serial_no)}{device_id_param}{io_port_id_param}_{alert.event_id}"
 
         _LOGGER.debug("UNIQUE_ID: %s", unique_id)
 
@@ -164,7 +163,7 @@ class EventNotificationsView(HomeAssistantView):
         raise ValueError(f"Entity not found {entity_id}")
 
     def fire_hass_event(self, alert: AlertInfo):
-        """Fire HASS event"""
+        """Fire HASS event."""
         camera_name = ""
         if camera := self.isapi.get_camera_by_id(alert.channel_id):
             camera_name = camera.name

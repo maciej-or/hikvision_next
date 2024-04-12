@@ -60,6 +60,7 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
     _attr_icon = "mdi:eye-outline"
 
     def __init__(self, device_id: int, event: EventInfo, coordinator) -> None:
+        """Initialize."""
         super().__init__(coordinator)
         self.entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
         self._attr_unique_id = self.entity_id
@@ -72,9 +73,11 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
 
     @property
     def is_on(self) -> bool | None:
+        """Return True if the binary sensor is on."""
         return self.coordinator.data.get(self.entity_id)
 
     async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn on."""
         try:
             await self.coordinator.isapi.set_event_enabled_state(self.device_id, self.event, True)
         except Exception as ex:
@@ -83,17 +86,19 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
             await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn off."""
         try:
             await self.coordinator.isapi.set_event_enabled_state(self.device_id, self.event, False)
-        except Exception as ex:
-            raise ex
+        except Exception:
+            raise
         finally:
             await self.coordinator.async_request_refresh()
 
     @property
     def extra_state_attributes(self):
+        """Return extra attributes."""
         attrs = {}
-        attrs["notify_HA"] = True if "center" in self.event.notifiers else False
+        attrs["notify_HA"] = "center" in self.event.notifiers
         return attrs
 
 
@@ -104,6 +109,7 @@ class NVROutputSwitch(CoordinatorEntity, SwitchEntity):
     _attr_icon = "mdi:eye-outline"
 
     def __init__(self, coordinator, port_no: int) -> None:
+        """Initialize."""
         super().__init__(coordinator)
         self.entity_id = ENTITY_ID_FORMAT.format(
             f"{slugify(coordinator.isapi.device_info.serial_no.lower())}_{port_no}_alarm_output"
@@ -115,9 +121,11 @@ class NVROutputSwitch(CoordinatorEntity, SwitchEntity):
 
     @property
     def is_on(self) -> bool | None:
-        return True if self.coordinator.data.get(self.entity_id) == "active" else False
+        """Turn on."""
+        return self.coordinator.data.get(self.entity_id) == "active"
 
     async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn on."""
         try:
             await self.coordinator.isapi.set_port_state(self._port_no, True)
         except Exception as ex:
@@ -141,6 +149,7 @@ class HolidaySwitch(CoordinatorEntity, SwitchEntity):
     _attr_icon = "mdi:palm-tree"
 
     def __init__(self, coordinator) -> None:
+        """Initialize."""
         super().__init__(coordinator)
         self._attr_unique_id = f"{slugify(coordinator.isapi.device_info.serial_no.lower())}_{HOLIDAY_MODE}"
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
@@ -149,12 +158,15 @@ class HolidaySwitch(CoordinatorEntity, SwitchEntity):
 
     @property
     def is_on(self) -> bool | None:
+        """Return True if the binary sensor is on."""
         return self.coordinator.data.get(HOLIDAY_MODE)
 
     async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn on."""
         await self.coordinator.isapi.set_holiday_enabled_state(True)
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn off."""
         await self.coordinator.isapi.set_holiday_enabled_state(False)
         await self.coordinator.async_request_refresh()

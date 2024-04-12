@@ -57,6 +57,7 @@ class AlarmServerSensor(CoordinatorEntity, SensorEntity):
     _attr_icon = "mdi:ip-network"
 
     def __init__(self, coordinator, key: str) -> None:
+        """Initialize."""
         super().__init__(coordinator)
         isapi = coordinator.isapi
         self._attr_unique_id = f"{isapi.device_info.serial_no}_{DATA_ALARM_SERVER_HOST}_{key}"
@@ -67,18 +68,20 @@ class AlarmServerSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self) -> str | None:
+        """Return the state of the sensor."""
         host = self.coordinator.data.get(DATA_ALARM_SERVER_HOST)
         return getattr(host, self.key) if host else None
 
 
 class HDDSensor(CoordinatorEntity, SensorEntity):
-    """HDD Status Sensor"""
+    """HDD Status Sensor."""
 
     _attr_has_entity_name = True
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_icon = "mdi:harddisk"
 
     def __init__(self, coordinator, hdd: HDDInfo) -> None:
+        """Initialize."""
         super().__init__(coordinator)
         isapi = coordinator.isapi
         self._attr_unique_id = f"{isapi.device_info.serial_no}_{hdd.id}_{hdd.name}"
@@ -89,11 +92,13 @@ class HDDSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self) -> str | None:
+        """Return the state of the sensor."""
         hdd = self.coordinator.isapi.get_storage_device_by_id(self.hdd.id)
         return str(hdd.status).upper() if hdd else None
 
     @property
     def extra_state_attributes(self):
+        """Return extra attributes."""
         attrs = {}
         attrs["type"] = self.hdd.type
         attrs["capacity"] = self.hdd.capacity
