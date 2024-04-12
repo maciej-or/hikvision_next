@@ -1,10 +1,10 @@
-"""hikvision component"""
+"""hikvision component."""
 
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
-from typing import Hashable
 
 from httpx import TimeoutException
 
@@ -88,7 +88,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_remove_config_entry_device(hass: HomeAssistant, config_entry, device_entry) -> bool:
-    """Delete device if not entities"""
+    """Delete device if not entities."""
     if not device_entry.via_device_id:
         _LOGGER.error(
             "You cannot delete the NVR device via the device delete method.  Please remove the integration instead"
@@ -112,10 +112,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Reset alarm server after it has been set
     if config[DATA_SET_ALARM_SERVER]:
         isapi = config[DATA_ISAPI]
-        try:
+        with contextlib.contextlib(Exception):
             await isapi.set_alarm_server("http://0.0.0.0:80", "/")
-        except Exception:  # pylint: disable=broad-except
-            pass
 
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
@@ -124,7 +122,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 def get_first_instance_unique_id(hass: HomeAssistant) -> int:
-    """Get entry unique_id for first instance of integration"""
+    """Get entry unique_id for first instance of integration."""
     entry = [entry for entry in hass.config_entries.async_entries(DOMAIN) if not entry.disabled_by][0]
     return entry.unique_id
 

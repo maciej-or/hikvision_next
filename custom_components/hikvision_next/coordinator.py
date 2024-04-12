@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import timedelta
 import logging
-
-import async_timeout
 
 from homeassistant.components.switch import ENTITY_ID_FORMAT
 from homeassistant.core import HomeAssistant
@@ -22,10 +21,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class EventsCoordinator(DataUpdateCoordinator):
-    """Manage fetching events state from NVR or camera"""
+    """Manage fetching events state from NVR or camera."""
 
     def __init__(self, hass: HomeAssistant, isapi: ISAPI) -> None:
-        """Initialize"""
+        """Initialize."""
         self.isapi = isapi
 
         super().__init__(
@@ -36,8 +35,8 @@ class EventsCoordinator(DataUpdateCoordinator):
         )
 
     async def _async_update_data(self):
-        """Update data via ISAPI"""
-        async with async_timeout.timeout(30):
+        """Update data via ISAPI."""
+        async with asyncio.timeout(30):
             data = {}
 
             # Get camera event status
@@ -77,10 +76,10 @@ class EventsCoordinator(DataUpdateCoordinator):
 
 
 class SecondaryCoordinator(DataUpdateCoordinator):
-    """Manage fetching events state from NVR"""
+    """Manage fetching events state from NVR."""
 
     def __init__(self, hass: HomeAssistant, isapi: ISAPI) -> None:
-        """Initialize"""
+        """Initialize."""
         self.isapi = isapi
 
         super().__init__(
@@ -91,8 +90,8 @@ class SecondaryCoordinator(DataUpdateCoordinator):
         )
 
     async def _async_update_data(self):
-        """Update data via ISAPI"""
-        async with async_timeout.timeout(20):
+        """Update data via ISAPI."""
+        async with asyncio.timeout(20):
             data = {}
             try:
                 if self.isapi.device_info.support_holiday_mode:
