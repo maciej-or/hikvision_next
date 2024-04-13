@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import asyncio
-import contextlib
+from contextlib import suppress
 import logging
 
 from httpx import TimeoutException
@@ -112,7 +112,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Reset alarm server after it has been set
     if config[DATA_SET_ALARM_SERVER]:
         isapi = config[DATA_ISAPI]
-        with contextlib.contextlib(Exception):
+        with suppress(Exception):
             await isapi.set_alarm_server("http://0.0.0.0:80", "/")
 
     if unload_ok:
