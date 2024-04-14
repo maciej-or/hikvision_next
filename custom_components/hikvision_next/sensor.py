@@ -16,7 +16,7 @@ from .const import (
     EVENTS_COORDINATOR,
     SECONDARY_COORDINATOR,
 )
-from .isapi import HDDInfo
+from .isapi import StorageInfo
 
 ALARM_SERVER_SETTINGS = {
     "protocolType": "Protocol",
@@ -43,8 +43,8 @@ async def async_setup_entry(
 
     events_coordinator = config.get(EVENTS_COORDINATOR)
     if events_coordinator:
-        for hdd in list(events_coordinator.isapi.device_info.storage):
-            entities.append(HDDSensor(coordinator, hdd))
+        for item in list(events_coordinator.isapi.device_info.storage):
+            entities.append(StorageSensor(coordinator, item))
 
     async_add_entities(entities, True)
 
@@ -73,21 +73,21 @@ class AlarmServerSensor(CoordinatorEntity, SensorEntity):
         return getattr(host, self.key) if host else None
 
 
-class HDDSensor(CoordinatorEntity, SensorEntity):
-    """HDD Status Sensor."""
+class StorageSensor(CoordinatorEntity, SensorEntity):
+    """HDD, NAS status sensor."""
 
     _attr_has_entity_name = True
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_icon = "mdi:harddisk"
 
-    def __init__(self, coordinator, hdd: HDDInfo) -> None:
+    def __init__(self, coordinator, hdd: StorageInfo) -> None:
         """Initialize."""
         super().__init__(coordinator)
         isapi = coordinator.isapi
         self._attr_unique_id = f"{isapi.device_info.serial_no}_{hdd.id}_{hdd.name}"
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
         self._attr_device_info = isapi.hass_device_info()
-        self._attr_name = f"HDD {hdd.id}"
+        self._attr_name = f"{hdd.type} {hdd.name}"
         self.hdd = hdd
 
     @property
@@ -103,4 +103,6 @@ class HDDSensor(CoordinatorEntity, SensorEntity):
         attrs["type"] = self.hdd.type
         attrs["capacity"] = self.hdd.capacity
         attrs["freespace"] = self.hdd.freespace
+        if self.hdd.ip:
+            attrs["ip"] = self.hdd.ip
         return attrs
