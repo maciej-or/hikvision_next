@@ -11,7 +11,7 @@ from http import HTTPStatus
 import json
 import logging
 from typing import Any, Optional
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 from hikvisionapi import AsyncClient
 from httpx import HTTPStatusError, TimeoutException
@@ -854,7 +854,10 @@ class ISAPI:
 
     def get_stream_source(self, stream: CameraStreamInfo) -> str:
         """Get stream source."""
-        return f"rtsp://{self.isapi.login}:{self.isapi.password}@{self.device_info.ip_address}:{self.device_info.rtsp_port}/Streaming/channels/{stream.id}"
+        u = quote(self.isapi.login, safe="")
+        p = quote(self.isapi.password, safe="")
+        url = f"{self.device_info.ip_address}:{self.device_info.rtsp_port}/Streaming/channels/{stream.id}"
+        return f"rtsp://{u}:{p}@{url}"
 
 
 def str_to_bool(value: str) -> bool:
