@@ -111,8 +111,8 @@ class CameraStreamInfo:
 
 
 @dataclass
-class HDDInfo:
-    """Holds info for internal storage devices."""
+class StorageInfo:
+    """Holds info for internal and NAS storage devices."""
 
     id: int
     name: str
@@ -121,6 +121,7 @@ class HDDInfo:
     capacity: int
     freespace: int
     property: str
+    ip: str = ""
 
 
 @dataclass
@@ -145,7 +146,7 @@ class HikDeviceInfo:
     input_ports: int = 0
     output_ports: int = 0
     rtsp_port: int = 554
-    storage: list[HDDInfo] = field(default_factory=list)
+    storage: list[StorageInfo] = field(default_factory=list)
     supported_events: list[EventInfo] = field(default_factory=list)
 
 
@@ -260,7 +261,8 @@ class ISAPI:
             if self.device_info.support_digital_cameras > 0:
                 digital_cameras = deep_get(
                     (await self.request(GET, "ContentMgmt/InputProxy/channels")),
-                    "InputProxyChannelList.InputProxyChannel", []
+                    "InputProxyChannelList.InputProxyChannel",
+                    [],
                 )
 
                 if not isinstance(digital_cameras, list):
@@ -304,7 +306,8 @@ class ISAPI:
             if self.device_info.support_analog_cameras > 0:
                 analog_cameras = deep_get(
                     (await self.request(GET, "System/Video/inputs/channels")),
-                    "VideoInputChannelList.VideoInputChannel", []
+                    "VideoInputChannelList.VideoInputChannel",
+                    [],
                 )
 
                 if not isinstance(analog_cameras, list):
@@ -485,39 +488,56 @@ class ISAPI:
     async def get_storage_devices(self):
         """Get HDD storage devices."""
         storage_list = []
-        storage_info = (
-            (await self.request(GET, "ContentMgmt/Storage", ignore_exception=False))
-            .get("storage", {})
-            .get("hddList", {})
-        )
+        storage_info = (await self.request(GET, "ContentMgmt/Storage", ignore_exception=False)).get("storage", {})
 
-        if not isinstance(storage_info, list):
-            storage_info = [storage_info]
-
-        if "hdd" not in storage_info:
-            return storage_list
-
-        for storage in storage_info:
-            storage = storage.get("hdd")
-            if not isinstance(storage, list):
-                storage = [storage]
-            if storage:
-                for hdd in storage:
-                    storage_list.append(
-                        HDDInfo(
-                            id=int(hdd.get("id")),
-                            name=hdd.get("hddName"),
-                            type=hdd.get("hddType"),
-                            status=hdd.get("status"),
-                            capacity=int(hdd.get("capacity")),
-                            freespace=int(hdd.get("freeSpace")),
-                            property=hdd.get("property"),
+        hdd_list = storage_info.get("hddList") or {}
+        if "hdd" in hdd_list:
+            if not isinstance(hdd_list, list):
+                hdd_list = [hdd_list]
+            for storage in hdd_list:
+                storage = storage.get("hdd")
+                if not isinstance(storage, list):
+                    storage = [storage]
+                if storage:
+                    for item in storage:
+                        storage_list.append(  # noqa: PERF401
+                            StorageInfo(
+                                id=int(item.get("id")),
+                                name=item.get("hddName"),
+                                type=item.get("hddType"),
+                                status=item.get("status"),
+                                capacity=int(item.get("capacity")),
+                                freespace=int(item.get("freeSpace")),
+                                property=item.get("property"),
+                            )
                         )
-                    )
+
+        nas_list = storage_info.get("nasList") or {}
+        if "nas" in nas_list:
+            if not isinstance(nas_list, list):
+                nas_list = [nas_list]
+            for storage in nas_list:
+                storage = storage.get("nas")
+                if not isinstance(storage, list):
+                    storage = [storage]
+                if storage:
+                    for item in storage:
+                        storage_list.append(  # noqa: PERF401
+                            StorageInfo(
+                                id=int(item.get("id")),
+                                name=item.get("path"),
+                                type=item.get("nasType"),
+                                status=item.get("status"),
+                                capacity=int(item.get("capacity")),
+                                freespace=int(item.get("freeSpace")),
+                                property=item.get("property"),
+                                ip=item.get("ipAddress"),
+                            )
+                        )
 
         return storage_list
 
-    def get_storage_device_by_id(self, device_id: int) -> HDDInfo | None:
+    def get_storage_device_by_id(self, device_id: int) -> StorageInfo | None:
         """Get storage object by id."""
         try:
             return [storage_device for storage_device in self.device_info.storage if storage_device.id == device_id][0]

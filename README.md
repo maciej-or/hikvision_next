@@ -11,6 +11,7 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 - Switches for Acusense events detection
 - Switches for NVR Outputs
 - Holiday mode switch (allows to switch continuous recording with appropriate NVR setup)
+- Tracking HDD and NAS status
 - Tracking Alarm Server settings for diagnostic purposes
 - Basic and digest authentication support
 
