@@ -64,7 +64,7 @@ class EventsCoordinator(DataUpdateCoordinator):
                     )
                     data[entity_id] = await self.isapi.get_port_status("output", i)
                 except Exception as ex:  # pylint: disable=broad-except
-                    self.isapi.handle_exception(ex, f"Cannot fetch state for {event.id}")
+                    self.isapi.handle_exception(ex, f"Cannot fetch state for alarm output {i}")
 
             # Refresh HDD data
             try:
