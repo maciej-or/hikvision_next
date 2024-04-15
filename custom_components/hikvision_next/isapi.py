@@ -607,11 +607,9 @@ class ISAPI:
 
         data = {"function": event_id, "channelID": int(channel_id)}
         url = "System/mutexFunction?format=json"
-        try:
-            response = await self.request(POST, url, present="json", data=json.dumps(data))
-        except HTTPStatusError:
+        response = await self.request(POST, url, present="json", data=json.dumps(data))
+        if not response:
             return []
-
         response = json.loads(response)
 
         if mutex_list := response.get("MutexFunctionList"):
@@ -638,15 +636,13 @@ class ISAPI:
 
         if not mutex_issues:
             data = await self.request(GET, event.url)
-            _LOGGER.debug("%s/ISAPI/%s %s", self.isapi.host, event.url, data)
             node = self.get_event_state_node(event)
             new_state = bool_to_str(is_enabled)
             if new_state == data[node]["enabled"]:
                 return
             data[node]["enabled"] = new_state
             xml = xmltodict.unparse(data)
-            response = await self.request(PUT, event.url, data=xml)
-            _LOGGER.debug("[PUT] %s/ISAPI/%s %s", self.isapi.host, event.url, response)
+            await self.request(PUT, event.url, data=xml)
         else:
             raise HomeAssistantError(
                 f"You cannot enable {EVENTS[event.id]['label']} events. Please disable {EVENTS[mutex_issues[0].event_id]['label']} on channels {mutex_issues[0].channels} first"
@@ -658,7 +654,7 @@ class ISAPI:
             status = await self.request(GET, f"System/IO/inputs/{port_no}/status", ignore_exception=False)
         else:
             status = await self.request(GET, f"System/IO/outputs/{port_no}/status", ignore_exception=False)
-        return deep_get(status, "IOStatus.ioState")
+        return deep_get(status, "IOPortStatus.ioState")
 
     async def set_port_state(self, port_no: int, turn_on: bool):
         """Set status of output port."""
