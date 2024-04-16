@@ -713,6 +713,8 @@ class ISAPI:
         """Get event notifications listener server URL."""
 
         data = await self.request(GET, "Event/notification/httpHosts")
+        if not data:
+            return None
         host = self._get_event_notification_host(data)
 
         return AlarmServer(
