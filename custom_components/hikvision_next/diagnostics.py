@@ -4,24 +4,56 @@ from __future__ import annotations
 
 import inspect
 import json
+import random
 from typing import Any
+
+from httpx import HTTPStatusError
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntry
 
-from .const import DATA_ISAPI, DOMAIN, EVENTS_COORDINATOR
+from .const import DATA_ISAPI, DOMAIN, STREAM_TYPE
 
 GET = "get"
 
-ANON_KEYS = [
-    "ip_address",
-    "ip_addr",
-    "mac_address",
-    "macAddress",
-    "serial_no",
-    "serialNumber",
-]
+
+def anonymise_mac(orignal: str):
+    """Anonymise MAC address."""
+
+    mac = [random.randint(0x00, 0xFF) for _ in range(6)]
+    return ":".join("%02x" % x for x in mac)
+
+
+def anonymise_ip(orignal: str):
+    """Anonymise IP address."""
+    if not orignal or orignal[0] == "0":
+        return orignal
+    return f"1.0.0.{random.randint(0x00, 0xff)}"
+
+
+def anonymise_serial(orignal: str):
+    """Anonymise serial number."""
+
+    if len(orignal) > 32:
+        return orignal[:12] + "".join("0" if c.isdigit() else c for c in orignal[12:])
+    return "".join("0" if c.isdigit() else c for c in orignal)
+
+
+ANON_KEYS = {
+    "ip_address": anonymise_ip,
+    "ip_addr": anonymise_ip,
+    "ipAddress": anonymise_ip,
+    "mac_address": anonymise_mac,
+    "macAddress": anonymise_mac,
+    "serial_no": anonymise_serial,
+    "serialNumber": anonymise_serial,
+    "subSerialNumber": anonymise_serial,
+    "unique_id": anonymise_serial,
+    "deviceID": anonymise_serial,
+}
+
+anon_map = {}
 
 
 async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
@@ -36,77 +68,56 @@ async def _async_get_diagnostics(
     device: DeviceEntry | None = None,
 ) -> dict[str, Any]:
     isapi = hass.data[DOMAIN][entry.entry_id][DATA_ISAPI]
-    coordinator = hass.data[DOMAIN][entry.entry_id][EVENTS_COORDINATOR]
 
     # Get info set
     info = {}
 
-    # Add device info
-    info.update({"Device Info": to_json(isapi.device_info)})
-
     # Add camera info
-    info.update({"Cameras": [to_json(camera) for camera in isapi.cameras]})
+    # info.update({"Cameras": [to_json(camera) for camera in isapi.cameras]})
 
-    # Add event enabled states
-    event_states = []
+    # ISAPI responses
+    endpoints = [
+        "System/deviceInfo",
+        "System/capabilities",
+        "System/IO/inputs/1/status",
+        "System/IO/outputs/1/status",
+        "System/Holidays",
+        "System/Video/inputs/channels",
+        "ContentMgmt/InputProxy/channels",
+        "ContentMgmt/Storage",
+        "Security/adminAccesses",
+        "Event/triggers",
+        "Event/notification/httpHosts",
+    ]
+
+    for endpoint in endpoints:
+        info[endpoint] = await get_isapi_data(isapi, endpoint)
+
+    # channels
+    for camera in isapi.cameras:
+        for stream_type_id in STREAM_TYPE:
+            endpoint = f"Streaming/channels/{camera.id}0{stream_type_id}"
+            info[endpoint] = await get_isapi_data(isapi, endpoint)
+
+    # event states
     for camera in isapi.cameras:
         for event in camera.supported_events:
-            event_states.append(
-                {
-                    "camera": camera.id,
-                    "event": event.id,
-                    "enabled": await isapi.get_event_enabled_state(event),
-                }
-            )
-    info.update({"Event States": event_states})
-
-    # Event coordinator data
-    info.update({"Entity Data": to_json(coordinator.data)})
-
-    # Add raw device info
-    info.update(await get_isapi_data("RAW Device Info", isapi.isapi.System.deviceInfo))
-
-    # Add raw camera info - Direct connected
-    info.update(await get_isapi_data("RAW Analog Camera Info", isapi.isapi.System.Video.inputs.channels))
-
-    # Add raw camera info - Proxy connected
-    info.update(await get_isapi_data("RAW IP Camera Info", isapi.isapi.ContentMgmt.InputProxy.channels))
-
-    # Add raw capabilities
-    info.update(await get_isapi_data("RAW Capabilities Info", isapi.isapi.System.capabilities))
-
-    # Add raw supported events
-    info.update(await get_isapi_data("RAW Events Info", isapi.isapi.Event.triggers))
-
-    # Add IO info - direct connected
-    info.update(await get_isapi_data("Direct IO Inputs", isapi.isapi.System.IO.inputs))
-    info.update(await get_isapi_data("Direct IO Outputs", isapi.isapi.System.IO.outputs))
-
-    # Add IO info - proxy connected
-    info.update(await get_isapi_data("Proxied IO Inputs", isapi.isapi.ContentMgmt.IOProxy.inputs))
-    info.update(await get_isapi_data("Proxied IO Outputs", isapi.isapi.ContentMgmt.IOProxy.outputs))
-
-    # Add raw streams info
-    info.update(await get_isapi_data("RAW Streams Info", isapi.isapi.Streaming.channels))
-
-    # Add raw holiday info
-    info.update(await get_isapi_data("RAW Holiday Info", isapi.isapi.System.Holidays))
-
-    # Add alarms server info
-    info.update(await get_isapi_data("RAW Alarm Server Info", isapi.isapi.Event.notification.httpHosts))
+            info[event.url] = await get_isapi_data(isapi, event.url)
 
     return info
 
 
-async def get_isapi_data(title: str, path: object, filter_key: str = "") -> dict:
+async def get_isapi_data(isapi, endpoint: str) -> dict:
     """Get data from ISAPI."""
+    entry = {}
     try:
-        response = await path(method=GET)
-        if filter_key:
-            response = response.get(filter_key, {})
-        return {title: anonymise_data(response)}
-    except Exception as ex:  # pylint: disable=broad-except
-        return {title: ex}
+        response = await isapi.request(GET, endpoint, ignore_exception=False)
+        entry["response"] = anonymise_data(response)
+    except HTTPStatusError as ex:
+        entry["status_code"] = ex.response.status_code
+    except Exception as ex:
+        entry["error"] = ex
+    return entry
 
 
 def to_json(obj):
@@ -118,9 +129,23 @@ def to_json(obj):
 
 def anonymise_data(data):
     """Anonymise sensitive data."""
-    for key in ANON_KEYS:
-        if data.get(key):
-            data[key] = "**REDACTED**"
+    if isinstance(data, dict):
+        result = {}
+        for key, value in data.items():
+            if key in ANON_KEYS and value is not None:
+                if value in anon_map:
+                    result[key] = anon_map[value]
+                else:
+                    anon_fn = ANON_KEYS[key]
+                    anon_map[value] = result[key] = anon_fn(value)
+            else:
+                result[key] = anonymise_data(value)
+        return result
+    if isinstance(data, list):
+        result = []
+        for item in data:
+            result.append(anonymise_data(item))
+        return result
     return data
 
 

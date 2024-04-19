@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<storage version="2.0"
+  xmlns="http://www.isapi.org/ver20/XMLSchema">
+  <hddList>
+    <hdd>
+      <id>1</id>
+      <hddName>hdd1</hddName>
+      <hddPath></hddPath>
+      <hddType>SATA</hddType>
+      <status>ok</status>
+      <capacity>1907729</capacity>
+      <freeSpace>0</freeSpace>
+      <property>RW</property>
+      <group>1</group>
+    </hdd>
+  </hddList>
+  <nasList>
+  </nasList>
+  <workMode opt="group,quota">quota</workMode>
+  <ssdList>
+  </ssdList>
+</storage>

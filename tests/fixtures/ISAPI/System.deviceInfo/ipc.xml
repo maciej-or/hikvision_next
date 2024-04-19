@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DeviceInfo version="2.0" xmlns="http://www.hikvision.com/ver20/XMLSchema">
+    <deviceName>yard</deviceName>
+    <deviceID>6aff4000-1f90-00b0-0000-000c00000000</deviceID>
+    <deviceDescription>IPCamera</deviceDescription>
+    <deviceLocation>hangzhou</deviceLocation>
+    <systemContact>Hikvision.China</systemContact>
+    <model>DS-2CD2386G2-IU</model>
+    <serialNumber>DS-2CD2386G2-IU00000000AAWRJ00000000</serialNumber>
+    <macAddress>14:92:3c:4f:f8:42</macAddress>
+    <firmwareVersion>V5.7.14</firmwareVersion>
+    <firmwareReleasedDate>build 231028</firmwareReleasedDate>
+    <encoderVersion>V7.3</encoderVersion>
+    <encoderReleasedDate>build 231027</encoderReleasedDate>
+    <bootVersion>V1.3.4</bootVersion>
+    <bootReleasedDate>100316</bootReleasedDate>
+    <hardwareVersion>0x0</hardwareVersion>
+    <deviceType>IPCamera</deviceType>
+    <telecontrolID>88</telecontrolID>
+    <supportBeep>false</supportBeep>
+    <supportVideoLoss>false</supportVideoLoss>
+    <firmwareVersionInfo>B-R-G5-0</firmwareVersionInfo>
+    <manufacturer>hikvision</manufacturer>
+    <subSerialNumber>J00000000</subSerialNumber>
+    <OEMCode>1</OEMCode>
+</DeviceInfo>
