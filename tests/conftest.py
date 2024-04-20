@@ -53,13 +53,13 @@ def mock_isapi_device(request, mock_isapi):
     f = open(f"tests/fixtures/devices/{model}.json", "r")
     diagnostics = json.load(f)
     f.close()
-    for endpoint in diagnostics["data"].keys():
+    for endpoint in diagnostics["data"]["ISAPI"].keys():
         url = f"{MOCK_HOST}/ISAPI/{endpoint}"
-        data = diagnostics["data"][endpoint]
+        data = diagnostics["data"]["ISAPI"][endpoint]
         if status_code := data.get("status_code"):
             respx.get(url).respond(status_code=status_code)
-        else:
-            xml = xmltodict.unparse(data["response"])
+        elif response := data.get("response"):
+            xml = xmltodict.unparse(response)
             respx.get(url).respond(text=xml)
 
     return mock_isapi

@@ -76,6 +76,7 @@ async def _async_get_diagnostics(
     # info.update({"Cameras": [to_json(camera) for camera in isapi.cameras]})
 
     # ISAPI responses
+    responses = {}
     endpoints = [
         "System/deviceInfo",
         "System/capabilities",
@@ -91,19 +92,20 @@ async def _async_get_diagnostics(
     ]
 
     for endpoint in endpoints:
-        info[endpoint] = await get_isapi_data(isapi, endpoint)
+        responses[endpoint] = await get_isapi_data(isapi, endpoint)
 
     # channels
     for camera in isapi.cameras:
         for stream_type_id in STREAM_TYPE:
             endpoint = f"Streaming/channels/{camera.id}0{stream_type_id}"
-            info[endpoint] = await get_isapi_data(isapi, endpoint)
+            responses[endpoint] = await get_isapi_data(isapi, endpoint)
 
     # event states
     for camera in isapi.cameras:
         for event in camera.supported_events:
-            info[event.url] = await get_isapi_data(isapi, event.url)
+            responses[event.url] = await get_isapi_data(isapi, event.url)
 
+    info["ISAPI"] = responses
     return info
 
 
