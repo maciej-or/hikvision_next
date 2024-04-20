@@ -2,9 +2,10 @@
 
 import respx
 import pytest
+import httpx
 from contextlib import suppress
 from custom_components.hikvision_next.isapi import StorageInfo
-from tests.conftest import mock_endpoint
+from tests.conftest import mock_endpoint, load_fixture
 
 
 @respx.mock
@@ -48,6 +49,22 @@ async def test_notification_hosts(mock_isapi):
     host_ipc = await isapi.get_alarm_server()
 
     assert host_nvr == host_ipc
+
+
+@respx.mock
+async def test_update_notification_hosts(mock_isapi):
+    isapi = mock_isapi
+
+    def update_side_effect(request, route):
+        payload = load_fixture("ISAPI/Event.notification.httpHosts", "set_alarm_server_payload")
+        if request.content.decode('utf-8') != payload :
+            raise AssertionError("Request content does not match expected payload")
+        return httpx.Response(200)
+
+    mock_endpoint("Event/notification/httpHosts", "nvr_single_item")
+    url = f"{isapi.host}/ISAPI/Event/notification/httpHosts"
+    respx.put(url).mock(side_effect=update_side_effect)
+    await isapi.set_alarm_server('http://1.0.0.11:8123', '/api/hikvision')
 
 
 @respx.mock
