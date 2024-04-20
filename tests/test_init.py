@@ -1,5 +1,6 @@
 import respx
 import pytest
+from unittest.mock import patch
 from homeassistant.core import HomeAssistant
 from custom_components.hikvision_next.const import DOMAIN
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -48,6 +49,12 @@ async def test_async_setup_entry_nvr(hass: HomeAssistant, mock_isapi_device) -> 
     assert device_info.support_event_mutex_checking == "false"
     assert device_info.support_holiday_mode == "true"
 
+    # test successful unload
+    await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert not hass.data.get(DOMAIN)
+
 
 @respx.mock
 @pytest.mark.parametrize("mock_isapi_device", ["DS-2CD2386G2-IU"], indirect=True)
@@ -90,3 +97,41 @@ async def test_async_setup_entry_ipc(hass: HomeAssistant, mock_isapi_device) -> 
     assert device_info.support_digital_cameras == 0
     assert device_info.support_event_mutex_checking is False
     assert device_info.support_holiday_mode is False
+
+    # test successful unload
+    await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert not hass.data.get(DOMAIN)
+
+@respx.mock
+@pytest.mark.parametrize("mock_isapi_device", ["DS-7608NXI-I2"], indirect=True)
+async def test_async_setup_entry_nvr_with_alarm_server(hass: HomeAssistant, mock_isapi_device) -> None:
+    """Test a successful NVR setup entry with setting alarm server."""
+
+    config = {**MOCK_CONFIG}
+    config["set_alarm_server"] = True
+    config["alarm_server"] = "http://1.0.0.11:8123"
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data=config,
+    )
+
+    entry.add_to_hass(hass)
+
+    with patch("custom_components.hikvision_next.isapi.ISAPI.set_alarm_server") as set_alarm_server_mock:
+
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        assert entry.state == ConfigEntryState.LOADED
+        assert set_alarm_server_mock.call_args[0][0] == config["alarm_server"]
+        assert set_alarm_server_mock.call_args[0][1] == '/api/hikvision'
+
+        # test successful unload
+        await hass.config_entries.async_unload(entry.entry_id)
+        await hass.async_block_till_done()
+
+        assert set_alarm_server_mock.call_args[0][0] == 'http://0.0.0.0:80'
+        assert set_alarm_server_mock.call_args[0][1] == '/'
+        assert not hass.data.get(DOMAIN)

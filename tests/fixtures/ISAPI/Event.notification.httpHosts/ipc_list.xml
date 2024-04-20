@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HttpHostNotificationList version="2.0"
+  xmlns="http://www.hikvision.com/ver20/XMLSchema">
+  <HttpHostNotification version="2.0"
+    xmlns="http://www.hikvision.com/ver20/XMLSchema">
+    <id>1</id>
+    <url>/api/hikvision</url>
+    <protocolType>HTTP</protocolType>
+    <parameterFormatType>XML</parameterFormatType>
+    <addressingFormatType>ipaddress</addressingFormatType>
+    <ipAddress>1.0.0.20</ipAddress>
+    <portNo>8123</portNo>
+    <userName></userName>
+    <httpAuthenticationMethod>none</httpAuthenticationMethod>
+    <httpBroken>false</httpBroken>
+  </HttpHostNotification>
+  <HttpHostNotification version="2.0"
+    xmlns="http://www.hikvision.com/ver20/XMLSchema">
+    <id>2</id>
+    <url>/</url>
+    <protocolType>HTTP</protocolType>
+    <parameterFormatType>XML</parameterFormatType>
+    <addressingFormatType>ipaddress</addressingFormatType>
+    <ipAddress>0.0.0.0</ipAddress>
+    <portNo>80</portNo>
+    <userName></userName>
+    <httpAuthenticationMethod>none</httpAuthenticationMethod>
+    <httpBroken>false</httpBroken>
+  </HttpHostNotification>
+  <HttpHostNotification version="2.0"
+    xmlns="http://www.hikvision.com/ver20/XMLSchema">
+    <id>3</id>
+    <url>/</url>
+    <protocolType>HTTP</protocolType>
+    <parameterFormatType>XML</parameterFormatType>
+    <addressingFormatType>ipaddress</addressingFormatType>
+    <ipAddress>0.0.0.0</ipAddress>
+    <portNo>80</portNo>
+    <userName></userName>
+    <httpAuthenticationMethod>none</httpAuthenticationMethod>
+    <httpBroken>false</httpBroken>
+  </HttpHostNotification>
+</HttpHostNotificationList>

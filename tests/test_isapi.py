@@ -37,6 +37,18 @@ async def test_storage(mock_isapi):
         storage_list = await isapi.get_storage_devices()
         assert len(storage_list) == 0
 
+@respx.mock
+async def test_notification_hosts(mock_isapi):
+    isapi = mock_isapi
+
+    mock_endpoint("Event/notification/httpHosts", "nvr_single_item")
+    host_nvr = await isapi.get_alarm_server()
+
+    mock_endpoint("Event/notification/httpHosts", "ipc_list")
+    host_ipc = await isapi.get_alarm_server()
+
+    assert host_nvr == host_ipc
+
 
 @respx.mock
 @pytest.mark.parametrize("mock_isapi_device", ["DS-7608NXI-I2", "DS-2CD2386G2-IU"], indirect=True)
