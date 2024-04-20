@@ -3,9 +3,7 @@ import pytest
 from custom_components.hikvision_next.const import DOMAIN
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.config_entries import SOURCE_USER
-from tests.conftest import MOCK_CLIENT
-
-MOCK_CONFIG = {**MOCK_CLIENT, "set_alarm_server": False, "alarm_server": ""}
+from tests.conftest import MOCK_CONFIG
 
 
 @respx.mock

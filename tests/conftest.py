@@ -13,6 +13,7 @@ MOCK_CLIENT = {
     "username": "u1",
     "password": "***",
 }
+MOCK_CONFIG = {**MOCK_CLIENT, "set_alarm_server": False, "alarm_server": ""}
 
 
 @pytest.fixture(autouse=True)
