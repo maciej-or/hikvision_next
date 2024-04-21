@@ -1,7 +1,6 @@
 import respx
 import pytest
 import httpx
-from custom_components.hikvision_next.const import DOMAIN
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from tests.conftest import MOCK_CONFIG
@@ -16,31 +15,15 @@ from homeassistant.const import (
 
 @respx.mock
 @pytest.mark.parametrize("mock_isapi_device", ["DS-7608NXI-I2"], indirect=True)
-async def test_event_switch_payload(hass: HomeAssistant, mock_isapi_device) -> None:
-    entry = MockConfigEntry(
-        domain=DOMAIN,
-        data={**MOCK_CONFIG},
-    )
+async def test_event_switch_payload(hass: HomeAssistant, mock_isapi_device, mock_config_entry: MockConfigEntry) -> None:
+    """Test event switch."""
 
+    entry = mock_config_entry
     entry.add_to_hass(hass)
-
     await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
 
-    # EventInfo
-    # id: 'videoloss'
-    # channel_id: 1
-    # unique_id: 'ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_videoloss'
-    # url: 'ContentMgmt/InputProxy/channels/1/video/videoLoss'
-
-    isapi = hass.data[DOMAIN][entry.entry_id]["isapi"]
-    videoloss_event = next(
-        (event for event in isapi.cameras[0].supported_events if event.id == "videoloss" and event.channel_id == 1),
-        None,
-    )
-    assert videoloss_event
-
-    entity_id = f"switch.{videoloss_event.unique_id}"
+    entity_id = "switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_videoloss"
     assert (switch := hass.states.get(entity_id))
     assert switch.state == STATE_ON
 
@@ -50,7 +33,7 @@ async def test_event_switch_payload(hass: HomeAssistant, mock_isapi_device) -> N
             raise AssertionError("Request content does not match expected payload")
         return httpx.Response(200)
 
-    url = f"{MOCK_CONFIG['host']}/ISAPI/{videoloss_event.url}"
+    url = f"{MOCK_CONFIG['host']}/ISAPI/ContentMgmt/InputProxy/channels/1/video/videoLoss"
     endpoint = respx.put(url).mock(side_effect=update_side_effect)
 
     # do not call if already on

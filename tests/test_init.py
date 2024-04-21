@@ -14,7 +14,7 @@ async def test_async_setup_entry_nvr(hass: HomeAssistant, mock_isapi_device) -> 
     """Test a successful NVR setup entry."""
     entry = MockConfigEntry(
         domain=DOMAIN,
-        data={**MOCK_CONFIG},
+        data=MOCK_CONFIG,
     )
 
     entry.add_to_hass(hass)
@@ -62,7 +62,7 @@ async def test_async_setup_entry_ipc(hass: HomeAssistant, mock_isapi_device) -> 
     """Test a successful IP camera setup entry."""
     entry = MockConfigEntry(
         domain=DOMAIN,
-        data={**MOCK_CONFIG},
+        data=MOCK_CONFIG,
     )
 
     entry.add_to_hass(hass)

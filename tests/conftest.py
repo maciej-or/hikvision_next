@@ -4,6 +4,8 @@ import json
 import pytest
 import respx
 import xmltodict
+from custom_components.hikvision_next.const import DOMAIN
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.hikvision_next.isapi import ISAPI
 
 
@@ -20,6 +22,14 @@ MOCK_CONFIG = {**MOCK_CLIENT, "set_alarm_server": False, "alarm_server": ""}
 def auto_enable_custom_integrations(enable_custom_integrations):
     yield
 
+
+@pytest.fixture
+def mock_config_entry() -> MockConfigEntry:
+    """Return the default mocked config entry."""
+    return MockConfigEntry(
+        domain=DOMAIN,
+        data=MOCK_CONFIG,
+    )
 
 def load_fixture(path, file):
     with open(f"tests/fixtures/{path}/{file}.xml", "r") as f:
