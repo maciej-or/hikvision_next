@@ -642,10 +642,12 @@ class ISAPI:
                 return
             data[node]["enabled"] = new_state
             xml = xmltodict.unparse(data)
-            await self.request(PUT, event.url, data=xml)
+            await self.request(PUT, event.url, present="xml", data=xml)
         else:
             raise HomeAssistantError(
-                f"You cannot enable {EVENTS[event.id]['label']} events. Please disable {EVENTS[mutex_issues[0].event_id]['label']} on channels {mutex_issues[0].channels} first"
+                f"""You cannot enable {EVENTS[event.id]['label']} events.
+                Please disable {EVENTS[mutex_issues[0].event_id]['label']}
+                on channels {mutex_issues[0].channels} first"""
             )
 
     async def get_port_status(self, port_type: str, port_no: int) -> str:
