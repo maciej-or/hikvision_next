@@ -4,18 +4,25 @@ import json
 import pytest
 import respx
 import xmltodict
-from custom_components.hikvision_next.const import DOMAIN
+from custom_components.hikvision_next.const import DOMAIN, DATA_SET_ALARM_SERVER, DATA_ALARM_SERVER_HOST
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.hikvision_next.isapi import ISAPI
+from homeassistant.core import HomeAssistant
 
 
-MOCK_HOST = "http://1.0.0.255"
-MOCK_CLIENT = {
-    "host": MOCK_HOST,
-    "username": "u1",
-    "password": "***",
+TEST_HOST = "http://1.0.0.255"
+TEST_CLIENT = {
+    CONF_HOST: TEST_HOST,
+    CONF_USERNAME: "u1",
+    CONF_PASSWORD: "***",
 }
-MOCK_CONFIG = {**MOCK_CLIENT, "set_alarm_server": False, "alarm_server": ""}
+TEST_CONFIG = {**TEST_CLIENT, DATA_SET_ALARM_SERVER: False, DATA_ALARM_SERVER_HOST: ""}
+TEST_CONFIG_WITH_ALARM_SERVER = {
+    **TEST_CLIENT,
+    DATA_SET_ALARM_SERVER: True,
+    DATA_ALARM_SERVER_HOST: "http://1.0.0.11:8123",
+}
 
 
 @pytest.fixture(autouse=True)
@@ -24,12 +31,15 @@ def auto_enable_custom_integrations(enable_custom_integrations):
 
 
 @pytest.fixture
-def mock_config_entry() -> MockConfigEntry:
+def mock_config_entry(request) -> MockConfigEntry:
     """Return the default mocked config entry."""
+
+    config = getattr(request, "param", TEST_CONFIG)
     return MockConfigEntry(
         domain=DOMAIN,
-        data=MOCK_CONFIG,
+        data=config,
     )
+
 
 def load_fixture(path, file):
     with open(f"tests/fixtures/{path}/{file}.xml", "r") as f:
@@ -39,32 +49,21 @@ def load_fixture(path, file):
 def mock_endpoint(endpoint, file=None, status_code=200):
     """Mock ISAPI endpoint."""
 
-    url = f"{MOCK_HOST}/ISAPI/{endpoint}"
+    url = f"{TEST_HOST}/ISAPI/{endpoint}"
     path = f"ISAPI/{endpoint.replace('/', '.')}"
     if not file:
         return respx.get(url).respond(status_code=status_code)
     return respx.get(url).respond(text=load_fixture(path, file))
 
 
-@pytest.fixture
-def mock_isapi():
-    """Mock ISAPI instance."""
+def mock_device_endpoints(model):
+    """Mock all ISAPI requests used for device initialization."""
 
-    respx.get(f"{MOCK_HOST}/ISAPI/System/status").respond(status_code=200)
-    isapi = ISAPI(**MOCK_CLIENT)
-    return isapi
-
-
-@pytest.fixture
-def mock_isapi_device(request, mock_isapi):
-    """Mock all device ISAPI requests."""
-
-    model = request.param
     f = open(f"tests/fixtures/devices/{model}.json", "r")
     diagnostics = json.load(f)
     f.close()
     for endpoint in diagnostics["data"]["ISAPI"].keys():
-        url = f"{MOCK_HOST}/ISAPI/{endpoint}"
+        url = f"{TEST_HOST}/ISAPI/{endpoint}"
         data = diagnostics["data"]["ISAPI"][endpoint]
         if status_code := data.get("status_code"):
             respx.get(url).respond(status_code=status_code)
@@ -72,4 +71,41 @@ def mock_isapi_device(request, mock_isapi):
             xml = xmltodict.unparse(response)
             respx.get(url).respond(text=xml)
 
+
+@pytest.fixture
+def mock_isapi():
+    """Mock ISAPI instance."""
+
+    respx.get(f"{TEST_HOST}/ISAPI/System/status").respond(status_code=200)
+    isapi = ISAPI(**TEST_CLIENT)
+    return isapi
+
+
+@pytest.fixture
+def mock_isapi_device(respx_mock, request, mock_isapi):
+    """Mock all device ISAPI requests."""
+
+    model = request.param
+    mock_device_endpoints(model)
     return mock_isapi
+
+
+@pytest.fixture
+async def init_integration(respx_mock, request, mock_isapi, hass: HomeAssistant, mock_config_entry: MockConfigEntry):
+    """Mock all device ISAPI requests."""
+
+    model = request.param
+    skip_setup = False
+    if len(request.param) == 2:
+        model = request.param[0]
+        skip_setup = request.param[1]
+
+    mock_device_endpoints(model)
+
+    mock_config_entry.add_to_hass(hass)
+
+    if not skip_setup:
+        await hass.config_entries.async_setup(mock_config_entry.entry_id)
+        await hass.async_block_till_done()
+
+    return mock_config_entry

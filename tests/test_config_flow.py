@@ -1,9 +1,11 @@
+"""Tests for the config flow."""
+
 import respx
 import pytest
 from custom_components.hikvision_next.const import DOMAIN
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.config_entries import SOURCE_USER
-from tests.conftest import MOCK_CONFIG
+from tests.conftest import TEST_CONFIG
 
 
 @respx.mock
@@ -16,10 +18,10 @@ async def test_successful_config_flow_for_nvr(hass, mock_isapi_device):
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
 
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=MOCK_CONFIG)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=TEST_CONFIG)
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert result["data"] == MOCK_CONFIG
+    assert result["data"] == TEST_CONFIG
     assert result["title"] == "nvr"
     assert result["result"].unique_id == "DS-7608NXI-I0/0P/S0000000000CCRRJ00000000WCVU"
 
@@ -34,9 +36,9 @@ async def test_successful_config_flow_for_ipc(hass, mock_isapi_device):
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
 
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=MOCK_CONFIG)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=TEST_CONFIG)
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert result["data"] == MOCK_CONFIG
+    assert result["data"] == TEST_CONFIG
     assert result["title"] == "yard"
     assert result["result"].unique_id == "DS-2CD2386G2-IU00000000AAWRJ00000000"

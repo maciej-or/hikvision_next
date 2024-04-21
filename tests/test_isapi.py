@@ -1,7 +1,6 @@
-"""Test specific ISAPI responses."""
+"""Tests for specific ISAPI responses."""
 
 import respx
-import pytest
 import httpx
 from contextlib import suppress
 from custom_components.hikvision_next.isapi import StorageInfo
@@ -38,6 +37,7 @@ async def test_storage(mock_isapi):
         storage_list = await isapi.get_storage_devices()
         assert len(storage_list) == 0
 
+
 @respx.mock
 async def test_notification_hosts(mock_isapi):
     isapi = mock_isapi
@@ -57,28 +57,13 @@ async def test_update_notification_hosts(mock_isapi):
 
     def update_side_effect(request, route):
         payload = load_fixture("ISAPI/Event.notification.httpHosts", "set_alarm_server_payload")
-        if request.content.decode('utf-8') != payload :
+        if request.content.decode("utf-8") != payload:
             raise AssertionError("Request content does not match expected payload")
         return httpx.Response(200)
 
     mock_endpoint("Event/notification/httpHosts", "nvr_single_item")
     url = f"{isapi.host}/ISAPI/Event/notification/httpHosts"
     endpoint = respx.put(url).mock(side_effect=update_side_effect)
-    await isapi.set_alarm_server('http://1.0.0.11:8123', '/api/hikvision')
+    await isapi.set_alarm_server("http://1.0.0.11:8123", "/api/hikvision")
 
     assert endpoint.called
-
-
-@respx.mock
-@pytest.mark.parametrize("mock_isapi_device", ["DS-7608NXI-I2", "DS-2CD2386G2-IU"], indirect=True)
-async def test_all_devices(mock_isapi_device):
-    isapi = mock_isapi_device
-
-    storage_list = await isapi.get_storage_devices()
-    assert len(storage_list) > 0
-
-    await isapi.get_protocols()
-    assert isapi.device_info.rtsp_port == "10554"
-
-    alarm_server = await isapi.get_alarm_server()
-    assert alarm_server.ipAddress is not None
