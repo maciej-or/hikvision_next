@@ -13,3 +13,4 @@ pytest-homeassistant-custom-component
 async-timeout
 httpx
 respx
+aiohttp_cors
