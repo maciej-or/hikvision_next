@@ -127,7 +127,6 @@ def get_first_instance_unique_id(hass: HomeAssistant) -> int:
     return entry.unique_id
 
 
-# Example migration function
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Migrate old entry."""
     _LOGGER.debug("Migrating from version %s", config_entry.version)
@@ -145,10 +144,10 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
         config_entry.version = 2
 
-    _LOGGER.debug(
-        "Migration to version %s.%s successful",
-        config_entry.version,
-        config_entry.minor_version,
-    )
+        _LOGGER.debug(
+            "Migration to version %s.%s successful",
+            config_entry.version,
+            config_entry.minor_version,
+        )
 
     return True

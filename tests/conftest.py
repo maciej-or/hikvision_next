@@ -38,6 +38,7 @@ def mock_config_entry(request) -> MockConfigEntry:
     return MockConfigEntry(
         domain=DOMAIN,
         data=config,
+        version=2,
     )
 
 
