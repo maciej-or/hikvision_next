@@ -12,7 +12,35 @@ from homeassistant.const import (
     SERVICE_TURN_OFF,
     SERVICE_TURN_ON,
     STATE_ON,
+    STATE_OFF
 )
+
+
+@pytest.mark.parametrize("init_integration", ["DS-7608NXI-I2"], indirect=True)
+async def test_event_switch_state(hass: HomeAssistant, init_integration: MockConfigEntry,) -> None:
+    """Test switch state."""
+
+    for (entity_id, state) in [
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_videoloss", STATE_ON),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_fielddetection", STATE_OFF),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_linedetection", STATE_ON),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_scenechangedetection", STATE_OFF),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_motiondetection", STATE_OFF),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_videoloss", STATE_ON),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_fielddetection", STATE_OFF),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_linedetection", STATE_ON),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_regionentrance", STATE_ON),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_regionexiting", STATE_ON),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_scenechangedetection", STATE_OFF),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_motiondetection", STATE_OFF),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_videoloss", STATE_ON),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_fielddetection", STATE_ON),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_linedetection", STATE_OFF),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_alarm_output", STATE_OFF),
+        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_holiday_mode", STATE_OFF)
+    ]:
+        assert (switch := hass.states.get(entity_id))
+        assert switch.state == state
 
 
 @pytest.mark.parametrize("init_integration", ["DS-7608NXI-I2"], indirect=True)
