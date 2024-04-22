@@ -91,7 +91,7 @@ async def test_async_setup_entry_ipc(hass: HomeAssistant, init_integration: Mock
 
 
 @pytest.mark.parametrize("mock_config_entry", [TEST_CONFIG_WITH_ALARM_SERVER], indirect=True)
-@pytest.mark.parametrize("init_integration", [("DS-7608NXI-I2", True)], indirect=True)
+@pytest.mark.parametrize("init_integration", [("DS-7608NXI-I2", True), ("DS-2CD2386G2-IU", True)], indirect=True)
 async def test_async_setup_entry_nvr_with_alarm_server(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test a successful NVR setup entry with setting alarm server."""
 

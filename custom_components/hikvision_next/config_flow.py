@@ -80,7 +80,7 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "cannot_connect"
             except Exception as ex:  # pylint: disable=broad-except
                 _LOGGER.error("Unexpected exception %s", ex)
-                errors["base"] = "unknown"
+                errors["base"] = f"Unexpected exception: {ex}"
             else:
                 return self.async_create_entry(title=isapi.device_info.name, data=user_input)
 

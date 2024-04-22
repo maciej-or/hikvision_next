@@ -113,7 +113,7 @@ async def get_isapi_data(isapi, endpoint: str) -> dict:
     """Get data from ISAPI."""
     entry = {}
     try:
-        response = await isapi.request(GET, endpoint, ignore_exception=False)
+        response = await isapi.request(GET, endpoint)
         entry["response"] = anonymise_data(response)
     except HTTPStatusError as ex:
         entry["status_code"] = ex.response.status_code

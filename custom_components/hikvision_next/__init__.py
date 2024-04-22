@@ -45,6 +45,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     username = entry.data[CONF_USERNAME]
     password = entry.data[CONF_PASSWORD]
     isapi = ISAPI(host, username, password)
+    isapi.pending_initialization = True
     try:
         await isapi.get_hardware_info()
         await isapi.get_cameras()
@@ -79,6 +80,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await coordinator.async_config_entry_first_refresh()
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    isapi.pending_initialization = False
 
     # Only initialise view once if multiple instances of integration
     if get_first_instance_unique_id(hass) == entry.unique_id:
