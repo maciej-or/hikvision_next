@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EventNotificationAlert version="1.0"
+  xmlns="urn:psialliance-org">
+  <channelID>34</channelID>
+  <dateTime>2023-01-13T19:16:39+01:00</dateTime>
+  <activePostCount>174</activePostCount>
+  <eventType>fielddetection</eventType>
+  <eventState>active</eventState>
+  <Extensions>
+    <serialNumber xmlns="urn:selfextension:psiaext-ver10-xsd">DS-7608NXI-I0/0P/S0000000000CCRRJ00000000WCVU
+    </serialNumber>
+    <eventPush xmlns="urn:selfextension:psiaext-ver10-xsd">fielddetection&amp;&amp;DS-7608NXI-I0/0P/S0000000000CCRRJ00000000WCVU,2023-01-13T19:16:39+01:00,34,1.0</eventPush>
+  </Extensions>
+</EventNotificationAlert>

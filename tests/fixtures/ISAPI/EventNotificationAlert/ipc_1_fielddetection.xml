@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EventNotificationAlert version="2.0" xmlns="http://www.hikvision.com/ver20/XMLSchema">
+    <ipAddress>1.0.0.255</ipAddress>
+    <portNo>8123</portNo>
+    <protocol>HTTP</protocol>
+    <macAddress>a6:63:9e:f8:01:09</macAddress>
+    <channelID>1</channelID>
+    <dateTime>2023-01-23T23:27:25+01:00</dateTime>
+    <activePostCount>1</activePostCount>
+    <eventType>duration</eventType>
+    <eventState>active</eventState>
+    <eventDescription>duration alarm</eventDescription>
+    <channelName>yard</channelName>
+    <DurationList>
+        <Duration>
+            <relationEvent>fielddetection</relationEvent>
+        </Duration>
+    </DurationList>
+    <isDataRetransmission>false</isDataRetransmission>
+</EventNotificationAlert>

@@ -10,8 +10,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.hikvision_next.isapi import ISAPI
 from homeassistant.core import HomeAssistant
 
-
-TEST_HOST = "http://1.0.0.255"
+TEST_HOST_IP = "1.0.0.255"
+TEST_HOST = f"http://{TEST_HOST_IP}"
 TEST_CLIENT = {
     CONF_HOST: TEST_HOST,
     CONF_USERNAME: "u1",
@@ -63,9 +63,8 @@ def mock_device_endpoints(model):
     f = open(f"tests/fixtures/devices/{model}.json", "r")
     diagnostics = json.load(f)
     f.close()
-    for endpoint in diagnostics["data"]["ISAPI"].keys():
+    for endpoint, data in diagnostics["data"]["ISAPI"].items():
         url = f"{TEST_HOST}/ISAPI/{endpoint}"
-        data = diagnostics["data"]["ISAPI"][endpoint]
         if status_code := data.get("status_code"):
             respx.get(url).respond(status_code=status_code)
         elif response := data.get("response"):
@@ -93,7 +92,13 @@ def mock_isapi_device(respx_mock, request, mock_isapi):
 
 @pytest.fixture
 async def init_integration(respx_mock, request, mock_isapi, hass: HomeAssistant, mock_config_entry: MockConfigEntry):
-    """Mock all device ISAPI requests."""
+    """
+    Mock integration in device context.
+
+    :param request: model or (model, skip_setup)
+        model - fixtures/devices subfolder
+        skip_setup - default False, if True skips setup of the integration
+    """
 
     model = request.param
     skip_setup = False
