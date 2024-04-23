@@ -93,7 +93,7 @@ class EventNotificationsView(HomeAssistantView):
 
         data = await request.read()
 
-        content_type_header = request.headers.get(CONTENT_TYPE)
+        content_type_header = request.headers.get(CONTENT_TYPE).strip()
 
         _LOGGER.debug("request headers: %s", request.headers)
         xml = None
