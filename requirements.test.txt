@@ -1,0 +1,16 @@
+# manifest.json
+xmltodict==0.13.0
+hikvisionapi==0.3.2
+requests-toolbelt==1.0.0
+
+# tests
+pytest
+pytest-asyncio
+pytest-cov
+pytest-homeassistant-custom-component
+
+#
+async-timeout
+httpx
+respx
+aiohttp_cors

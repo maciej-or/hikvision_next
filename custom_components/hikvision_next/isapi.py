@@ -183,6 +183,7 @@ class ISAPI:
         self.device_info = HikDeviceInfo()
         self.cameras: list[IPCamera | AnalogCamera] = []
         self.supported_events: list[SupportedEventsInfo] = []
+        self.pending_initialization = False
 
     async def get_device_info(self):
         """Get device info."""
@@ -488,7 +489,7 @@ class ISAPI:
     async def get_storage_devices(self):
         """Get HDD storage devices."""
         storage_list = []
-        storage_info = (await self.request(GET, "ContentMgmt/Storage", ignore_exception=False)).get("storage", {})
+        storage_info = (await self.request(GET, "ContentMgmt/Storage")).get("storage", {})
 
         hdd_list = storage_info.get("hddList") or {}
         if "hdd" in hdd_list:
@@ -589,7 +590,7 @@ class ISAPI:
 
     async def get_event_enabled_state(self, event: EventInfo) -> bool:
         """Get event detection state."""
-        state = await self.request(GET, event.url, ignore_exception=False)
+        state = await self.request(GET, event.url)
         node = self.get_event_state_node(event)
         return str_to_bool(state[node].get("enabled", False)) if state.get(node) else False
 
@@ -642,18 +643,20 @@ class ISAPI:
                 return
             data[node]["enabled"] = new_state
             xml = xmltodict.unparse(data)
-            await self.request(PUT, event.url, data=xml)
+            await self.request(PUT, event.url, present="xml", data=xml)
         else:
             raise HomeAssistantError(
-                f"You cannot enable {EVENTS[event.id]['label']} events. Please disable {EVENTS[mutex_issues[0].event_id]['label']} on channels {mutex_issues[0].channels} first"
+                f"""You cannot enable {EVENTS[event.id]['label']} events.
+                Please disable {EVENTS[mutex_issues[0].event_id]['label']}
+                on channels {mutex_issues[0].channels} first"""
             )
 
     async def get_port_status(self, port_type: str, port_no: int) -> str:
         """Get status of physical ports."""
         if port_type == "input":
-            status = await self.request(GET, f"System/IO/inputs/{port_no}/status", ignore_exception=False)
+            status = await self.request(GET, f"System/IO/inputs/{port_no}/status")
         else:
-            status = await self.request(GET, f"System/IO/outputs/{port_no}/status", ignore_exception=False)
+            status = await self.request(GET, f"System/IO/outputs/{port_no}/status")
         return deep_get(status, "IOPortStatus.ioState")
 
     async def set_port_state(self, port_no: int, turn_on: bool):
@@ -676,7 +679,7 @@ class ISAPI:
     async def get_holiday_enabled_state(self, holiday_index=0) -> bool:
         """Get holiday state."""
 
-        data = await self.request(GET, "System/Holidays", ignore_exception=False)
+        data = await self.request(GET, "System/Holidays")
         holiday = data["HolidayList"]["holiday"][holiday_index]
         return str_to_bool(holiday["enabled"]["#text"])
 
@@ -755,7 +758,6 @@ class ISAPI:
         method: str,
         url: str,
         present: str = "dict",
-        ignore_exception: bool = True,
         **data,
     ) -> Any:
         """Send request and log response, returns {} if request fails."""
@@ -769,7 +771,8 @@ class ISAPI:
             _LOGGER.debug("\n%s", response)
         except HTTPStatusError as ex:
             _LOGGER.warning("--- [%s] %s\n%s", method.upper(), full_url, ex)
-            if ignore_exception:
+            if self.pending_initialization:
+                # supress http errors during initialization
                 return {}
             raise
         else:

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<storage version="2.0"
+  xmlns="http://www.hikvision.com/ver20/XMLSchema">
+  <hddList version="1.0"
+    xmlns="http://www.hikvision.com/ver10/XMLSchema" size="8">
+    <hdd>
+      <id>1</id>
+      <hddName>hdde</hddName>
+      <hddPath></hddPath>
+      <hddType>SATA</hddType>
+      <status>ok</status>
+      <capacity>30436</capacity>
+      <freeSpace>27392</freeSpace>
+      <property>RW</property>
+      <formatType>EXT4</formatType>
+      <Encryption>
+        <passwordLen min="6" max="64"/>
+        <encryptionStatus opt="unencrypted,encrypted,verfyFailed">unencrypted</encryptionStatus>
+        <encryptFormatType opt="EXT4">EXT4</encryptFormatType>
+      </Encryption>
+      <installationTime>14-Apr-2024 13:20</installationTime>
+    </hdd>
+  </hddList>
+  <nasList version="2.0"
+    xmlns="http://www.hikvision.com/ver20/XMLSchema">
+    <nas version="2.0"
+      xmlns="http://www.hikvision.com/ver20/XMLSchema">
+      <id>9</id>
+      <addressingFormatType>ipaddress</addressingFormatType>
+      <ipAddress>192.168.0.1</ipAddress>
+      <portNo>0</portNo>
+      <nasType>NFS</nasType>
+      <path>/pub/hik</path>
+      <status>ok</status>
+      <capacity>122346</capacity>
+      <freeSpace>119552</freeSpace>
+      <property>RW</property>
+      <mountType>SMB/CIFS</mountType>
+      <userName>pub</userName>
+      <Encryption>
+        <encryptionStatus opt="unencrypted,encrypted,verfyFailed">unencrypted</encryptionStatus>
+      </Encryption>
+    </nas>
+    <supportMountType opt="NFS,SMB/CIFS"/>
+    <authentication opt="SMB/CIFS"/>
+  </nasList>
+  <workMode>quota</workMode>
+</storage>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<HttpHostNotificationList version="2.0"
+  xmlns="http://www.isapi.org/ver20/XMLSchema">
+  <HttpHostNotification>
+    <id>1</id>
+    <url>/api/hikvision</url>
+    <protocolType>HTTP</protocolType>
+    <parameterFormatType>XML</parameterFormatType>
+    <addressingFormatType>ipaddress</addressingFormatType>
+    <ipAddress>1.0.0.20</ipAddress>
+    <portNo>8123</portNo>
+    <httpAuthenticationMethod>none</httpAuthenticationMethod>
+    <Extensions xmlns="urn:selfextension:psiaext-ver10-xsd">
+      <intervalBetweenEvents>0</intervalBetweenEvents>
+    </Extensions>
+  </HttpHostNotification>
+</HttpHostNotificationList>
