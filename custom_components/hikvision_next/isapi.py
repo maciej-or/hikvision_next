@@ -213,9 +213,13 @@ class ISAPI:
         # Set DeviceInfo
         self.device_info.support_analog_cameras = int(deep_get(capabilities, "SysCap.VideoCap.videoInputPortNums", 0))
         self.device_info.support_digital_cameras = int(deep_get(capabilities, "RacmCap.inputProxyNums", 0))
-        self.device_info.support_holiday_mode = deep_get(capabilities, "SysCap.isSupportHolidy", False)
-        self.device_info.support_channel_zero = deep_get(capabilities, "RacmCap.isSupportZeroChan", False)
-        self.device_info.support_event_mutex_checking = capabilities.get("isSupportGetmutexFuncErrMsg", False)
+        self.device_info.support_holiday_mode = str_to_bool(deep_get(capabilities, "SysCap.isSupportHolidy", "false"))
+        self.device_info.support_channel_zero = str_to_bool(
+            deep_get(capabilities, "RacmCap.isSupportZeroChan", "false")
+        )
+        self.device_info.support_event_mutex_checking = str_to_bool(
+            capabilities.get("isSupportGetmutexFuncErrMsg", "false")
+        )
         self.device_info.input_ports = int(deep_get(capabilities, "SysCap.IOCap.IOInputPortNums", 0))
         self.device_info.output_ports = int(deep_get(capabilities, "SysCap.IOCap.IOOutputPortNums", 0))
 
@@ -473,7 +477,7 @@ class ISAPI:
                     codec=deep_get(stream_info, "Video.videoCodecType"),
                     width=deep_get(stream_info, "Video.videoResolutionWidth", 0),
                     height=deep_get(stream_info, "Video.videoResolutionHeight", 0),
-                    audio=deep_get(stream_info, "Audio.enabled", False),
+                    audio=str_to_bool(deep_get(stream_info, "Audio.enabled", "false")),
                 )
             )
         return streams
@@ -592,7 +596,7 @@ class ISAPI:
         """Get event detection state."""
         state = await self.request(GET, event.url)
         node = self.get_event_state_node(event)
-        return str_to_bool(state[node].get("enabled", False)) if state.get(node) else False
+        return str_to_bool(state[node].get("enabled", "false")) if state.get(node) else False
 
     async def get_event_switch_mutex(self, event: EventInfo, channel_id: int) -> list[MutexIssue]:
         """Get if event is mutually exclusive with enabled events."""

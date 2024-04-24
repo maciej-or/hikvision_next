@@ -12,7 +12,7 @@
   "requirements": [
     "xmltodict==0.13.0",
     "hikvisionapi==0.3.2",
-    "requests-toolbelt==0.10.1"
+    "requests-toolbelt==1.0.0"
   ],
   "version": "1.0.14"
 }
