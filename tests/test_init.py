@@ -37,10 +37,10 @@ async def test_async_setup_entry_nvr(hass: HomeAssistant, init_integration: Mock
     assert len(device_info.storage) == 1
     assert device_info.support_alarm_server is True
     assert device_info.support_analog_cameras == 0
-    assert device_info.support_channel_zero == "true"
+    assert device_info.support_channel_zero is True
     assert device_info.support_digital_cameras == 8
-    assert device_info.support_event_mutex_checking == "false"
-    assert device_info.support_holiday_mode == "true"
+    assert device_info.support_event_mutex_checking is False
+    assert device_info.support_holiday_mode is True
 
     # test successful unload
     await hass.config_entries.async_unload(entry.entry_id)
