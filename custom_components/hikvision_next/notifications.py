@@ -12,7 +12,7 @@ from aiohttp import web
 from requests_toolbelt.multipart import MultipartDecoder
 
 from homeassistant.components.http import HomeAssistantView
-from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN, STATE_ON, Platform
+from homeassistant.const import CONF_HOST, CONTENT_TYPE_TEXT_PLAIN, STATE_ON, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_registry import async_get
 from homeassistant.util import slugify
@@ -61,20 +61,26 @@ class EventNotificationsView(HomeAssistantView):
 
     def get_isapi_instance(self, device_ip) -> ISAPI:
         """Get isapi instance for device sending alert."""
-        # Get list of instances
-        try:
-            entry = [
-                entry
-                for entry in self.hass.config_entries.async_entries(DOMAIN)
-                if not entry.disabled_by and self.get_ip(urlparse(entry.data.get("host")).hostname) == device_ip
-            ][0]
+        integration_entries = self.hass.config_entries.async_entries(DOMAIN)
+        instances_hosts = []
+        entry = None
+        if len(integration_entries) == 1:
+            entry = integration_entries[0]
+        else:
+            for item in integration_entries:
+                url = item.data.get(CONF_HOST)
+                instances_hosts.append(url)
+                if item.disabled_by:
+                    continue
+                if self.get_ip(urlparse(url).hostname) == device_ip:
+                    entry = item
+                    break
 
-            config = self.hass.data[DOMAIN][entry.entry_id]
+        if not entry:
+            raise ValueError("Cannot find ISAPI instance for device %s in %s", device_ip, instances_hosts)
 
-            return config.get(DATA_ISAPI)
-
-        except IndexError:
-            return None
+        config = self.hass.data[DOMAIN][entry.entry_id]
+        return config.get(DATA_ISAPI)
 
     def get_ip(self, ip_string: str) -> str:
         """Return an IP if either hostname or IP is provided."""
