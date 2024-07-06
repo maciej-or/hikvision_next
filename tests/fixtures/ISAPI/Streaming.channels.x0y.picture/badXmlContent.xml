@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResponseStatus version="1.0"
+  xmlns="http://www.hikvision.com/ver20/XMLSchema">
+  <requestURL>/ISAPI/Streaming/channels/101/picture</requestURL>
+  <statusCode>6</statusCode>
+  <statusString>Invalid XML Content</statusString>
+  <subStatusCode>badXmlContent</subStatusCode>
+</ResponseStatus>

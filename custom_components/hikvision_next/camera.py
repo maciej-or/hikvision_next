@@ -53,8 +53,4 @@ class HikvisionCamera(Camera):
 
     async def async_camera_image(self, width: int | None = None, height: int | None = None) -> bytes | None:
         """Return a still image response from the camera."""
-        data = await self.isapi.get_camera_image(self.stream_info, width, height)
-        if data.startswith(b'<?xml '):
-            # retry if got XML error response
-            data = await self.isapi.get_camera_image(self.stream_info, width, height)
-        return data
+        return await self.isapi.get_camera_image(self.stream_info, width, height)
