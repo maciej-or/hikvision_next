@@ -114,4 +114,5 @@ async def init_integration(respx_mock, request, mock_isapi, hass: HomeAssistant,
         await hass.config_entries.async_setup(mock_config_entry.entry_id)
         await hass.async_block_till_done()
 
+    mock_config_entry.title = model
     return mock_config_entry

@@ -54,7 +54,7 @@ async def test_wrong_credentials_config_flow(hass, mock_isapi):
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
 
-    respx.get(f'{TEST_HOST}/ISAPI/System/deviceInfo').respond(status_code=401)
+    respx.get(f"{TEST_HOST}/ISAPI/System/deviceInfo").respond(status_code=401)
     result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=TEST_CONFIG)
     assert result.get("type") == FlowResultType.FORM
     assert result.get("errors") == {"base": "invalid_auth"}
@@ -72,4 +72,4 @@ async def test_unexpeced_exception_config_flowget_device_info_mock(get_device_in
     get_device_info_mock.side_effect = Exception("Something went wrong")
     result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=TEST_CONFIG)
     assert result.get("type") == FlowResultType.FORM
-    assert result.get("errors") == {"base": "Unexpected exception: Something went wrong"}
+    assert result.get("errors") == {"base": "Unexpected Exception: Something went wrong"}

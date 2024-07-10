@@ -108,6 +108,7 @@ class CameraStreamInfo:
     width: int
     height: int
     audio: bool
+    use_alternate_picture_url: bool = False
 
 
 @dataclass
@@ -846,6 +847,7 @@ class ISAPI:
         stream: CameraStreamInfo,
         width: int | None = None,
         height: int | None = None,
+        attempt: int = 0,
     ):
         """Get camera snapshot."""
         params = {}
@@ -854,8 +856,27 @@ class ISAPI:
                 "videoResolutionWidth": stream.width,
                 "videoResolutionHeight": stream.height,
             }
-        chunks = self.isapi.Streaming.channels[stream.id].picture(method=GET, type="opaque_data", params=params)
-        return b"".join([chunk async for chunk in chunks])
+
+        if stream.use_alternate_picture_url:
+            chunks = self.isapi.ContentMgmt.StreamingProxy.channels[stream.id].picture(
+                method=GET, type="opaque_data", params=params
+            )
+        else:
+            chunks = self.isapi.Streaming.channels[stream.id].picture(method=GET, type="opaque_data", params=params)
+        data = b"".join([chunk async for chunk in chunks])
+
+        if data.startswith(b"<?xml "):
+            error = xmltodict.parse(data)
+            status_code = int(deep_get(error, "ResponseStatus.statusCode"))
+            if status_code == 6 and not stream.use_alternate_picture_url:
+                # handle 'Invalid XML Content' for some cameras, use alternate url for still image
+                stream.use_alternate_picture_url = True
+                return await self.get_camera_image(stream, width, height)
+            if status_code == 3 and attempt < 2:
+                # handle 'Device Error', try again
+                return await self.get_camera_image(stream, width, height, attempt + 1)
+
+        return data
 
     def get_stream_source(self, stream: CameraStreamInfo) -> str:
         """Get stream source."""
