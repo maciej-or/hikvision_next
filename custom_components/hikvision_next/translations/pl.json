@@ -1,0 +1,119 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Urządzenie jest już skonfigurowane"
+    },
+    "step": {
+      "user": {
+        "description": "Proszę wprowadzić dane logowania do NVR lub kamery IP",
+        "data": {
+          "host": "URL",
+          "password": "Hasło",
+          "username": "Nazwa użytkownika",
+          "set_alarm_server": "Ustaw host powiadomień używając następującego adresu:",
+          "alarm_server": "Adres Home Assistant dostępny dla urządzenia Hikvision"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nie udało się połączyć",
+      "invalid_auth": "Nieprawidłowa autoryzacja",
+      "insufficient_permission": "Dostęp zabroniony, sprawdź uprawnienia użytkownika",
+      "unknown": "Nieoczekiwany błąd"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "motiondetection": {
+        "name": "Ruch"
+      },
+      "tamperdetection": {
+        "name": "Sabotaż obrazu"
+      },
+      "videoloss": {
+        "name": "Zanik sygnału wideo"
+      },
+      "scenechangedetection": {
+        "name": "Zmiana sceny"
+      },
+      "fielddetection": {
+        "name": "Wtargnięcie"
+      },
+      "linedetection": {
+        "name": "Przekroczenie linii"
+      },
+      "regionentrance": {
+        "name": "Wejście w obszar"
+      },
+      "regionexiting": {
+        "name": "Wyjście z obszaru"
+      },
+      "io": {
+        "name": "Wejście alarmowe {io_port_id}"
+      }
+    },
+    "switch": {
+      "alarm_output": {
+        "name": "Wyjście alarmowe {port_no}"
+      },
+      "holiday_mode": {
+        "name": "Tryb urlopowy"
+      },
+      "motiondetection": {
+        "name": "Detekcja ruchu"
+      },
+      "tamperdetection": {
+        "name": "Detekcja sabotażu obrazu"
+      },
+      "videoloss": {
+        "name": "Detekcja zaniku sygnału wideo"
+      },
+      "scenechangedetection": {
+        "name": "Detekcja zmiany sceny"
+      },
+      "fielddetection": {
+        "name": "Detekcja wtargnięcia"
+      },
+      "linedetection": {
+        "name": "Detekcja przekroczenia linii"
+      },
+      "regionentrance": {
+        "name": "Detekcja wejścia w obszar"
+      },
+      "regionexiting": {
+        "name": "Detekcja wyjścia z obszaru"
+      },
+      "io": {
+        "name": "Wejście alarmowe {io_port_id}"
+      }
+    },
+    "camera": {
+      "stream1": {
+        "name": "Strumień główny"
+      },
+      "stream2": {
+        "name": "Podstrumień"
+      },
+      "stream3": {
+        "name": "Strumień główny (zdarzenie)"
+      },
+      "stream4": {
+        "name": "Strumień transkodowany"
+      }
+    },
+    "sensor": {
+      "alarm_server_protocolType": {
+        "name": "Host powiadomień protokół"
+      },
+      "alarm_server_ipAddress": {
+        "name": "Host powiadomień IP"
+      },
+      "alarm_server_portNo": {
+        "name": "Host powiadomień port"
+      },
+      "alarm_server_url": {
+        "name": "Host powiadomień ścieżka"
+      }
+    }
+  }
+}

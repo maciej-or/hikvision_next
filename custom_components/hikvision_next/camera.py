@@ -41,8 +41,16 @@ class HikvisionCamera(Camera):
         Camera.__init__(self)
 
         self._attr_device_info = isapi.hass_device_info(camera.id)
-        self._attr_name = f"{camera.name} {stream_info.type}"
-        self._attr_unique_id = slugify(f"{isapi.device_info.serial_no.lower()}_{stream_info.id}")
+        self._attr_unique_id = slugify(
+            f"{isapi.device_info.serial_no.lower()}_{stream_info.id}"
+        )
+        if stream_info.type_id > 1:
+            self._attr_has_entity_name = True
+            self._attr_translation_key = f"stream{stream_info.type_id}"
+            self._attr_entity_registry_enabled_default = False
+        else:
+            # for the main stream use just its name
+            self._attr_name = camera.name
         self.entity_id = f"camera.{self.unique_id}"
         self.isapi = isapi
         self.stream_info = stream_info

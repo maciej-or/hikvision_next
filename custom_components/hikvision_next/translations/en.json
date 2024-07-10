@@ -10,7 +10,7 @@
           "host": "URL",
           "password": "Password",
           "username": "Username",
-          "set_alarm_server": "Set alarm server using following address:",
+          "set_alarm_server": "Set notifications host using following address:",
           "alarm_server": "Home Assistant address accessible by Hikvison device"
         }
       }
@@ -20,6 +20,100 @@
       "invalid_auth": "Invalid authentication",
       "insufficient_permission": "Access forbidden, check user permissions",
       "unknown": "Unexpected error"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "motiondetection": {
+        "name": "Motion"
+      },
+      "tamperdetection": {
+        "name": "Video tampering"
+      },
+      "videoloss": {
+        "name": "Video loss"
+      },
+      "scenechangedetection": {
+        "name": "Scene change"
+      },
+      "fielddetection": {
+        "name": "Intrusion"
+      },
+      "linedetection": {
+        "name": "Line crossing"
+      },
+      "regionentrance": {
+        "name": "Region entrance"
+      },
+      "regionexiting": {
+        "name": "Region exiting"
+      },
+      "io": {
+        "name": "Alarm input {io_port_id}"
+      }
+    },
+    "switch": {
+      "alarm_output": {
+        "name": "Alarm output {port_no}"
+      },
+      "holiday_mode": {
+        "name": "Holiday mode"
+      },
+      "motiondetection": {
+        "name": "Motion detection"
+      },
+      "tamperdetection": {
+        "name": "Video tampering detection"
+      },
+      "videoloss": {
+        "name": "Video loss detection"
+      },
+      "scenechangedetection": {
+        "name": "Scene change detection"
+      },
+      "fielddetection": {
+        "name": "Intrusion detection"
+      },
+      "linedetection": {
+        "name": "Line crossing detection"
+      },
+      "regionentrance": {
+        "name": "Region entrance detection"
+      },
+      "regionexiting": {
+        "name": "Region exiting detection"
+      },
+      "io": {
+        "name": "Alarm input {io_port_id}"
+      }
+    },
+    "camera": {
+      "stream1": {
+        "name": "Main Stream"
+      },
+      "stream2": {
+        "name": "Sub-Stream"
+      },
+      "stream3": {
+        "name": "Main Stream (Event)"
+      },
+      "stream4": {
+        "name": "Transcoded Stream"
+      }
+    },
+    "sensor": {
+      "alarm_server_protocolType": {
+        "name": "Notifications host Protocol"
+      },
+      "alarm_server_ipAddress": {
+        "name": "Notifications host IP"
+      },
+      "alarm_server_portNo": {
+        "name": "Notifications host Port"
+      },
+      "alarm_server_url": {
+        "name": "Notifications host Path"
+      }
     }
   }
 }

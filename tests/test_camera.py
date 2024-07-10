@@ -10,22 +10,36 @@ from homeassistant.components.camera import DOMAIN as CAMERA_DOMAIN
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from tests.conftest import load_fixture
 from tests.conftest import TEST_HOST
+import homeassistant.helpers.entity_registry as er
 
 
 @pytest.mark.parametrize("init_integration", ["DS-7608NXI-I2"], indirect=True)
 async def test_camera(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test camera initialization."""
 
-    assert len(hass.states.async_entity_ids(CAMERA_DOMAIN)) == 9
+    assert len(hass.states.async_entity_ids(CAMERA_DOMAIN)) == 3
 
     entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_101"
-    assert (camera := hass.states.get(entity_id))
-    assert camera.state == STATE_IDLE
-    assert camera.name == "garden Main Stream"
+    assert hass.states.get(entity_id)
 
     camera_entity = camera_component._get_camera_from_entity_id(hass, entity_id)
+    assert camera_entity.state == STATE_IDLE
+    assert camera_entity.name == "garden"
+
     stream_url = await camera_entity.stream_source()
     assert stream_url == "rtsp://u1:%2A%2A%2A@1.0.0.255:10554/Streaming/channels/101"
+
+    entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_102"
+    entity_registry = er.async_get(hass)
+    camera_entity = entity_registry.async_get(entity_id)
+    assert camera_entity.disabled
+    assert camera_entity.original_name == "Sub-Stream"
+
+    entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_104"
+    entity_registry = er.async_get(hass)
+    camera_entity = entity_registry.async_get(entity_id)
+    assert camera_entity.disabled
+    assert camera_entity.original_name == "Transcoded Stream"
 
 
 @respx.mock

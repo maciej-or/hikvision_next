@@ -13,12 +13,10 @@ from homeassistant.util import slugify
 
 from .const import (
     DOMAIN,
-    EVENT_SWITCH_LABEL_FORMAT,
-    EVENTS,
     EVENTS_COORDINATOR,
     HOLIDAY_MODE,
-    HOLIDAY_MODE_SWITCH_LABEL,
     SECONDARY_COORDINATOR,
+    EVENT_IO,
 )
 from .isapi import EventInfo
 
@@ -65,9 +63,9 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
         self.entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
         self._attr_unique_id = self.entity_id
         self._attr_device_info = coordinator.isapi.hass_device_info(device_id)
-        self._attr_name = EVENT_SWITCH_LABEL_FORMAT.format(
-            f"{EVENTS[event.id]['label']}{' ' + str(event.io_port_id) if event.io_port_id != 0 else ''}"
-        )
+        self._attr_translation_key = event.id
+        if event.id == EVENT_IO:
+            self._attr_translation_placeholders = {"io_port_id": event.io_port_id}
         self.device_id = device_id
         self.event = event
 
@@ -107,6 +105,7 @@ class NVROutputSwitch(CoordinatorEntity, SwitchEntity):
 
     _attr_has_entity_name = True
     _attr_icon = "mdi:eye-outline"
+    _attr_translation_key = "alarm_output"
 
     def __init__(self, coordinator, port_no: int) -> None:
         """Initialize."""
@@ -116,7 +115,7 @@ class NVROutputSwitch(CoordinatorEntity, SwitchEntity):
         )
         self._attr_unique_id = self.entity_id
         self._attr_device_info = coordinator.isapi.hass_device_info(0)
-        self._attr_name = f"Alarm Output {port_no}"
+        self._attr_translation_placeholders = {"port_no": port_no}
         self._port_no = port_no
 
     @property
@@ -147,14 +146,16 @@ class HolidaySwitch(CoordinatorEntity, SwitchEntity):
 
     _attr_has_entity_name = True
     _attr_icon = "mdi:palm-tree"
+    _attr_translation_key = HOLIDAY_MODE
 
     def __init__(self, coordinator) -> None:
         """Initialize."""
         super().__init__(coordinator)
-        self._attr_unique_id = f"{slugify(coordinator.isapi.device_info.serial_no.lower())}_{HOLIDAY_MODE}"
+        self._attr_unique_id = (
+            f"{slugify(coordinator.isapi.device_info.serial_no.lower())}_{HOLIDAY_MODE}"
+        )
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
         self._attr_device_info = coordinator.isapi.hass_device_info()
-        self._attr_name = HOLIDAY_MODE_SWITCH_LABEL
 
     @property
     def is_on(self) -> bool | None:
