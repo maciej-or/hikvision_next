@@ -12,7 +12,7 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 - Switches for NVR Outputs
 - Holiday mode switch (allows to switch continuous recording with appropriate NVR setup)
 - Tracking HDD and NAS status
-- Tracking Alarm Server settings for diagnostic purposes
+- Tracking Notifications Host settings for diagnostic purposes
 - Basic and digest authentication support
 
 ### Supported events
@@ -66,7 +66,7 @@ The scope supported features depends on device model, setup and firmware version
   - Regions if needed
   - Arming Schedule
 - Storage Schedule Settings - set continuous recording in Holiday mode for desired cameras
-- Alarm Server - IP address of Home Assistant instance for event notifications. Can be set manually or by this integration if checked `Set alarm server` checkbox in the configuration dialog. It will be reverted to `http://0.0.0.0:80/` on integration unload.
+- Notifications Host - IP address of Home Assistant instance for event notifications. Can be set manually or by this integration if checked `Set Notifications Host` checkbox in the configuration dialog. It will be reverted to `http://0.0.0.0:80/` on integration unload.
 
 ## Reporting issues
 
@@ -99,6 +99,7 @@ Download logs from `Settings / System / Logs`
 - DS-7608NXI-K1/8P
 - DS-7616NI-E2/16P
 - DS-7616NI-I2/16P
+- DS-7616NI-Q2/16P
 - DS-7616NXI-I2/16P/S
 - DS-7716NI-I4/16P
 - ERI-K104-P4

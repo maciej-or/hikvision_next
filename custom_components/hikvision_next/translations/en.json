@@ -28,63 +28,63 @@
         "name": "Motion"
       },
       "tamperdetection": {
-        "name": "Video tampering"
+        "name": "Video Tampering"
       },
       "videoloss": {
-        "name": "Video loss"
+        "name": "Video Loss"
       },
       "scenechangedetection": {
-        "name": "Scene change"
+        "name": "Scene Change"
       },
       "fielddetection": {
         "name": "Intrusion"
       },
       "linedetection": {
-        "name": "Line crossing"
+        "name": "Line Crossing"
       },
       "regionentrance": {
-        "name": "Region entrance"
+        "name": "Region Entrance"
       },
       "regionexiting": {
-        "name": "Region exiting"
+        "name": "Region Exiting"
       },
       "io": {
-        "name": "Alarm input {io_port_id}"
+        "name": "Alarm Input {io_port_id}"
       }
     },
     "switch": {
       "alarm_output": {
-        "name": "Alarm output {port_no}"
+        "name": "Alarm Output {port_no}"
       },
       "holiday_mode": {
-        "name": "Holiday mode"
+        "name": "Holiday Mode"
       },
       "motiondetection": {
-        "name": "Motion detection"
+        "name": "Motion Detection"
       },
       "tamperdetection": {
-        "name": "Video tampering detection"
+        "name": "Video Tampering Detection"
       },
       "videoloss": {
-        "name": "Video loss detection"
+        "name": "Video Loss Detection"
       },
       "scenechangedetection": {
-        "name": "Scene change detection"
+        "name": "Scene Change Detection"
       },
       "fielddetection": {
-        "name": "Intrusion detection"
+        "name": "Intrusion Detection"
       },
       "linedetection": {
-        "name": "Line crossing detection"
+        "name": "Line Crossing Detection"
       },
       "regionentrance": {
-        "name": "Region entrance detection"
+        "name": "Region Entrance Detection"
       },
       "regionexiting": {
-        "name": "Region exiting detection"
+        "name": "Region Exiting Detection"
       },
       "io": {
-        "name": "Alarm input {io_port_id}"
+        "name": "Alarm Input {io_port_id}"
       }
     },
     "camera": {
@@ -103,16 +103,16 @@
     },
     "sensor": {
       "notifications_host_protocol_type": {
-        "name": "Notifications host Protocol"
+        "name": "Notifications Host Protocol"
       },
       "notifications_host_ip_address": {
-        "name": "Notifications host IP"
+        "name": "Notifications Host IP"
       },
       "notifications_host_port_no": {
-        "name": "Notifications host Port"
+        "name": "Notifications Host Port"
       },
       "notifications_host_url": {
-        "name": "Notifications host Path"
+        "name": "Notifications Host Path"
       }
     }
   }
