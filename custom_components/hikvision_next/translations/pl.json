@@ -102,16 +102,16 @@
       }
     },
     "sensor": {
-      "alarm_server_protocolType": {
+      "notifications_host_protocol_type": {
         "name": "Host powiadomień protokół"
       },
-      "alarm_server_ipAddress": {
+      "notifications_host_ip_address": {
         "name": "Host powiadomień IP"
       },
-      "alarm_server_portNo": {
+      "notifications_host_port_no": {
         "name": "Host powiadomień port"
       },
-      "alarm_server_url": {
+      "notifications_host_url": {
         "name": "Host powiadomień ścieżka"
       }
     }

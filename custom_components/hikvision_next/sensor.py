@@ -17,11 +17,11 @@ from .const import (
 )
 from .isapi import StorageInfo
 
-ALARM_SERVER_SETTINGS = {
-    "protocolType": "Protocol",
-    "ipAddress": "IP",
-    "portNo": "Port",
-    "url": "Path",
+NOTIFICATION_HOST_KEYS = {
+    "protocolType": "protocol_type",
+    "ipAddress": "ip_address",
+    "portNo": "port_no",
+    "url": "url",
 }
 
 
@@ -37,7 +37,7 @@ async def async_setup_entry(
 
     entities = []
     if coordinator:
-        for key in ALARM_SERVER_SETTINGS:
+        for key in NOTIFICATION_HOST_KEYS:
             entities.append(AlarmServerSensor(coordinator, key))
 
     events_coordinator = config.get(EVENTS_COORDINATOR)
@@ -64,7 +64,7 @@ class AlarmServerSensor(CoordinatorEntity, SensorEntity):
         )
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
         self._attr_device_info = isapi.hass_device_info()
-        self._attr_translation_key = f"alarm_server_{key}"
+        self._attr_translation_key = f"notifications_host_{NOTIFICATION_HOST_KEYS[key]}"
         self.key = key
 
     @property
