@@ -15,10 +15,6 @@ EVENTS_COORDINATOR: Final = "events"
 SECONDARY_COORDINATOR: Final = "secondary"
 HOLIDAY_MODE = "holiday_mode"
 
-EVENT_SWITCH_LABEL_FORMAT = "{} Detection"
-HOLIDAY_MODE_SWITCH_LABEL = "Holiday mode"
-ALARM_SERVER_SENSOR_LABEL_FORMAT = "Alarm Server {}"
-
 CONNECTION_TYPE_DIRECT = "Direct"
 CONNECTION_TYPE_PROXIED = "Proxied"
 
@@ -85,8 +81,8 @@ EVENTS = {
         "slug": "inputs",
         "direct_node": "IOInputPort",
         "proxied_node": "IOProxyInputPort",
-        "device_class": BinarySensorDeviceClass.MOTION
-    }
+        "device_class": BinarySensorDeviceClass.MOTION,
+    },
 }
 
 EVENTS_ALTERNATE_ID = {

@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DATA_ISAPI, DOMAIN, EVENTS
+from .const import DATA_ISAPI, DOMAIN, EVENTS, EVENT_IO
 from .isapi import EventInfo
 
 
@@ -42,6 +42,8 @@ class EventBinarySensor(BinarySensorEntity):
         """Initialize."""
         self.entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
         self._attr_unique_id = self.entity_id
-        self._attr_name = f"{EVENTS[event.id]['label']}{' ' + str(event.io_port_id) if event.io_port_id != 0 else ''}"
+        self._attr_translation_key = event.id
+        if event.id == EVENT_IO:
+            self._attr_translation_placeholders = {"io_port_id": event.io_port_id}
         self._attr_device_class = EVENTS[event.id]["device_class"]
         self._attr_device_info = isapi.hass_device_info(device_id)
