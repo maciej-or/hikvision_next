@@ -32,9 +32,6 @@ Events must be set to alert the surveillance center in Linkage Action for HA to 
 
 ## Preview
 
-### Integration card
-![Integration card](/assets/card.jpg "Integration card")
-
 ### IP Camera device view
 ![IP Camera](/assets/ipcam.jpg "IP Camera device view")
 
