@@ -2,7 +2,7 @@
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/maciej-or/hikvision_next?style=flat-square) [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/hacs/integration)
 
-The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and switches detection of alarm events.
+The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and switches detection of alarm events. Provides video streams.
 
 ## Features
 
@@ -28,12 +28,17 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 - NVR Input Triggers
 
 **NOTE**
-Events must be set to alert the surveillance center in Linkage Action for HA to be notified.  An attribute on the event switch shows if this is set.
+Events must be set to alert the surveillance center in Linkage Action for HA to be notified. An attribute on the event switch shows if this is set.
 
 ## Preview
 
+### Integration card
 ![Integration card](/assets/card.jpg "Integration card")
+
+### IP Camera device view
 ![IP Camera](/assets/ipcam.jpg "IP Camera device view")
+
+### NVR device view
 ![NVR](/assets/nvr.jpg "NVR device view")
 
 The scope supported features depends on device model, setup and firmware version.
@@ -73,7 +78,7 @@ The scope supported features depends on device model, setup and firmware version
 There are a lot of Hikvision devices with different firmwares in the world. In most cases logs are crucial to solve your problem, so please attach them to the report.
 Keep in mind that logs include MAC addresses, serial numbers and local IP addresses of your devices. Consider using [pastebin.com](https://pastebin.com) or similar services for sharing logs.
 
-You can also download a diagnostic output to provide essential information about your device.  This redacts all sensitive data and can be provided in the github issue.
+You can also download a `diagnostic output` to provide essential information about your device. It is available on device info page. This redacts all sensitive data and can be provided in the github issue.
 
 Setup log level to `debug` in configuration.yaml
 
@@ -91,7 +96,6 @@ Download logs from `Settings / System / Logs`
 
 ### NVR
 
-- Annke N46PCK
 - DS-7108NI-Q1/8P
 - DS-7608NI-I2
 - DS-7608NI-I2/8P
@@ -102,6 +106,7 @@ Download logs from `Settings / System / Logs`
 - DS-7616NI-Q2/16P
 - DS-7616NXI-I2/16P/S
 - DS-7716NI-I4/16P
+- Annke N46PCK
 - ERI-K104-P4
 
 ### DVR
