@@ -341,8 +341,6 @@ class ISAPI:
                         )
                     )
 
-        _LOGGER.debug("Cameras: %s", self.cameras)
-
     async def get_protocols(self):
         """Get protocols and ports."""
         protocols = deep_get(
@@ -775,7 +773,7 @@ class ISAPI:
                 _LOGGER.debug(">>> payload:\n%s", data)
             _LOGGER.debug("\n%s", response)
         except HTTPStatusError as ex:
-            _LOGGER.warning("--- [%s] %s\n%s", method.upper(), full_url, ex)
+            _LOGGER.info("--- [%s] %s\n%s", method.upper(), full_url, ex)
             if self.pending_initialization:
                 # supress http errors during initialization
                 return {}
