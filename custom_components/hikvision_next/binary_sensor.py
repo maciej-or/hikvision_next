@@ -21,12 +21,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     # Camera Events
     for camera in isapi.cameras:
-        for event in camera.supported_events:
+        for event in camera.events_info:
             entities.append(EventBinarySensor(isapi, camera.id, event))
 
     # NVR Events
     if isapi.device_info.is_nvr:
-        for event in isapi.device_info.supported_events:
+        for event in isapi.device_info.events_info:
             entities.append(EventBinarySensor(isapi, 0, event))
 
     async_add_entities(entities)

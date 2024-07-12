@@ -59,7 +59,7 @@ async def test_async_setup_entry_ipc(hass: HomeAssistant, init_integration: Mock
     isapi = hass.data[DOMAIN][entry.entry_id]["isapi"]
     assert isapi.host == TEST_CONFIG["host"]
     assert len(isapi.cameras) == 1
-    assert len(isapi.supported_events) == 11
+    assert len(isapi.supported_events) == 12
 
     device_info = isapi.device_info
     assert device_info.device_type == "IPCamera"
