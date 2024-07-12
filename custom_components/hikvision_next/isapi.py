@@ -148,7 +148,7 @@ class HikDeviceInfo:
     output_ports: int = 0
     rtsp_port: int = 554
     storage: list[StorageInfo] = field(default_factory=list)
-    supported_events: list[EventInfo] = field(default_factory=list)
+    events_info: list[EventInfo] = field(default_factory=list)
 
 
 @dataclass
@@ -162,7 +162,7 @@ class AnalogCamera:
     input_port: int
     connection_type: str
     streams: list[CameraStreamInfo] = field(default_factory=list)
-    supported_events: list[EventInfo] = field(default_factory=list)
+    events_info: list[EventInfo] = field(default_factory=list)
 
 
 @dataclass
@@ -209,7 +209,7 @@ class ISAPI:
         capabilities = (await self.request(GET, "System/capabilities")).get("DeviceCap", {})
 
         # Get all supported events to reduce isapi queries
-        self.supported_events = await self.get_supported_events_info()
+        self.supported_events = await self.get_supported_events(capabilities)
 
         # Set DeviceInfo
         self.device_info.support_analog_cameras = int(deep_get(capabilities, "SysCap.VideoCap.videoInputPortNums", 0))
@@ -226,7 +226,7 @@ class ISAPI:
 
         with suppress(Exception):
             self.device_info.storage = await self.get_storage_devices()
-        self.device_info.supported_events = await self.get_device_event_capabilities(
+        self.device_info.events_info = await self.get_device_event_capabilities(
             self.supported_events, self.device_info.serial_no, 0
         )
         self.device_info.support_alarm_server = bool(await self.get_alarm_server())
@@ -254,7 +254,7 @@ class ISAPI:
                     connection_type=CONNECTION_TYPE_DIRECT,
                     ip_addr=self.device_info.ip_address,
                     streams=await self.get_camera_streams(1),
-                    supported_events=await self.get_device_event_capabilities(
+                    events_info=await self.get_device_event_capabilities(
                         self.supported_events,
                         self.device_info.serial_no,
                         1,
@@ -299,7 +299,7 @@ class ISAPI:
                             ip_addr=source.get("ipAddress"),
                             ip_port=source.get("managePortNo"),
                             streams=await self.get_camera_streams(camera_id),
-                            supported_events=await self.get_device_event_capabilities(
+                            events_info=await self.get_device_event_capabilities(
                                 self.supported_events,
                                 self.device_info.serial_no,
                                 camera_id,
@@ -332,7 +332,7 @@ class ISAPI:
                             input_port=int(analog_camera.get("inputPort")),
                             connection_type=CONNECTION_TYPE_DIRECT,
                             streams=await self.get_camera_streams(camera_id),
-                            supported_events=await self.get_device_event_capabilities(
+                            events_info=await self.get_device_event_capabilities(
                                 self.supported_events,
                                 self.device_info.serial_no,
                                 camera_id,
@@ -361,7 +361,7 @@ class ISAPI:
         device_id: int,
         connection_type: str = CONNECTION_TYPE_DIRECT,
     ) -> list[EventInfo]:
-        """Get events support by device (device id:  NVR = 0, camera > 0)."""
+        """Get events info supported by integration (device id:  NVR = 0, camera > 0)."""
         events = []
 
         if device_id == 0:  # NVR
@@ -391,7 +391,7 @@ class ISAPI:
                 events.append(event_info)
         return events
 
-    async def get_supported_events_info(self):
+    async def get_supported_events(self, system_capabilities: dict) -> list[SupportedEventsInfo]:
         """Get list of all supported events available."""
         events = []
         event_triggers = await self.request(GET, "Event/triggers")
@@ -429,6 +429,18 @@ class ISAPI:
                     else [],
                 )
             )
+
+        # some single cameras do not have scenechangedetection in Event/triggers
+        if not self.device_info.is_nvr and not [e for e in events if e.event_id == "scenechangedetection"]:
+            is_supported = str_to_bool(deep_get(system_capabilities, "SmartCap.isSupportSceneChangeDetection", False))
+            if is_supported:
+                events.append(
+                    SupportedEventsInfo(
+                        channel_id=1,
+                        io_port_id=0,
+                        event_id="scenechangedetection",
+                    )
+                )
 
         return events
 

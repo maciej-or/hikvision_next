@@ -32,12 +32,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     # Camera supported events
     for camera in events_coordinator.isapi.cameras:
-        for event in camera.supported_events:
+        for event in camera.events_info:
             entities.append(EventSwitch(camera.id, event, events_coordinator))
 
     # NVR supported events
     if events_coordinator.isapi.device_info.is_nvr:
-        for event in events_coordinator.isapi.device_info.supported_events:
+        for event in events_coordinator.isapi.device_info.events_info:
             entities.append(EventSwitch(0, event, events_coordinator))
 
     # Output port switch

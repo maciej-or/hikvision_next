@@ -102,7 +102,7 @@ async def _async_get_diagnostics(
 
     # event states
     for camera in isapi.cameras:
-        for event in camera.supported_events:
+        for event in camera.events_info:
             responses[event.url] = await get_isapi_data(isapi, event.url)
 
     info["ISAPI"] = responses

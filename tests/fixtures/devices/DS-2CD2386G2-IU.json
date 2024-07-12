@@ -1623,6 +1623,17 @@
             "isSupportTargetMultiSelect": "true"
           }
         }
+      },
+      "Smart/SceneChangeDetection/1": {
+        "response": {
+          "SceneChangeDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "1",
+            "enabled": "true",
+            "sensitivityLevel": "50"
+          }
+        }
       }
     }
   }
