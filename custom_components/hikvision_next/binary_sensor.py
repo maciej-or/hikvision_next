@@ -47,3 +47,4 @@ class EventBinarySensor(BinarySensorEntity):
             self._attr_translation_placeholders = {"io_port_id": event.io_port_id}
         self._attr_device_class = EVENTS[event.id]["device_class"]
         self._attr_device_info = isapi.hass_device_info(device_id)
+        self._attr_entity_registry_enabled_default = bool(event.notifications)

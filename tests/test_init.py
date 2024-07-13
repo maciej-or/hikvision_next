@@ -19,7 +19,7 @@ async def test_async_setup_entry_nvr(hass: HomeAssistant, init_integration: Mock
     isapi = hass.data[DOMAIN][entry.entry_id]["isapi"]
     assert isapi.host == TEST_CONFIG["host"]
     assert len(isapi.cameras) == 4
-    assert len(isapi.supported_events) == 40
+    assert len(isapi.supported_events) == 63
 
     device_info = isapi.device_info
     assert device_info.device_type == "NVR"
@@ -59,7 +59,7 @@ async def test_async_setup_entry_ipc(hass: HomeAssistant, init_integration: Mock
     isapi = hass.data[DOMAIN][entry.entry_id]["isapi"]
     assert isapi.host == TEST_CONFIG["host"]
     assert len(isapi.cameras) == 1
-    assert len(isapi.supported_events) == 12
+    assert len(isapi.supported_events) == 14
 
     device_info = isapi.device_info
     assert device_info.device_type == "IPCamera"

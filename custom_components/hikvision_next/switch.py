@@ -66,6 +66,7 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
         self._attr_translation_key = event.id
         if event.id == EVENT_IO:
             self._attr_translation_placeholders = {"io_port_id": event.io_port_id}
+        self._attr_entity_registry_enabled_default = bool(event.notifications)
         self.device_id = device_id
         self.event = event
 
@@ -96,7 +97,7 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
     def extra_state_attributes(self):
         """Return extra attributes."""
         attrs = {}
-        attrs["notify_HA"] = "center" in self.event.notifiers
+        attrs["notify_HA"] = "center" in self.event.notifications
         return attrs
 
 

@@ -82,7 +82,7 @@ class EventInfo:
     io_port_id: int
     unique_id: str
     url: str
-    notifiers: list[str] = field(default_factory=list)
+    notifications: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -361,7 +361,7 @@ class ISAPI:
         device_id: int,
         connection_type: str = CONNECTION_TYPE_DIRECT,
     ) -> list[EventInfo]:
-        """Get events info supported by integration (device id:  NVR = 0, camera > 0)."""
+        """Get events info handled by integration (device id:  NVR = 0, camera > 0)."""
         events = []
 
         if device_id == 0:  # NVR
@@ -386,31 +386,23 @@ class ISAPI:
                     io_port_id=event.io_port_id,
                     unique_id=unique_id,
                     url=self.get_event_url(event, connection_type),
-                    notifiers=event.notifications,
+                    notifications=event.notifications,
                 )
                 events.append(event_info)
         return events
 
     async def get_supported_events(self, system_capabilities: dict) -> list[SupportedEventsInfo]:
         """Get list of all supported events available."""
-        events = []
-        event_triggers = await self.request(GET, "Event/triggers")
-        event_notification = event_triggers.get("EventNotification")
-        if event_notification:
-            supported_events = deep_get(event_notification, "EventTriggerList.EventTrigger", [])
-        else:
-            supported_events = deep_get(event_triggers, "EventTriggerList.EventTrigger", [])
 
-        for support_event in supported_events:
-            notifications = support_event.get("EventTriggerNotificationList", {})
-            event_type = support_event.get("eventType")
-            # Fix for empty EventTriggerNotificationList in IP camera
-            if not notifications or not event_type:
-                continue
+        def get_event(event_trigger: dict):
+            notification_list = event_trigger.get("EventTriggerNotificationList", {}) or {}
+            event_type = event_trigger.get("eventType")
+            if not event_type:
+                return None
 
-            channel = support_event.get("videoInputChannelID", support_event.get("dynVideoInputChannelID", 0))
-            io_port = support_event.get("inputIOPortID", support_event.get("dynInputIOPortID", 0))
-            notifications = notifications.get("EventTriggerNotification", [])
+            channel = event_trigger.get("videoInputChannelID", event_trigger.get("dynVideoInputChannelID", 0))
+            io_port = event_trigger.get("inputIOPortID", event_trigger.get("dynInputIOPortID", 0))
+            notifications = notification_list.get("EventTriggerNotification", [])
 
             if not isinstance(notifications, list):
                 notifications = [notifications]
@@ -419,28 +411,33 @@ class ISAPI:
             if event_type.lower() in EVENTS_ALTERNATE_ID:
                 event_type = EVENTS_ALTERNATE_ID[event_type.lower()]
 
-            events.append(
-                SupportedEventsInfo(
-                    channel_id=int(channel),
-                    io_port_id=int(io_port),
-                    event_id=event_type.lower(),
-                    notifications=[notify.get("notificationMethod") for notify in notifications]
-                    if notifications
-                    else [],
-                )
+            return SupportedEventsInfo(
+                channel_id=int(channel),
+                io_port_id=int(io_port),
+                event_id=event_type.lower(),
+                notifications=[notify.get("notificationMethod") for notify in notifications] if notifications else [],
             )
 
-        # some single cameras do not have scenechangedetection in Event/triggers
-        if not self.device_info.is_nvr and not [e for e in events if e.event_id == "scenechangedetection"]:
+        events = []
+        event_triggers = await self.request(GET, "Event/triggers")
+        event_notification = event_triggers.get("EventNotification")
+        if event_notification:
+            supported_events = deep_get(event_notification, "EventTriggerList.EventTrigger", [])
+        else:
+            supported_events = deep_get(event_triggers, "EventTriggerList.EventTrigger", [])
+
+        for event_trigger in supported_events:
+            if event := get_event(event_trigger):
+                events.append(event)
+
+        # some devices do not have scenechangedetection in Event/triggers
+        if not [e for e in events if e.event_id == "scenechangedetection"]:
             is_supported = str_to_bool(deep_get(system_capabilities, "SmartCap.isSupportSceneChangeDetection", False))
             if is_supported:
-                events.append(
-                    SupportedEventsInfo(
-                        channel_id=1,
-                        io_port_id=0,
-                        event_id="scenechangedetection",
-                    )
-                )
+                event_trigger = await self.request(GET, "Event/triggers/scenechangedetection-1")
+                event_trigger = deep_get(event_trigger, "EventTrigger", {})
+                if event := get_event(event_trigger):
+                    events.append(event)
 
         return events
 
