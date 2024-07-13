@@ -82,7 +82,8 @@ class EventInfo:
     io_port_id: int
     unique_id: str
     url: str
-    notifications: list[str] = field(default_factory=list)
+    notify_surveillance_center: list[str] = field(default_factory=list)
+    disabled: bool = False
 
 
 @dataclass
@@ -386,7 +387,8 @@ class ISAPI:
                     io_port_id=event.io_port_id,
                     unique_id=unique_id,
                     url=self.get_event_url(event, connection_type),
-                    notifications=event.notifications,
+                    notify_surveillance_center=("center" in event.notifications),
+                    disabled=not bool(event.notifications),
                 )
                 events.append(event_info)
         return events
