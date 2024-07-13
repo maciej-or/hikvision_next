@@ -28,7 +28,7 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 - NVR Input Triggers
 
 **NOTE**
-Events must be set to alert the surveillance center in Linkage Action for HA to be notified. An attribute on the event switch shows if this is set.
+Events must be set to alert the surveillance center in Linkage Action for Home Assistant to be notified. Otherwise related binary sensors and switches will appear as disabled entities.
 
 ## Preview
 
