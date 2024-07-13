@@ -13,6 +13,9 @@ from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, Platfor
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
+from homeassistant.components.switch import ENTITY_ID_FORMAT as SWITCH_ENTITY_ID_FORMAT
+from homeassistant.components.binary_sensor import ENTITY_ID_FORMAT as BINARY_SENSOR_ENTITY_ID_FORMAT
 
 from .const import (
     ALARM_SERVER_PATH,
@@ -87,6 +90,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if get_first_instance_unique_id(hass) == entry.unique_id:
         hass.http.register_view(EventNotificationsView(hass))
 
+    refresh_disabled_entities_in_registry(hass, isapi)
+
     return True
 
 
@@ -154,3 +159,24 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         )
 
     return True
+
+
+def refresh_disabled_entities_in_registry(hass: HomeAssistant, isapi: ISAPI):
+    """Set disable state according to Notify Surveillance Center flag."""
+
+    def update_entity(event, ENTITY_ID_FORMAT):
+        entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
+        entity = entity_registry.async_get(entity_id)
+        if entity.disabled != event.disabled:
+            disabled_by = er.RegistryEntryDisabler.INTEGRATION if event.disabled else None
+            entity_registry.async_update_entity(entity_id, disabled_by=disabled_by)
+
+    entity_registry = er.async_get(hass)
+    for camera in isapi.cameras:
+        for event in camera.events_info:
+            update_entity(event, SWITCH_ENTITY_ID_FORMAT)
+            update_entity(event, BINARY_SENSOR_ENTITY_ID_FORMAT)
+
+    for event in isapi.device_info.events_info:
+        update_entity(event, SWITCH_ENTITY_ID_FORMAT)
+        update_entity(event, BINARY_SENSOR_ENTITY_ID_FORMAT)

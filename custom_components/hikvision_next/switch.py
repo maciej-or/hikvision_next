@@ -93,14 +93,6 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
         finally:
             await self.coordinator.async_request_refresh()
 
-    @property
-    def extra_state_attributes(self):
-        """Return extra attributes."""
-        attrs = {}
-        attrs["notify_HA"] = self.event.notify_surveillance_center
-        return attrs
-
-
 class NVROutputSwitch(CoordinatorEntity, SwitchEntity):
     """Detection events switch."""
 
