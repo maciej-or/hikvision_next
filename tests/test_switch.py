@@ -7,6 +7,7 @@ from homeassistant.core import HomeAssistant
 from tests.conftest import TEST_CONFIG
 from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+import homeassistant.helpers.entity_registry as er
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     SERVICE_TURN_OFF,
@@ -30,17 +31,23 @@ async def test_event_switch_state(hass: HomeAssistant, init_integration: MockCon
         ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_fielddetection", STATE_OFF),
         ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_linedetection", STATE_ON),
         ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_regionentrance", STATE_ON),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_regionexiting", STATE_ON),
         ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_scenechangedetection", STATE_OFF),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_motiondetection", STATE_OFF),
         ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_videoloss", STATE_ON),
         ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_fielddetection", STATE_ON),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_linedetection", STATE_OFF),
         ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_alarm_output", STATE_OFF),
         ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_holiday_mode", STATE_OFF)
     ]:
         assert (switch := hass.states.get(entity_id))
         assert switch.state == state
+
+    entity_registry = er.async_get(hass)
+    for entity_id in [
+        "switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_regionexiting",
+        "switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_motiondetection",
+        "switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_linedetection",
+    ]:
+        switch_entity = entity_registry.async_get(entity_id)
+        assert switch_entity.disabled
 
 
 @pytest.mark.parametrize("init_integration", ["DS-7608NXI-I2"], indirect=True)

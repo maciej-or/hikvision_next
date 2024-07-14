@@ -66,6 +66,7 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
         self._attr_translation_key = event.id
         if event.id == EVENT_IO:
             self._attr_translation_placeholders = {"io_port_id": event.io_port_id}
+        self._attr_entity_registry_enabled_default = not event.disabled
         self.device_id = device_id
         self.event = event
 
@@ -91,14 +92,6 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
             raise
         finally:
             await self.coordinator.async_request_refresh()
-
-    @property
-    def extra_state_attributes(self):
-        """Return extra attributes."""
-        attrs = {}
-        attrs["notify_HA"] = "center" in self.event.notifiers
-        return attrs
-
 
 class NVROutputSwitch(CoordinatorEntity, SwitchEntity):
     """Detection events switch."""
@@ -151,9 +144,7 @@ class HolidaySwitch(CoordinatorEntity, SwitchEntity):
     def __init__(self, coordinator) -> None:
         """Initialize."""
         super().__init__(coordinator)
-        self._attr_unique_id = (
-            f"{slugify(coordinator.isapi.device_info.serial_no.lower())}_{HOLIDAY_MODE}"
-        )
+        self._attr_unique_id = f"{slugify(coordinator.isapi.device_info.serial_no.lower())}_{HOLIDAY_MODE}"
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
         self._attr_device_info = coordinator.isapi.hass_device_info()
 

@@ -1634,6 +1634,34 @@
             "sensitivityLevel": "50"
           }
         }
+      },
+      "Event/triggers/scenechangedetection-1": {
+        "response": {
+          "EventTrigger": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "scenechangedetection-1",
+            "eventType": "scenechangedetection",
+            "eventDescription": "scenechangedetection Event trigger Information",
+            "videoInputChannelID": "1",
+            "dynVideoInputChannelID": "1",
+            "EventTriggerNotificationList": {
+              "EventTriggerNotification": [
+                {
+                  "id": "record-1",
+                  "notificationMethod": "record",
+                  "notificationRecurrence": "beginning",
+                  "videoInputID": "1"
+                },
+                {
+                  "id": "center",
+                  "notificationMethod": "center",
+                  "notificationRecurrence": "beginning"
+                }
+              ]
+            }
+          }
+        }
       }
     }
   }

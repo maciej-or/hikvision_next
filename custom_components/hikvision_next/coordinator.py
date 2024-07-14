@@ -42,6 +42,8 @@ class EventsCoordinator(DataUpdateCoordinator):
             # Get camera event status
             for camera in self.isapi.cameras:
                 for event in camera.events_info:
+                    if event.disabled:
+                        continue
                     try:
                         entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
                         data[entity_id] = await self.isapi.get_event_enabled_state(event)
@@ -50,6 +52,8 @@ class EventsCoordinator(DataUpdateCoordinator):
 
             # Get NVR event status
             for event in self.isapi.device_info.events_info:
+                if event.disabled:
+                    continue
                 try:
                     entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
                     data[entity_id] = await self.isapi.get_event_enabled_state(event)

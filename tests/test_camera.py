@@ -29,14 +29,13 @@ async def test_camera(hass: HomeAssistant, init_integration: MockConfigEntry) ->
     stream_url = await camera_entity.stream_source()
     assert stream_url == "rtsp://u1:%2A%2A%2A@1.0.0.255:10554/Streaming/channels/101"
 
-    entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_102"
     entity_registry = er.async_get(hass)
+    entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_102"
     camera_entity = entity_registry.async_get(entity_id)
     assert camera_entity.disabled
     assert camera_entity.original_name == "Sub-Stream"
 
     entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_104"
-    entity_registry = er.async_get(hass)
     camera_entity = entity_registry.async_get(entity_id)
     assert camera_entity.disabled
     assert camera_entity.original_name == "Transcoded Stream"
