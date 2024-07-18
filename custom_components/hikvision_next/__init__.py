@@ -167,6 +167,8 @@ def refresh_disabled_entities_in_registry(hass: HomeAssistant, isapi: ISAPI):
     def update_entity(event, ENTITY_ID_FORMAT):
         entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
         entity = entity_registry.async_get(entity_id)
+        if not entity:
+            return
         if entity.disabled != event.disabled:
             disabled_by = er.RegistryEntryDisabler.INTEGRATION if event.disabled else None
             entity_registry.async_update_entity(entity_id, disabled_by=disabled_by)
