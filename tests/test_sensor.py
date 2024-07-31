@@ -3,6 +3,7 @@
 import pytest
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+import homeassistant.helpers.entity_registry as er
 
 
 @pytest.mark.parametrize("init_integration", ["DS-7608NXI-I2"], indirect=True)
@@ -21,3 +22,33 @@ async def test_sensor_value(
     ]:
         assert (sensor := hass.states.get(entity_id))
         assert sensor.state == state
+
+
+@pytest.mark.parametrize("init_integration", ["DS-2CD2146G2-ISU", "DS-7608NXI-I2"], indirect=True)
+async def test_scenechange_support(
+    hass: HomeAssistant,
+    init_integration: MockConfigEntry,
+) -> None:
+    """Test sensors value."""
+
+    device_data = {
+        "DS-7608NXI-I2": {
+            "serial_no": "ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu",
+            "disabled": False,
+        },
+        "DS-2CD2146G2-ISU": {
+            "serial_no": "ds_2cd2146g2_isu00000000aawrg00000000",
+            "disabled": False,
+        },
+    }
+
+    data = device_data[init_integration.title]
+    entities = [
+        f"binary_sensor.{data['serial_no']}_1_scenechangedetection",
+        f"switch.{data['serial_no']}_1_scenechangedetection"
+    ]
+
+    entity_registry = er.async_get(hass)
+    for entity_id in entities:
+        assert (entity := entity_registry.async_get(entity_id))
+        assert entity.disabled == data["disabled"]

@@ -54,15 +54,19 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                host = user_input[CONF_HOST]
+                host = user_input[CONF_HOST].rstrip("/")
                 username = user_input[CONF_USERNAME]
                 password = user_input[CONF_PASSWORD]
+                user_input_validated = {
+                    **user_input,
+                    CONF_HOST: host,
+                }
 
                 isapi = ISAPI(host, username, password)
                 await isapi.get_device_info()
 
                 if self._reauth_entry:
-                    self.hass.config_entries.async_update_entry(self._reauth_entry, data=user_input)
+                    self.hass.config_entries.async_update_entry(self._reauth_entry, data=user_input_validated)
                     self.hass.async_create_task(self.hass.config_entries.async_reload(self._reauth_entry.entry_id))
                     return self.async_abort(reason="reauth_successful")
 
@@ -82,7 +86,7 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                 _LOGGER.error("Unexpected %s %s", {type(ex).__name__}, ex)
                 errors["base"] = f"Unexpected {type(ex).__name__}: {ex}"
             else:
-                return self.async_create_entry(title=isapi.device_info.name, data=user_input)
+                return self.async_create_entry(title=isapi.device_info.name, data=user_input_validated)
 
         schema = await self.get_schema(user_input or {})
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
