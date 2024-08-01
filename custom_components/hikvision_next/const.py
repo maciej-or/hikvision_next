@@ -22,6 +22,7 @@ HIKVISION_EVENT = f"{DOMAIN}_event"
 EVENT_BASIC: Final = "basic"
 EVENT_IO: Final = "io"
 EVENT_SMART: Final = "smart"
+EVENT_PIR: Final = "pir"
 EVENTS = {
     "motiondetection": {
         "type": EVENT_BASIC,
@@ -83,6 +84,13 @@ EVENTS = {
         "proxied_node": "IOProxyInputPort",
         "device_class": BinarySensorDeviceClass.MOTION,
     },
+    "pir": {
+        "type": EVENT_PIR,
+        "label": "PIR",
+        "slug": "WLAlarm/PIR",
+        "direct_node": "PIRAlarm",
+        "device_class": BinarySensorDeviceClass.MOTION,
+    }
 }
 
 EVENTS_ALTERNATE_ID = {

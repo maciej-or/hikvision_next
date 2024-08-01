@@ -9,6 +9,25 @@ from homeassistant.config_entries import ConfigEntryState
 from tests.conftest import TEST_CONFIG, TEST_CONFIG_WITH_ALARM_SERVER
 
 
+@pytest.mark.parametrize("init_integration",
+[
+    "DS-7608NXI-I2",
+    "DS-2CD2386G2-IU",
+    "DS-2CD2146G2-ISU",
+    "DS-2CD2443G0-IW",
+    "DS-7616NI-Q2"
+], indirect=True)
+async def test_basic_init(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
+    """Test a successful setup entry."""
+
+    entry = init_integration
+    assert entry.state == ConfigEntryState.LOADED
+
+    isapi = hass.data[DOMAIN][entry.entry_id]["isapi"]
+    assert isapi.host == TEST_CONFIG["host"]
+    assert init_integration.title in isapi.device_info.model
+
+
 @pytest.mark.parametrize("init_integration", ["DS-7608NXI-I2"], indirect=True)
 async def test_async_setup_entry_nvr(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test a successful NVR setup entry."""

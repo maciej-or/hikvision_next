@@ -28,6 +28,7 @@ from .const import (
     DOMAIN,
     EVENT_BASIC,
     EVENT_IO,
+    EVENT_PIR,
     EVENTS,
     EVENTS_ALTERNATE_ID,
     MUTEX_ALTERNATE_IDS,
@@ -462,6 +463,9 @@ class ISAPI:
             else:
                 # ISAPI/System/IO/{slug}}/{channel_id}
                 url = f"System/IO/{slug}/{event.io_port_id}"
+        elif event_type == EVENT_PIR:
+            # ISAPI/WLAlarm/PIR
+            url = slug
         else:
             # ISAPI/Smart/{event}/{channel_id}
             url = f"Smart/{slug}/{event.channel_id}"
