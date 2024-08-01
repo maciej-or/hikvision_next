@@ -180,6 +180,9 @@ class EventNotificationsView(HomeAssistantView):
             "camera_name": camera_name,
             "event_id": alert.event_id,
         }
+        if alert.detection_target:
+            message["detection_target"] = alert.detection_target
+            message["region_id"] = alert.region_id
 
         self.hass.bus.fire(
             HIKVISION_EVENT,
