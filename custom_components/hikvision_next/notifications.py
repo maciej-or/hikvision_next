@@ -118,6 +118,10 @@ class EventNotificationsView(HomeAssistantView):
                     xml = part.text
                 if headers.get(CONTENT_TYPE) == CONTENT_TYPE_IMAGE:
                     _LOGGER.debug("image found")
+                    # calling camera.snapshot triggered by binary sensor in automation is better
+                    # filename = f"/media/{DOMAIN}/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
+                    # with open(filename, 'wb') as image_file:
+                    #     image_file.write(part.content)
 
         if not xml:
             raise ValueError(f"Unexpected event Content-Type {content_type_header}")
@@ -157,7 +161,6 @@ class EventNotificationsView(HomeAssistantView):
 
         _LOGGER.debug("UNIQUE_ID: %s", unique_id)
 
-        # unique_id = f"binary_sensor.{slugify(serial_no)}_{alert.channel_id}" f"_{alert.event_id}"
         entity_registry = async_get(self.hass)
         entity_id = entity_registry.async_get_entity_id(Platform.BINARY_SENSOR, DOMAIN, unique_id)
         if entity_id:
