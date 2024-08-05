@@ -1,0 +1,48 @@
+blueprint:
+  name: Take Multiple Snapshots On Detection Event
+  description: |
+    Takes pictures from multiple cameras when motion is detected on sensors.
+    Pictures are saved into /media/hikvision_next/snapshots folder
+  domain: automation
+  input:
+    motion_entities:
+      name: Sensor
+      description: An event sensor
+      selector:
+        entity:
+          multiple: true
+          domain: binary_sensor
+          device_class:
+            - motion
+          integration: hikvision_next
+    camera_entities:
+      name: Camera
+      description: A camera that takes a photo
+      selector:
+        entity:
+          multiple: true
+          domain: camera
+          integration: hikvision_next
+mode: single
+variables:
+  camera_entities: !input camera_entities
+  month: "{{now().strftime('%Y-%m')}}"
+  day: "{{now().strftime('%d')}}"
+  timestamp: "{{ now().strftime('%Y-%m-%d__%H-%M-%S') }}"
+trigger:
+  - platform: state
+    entity_id: !input motion_entities
+    to: "on"
+condition: []
+action:
+  - repeat:
+      count: "{{ camera_entities | count }}"
+      sequence:
+        - variables:
+            camera_entity: "{{ camera_entities[repeat.index - 1] }}"
+            camera_name: "{{ states[camera_entity].name }}"
+        - service: camera.snapshot
+          data:
+            filename: /media/hikvision_next/snapshots/{{month}}/{{day}}/{{timestamp}}__{{camera_name}}.jpg
+          target:
+            entity_id: "{{ camera_entity }}"

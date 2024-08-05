@@ -77,7 +77,7 @@ class EventNotificationsView(HomeAssistantView):
                     break
 
         if not entry:
-            raise ValueError("Cannot find ISAPI instance for device %s in %s", device_ip, instances_hosts)
+            raise ValueError(f"Cannot find ISAPI instance for device {device_ip} in {instances_hosts}")
 
         config = self.hass.data[DOMAIN][entry.entry_id]
         return config.get(DATA_ISAPI)
@@ -118,10 +118,14 @@ class EventNotificationsView(HomeAssistantView):
                     xml = part.text
                 if headers.get(CONTENT_TYPE) == CONTENT_TYPE_IMAGE:
                     _LOGGER.debug("image found")
-                    # calling camera.snapshot triggered by binary sensor in automation is better
-                    # filename = f"/media/{DOMAIN}/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
-                    # with open(filename, 'wb') as image_file:
-                    #     image_file.write(part.content)
+                    # Use camera.snapshot service instead
+                    # from datetime import datetime
+                    # import aiofiles
+                    # now = datetime.now()
+                    # filename = f"/media/{DOMAIN}/snapshots/{now.strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
+                    # async with aiofiles.open(filename, "wb") as image_file:
+                    #     await image_file.write(part.content)
+                    #     await image_file.flush()
 
         if not xml:
             raise ValueError(f"Unexpected event Content-Type {content_type_header}")
