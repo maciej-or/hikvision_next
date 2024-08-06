@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EventNotificationAlert version="1.0"
+  xmlns="urn:psialliance-org">
+  <ipAddress>1.0.0.255</ipAddress>
+  <protocolType>HTTP</protocolType>
+  <macAddress>c6:e6:61:0a:46:37</macAddress>
+  <channelID>1</channelID>
+  <dateTime>2023-04-06T22:22:21+01:00</dateTime>
+  <activePostCount>4268</activePostCount>
+  <eventType>PIR</eventType>
+  <eventState>active</eventState>
+  <eventDescription>PIR alarm</eventDescription>
+  <channelName>Bedroom</channelName>
+  <Extensions version="1.0"
+    xmlns="urn:psialliance-org">
+    <serialNumber xmlns="urn:selfextension:psiaext-ver10-xsd">DS-2CD2443G0-IW00000000AAWRE00000000</serialNumber>
+    <eventPush xmlns="urn:selfextension:psiaext-ver10-xsd">PIR&amp;&amp;DS-2CD2443G0-IW00000000AAWRE00000000,2023-04-06T22:22:21+01:00,1,1.0</eventPush>
+  </Extensions>
+</EventNotificationAlert>
