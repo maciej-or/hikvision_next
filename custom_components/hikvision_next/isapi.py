@@ -64,7 +64,8 @@ class AlertInfo:
     event_id: str
     device_serial_no: Optional[str]
     mac: str = ""
-
+    region_id: int = 0
+    detection_target: Optional[str] = None
 
 @dataclass
 class MutexIssue:
@@ -848,10 +849,13 @@ class ISAPI:
         # <EventNotificationAlert version="2.0"
         mac = alert.get("macAddress")
 
+        detection_target = deep_get(alert, "DetectionRegionList.DetectionRegionEntry.detectionTarget")
+        region_id = int(deep_get(alert, "DetectionRegionList.DetectionRegionEntry.regionID", 0))
+
         if not EVENTS[event_id]:
             raise ValueError(f"Unsupported event {event_id}")
 
-        return AlertInfo(channel_id, io_port_id, event_id, device_serial, mac)
+        return AlertInfo(channel_id, io_port_id, event_id, device_serial, mac, region_id, detection_target)
 
     async def get_camera_image(
         self,

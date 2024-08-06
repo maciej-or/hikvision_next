@@ -77,7 +77,7 @@ class EventNotificationsView(HomeAssistantView):
                     break
 
         if not entry:
-            raise ValueError("Cannot find ISAPI instance for device %s in %s", device_ip, instances_hosts)
+            raise ValueError(f"Cannot find ISAPI instance for device {device_ip} in {instances_hosts}")
 
         config = self.hass.data[DOMAIN][entry.entry_id]
         return config.get(DATA_ISAPI)
@@ -118,6 +118,14 @@ class EventNotificationsView(HomeAssistantView):
                     xml = part.text
                 if headers.get(CONTENT_TYPE) == CONTENT_TYPE_IMAGE:
                     _LOGGER.debug("image found")
+                    # Use camera.snapshot service instead
+                    # from datetime import datetime
+                    # import aiofiles
+                    # now = datetime.now()
+                    # filename = f"/media/{DOMAIN}/snapshots/{now.strftime('%Y-%m-%d_%H-%M-%S_%f')}.jpg"
+                    # async with aiofiles.open(filename, "wb") as image_file:
+                    #     await image_file.write(part.content)
+                    #     await image_file.flush()
 
         if not xml:
             raise ValueError(f"Unexpected event Content-Type {content_type_header}")
@@ -157,7 +165,6 @@ class EventNotificationsView(HomeAssistantView):
 
         _LOGGER.debug("UNIQUE_ID: %s", unique_id)
 
-        # unique_id = f"binary_sensor.{slugify(serial_no)}_{alert.channel_id}" f"_{alert.event_id}"
         entity_registry = async_get(self.hass)
         entity_id = entity_registry.async_get_entity_id(Platform.BINARY_SENSOR, DOMAIN, unique_id)
         if entity_id:
@@ -180,6 +187,9 @@ class EventNotificationsView(HomeAssistantView):
             "camera_name": camera_name,
             "event_id": alert.event_id,
         }
+        if alert.detection_target:
+            message["detection_target"] = alert.detection_target
+            message["region_id"] = alert.region_id
 
         self.hass.bus.fire(
             HIKVISION_EVENT,
