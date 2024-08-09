@@ -114,6 +114,11 @@
       "notifications_host_url": {
         "name": "Host powiadomień ścieżka"
       }
+    },
+    "image": {
+      "snapshot": {
+        "name": "{camera} zdjęcie"
+      }
     }
   }
 }

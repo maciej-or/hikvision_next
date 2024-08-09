@@ -40,9 +40,15 @@ action:
       sequence:
         - variables:
             camera_entity: "{{ camera_entities[repeat.index - 1] }}"
+            snapshot_entity: "{{ camera_entities[repeat.index - 1] |regex_replace(find='camera', replace='image') }}_snapshot"
             camera_name: "{{ states[camera_entity].name }}"
         - service: camera.snapshot
           data:
             filename: /media/hikvision_next/snapshots/{{month}}/{{day}}/{{timestamp}}__{{camera_name}}.jpg
           target:
             entity_id: "{{ camera_entity }}"
+        - service: hikvision_next.update_snapshot
+          data:
+            filename: /media/hikvision_next/snapshots/{{month}}/{{day}}/{{timestamp}}__{{camera_name}}.jpg
+          target:
+            entity_id: "{{ snapshot_entity }}"

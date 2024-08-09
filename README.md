@@ -9,8 +9,9 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 - Camera entities for main and sub streams
 - Real-time Acusense events notifications through binary sensors and HA events (hikvision_next_event)
 - Switches for Acusense events detection
-- Switches for NVR Outputs
+- Switches for NVR Outputs and PIR sensor
 - Holiday mode switch (allows to switch continuous recording with appropriate NVR setup)
+- Image entities for the latest snapshots
 - Tracking HDD and NAS status
 - Tracking Notifications Host settings for diagnostic purposes
 - Basic and digest authentication support
@@ -26,10 +27,16 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 - Region Entrance
 - Region Exiting
 - NVR Input Triggers
+- PIR
 
 **NOTE**
 Events must be set to alert the surveillance center in Linkage Action for Home Assistant to be notified. Otherwise related binary sensors and switches will appear as disabled entities.
 
+### Blueprints
+
+Take Multiple Snapshots On Detection Event
+
+[<img src="https://my.home-assistant.io/badges/blueprint_import.svg">](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/maciej-or/hikvision_next/blob/main/blueprints/take_pictures_on_motion_detection.yaml)
 ## Preview
 
 ### IP Camera device view
@@ -41,6 +48,8 @@ Events must be set to alert the surveillance center in Linkage Action for Home A
 The scope supported features depends on device model, setup and firmware version.
 
 ## Installation
+
+[<img src="https://my.home-assistant.io/badges/hacs_repository.svg">](https://my.home-assistant.io/redirect/hacs_repository/?owner=maciej-or&repository=hikvision_next&category=integration)
 
 ### With HACS
 
@@ -93,6 +102,7 @@ Download logs from `Settings / System / Logs`
 
 ### NVR
 
+- Annke N46PCK
 - DS-7108NI-Q1/8P
 - DS-7608NI-I2
 - DS-7608NI-I2/8P
@@ -100,10 +110,10 @@ Download logs from `Settings / System / Logs`
 - DS-7608NXI-K1/8P
 - DS-7616NI-E2/16P
 - DS-7616NI-I2/16P
+- DS-7616NI-Q2
 - DS-7616NI-Q2/16P
 - DS-7616NXI-I2/16P/S
 - DS-7716NI-I4/16P
-- Annke N46PCK
 - ERI-K104-P4
 
 ### DVR
@@ -113,8 +123,10 @@ Download logs from `Settings / System / Logs`
 
 ### IP Camera
 
+- Annke C800 (I91BM)
 - DS-2CD2047G2-LU/SL
 - DS-2CD2087G2-LU
+- DS-2CD2146G2-ISU
 - DS-2CD2155FWD-I
 - DS-2CD2346G2-IU
 - DS-2CD2386G2-IU
@@ -127,4 +139,3 @@ Download logs from `Settings / System / Logs`
 - DS-2CD2T87G2-L
 - DS-2CD2T87G2P-LSU/SL
 - DS-2DE4425IW-DE (PTZ)
-- Annke C800 (I91BM)

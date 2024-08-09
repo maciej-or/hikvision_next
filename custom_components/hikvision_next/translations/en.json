@@ -114,6 +114,11 @@
       "notifications_host_url": {
         "name": "Notifications Host Path"
       }
+    },
+    "image": {
+      "snapshot": {
+        "name": "{camera} Snapshot"
+      }
     }
   }
 }
