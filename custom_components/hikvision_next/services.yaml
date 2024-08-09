@@ -1,0 +1,15 @@
+update_snapshot:
+  name: Update snapshot
+  description: Update the snapshot file in an image entity.
+  target:
+    entity:
+      domain: image
+      integration: hikvision_next
+  fields:
+    filename:
+      required: true
+      name: Filename
+      description: The filename of the snapshot to display.
+      example: "/media/hikvision_next/snapshots/2024-08/07/2024-08-07__11-54-19__camera01.jpg"
+      selector:
+        text:

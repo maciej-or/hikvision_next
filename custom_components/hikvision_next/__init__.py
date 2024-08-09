@@ -8,14 +8,15 @@ import logging
 
 from httpx import TimeoutException
 
+from homeassistant.components.binary_sensor import (
+    ENTITY_ID_FORMAT as BINARY_SENSOR_ENTITY_ID_FORMAT,
+)
+from homeassistant.components.switch import ENTITY_ID_FORMAT as SWITCH_ENTITY_ID_FORMAT
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers import entity_registry as er
-from homeassistant.components.switch import ENTITY_ID_FORMAT as SWITCH_ENTITY_ID_FORMAT
-from homeassistant.components.binary_sensor import ENTITY_ID_FORMAT as BINARY_SENSOR_ENTITY_ID_FORMAT
+from homeassistant.helpers import device_registry as dr, entity_registry as er
 
 from .const import (
     ALARM_SERVER_PATH,
@@ -37,6 +38,7 @@ PLATFORMS = [
     Platform.CAMERA,
     Platform.SENSOR,
     Platform.SWITCH,
+    Platform.IMAGE,
 ]
 
 
