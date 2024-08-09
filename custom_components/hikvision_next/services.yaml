@@ -1,5 +1,6 @@
 update_snapshot:
   name: Update snapshot
+  description: Update the snapshot file in an image entity.
   target:
     entity:
       domain: image
