@@ -8,12 +8,12 @@ from dataclasses import dataclass, field
 import datetime
 from functools import reduce
 from http import HTTPStatus
+import httpx
 import json
 import logging
 from typing import Any, Optional
 from urllib.parse import quote, urlparse
 
-from hikvisionapi import AsyncClient
 from httpx import HTTPStatusError, TimeoutException
 import xmltodict
 
@@ -21,6 +21,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import slugify
+from .isapi_client import ISAPI_Client
 
 from .const import (
     CONNECTION_TYPE_DIRECT,
@@ -39,9 +40,9 @@ Node = dict[str, Any]
 
 _LOGGER = logging.getLogger(__name__)
 
-GET = "get"
-PUT = "put"
-POST = "post"
+GET = "GET"
+PUT = "PUT"
+POST = "POST"
 
 
 @dataclass
@@ -66,6 +67,7 @@ class AlertInfo:
     mac: str = ""
     region_id: int = 0
     detection_target: Optional[str] = None
+
 
 @dataclass
 class MutexIssue:
@@ -179,9 +181,15 @@ class IPCamera(AnalogCamera):
 class ISAPI:
     """hikvisionapi async client wrapper."""
 
-    def __init__(self, host: str, username: str, password: str) -> None:
+    def __init__(
+        self,
+        host: str,
+        username: str,
+        password: str,
+        session: Optional[httpx.AsyncClient] = None,
+    ) -> None:
         """Initialize."""
-        self.isapi = AsyncClient(host, username, password, timeout=20)
+        self.isapi = ISAPI_Client(host, username, password, session, timeout=20)
         self.host = host
         self.device_info = HikDeviceInfo()
         self.cameras: list[IPCamera | AnalogCamera] = []
@@ -388,7 +396,7 @@ class ISAPI:
                     io_port_id=event.io_port_id,
                     unique_id=unique_id,
                     url=self.get_event_url(event, connection_type),
-                    disabled=("center" not in event.notifications), # Disable if not set Notify Surveillance Center
+                    disabled=("center" not in event.notifications),  # Disable if not set Notify Surveillance Center
                 )
                 events.append(event_info)
         return events
@@ -685,13 +693,7 @@ class ISAPI:
             data["IOPortData"] = {"outputState": "low"}
 
         xml = xmltodict.unparse(data)
-        response = await self.isapi.System.IO.outputs[port_no].trigger(method=PUT, data=xml)
-        _LOGGER.debug(
-            "[PUT] %s/ISAPI/System/IO/outputs/%s/trigger %s",
-            self.isapi.host,
-            port_no,
-            response,
-        )
+        await self.request(PUT, f"System/IO/outputs/{port_no}/trigger", present="xml", data=xml)
 
     async def get_holiday_enabled_state(self, holiday_index=0) -> bool:
         """Get holiday state."""
@@ -779,15 +781,15 @@ class ISAPI:
     ) -> Any:
         """Send request and log response, returns {} if request fails."""
 
-        full_url = f"{self.isapi.host}/{self.isapi.isapi_prefix}/{url}"
+        full_url = self.isapi.get_url(url)
         try:
-            response = await self.isapi.common_request(method, full_url, present, self.isapi.timeout, **data)
-            _LOGGER.debug("--- [%s] %s", method.upper(), full_url)
+            response = await self.isapi.request(method, full_url, present, **data)
+            _LOGGER.debug("--- [%s] %s", method, full_url)
             if data:
                 _LOGGER.debug(">>> payload:\n%s", data)
             _LOGGER.debug("\n%s", response)
         except HTTPStatusError as ex:
-            _LOGGER.info("--- [%s] %s\n%s", method.upper(), full_url, ex)
+            _LOGGER.info("--- [%s] %s\n%s", method, full_url, ex)
             if self.pending_initialization:
                 # supress http errors during initialization
                 return {}
@@ -808,10 +810,11 @@ class ISAPI:
         host = self.isapi.host
         if is_reauth_needed():
             # Re-establish session
-            self.isapi = AsyncClient(
-                self.isapi.host,
-                self.isapi.login,
+            self.isapi = ISAPI_Client(
+                host,
+                self.isapi.username,
                 self.isapi.password,
+                self.isapi.session,
                 timeout=20,
             )
             return True
@@ -855,7 +858,15 @@ class ISAPI:
         if not EVENTS[event_id]:
             raise ValueError(f"Unsupported event {event_id}")
 
-        return AlertInfo(channel_id, io_port_id, event_id, device_serial, mac, region_id, detection_target)
+        return AlertInfo(
+            channel_id,
+            io_port_id,
+            event_id,
+            device_serial,
+            mac,
+            region_id,
+            detection_target,
+        )
 
     async def get_camera_image(
         self,
@@ -873,11 +884,13 @@ class ISAPI:
             }
 
         if stream.use_alternate_picture_url:
-            chunks = self.isapi.ContentMgmt.StreamingProxy.channels[stream.id].picture(
-                method=GET, type="opaque_data", params=params
-            )
+            url = f"ContentMgmt/StreamingProxy/channels/{stream.id}/picture"
+            full_url = self.isapi.get_url(url)
+            chunks = self.isapi.request_bytes(GET, full_url, params=params)
         else:
-            chunks = self.isapi.Streaming.channels[stream.id].picture(method=GET, type="opaque_data", params=params)
+            url = f"Streaming/channels/{stream.id}/picture"
+            full_url = self.isapi.get_url(url)
+            chunks = self.isapi.request_bytes(GET, full_url, params=params)
         data = b"".join([chunk async for chunk in chunks])
 
         if data.startswith(b"<?xml "):
@@ -895,7 +908,7 @@ class ISAPI:
 
     def get_stream_source(self, stream: CameraStreamInfo) -> str:
         """Get stream source."""
-        u = quote(self.isapi.login, safe="")
+        u = quote(self.isapi.username, safe="")
         p = quote(self.isapi.password, safe="")
         url = f"{self.device_info.ip_address}:{self.device_info.rtsp_port}/Streaming/channels/{stream.id}"
         return f"rtsp://{u}:{p}@{url}"

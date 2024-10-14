@@ -1,12 +1,11 @@
 # manifest.json
 xmltodict==0.13.0
-hikvisionapi==0.3.2
 requests-toolbelt==1.0.0
 
 # tests
 pytest
 pytest-asyncio
-pytest-cov
+pytest-cov>=4.1.0
 pytest-homeassistant-custom-component
 
 #

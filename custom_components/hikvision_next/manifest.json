@@ -11,7 +11,6 @@
   "issue_tracker": "https://github.com/maciej-or/hikvision_next/issues",
   "requirements": [
     "xmltodict==0.13.0",
-    "hikvisionapi==0.3.2",
     "requests-toolbelt==1.0.0"
   ],
   "version": "1.0.17"
