@@ -1,0 +1,3006 @@
+{
+  "data": {
+    "ISAPI": {
+      "System/deviceInfo": {
+        "response": {
+          "DeviceInfo": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "deviceName": "Embedded Net DVR",
+            "deviceID": "48414831-3630-0000-0000-0c0bf0000000",
+            "model": "iDS-7204HUHI-M1/E",
+            "serialNumber": "iDS-7204HUHI-M0/E0000000000CCWRAH0000000WCVU",
+            "macAddress": "8b:92:35:5f:d5:fa",
+            "firmwareVersion": "V4.75.011",
+            "firmwareReleasedDate": "build 240625",
+            "encoderVersion": "V5.0",
+            "encoderReleasedDate": "build 240130",
+            "deviceType": "DVR",
+            "telecontrolID": "255",
+            "hardwareVersion": "0xc0fcc00",
+            "manufacturer": "hikvision"
+          }
+        }
+      },
+      "System/capabilities": {
+        "response": {
+          "DeviceCap": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "WPSCap": {
+              "isSupport": "true"
+            },
+            "SysCap": {
+              "isSupportDst": "true",
+              "NetworkCap": {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "isSupportWireless": "true",
+                "isWirelessMutexWithWirelessServer": "true",
+                "isSupportWPS": "true",
+                "isSupportWAN": "false",
+                "isSupportPPPoE": "true",
+                "isSupportBond": "false",
+                "isSupport802_1x": "false",
+                "isSupportNtp": "true",
+                "isSupportFtp": "false",
+                "isSupportUpnp": "true",
+                "isSupportPNP": "false",
+                "isSupportDdns": "true",
+                "isSupportHttps": "true",
+                "SnmpCap": {
+                  "isSupport": "false"
+                },
+                "isSupportExtNetCfg": "true",
+                "isSupportNetPreviewStrategy": "false",
+                "isSupportEZVIZ": "true",
+                "GB28181Cap": {
+                  "isSupportGB28181Service": "false"
+                },
+                "VerificationCodeModification": {
+                  "verificationCodeType": {
+                    "@opt": "normal,empty",
+                    "#text": "normal"
+                  },
+                  "isSupportDeclarationURL": "true",
+                  "isSupportPrivacyPolicyURL": "true",
+                  "verificationCodeModify": "true",
+                  "Hyperlinks": {
+                    "declarationURL": "https://www.hik-connect.com/views/terms/termsofservice.html",
+                    "privacyPolicyURL": "https://www.hik-connect.com/views/terms/privacypolicy.html"
+                  },
+                  "isSupportVerificationCodeCheck": "true"
+                },
+                "isSupportIntegrate": "true",
+                "isSupportEZVIZTiming": "true",
+                "isSupportResourceStatistics": "false",
+                "isSupportBandwidthLimit": "true",
+                "isSupportGetLinkSocketIP": "true",
+                "isSupportUSBNetworkCard": "false"
+              },
+              "IOCap": {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "IOInputPortNums": "0",
+                "IOOutputPortNums": "0",
+                "isSupportIOOutputAdvanceParameter": "false",
+                "isSupportSetAllIOOutput": "true",
+                "enabledIOOutputPortNums": "0"
+              },
+              "SerialCap": {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "rs485PortNums": "1",
+                "rs422PortNums": "0",
+                "rs232PortNums": "0",
+                "supportRS232Config": "false"
+              },
+              "VideoCap": {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "videoInputPortNums": "4",
+                "videoOutputPortNums": "2",
+                "menuNums": "1"
+              },
+              "AudioCap": {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "audioInputNums": "1",
+                "audioOutputNums": "1"
+              },
+              "isSupportHolidy": "true",
+              "RebootConfigurationCap": {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "Genetec": "true",
+                "ONVIF": "true",
+                "RTSP": "true",
+                "HTTP": "true",
+                "SADP": {
+                  "ISDiscoveryMode": "true",
+                  "PcapMode": "true"
+                },
+                "IPCAddStatus": "true"
+              },
+              "isSupportSubscribeEvent": "true",
+              "isSupportDiagnosedData": "true",
+              "isSupportSimpleDevStatus": "true",
+              "isSupportFlexible": "true",
+              "isSupportDiagnosedDataParameter": "true",
+              "isSupportTimeCap": "true"
+            },
+            "voicetalkNums": "1",
+            "isSupportSnapshot": "false",
+            "SecurityCap": {
+              "@version": "1.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "supportUserNums": "32",
+              "userBondIpNums": "1",
+              "userBondMacNums": "1",
+              "isSupportOnlineUser": "true",
+              "securityVersion": {
+                "@opt": "1"
+              },
+              "keyIterateNum": "100",
+              "isSupportUserCheck": "true",
+              "isSupportGetOnlineUserListSC": "false",
+              "isSupportONVIFUserManagement": "true",
+              "WebCertificateCap": {
+                "CertificateType": {
+                  "@opt": "digest,digest/basic",
+                  "#text": "digest/basic"
+                }
+              },
+              "isSupportConfigFileImport": "true",
+              "isSupportConfigFileExport": "true",
+              "cfgFileSecretKeyLenLimit": {
+                "@min": "1",
+                "@max": "16"
+              },
+              "isSupportPictureURlCertificate": {
+                "@opt": "true,false",
+                "#text": "false"
+              },
+              "isSupportUnloggedUserPermissionConfig": "true"
+            },
+            "EventCap": {
+              "@version": "1.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportHDFull": "true",
+              "isSupportHDError": "true",
+              "isSupportNicBroken": "true",
+              "isSupportIpConflict": "true",
+              "isSupportIllAccess": "true",
+              "isSupportViException": "false",
+              "isSupportViMismatch": "false",
+              "isSupportRecordException": "true",
+              "isSupportRaidException": "false",
+              "isSupportViResMismatch": "false",
+              "isSupportPOCException": "false",
+              "isSupportSpareException": "false",
+              "isSupportHumanRecognition": "true",
+              "isSupportFaceContrast": "false",
+              "isSupportFaceSnap": "true",
+              "isSupportTriggerCapCheck": "true",
+              "isSupportSSDTemperatureAbnormal": "false",
+              "isSupportSSDLifeTimeAbnormal": "false"
+            },
+            "RacmCap": {
+              "@version": "1.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportZeroChan": "true",
+              "inputProxyNums": "6",
+              "eSATANums": "0",
+              "miniSASNums": "0",
+              "nasNums": "2",
+              "ipSanNums": "2",
+              "isSupportRaid": "false",
+              "isSupportExtHdCfg": "true",
+              "isSupportLogDataPackage": "false",
+              "isSupportTransCode": "false",
+              "isSupportIpcImport": "true",
+              "isSupportIpcStreamType": "true",
+              "isSupportIOInputProxy": "true",
+              "isSupportIOOutputProxy": "true",
+              "isSupportPTZRs485Proxy": "true",
+              "isSupportSMARTTest": "true",
+              "pictureSearchType": {
+                "@opt": "allPic,vehicleDetection"
+              },
+              "recordSearchType": {
+                "@opt": "CMR,MOTION,ALARM,EDR,ALARMANDMOTION,Command,manual,AllEvent"
+              },
+              "isSupportActivateIpc": "true",
+              "isSupportCheckIpcSecurity": {
+                "isSupportCheckPassword": "true"
+              },
+              "isSupportSyncIPCPassword": "true",
+              "isSupportTransferIPC": "true",
+              "isSupportMainAndSubRecord": "true",
+              "isSupportSmartSearch": "true",
+              "isSupportPOS": "false",
+              "isSupportLinkNum": "true",
+              "ExternalDevice": {
+                "USB": {
+                  "debugLogOutput": "true",
+                  "isSupportCapturePackage": "false",
+                  "isSupportStreamStorage": "true"
+                }
+              },
+              "customProtocolNums": "6",
+              "isSupportIPCTiming": "true",
+              "isSupportWebPrivatePlaybackByUTC": "true",
+              "isSupportFindCommonFileByUTC": "true",
+              "isSupportFindEventFileByUTC": "true",
+              "isSupportSmartSearchRecordByUTC": "true",
+              "isSupportMRDSearchByTimeZone": "true",
+              "isSupportSearchRecordLabelByUTC": "true",
+              "isSupportSearchPictureByUTC": "true",
+              "isSupportSmartSearchPictureByUTC": "true",
+              "isSupportFindLogByUTC": "true",
+              "isSupportUploadRecordByUTC": "true",
+              "isSupportPlaybackByUTC": "true",
+              "isSupportFaceDetecttionAlarmByTimeZone": "true",
+              "isSupportRecordSearchByTargetType": "true",
+              "securityLogServer": {
+                "isSupportLogServer": "true"
+              },
+              "isSupportLinkToIPCWeb": "false",
+              "isSupportStorageExtraInfo": "true",
+              "isSupportSSDTemperatureAbnormalTrigger": "false",
+              "isSupportSSDLifeTimeAbnormalTrigger": "false"
+            },
+            "PTZCtrlCap": {
+              "@version": "1.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportPatrols": "true"
+            },
+            "SmartCap": {
+              "@version": "1.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportROI": "false",
+              "isSupportFaceDetect": "true",
+              "isSupportIntelliTrace": "false",
+              "isSupportFieldDetection": "true",
+              "isSupportDefocusDetection": "true",
+              "isSupportAudioDetection": "true",
+              "isSupportSceneChangeDetection": "true",
+              "isSupportLineDetection": "true",
+              "isSupportRegionEntrance": "true",
+              "isSupportRegionExiting": "true",
+              "isSupportLoitering": "true",
+              "isSupportGroup": "true",
+              "isSupportRapidMove": "true",
+              "isSupportParking": "true",
+              "isSupportUnattendedBaggage": "true",
+              "isSupportAttendedBaggage": "true",
+              "isSupportAnalysisUnitSwitch": "true"
+            },
+            "isSupportEhome": "true",
+            "isSupportStreamingEncrypt": "true",
+            "isSupportCloud": "false",
+            "TestCap": {
+              "isSupportEmailTest": "true"
+            },
+            "ThermalCap": {
+              "@version": "1.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportFireDetection": "false",
+              "isSupportThermometry": "false",
+              "isSupportNVR": "true",
+              "isSupportThermometrySchedule": "false",
+              "isSupportTemperatureSchedule": "false",
+              "isSupportFireDetectionSchedule": "false"
+            },
+            "isSupportGetmutexFuncErrMsg": "true",
+            "isSupportTokenAuthenticate": [
+              "true",
+              "true"
+            ],
+            "isSupportStreamDualVCA": "true",
+            "isSupportIntelligentAnalysisEngines": "false",
+            "isSupportChannelEventCap": "true",
+            "isSupportPictureServer": "true",
+            "isSupportInputProxyDeviceInfo": "true",
+            "isSupportEzvizIOAlarmByChannel": "true",
+            "isSupportISUPHttpPassthrough": "true",
+            "isSupportSeachMutexFunction": "true",
+            "isSupportUserLoginAbnormal": "true",
+            "isSupportVideoChannelEnhance": "true",
+            "isSupportGetChannelEnhancePreOperationTips": "true",
+            "isSupportAuthorizeMicAcquisitionParam": "true"
+          }
+        }
+      },
+      "System/IO/inputs/1/status": {
+        "status_code": 403
+      },
+      "System/IO/outputs/1/status": {
+        "status_code": 403
+      },
+      "System/Holidays": {
+        "response": {
+          "HolidayList": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "holiday": [
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "1",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday1",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "12",
+                    "dayOfMonth": "31"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "2",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday2",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "3",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday3",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "4",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday4",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "5",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday5",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "6",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday6",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "7",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday7",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "8",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday8",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "9",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday9",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "10",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday10",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "11",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday11",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "12",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday12",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "13",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday13",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "14",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday14",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "15",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday15",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "16",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday16",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "17",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday17",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "18",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday18",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "19",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday19",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "20",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday20",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "21",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday21",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "22",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday22",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "23",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday23",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "24",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday24",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "25",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday25",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "26",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday26",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "27",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday27",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "28",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday28",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "29",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday29",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "30",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday30",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "31",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday31",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "32",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday32",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "System/Video/inputs/channels": {
+        "response": {
+          "VideoInputChannelList": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "VideoInputChannel": [
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "1",
+                "inputPort": "1",
+                "videoInputEnabled": "true",
+                "name": "Entrada",
+                "videoFormat": "PAL",
+                "resDesc": "2560*1440(4MP)P30"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "2",
+                "inputPort": "2",
+                "videoInputEnabled": "true",
+                "name": "Camera 02",
+                "videoFormat": "PAL",
+                "resDesc": "NO VIDEO"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "3",
+                "inputPort": "3",
+                "videoInputEnabled": "true",
+                "name": "Terraza - Taller",
+                "videoFormat": "PAL",
+                "resDesc": "2560*1440(4MP)P25"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "4",
+                "inputPort": "4",
+                "videoInputEnabled": "true",
+                "name": "Camera 04",
+                "videoFormat": "PAL",
+                "resDesc": "NO VIDEO"
+              }
+            ]
+          }
+        }
+      },
+      "ContentMgmt/InputProxy/channels": {
+        "response": {
+          "InputProxyChannelList": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "@size": "2"
+          }
+        }
+      },
+      "ContentMgmt/Storage": {
+        "response": {
+          "storage": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "hddList": {
+              "hdd": {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "1",
+                "hddName": "hdd1",
+                "hddPath": null,
+                "hddType": "SATA",
+                "status": "ok",
+                "capacity": "953869",
+                "freeSpace": "814080",
+                "property": "RW"
+              }
+            },
+            "nasList": null,
+            "workMode": "quota"
+          }
+        }
+      },
+      "Security/adminAccesses": {
+        "response": {
+          "AdminAccessProtocolList": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "AdminAccessProtocol": [
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "1",
+                "enabled": "true",
+                "protocol": "HTTP",
+                "portNo": "80"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "2",
+                "enabled": "true",
+                "protocol": "RTSP",
+                "portNo": "554"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "3",
+                "enabled": "false",
+                "protocol": "HTTPS",
+                "redirectToHttps": "false",
+                "portNo": "443"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "4",
+                "protocol": "DEV_MANAGE",
+                "portNo": "8000"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "5",
+                "enabled": "true",
+                "protocol": "WebSocket",
+                "portNo": "7681"
+              }
+            ]
+          }
+        }
+      },
+      "Event/triggers": {
+        "response": {
+          "EventTriggerList": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "EventTrigger": [
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "VMD-1",
+                "eventType": "VMD",
+                "videoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "record-1",
+                      "notificationMethod": "record",
+                      "videoInputID": "1"
+                    },
+                    {
+                      "id": "center",
+                      "notificationMethod": "center"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "VMD-2",
+                "eventType": "VMD",
+                "videoInputChannelID": "2",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-2",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "2"
+                    },
+                    {
+                      "id": "record-2",
+                      "notificationMethod": "record",
+                      "videoInputID": "2"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "VMD-3",
+                "eventType": "VMD",
+                "videoInputChannelID": "3",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "record-3",
+                      "notificationMethod": "record",
+                      "videoInputID": "3"
+                    },
+                    {
+                      "id": "monitorAlarm",
+                      "notificationMethod": "monitorAlarm"
+                    },
+                    {
+                      "id": "center",
+                      "notificationMethod": "center"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "VMD-4",
+                "eventType": "VMD",
+                "videoInputChannelID": "4",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-4",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "4"
+                    },
+                    {
+                      "id": "record-4",
+                      "notificationMethod": "record",
+                      "videoInputID": "4"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "tamper-1",
+                "eventType": "tamperdetection",
+                "videoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "whiteLightOut-1",
+                    "notificationMethod": "whiteLightOut",
+                    "lightAudioOutID": "1"
+                  }
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "tamper-2",
+                "eventType": "tamperdetection",
+                "videoInputChannelID": "2",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "whiteLightOut-2",
+                    "notificationMethod": "whiteLightOut",
+                    "lightAudioOutID": "2"
+                  }
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "tamper-3",
+                "eventType": "tamperdetection",
+                "videoInputChannelID": "3",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "whiteLightOut-3",
+                    "notificationMethod": "whiteLightOut",
+                    "lightAudioOutID": "3"
+                  }
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "tamper-4",
+                "eventType": "tamperdetection",
+                "videoInputChannelID": "4",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "whiteLightOut-4",
+                    "notificationMethod": "whiteLightOut",
+                    "lightAudioOutID": "4"
+                  }
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "videoloss-1",
+                "eventType": "videoloss",
+                "videoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "monitorAlarm",
+                      "notificationMethod": "monitorAlarm"
+                    },
+                    {
+                      "id": "center",
+                      "notificationMethod": "center"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "videoloss-2",
+                "eventType": "videoloss",
+                "videoInputChannelID": "2",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "videoloss-3",
+                "eventType": "videoloss",
+                "videoInputChannelID": "3",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "monitorAlarm",
+                      "notificationMethod": "monitorAlarm"
+                    },
+                    {
+                      "id": "center",
+                      "notificationMethod": "center"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "videoloss-4",
+                "eventType": "videoloss",
+                "videoInputChannelID": "4",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "fielddetection-1",
+                "eventType": "fielddetection",
+                "videoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "record-1",
+                      "notificationMethod": "record",
+                      "videoInputID": "1"
+                    },
+                    {
+                      "id": "monitorAlarm",
+                      "notificationMethod": "monitorAlarm"
+                    },
+                    {
+                      "id": "center",
+                      "notificationMethod": "center"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "fielddetection-2",
+                "eventType": "fielddetection",
+                "videoInputChannelID": "2",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-2",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "2"
+                    },
+                    {
+                      "id": "record-2",
+                      "notificationMethod": "record",
+                      "videoInputID": "2"
+                    },
+                    {
+                      "id": "center",
+                      "notificationMethod": "center"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "fielddetection-3",
+                "eventType": "fielddetection",
+                "videoInputChannelID": "3",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "record-3",
+                      "notificationMethod": "record",
+                      "videoInputID": "3"
+                    },
+                    {
+                      "id": "monitorAlarm",
+                      "notificationMethod": "monitorAlarm"
+                    },
+                    {
+                      "id": "center",
+                      "notificationMethod": "center"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "fielddetection-4",
+                "eventType": "fielddetection",
+                "videoInputChannelID": "4",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-4",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "4"
+                    },
+                    {
+                      "id": "record-4",
+                      "notificationMethod": "record",
+                      "videoInputID": "4"
+                    },
+                    {
+                      "id": "center",
+                      "notificationMethod": "center"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "linedetection-1",
+                "eventType": "linedetection",
+                "videoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-1",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "1"
+                    },
+                    {
+                      "id": "record-1",
+                      "notificationMethod": "record",
+                      "videoInputID": "1"
+                    },
+                    {
+                      "id": "center",
+                      "notificationMethod": "center"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "linedetection-2",
+                "eventType": "linedetection",
+                "videoInputChannelID": "2",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-2",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "2"
+                    },
+                    {
+                      "id": "record-2",
+                      "notificationMethod": "record",
+                      "videoInputID": "2"
+                    },
+                    {
+                      "id": "center",
+                      "notificationMethod": "center"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "linedetection-3",
+                "eventType": "linedetection",
+                "videoInputChannelID": "3",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-3",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "3"
+                    },
+                    {
+                      "id": "record-3",
+                      "notificationMethod": "record",
+                      "videoInputID": "3"
+                    },
+                    {
+                      "id": "center",
+                      "notificationMethod": "center"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "linedetection-4",
+                "eventType": "linedetection",
+                "videoInputChannelID": "4",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-4",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "4"
+                    },
+                    {
+                      "id": "record-4",
+                      "notificationMethod": "record",
+                      "videoInputID": "4"
+                    },
+                    {
+                      "id": "center",
+                      "notificationMethod": "center"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "facedetection-1",
+                "eventType": "facedetection",
+                "videoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-1",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "1"
+                    },
+                    {
+                      "id": "record-1",
+                      "notificationMethod": "record",
+                      "videoInputID": "1"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "facedetection-2",
+                "eventType": "facedetection",
+                "videoInputChannelID": "2",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-2",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "2"
+                    },
+                    {
+                      "id": "record-2",
+                      "notificationMethod": "record",
+                      "videoInputID": "2"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "facedetection-3",
+                "eventType": "facedetection",
+                "videoInputChannelID": "3",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-3",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "3"
+                    },
+                    {
+                      "id": "record-3",
+                      "notificationMethod": "record",
+                      "videoInputID": "3"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "facedetection-4",
+                "eventType": "facedetection",
+                "videoInputChannelID": "4",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-4",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "4"
+                    },
+                    {
+                      "id": "record-4",
+                      "notificationMethod": "record",
+                      "videoInputID": "4"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "faceSnap-1",
+                "eventType": "faceSnap",
+                "videoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-1",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "1"
+                    },
+                    {
+                      "id": "record-1",
+                      "notificationMethod": "record",
+                      "videoInputID": "1"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "faceSnap-2",
+                "eventType": "faceSnap",
+                "videoInputChannelID": "2",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-2",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "2"
+                    },
+                    {
+                      "id": "record-2",
+                      "notificationMethod": "record",
+                      "videoInputID": "2"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "faceSnap-3",
+                "eventType": "faceSnap",
+                "videoInputChannelID": "3",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-3",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "3"
+                    },
+                    {
+                      "id": "record-3",
+                      "notificationMethod": "record",
+                      "videoInputID": "3"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "faceSnap-4",
+                "eventType": "faceSnap",
+                "videoInputChannelID": "4",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": [
+                    {
+                      "id": "whiteLightOut-4",
+                      "notificationMethod": "whiteLightOut",
+                      "lightAudioOutID": "4"
+                    },
+                    {
+                      "id": "record-4",
+                      "notificationMethod": "record",
+                      "videoInputID": "4"
+                    }
+                  ]
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "diskfull",
+                "eventType": "diskfull",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "diskerror",
+                "eventType": "diskerror",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "beep",
+                    "notificationMethod": "beep"
+                  }
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "nicbroken",
+                "eventType": "nicbroken",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "ipconflict",
+                "eventType": "ipconflict",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "beep",
+                    "notificationMethod": "beep"
+                  }
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "illaccess",
+                "eventType": "illaccess",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "badvideo",
+                "eventType": "badvideo",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "recordingfailure",
+                "eventType": "recordingfailure",
+                "EventTriggerNotificationList": {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "beep",
+                    "notificationMethod": "beep"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "Event/triggers/scenechangedetection-1": {
+        "status_code": 403
+      },
+      "Event/notification/httpHosts": {
+        "response": {
+          "HttpHostNotificationList": {
+            "@version": "1.0",
+            "@xmlns": "urn:psialliance-org",
+            "HttpHostNotification": {
+              "@version": "1.0",
+              "@xmlns": "urn:psialliance-org",
+              "id": "1",
+              "url": "/api/hikvision",
+              "protocolType": "HTTP",
+              "parameterFormatType": "XML",
+              "addressingFormatType": "ipaddress",
+              "ipAddress": "1.0.0.156",
+              "portNo": "8123",
+              "httpAuthenticationMethod": "none",
+              "Extensions": {
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "intervalBetweenEvents": "0"
+              }
+            }
+          }
+        }
+      },
+      "Streaming/channels/101": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "101",
+            "channelName": "101",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "H.264",
+              "videoResolutionWidth": "2560",
+              "videoResolutionHeight": "1440",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "90",
+              "vbrUpperCap": "2048",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1500",
+              "snapShotImageType": "JPEG",
+              "GovLength": "15",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "1440"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/102": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "102",
+            "channelName": "102",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "H.265",
+              "videoResolutionWidth": "960",
+              "videoResolutionHeight": "576",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "60",
+              "vbrUpperCap": "512",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "GovLength": "12",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "464"
+            },
+            "Audio": {
+              "enabled": "true",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/103": {
+        "status_code": 400
+      },
+      "Streaming/channels/104": {
+        "status_code": 403
+      },
+      "Streaming/channels/201": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "201",
+            "channelName": "201",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "2",
+              "videoCodecType": "H.265",
+              "videoResolutionWidth": "2560",
+              "videoResolutionHeight": "1440",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "90",
+              "vbrUpperCap": "2048",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1500",
+              "snapShotImageType": "JPEG",
+              "GovLength": "15",
+              "SmartCodec": {
+                "enabled": "true"
+              },
+              "vbrAverageCap": "1440"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "2",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/202": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "202",
+            "channelName": "202",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "2",
+              "videoCodecType": "H.265",
+              "videoResolutionWidth": "960",
+              "videoResolutionHeight": "576",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "60",
+              "vbrUpperCap": "512",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "GovLength": "25",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "0"
+            },
+            "Audio": {
+              "enabled": "true",
+              "audioInputChannelID": "2",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/203": {
+        "status_code": 400
+      },
+      "Streaming/channels/204": {
+        "status_code": 403
+      },
+      "Streaming/channels/301": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "301",
+            "channelName": "301",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "3",
+              "videoCodecType": "H.264",
+              "videoResolutionWidth": "2560",
+              "videoResolutionHeight": "1440",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "90",
+              "vbrUpperCap": "2048",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1500",
+              "snapShotImageType": "JPEG",
+              "GovLength": "15",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "1440"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "3",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/302": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "302",
+            "channelName": "302",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "3",
+              "videoCodecType": "H.265",
+              "videoResolutionWidth": "960",
+              "videoResolutionHeight": "576",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "60",
+              "vbrUpperCap": "512",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "GovLength": "12",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "464"
+            },
+            "Audio": {
+              "enabled": "true",
+              "audioInputChannelID": "3",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/303": {
+        "status_code": 400
+      },
+      "Streaming/channels/304": {
+        "status_code": 403
+      },
+      "Streaming/channels/401": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "401",
+            "channelName": "401",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "4",
+              "videoCodecType": "H.265",
+              "videoResolutionWidth": "2560",
+              "videoResolutionHeight": "1440",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "90",
+              "vbrUpperCap": "2048",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1500",
+              "snapShotImageType": "JPEG",
+              "GovLength": "15",
+              "SmartCodec": {
+                "enabled": "true"
+              },
+              "vbrAverageCap": "1440"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "4",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/402": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "402",
+            "channelName": "402",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "4",
+              "videoCodecType": "H.265",
+              "videoResolutionWidth": "960",
+              "videoResolutionHeight": "576",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "60",
+              "vbrUpperCap": "512",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "GovLength": "25",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "0"
+            },
+            "Audio": {
+              "enabled": "true",
+              "audioInputChannelID": "4",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/403": {
+        "status_code": 400
+      },
+      "Streaming/channels/404": {
+        "status_code": 403
+      },
+      "System/Video/inputs/channels/1/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "enabled": "true",
+            "enableHighlight": "true",
+            "samplingInterval": "5",
+            "startTriggerTime": "1000",
+            "endTriggerTime": "1000",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "2.0",
+              "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+              "sensitivityLevel": "0",
+              "layout": {
+                "gridMap": "000000000000000f00000f00000f00000700000700000300000000000000000000000000800000c00000e00000f80000ff0000ff8000",
+                "RegionList": {
+                  "Region": [
+                    {
+                      "id": "1",
+                      "RegionCoordinatesList": {
+                        "RegionCoordinates": [
+                          {
+                            "positionX": "18",
+                            "positionY": "297"
+                          },
+                          {
+                            "positionX": "124",
+                            "positionY": "135"
+                          },
+                          {
+                            "positionX": "317",
+                            "positionY": "82"
+                          },
+                          {
+                            "positionX": "353",
+                            "positionY": "71"
+                          },
+                          {
+                            "positionX": "385",
+                            "positionY": "4"
+                          },
+                          {
+                            "positionX": "215",
+                            "positionY": "5"
+                          },
+                          {
+                            "positionX": "15",
+                            "positionY": "5"
+                          },
+                          {
+                            "positionX": "15",
+                            "positionY": "203"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "id": "2",
+                      "RegionCoordinatesList": {
+                        "RegionCoordinates": [
+                          {
+                            "positionX": "573",
+                            "positionY": "796"
+                          },
+                          {
+                            "positionX": "574",
+                            "positionY": "852"
+                          },
+                          {
+                            "positionX": "708",
+                            "positionY": "856"
+                          },
+                          {
+                            "positionX": "709",
+                            "positionY": "694"
+                          },
+                          {
+                            "positionX": "709",
+                            "positionY": "593"
+                          },
+                          {
+                            "positionX": "645",
+                            "positionY": "614"
+                          },
+                          {
+                            "positionX": "607",
+                            "positionY": "628"
+                          },
+                          {
+                            "positionX": "601",
+                            "positionY": "731"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/1/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "tampersensitivityLevel": "1",
+            "TamperDetectionRegionList": null
+          }
+        }
+      },
+      "System/Video/inputs/channels/1/videoLoss": {
+        "response": {
+          "VideoLoss": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "enabled": "true"
+          }
+        }
+      },
+      "Smart/FieldDetection/1": {
+        "response": {
+          "FieldDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "1",
+            "enabled": "true",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "1000",
+              "normalizedScreenHeight": "1000"
+            },
+            "FieldDetectionRegionList": {
+              "@size": "1",
+              "FieldDetectionRegion": {
+                "id": "1",
+                "sensitivityLevel": "50",
+                "timeThreshold": "2",
+                "RegionCoordinatesList": {
+                  "RegionCoordinates": [
+                    {
+                      "positionX": "667",
+                      "positionY": "845"
+                    },
+                    {
+                      "positionX": "999",
+                      "positionY": "934"
+                    },
+                    {
+                      "positionX": "988",
+                      "positionY": "0"
+                    },
+                    {
+                      "positionX": "382",
+                      "positionY": "0"
+                    }
+                  ]
+                },
+                "humanMisinfoFilterEnabled": "false",
+                "vehicleMisinfoFilterEnabled": "false"
+              }
+            },
+            "humanMisinfoFilterEnabled": "false",
+            "vehicleMisinfoFilterEnabled": "false"
+          }
+        }
+      },
+      "Smart/LineDetection/1": {
+        "response": {
+          "LineDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "1",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "1000",
+              "normalizedScreenHeight": "1000"
+            },
+            "LineItemList": {
+              "@size": "1",
+              "LineItem": {
+                "id": "1",
+                "enabled": "false",
+                "sensitivityLevel": "50",
+                "directionSensitivity": "any",
+                "CoordinatesList": {
+                  "Coordinates": [
+                    {
+                      "positionX": "0",
+                      "positionY": "1000"
+                    },
+                    {
+                      "positionX": "0",
+                      "positionY": "1000"
+                    }
+                  ]
+                },
+                "humanMisinfoFilterEnabled": "false",
+                "vehicleMisinfoFilterEnabled": "false"
+              }
+            },
+            "recogRuleType": "vectorMode",
+            "humanMisinfoFilterEnabled": "false",
+            "vehicleMisinfoFilterEnabled": "false"
+          }
+        }
+      },
+      "System/Video/inputs/channels/2/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "enabled": "false",
+            "enableHighlight": "false",
+            "samplingInterval": "5",
+            "startTriggerTime": "1000",
+            "endTriggerTime": "1000",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "2.0",
+              "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+              "sensitivityLevel": "80",
+              "layout": {
+                "gridMap": "fffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffc",
+                "RegionList": {
+                  "Region": {
+                    "id": "1",
+                    "RegionCoordinatesList": {
+                      "RegionCoordinates": [
+                        {
+                          "positionX": "0",
+                          "positionY": "1000"
+                        },
+                        {
+                          "positionX": "1000",
+                          "positionY": "1000"
+                        },
+                        {
+                          "positionX": "1000",
+                          "positionY": "0"
+                        },
+                        {
+                          "positionX": "0",
+                          "positionY": "0"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "targetType": "human,vehicle"
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/2/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "tampersensitivityLevel": "1",
+            "TamperDetectionRegionList": null
+          }
+        }
+      },
+      "System/Video/inputs/channels/2/videoLoss": {
+        "response": {
+          "VideoLoss": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "enabled": "false"
+          }
+        }
+      },
+      "Smart/FieldDetection/2": {
+        "response": {
+          "FieldDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "2",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "1000",
+              "normalizedScreenHeight": "1000"
+            },
+            "FieldDetectionRegionList": {
+              "@size": "1",
+              "FieldDetectionRegion": {
+                "id": "1",
+                "sensitivityLevel": "50",
+                "timeThreshold": "0",
+                "RegionCoordinatesList": null,
+                "humanMisinfoFilterEnabled": "false",
+                "vehicleMisinfoFilterEnabled": "false"
+              }
+            },
+            "humanMisinfoFilterEnabled": "false",
+            "vehicleMisinfoFilterEnabled": "false"
+          }
+        }
+      },
+      "Smart/LineDetection/2": {
+        "response": {
+          "LineDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "2",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "1000",
+              "normalizedScreenHeight": "1000"
+            },
+            "LineItemList": {
+              "@size": "1",
+              "LineItem": {
+                "id": "1",
+                "enabled": "false",
+                "sensitivityLevel": "50",
+                "directionSensitivity": "any",
+                "CoordinatesList": {
+                  "Coordinates": [
+                    {
+                      "positionX": "0",
+                      "positionY": "1000"
+                    },
+                    {
+                      "positionX": "0",
+                      "positionY": "1000"
+                    }
+                  ]
+                },
+                "humanMisinfoFilterEnabled": "false",
+                "vehicleMisinfoFilterEnabled": "false"
+              }
+            },
+            "recogRuleType": "vectorMode",
+            "humanMisinfoFilterEnabled": "false",
+            "vehicleMisinfoFilterEnabled": "false"
+          }
+        }
+      },
+      "System/Video/inputs/channels/3/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "enabled": "true",
+            "enableHighlight": "true",
+            "samplingInterval": "5",
+            "startTriggerTime": "1000",
+            "endTriggerTime": "1000",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "2.0",
+              "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+              "sensitivityLevel": "0",
+              "layout": {
+                "gridMap": "000400001c00007c0001ff0001ff8001ff8001ff8001ff8001ff8001ff8000ff80007f80007f80003f80003f80001f00001c00000800",
+                "RegionList": {
+                  "Region": {
+                    "id": "1",
+                    "RegionCoordinatesList": {
+                      "RegionCoordinates": [
+                        {
+                          "positionX": "354",
+                          "positionY": "780"
+                        },
+                        {
+                          "positionX": "620",
+                          "positionY": "956"
+                        },
+                        {
+                          "positionX": "590",
+                          "positionY": "766"
+                        },
+                        {
+                          "positionX": "693",
+                          "positionY": "785"
+                        },
+                        {
+                          "positionX": "771",
+                          "positionY": "712"
+                        },
+                        {
+                          "positionX": "744",
+                          "positionY": "201"
+                        },
+                        {
+                          "positionX": "568",
+                          "positionY": "54"
+                        },
+                        {
+                          "positionX": "363",
+                          "positionY": "500"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/3/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "tampersensitivityLevel": "1",
+            "TamperDetectionRegionList": null
+          }
+        }
+      },
+      "System/Video/inputs/channels/3/videoLoss": {
+        "response": {
+          "VideoLoss": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "enabled": "true"
+          }
+        }
+      },
+      "Smart/FieldDetection/3": {
+        "response": {
+          "FieldDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "3",
+            "enabled": "true",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "1000",
+              "normalizedScreenHeight": "1000"
+            },
+            "FieldDetectionRegionList": {
+              "@size": "1",
+              "FieldDetectionRegion": {
+                "id": "1",
+                "sensitivityLevel": "50",
+                "timeThreshold": "2",
+                "RegionCoordinatesList": {
+                  "RegionCoordinates": [
+                    {
+                      "positionX": "233",
+                      "positionY": "0"
+                    },
+                    {
+                      "positionX": "174",
+                      "positionY": "555"
+                    },
+                    {
+                      "positionX": "608",
+                      "positionY": "954"
+                    },
+                    {
+                      "positionX": "936",
+                      "positionY": "0"
+                    }
+                  ]
+                },
+                "humanMisinfoFilterEnabled": "false",
+                "vehicleMisinfoFilterEnabled": "false"
+              }
+            },
+            "humanMisinfoFilterEnabled": "false",
+            "vehicleMisinfoFilterEnabled": "false"
+          }
+        }
+      },
+      "Smart/LineDetection/3": {
+        "response": {
+          "LineDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "3",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "1000",
+              "normalizedScreenHeight": "1000"
+            },
+            "LineItemList": {
+              "@size": "1",
+              "LineItem": {
+                "id": "1",
+                "enabled": "false",
+                "sensitivityLevel": "50",
+                "directionSensitivity": "any",
+                "CoordinatesList": {
+                  "Coordinates": [
+                    {
+                      "positionX": "0",
+                      "positionY": "1000"
+                    },
+                    {
+                      "positionX": "0",
+                      "positionY": "1000"
+                    }
+                  ]
+                },
+                "humanMisinfoFilterEnabled": "false",
+                "vehicleMisinfoFilterEnabled": "false"
+              }
+            },
+            "recogRuleType": "vectorMode",
+            "humanMisinfoFilterEnabled": "false",
+            "vehicleMisinfoFilterEnabled": "false"
+          }
+        }
+      },
+      "System/Video/inputs/channels/4/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "enabled": "false",
+            "enableHighlight": "false",
+            "samplingInterval": "5",
+            "startTriggerTime": "1000",
+            "endTriggerTime": "1000",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "2.0",
+              "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+              "sensitivityLevel": "80",
+              "layout": {
+                "gridMap": "fffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffc",
+                "RegionList": {
+                  "Region": {
+                    "id": "1",
+                    "RegionCoordinatesList": {
+                      "RegionCoordinates": [
+                        {
+                          "positionX": "0",
+                          "positionY": "1000"
+                        },
+                        {
+                          "positionX": "1000",
+                          "positionY": "1000"
+                        },
+                        {
+                          "positionX": "1000",
+                          "positionY": "0"
+                        },
+                        {
+                          "positionX": "0",
+                          "positionY": "0"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "targetType": "human,vehicle"
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/4/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "tampersensitivityLevel": "1",
+            "TamperDetectionRegionList": null
+          }
+        }
+      },
+      "System/Video/inputs/channels/4/videoLoss": {
+        "response": {
+          "VideoLoss": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "enabled": "false"
+          }
+        }
+      },
+      "Smart/FieldDetection/4": {
+        "response": {
+          "FieldDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "4",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "1000",
+              "normalizedScreenHeight": "1000"
+            },
+            "FieldDetectionRegionList": {
+              "@size": "1",
+              "FieldDetectionRegion": {
+                "id": "1",
+                "sensitivityLevel": "50",
+                "timeThreshold": "0",
+                "RegionCoordinatesList": null,
+                "humanMisinfoFilterEnabled": "false",
+                "vehicleMisinfoFilterEnabled": "false"
+              }
+            },
+            "humanMisinfoFilterEnabled": "false",
+            "vehicleMisinfoFilterEnabled": "false"
+          }
+        }
+      },
+      "Smart/LineDetection/4": {
+        "response": {
+          "LineDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "4",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "1000",
+              "normalizedScreenHeight": "1000"
+            },
+            "LineItemList": {
+              "@size": "1",
+              "LineItem": {
+                "id": "1",
+                "enabled": "false",
+                "sensitivityLevel": "50",
+                "directionSensitivity": "any",
+                "CoordinatesList": {
+                  "Coordinates": [
+                    {
+                      "positionX": "0",
+                      "positionY": "1000"
+                    },
+                    {
+                      "positionX": "0",
+                      "positionY": "1000"
+                    }
+                  ]
+                },
+                "humanMisinfoFilterEnabled": "false",
+                "vehicleMisinfoFilterEnabled": "false"
+              }
+            },
+            "recogRuleType": "vectorMode",
+            "humanMisinfoFilterEnabled": "false",
+            "vehicleMisinfoFilterEnabled": "false"
+          }
+        }
+      }
+    }
+  }
+}
