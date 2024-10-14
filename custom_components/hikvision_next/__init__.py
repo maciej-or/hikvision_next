@@ -17,6 +17,7 @@ from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, Platfor
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr, entity_registry as er
+from homeassistant.helpers.httpx_client import get_async_client
 
 from .const import (
     ALARM_SERVER_PATH,
@@ -49,7 +50,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     host = entry.data[CONF_HOST]
     username = entry.data[CONF_USERNAME]
     password = entry.data[CONF_PASSWORD]
-    isapi = ISAPI(host, username, password)
+    session = get_async_client(hass)
+    isapi = ISAPI(host, username, password, session)
     isapi.pending_initialization = True
     try:
         await isapi.get_hardware_info()
