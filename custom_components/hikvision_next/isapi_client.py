@@ -42,7 +42,7 @@ class ISAPI_Client:
         if not self.session:
             self.session = httpx.AsyncClient(timeout=self.timeout)
 
-        url = urljoin(self.host, self.isapi_prefix + "/System/status")
+        url = urljoin(self.host, self.isapi_prefix + "/System/deviceInfo")
         for method in [
             httpx.BasicAuth(self.username, self.password),
             httpx.DigestAuth(self.username, self.password),
