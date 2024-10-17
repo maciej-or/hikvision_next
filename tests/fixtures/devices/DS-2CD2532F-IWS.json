@@ -1,0 +1,1222 @@
+{
+  "data": {
+    "ISAPI": {
+      "System/deviceInfo": {
+        "response": {
+          "DeviceInfo": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "deviceName": "SCD14 #TUIN",
+            "deviceID": "c8e3b8e9-59b0-00b0-0000-e0b0f0b0f0a0",
+            "deviceDescription": "IPCamera",
+            "deviceLocation": "hangzhou",
+            "systemContact": "Hikvision.China",
+            "model": "DS-2CD2532F-IWS",
+            "serialNumber": "DS-2CD2532F-IWS00000000CCCH000000000",
+            "macAddress": "16:33:90:0d:9b:e8",
+            "firmwareVersion": "V5.2.0",
+            "firmwareReleasedDate": "build 140721",
+            "encoderVersion": "V5.0",
+            "encoderReleasedDate": "build 140714",
+            "bootVersion": "V1.3.4",
+            "bootReleasedDate": "100316",
+            "hardwareVersion": "0x0",
+            "deviceType": "IPCamera",
+            "telecontrolID": "2",
+            "supportBeep": "false",
+            "supportVideoLoss": "false"
+          }
+        }
+      },
+      "System/capabilities": {
+        "response": {
+          "DeviceCap": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "SysCap": {
+              "NetworkCap": {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "isSupportWireless": "true",
+                "isSupportPPPoE": "true",
+                "isSupportBond": "false",
+                "isSupport802_1x": "false",
+                "isSupportNtp": "true",
+                "isSupportFtp": "true",
+                "isSupportUpnp": "true",
+                "isSupportDdns": "true",
+                "isSupportHttps": "false",
+                "SnmpCap": {
+                  "isSupport": "true"
+                },
+                "isSupportIPFilter": "true",
+                "isSupportEZVIZ": "true",
+                "isSupportEhome": "false"
+              },
+              "IOCap": {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "IOInputPortNums": "1",
+                "IOOutputPortNums": "1",
+                "isSupportStrobeLamp": "false"
+              },
+              "VideoCap": {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "videoInputPortNums": "0",
+                "videoOutputPortNums": "0"
+              },
+              "AudioCap": {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "audioInputNums": "1",
+                "audioOutputNums": "1"
+              }
+            },
+            "voicetalkNums": "1",
+            "isSupportSnapshot": "true",
+            "SecurityCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "supportUserNums": "32",
+              "userBondIpNums": "0",
+              "userBondMacNums": "0",
+              "isSupCertificate": "true"
+            },
+            "EventCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportHDFull": "true",
+              "isSupportHDError": "true",
+              "isSupportNicBroken": "true",
+              "isSupportIpConflict": "true",
+              "isSupportIllAccess": "true",
+              "isSupportViException": "false",
+              "isSupportViMismatch": "false",
+              "isSupportRecordException": "false",
+              "isSupportTriggerFocus": "false"
+            },
+            "SmartCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportROI": "true",
+              "isSupportFaceDetect": "false",
+              "isSupportIntelliTrace": "false",
+              "isSupportFieldDetection": "true",
+              "isSupportDefocusDetection": "false",
+              "isSupportAudioDetection": "false",
+              "isSupportSceneChangeDetection": "false",
+              "isSupportLineDetection": "true"
+            },
+            "WLAlarmCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportPIR": "false",
+              "isSupportWLSensors": "false",
+              "isSupportCallHelp": "false"
+            }
+          }
+        }
+      },
+      "System/IO/inputs/1/status": {
+        "response": {
+          "IOPortStatus": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "ioPortID": "1",
+            "ioPortType": "input",
+            "ioState": "inactive"
+          }
+        }
+      },
+      "System/IO/outputs/1/status": {
+        "response": {
+          "IOPortStatus": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "ioPortID": "1",
+            "ioPortType": "output",
+            "ioState": "active"
+          }
+        }
+      },
+      "System/Holidays": {
+        "status_code": 403
+      },
+      "System/Video/inputs/channels": {
+        "response": {
+          "VideoInputChannelList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "VideoInputChannel": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "id": "1",
+              "inputPort": "1",
+              "name": "SCD14",
+              "videoFormat": "PAL"
+            }
+          }
+        }
+      },
+      "ContentMgmt/InputProxy/channels": {
+        "status_code": 403
+      },
+      "ContentMgmt/Storage": {
+        "response": {
+          "storage": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "hddList": {
+              "@version": "1.0",
+              "@xmlns": "http://www.hikvision.com/ver10/XMLSchema",
+              "@size": "8",
+              "hdd": {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "1",
+                "hddName": "hdde",
+                "hddPath": null,
+                "hddType": "SATA",
+                "status": "ok",
+                "capacity": "30223",
+                "freeSpace": "0",
+                "property": "RW"
+              }
+            },
+            "nasList": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "supportMountType": {
+                "@opt": "NFS,SMB/CIFS"
+              },
+              "authentication": {
+                "@opt": "SMB/CIFS"
+              }
+            },
+            "workMode": "quota"
+          }
+        }
+      },
+      "Security/adminAccesses": {
+        "response": {
+          "AdminAccessProtocolList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "AdminAccessProtocol": [
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "1",
+                "enabled": "true",
+                "protocol": "HTTP",
+                "portNo": "80"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "2",
+                "enabled": "true",
+                "protocol": "HTTPS",
+                "portNo": "443"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "3",
+                "enabled": "true",
+                "protocol": "DEV_MANAGE",
+                "portNo": "8000"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "4",
+                "enabled": "true",
+                "protocol": "RTSP",
+                "portNo": "554"
+              }
+            ]
+          }
+        }
+      },
+      "Event/triggers": {
+        "response": {
+          "EventNotification": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "EventTriggerList": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "EventTrigger": [
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "IO-1",
+                  "eventType": "IO",
+                  "eventDescription": "IO Event trigger Information",
+                  "inputIOPortID": "1",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema"
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "VMD-1",
+                  "eventType": "VMD",
+                  "eventDescription": "VMD Event trigger Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": [
+                      {
+                        "id": "IO-1",
+                        "notificationMethod": "IO",
+                        "notificationRecurrence": "beginning",
+                        "outputIOPortID": "1"
+                      },
+                      {
+                        "id": "record-1",
+                        "notificationMethod": "record",
+                        "videoInputID": "1",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "beep",
+                        "notificationMethod": "beep",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "center",
+                        "notificationMethod": "center",
+                        "notificationRecurrence": "beginning"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "videoloss-1",
+                  "eventType": "videoloss",
+                  "eventDescription": "Videoloss Event trigger Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema"
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "tamper-1",
+                  "eventType": "tamperdetection",
+                  "eventDescription": "shelteralarm Event trigger Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema"
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "diskfull",
+                  "eventType": "diskfull",
+                  "eventDescription": "exception Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema"
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "diskerror",
+                  "eventType": "diskerror",
+                  "eventDescription": "exception Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": {
+                      "id": "beep",
+                      "notificationMethod": "beep",
+                      "notificationRecurrence": "beginning"
+                    }
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "nicbroken",
+                  "eventType": "nicbroken",
+                  "eventDescription": "exception Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema"
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "ipconflict",
+                  "eventType": "ipconflict",
+                  "eventDescription": "exception Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema"
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "illaccess",
+                  "eventType": "illaccess",
+                  "eventDescription": "exception Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema"
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "Linedetection-1",
+                  "eventType": "linedetection",
+                  "eventDescription": "Linedetection Event trigger Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": [
+                      {
+                        "id": "IO-1",
+                        "notificationMethod": "IO",
+                        "notificationRecurrence": "beginning",
+                        "outputIOPortID": "1"
+                      },
+                      {
+                        "id": "record-1",
+                        "notificationMethod": "record",
+                        "videoInputID": "1",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "center",
+                        "notificationMethod": "center",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "FTP",
+                        "notificationMethod": "FTP",
+                        "notificationRecurrence": "beginning"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "fielddetection-1",
+                  "eventType": "fielddetection",
+                  "eventDescription": "fielddetection Event trigger Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema"
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "videomismatch",
+                  "eventType": "videomismatch",
+                  "eventDescription": "exception Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": {
+                      "id": "beep",
+                      "notificationMethod": "beep",
+                      "notificationRecurrence": "beginning"
+                    }
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "badvideo",
+                  "eventType": "badvideo",
+                  "eventDescription": "exception Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema"
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "PIR",
+                  "eventType": "PIR",
+                  "eventDescription": "PIR Event trigger Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": [
+                      {
+                        "id": "email",
+                        "notificationMethod": "email",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "record-1",
+                        "notificationMethod": "record",
+                        "videoInputID": "1",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "beep",
+                        "notificationMethod": "beep",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "center",
+                        "notificationMethod": "center",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "FTP",
+                        "notificationMethod": "FTP",
+                        "notificationRecurrence": "beginning"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "callhelp",
+                  "eventType": "callhelp",
+                  "eventDescription": "exception Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": [
+                      {
+                        "id": "email",
+                        "notificationMethod": "email",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "record-1",
+                        "notificationMethod": "record",
+                        "videoInputID": "1",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "beep",
+                        "notificationMethod": "beep",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "center",
+                        "notificationMethod": "center",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "FTP",
+                        "notificationMethod": "FTP",
+                        "notificationRecurrence": "beginning"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "facedetection",
+                  "eventType": "facedetection",
+                  "eventDescription": "exception Information",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema"
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "WLSensor-1",
+                  "eventType": "WLSensor",
+                  "eventDescription": "WLSensor Event trigger Information",
+                  "WLSensorID": "1",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": [
+                      {
+                        "id": "email",
+                        "notificationMethod": "email",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "record-1",
+                        "notificationMethod": "record",
+                        "videoInputID": "1",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "beep",
+                        "notificationMethod": "beep",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "center",
+                        "notificationMethod": "center",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "FTP",
+                        "notificationMethod": "FTP",
+                        "notificationRecurrence": "beginning"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "WLSensor-2",
+                  "eventType": "WLSensor",
+                  "eventDescription": "WLSensor Event trigger Information",
+                  "WLSensorID": "2",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": [
+                      {
+                        "id": "email",
+                        "notificationMethod": "email",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "record-1",
+                        "notificationMethod": "record",
+                        "videoInputID": "1",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "beep",
+                        "notificationMethod": "beep",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "center",
+                        "notificationMethod": "center",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "FTP",
+                        "notificationMethod": "FTP",
+                        "notificationRecurrence": "beginning"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "WLSensor-3",
+                  "eventType": "WLSensor",
+                  "eventDescription": "WLSensor Event trigger Information",
+                  "WLSensorID": "3",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": [
+                      {
+                        "id": "email",
+                        "notificationMethod": "email",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "record-1",
+                        "notificationMethod": "record",
+                        "videoInputID": "1",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "beep",
+                        "notificationMethod": "beep",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "center",
+                        "notificationMethod": "center",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "FTP",
+                        "notificationMethod": "FTP",
+                        "notificationRecurrence": "beginning"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "WLSensor-4",
+                  "eventType": "WLSensor",
+                  "eventDescription": "WLSensor Event trigger Information",
+                  "WLSensorID": "4",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": [
+                      {
+                        "id": "email",
+                        "notificationMethod": "email",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "record-1",
+                        "notificationMethod": "record",
+                        "videoInputID": "1",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "beep",
+                        "notificationMethod": "beep",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "center",
+                        "notificationMethod": "center",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "FTP",
+                        "notificationMethod": "FTP",
+                        "notificationRecurrence": "beginning"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "WLSensor-5",
+                  "eventType": "WLSensor",
+                  "eventDescription": "WLSensor Event trigger Information",
+                  "WLSensorID": "5",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": [
+                      {
+                        "id": "email",
+                        "notificationMethod": "email",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "record-1",
+                        "notificationMethod": "record",
+                        "videoInputID": "1",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "beep",
+                        "notificationMethod": "beep",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "center",
+                        "notificationMethod": "center",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "FTP",
+                        "notificationMethod": "FTP",
+                        "notificationRecurrence": "beginning"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "WLSensor-6",
+                  "eventType": "WLSensor",
+                  "eventDescription": "WLSensor Event trigger Information",
+                  "WLSensorID": "6",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": [
+                      {
+                        "id": "email",
+                        "notificationMethod": "email",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "record-1",
+                        "notificationMethod": "record",
+                        "videoInputID": "1",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "beep",
+                        "notificationMethod": "beep",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "center",
+                        "notificationMethod": "center",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "FTP",
+                        "notificationMethod": "FTP",
+                        "notificationRecurrence": "beginning"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "WLSensor-7",
+                  "eventType": "WLSensor",
+                  "eventDescription": "WLSensor Event trigger Information",
+                  "WLSensorID": "7",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": [
+                      {
+                        "id": "email",
+                        "notificationMethod": "email",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "record-1",
+                        "notificationMethod": "record",
+                        "videoInputID": "1",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "beep",
+                        "notificationMethod": "beep",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "center",
+                        "notificationMethod": "center",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "FTP",
+                        "notificationMethod": "FTP",
+                        "notificationRecurrence": "beginning"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "@version": "2.0",
+                  "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                  "id": "WLSensor-8",
+                  "eventType": "WLSensor",
+                  "eventDescription": "WLSensor Event trigger Information",
+                  "WLSensorID": "8",
+                  "videoInputChannelID": "1",
+                  "dynVideoInputChannelID": "1",
+                  "EventTriggerNotificationList": {
+                    "@version": "2.0",
+                    "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                    "EventTriggerNotification": [
+                      {
+                        "id": "email",
+                        "notificationMethod": "email",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "record-1",
+                        "notificationMethod": "record",
+                        "videoInputID": "1",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "beep",
+                        "notificationMethod": "beep",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "center",
+                        "notificationMethod": "center",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "FTP",
+                        "notificationMethod": "FTP",
+                        "notificationRecurrence": "beginning"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "Event/triggers/scenechangedetection-1": {
+        "status_code": 403
+      },
+      "Event/notification/httpHosts": {
+        "response": {
+          "HttpHostNotificationList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "HttpHostNotification": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "id": "1",
+              "url": "/api/hikvision",
+              "protocolType": "HTTP",
+              "parameterFormatType": "XML",
+              "addressingFormatType": "ipaddress",
+              "ipAddress": "1.0.0.248",
+              "portNo": "8123",
+              "userName": null,
+              "httpAuthenticationMethod": "none"
+            }
+          }
+        }
+      },
+      "Streaming/channels/101": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "101",
+            "channelName": "SCD14",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "0.0.0.0",
+                "videoDestPortNo": "8600",
+                "audioDestPortNo": "8600"
+              },
+              "Security": {
+                "enabled": "true"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "1920",
+              "videoResolutionHeight": "1080",
+              "videoQualityControlType": "CBR",
+              "constantBitRate": "4096",
+              "fixedQuality": "60",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "H264Profile": "Main",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "false"
+              },
+              "PacketType": [
+                "PS",
+                "RTP"
+              ],
+              "smoothing": "50"
+            },
+            "Audio": {
+              "enabled": "true",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/102": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "102",
+            "channelName": "SCD14",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "0.0.0.0",
+                "videoDestPortNo": "8600",
+                "audioDestPortNo": "8600"
+              },
+              "Security": {
+                "enabled": "true"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "MJPEG",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "640",
+              "videoResolutionHeight": "480",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "256",
+              "fixedQuality": "60",
+              "vbrUpperCap": "256",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1200",
+              "keyFrameInterval": "4166",
+              "snapShotImageType": "JPEG",
+              "H264Profile": "Main",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "false"
+              },
+              "PacketType": [
+                "PS",
+                "RTP"
+              ],
+              "smoothing": "50"
+            },
+            "Audio": {
+              "enabled": "true",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/103": {
+        "status_code": 500
+      },
+      "Streaming/channels/104": {
+        "status_code": 500
+      },
+      "System/IO/inputs/1": {
+        "response": {
+          "IOInputPort": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "1",
+            "enabled": "true",
+            "triggering": "high",
+            "name": null
+          }
+        }
+      },
+      "System/Video/inputs/channels/1/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "enabled": "true",
+            "enableHighlight": "false",
+            "samplingInterval": "2",
+            "startTriggerTime": "500",
+            "endTriggerTime": "500",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "sensitivityLevel": "20",
+              "layout": {
+                "gridMap": "fffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffc"
+              }
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/1/videoLoss": {
+        "response": {
+          "VideoLoss": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "enabled": "false"
+          }
+        }
+      },
+      "System/Video/inputs/channels/1/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "TamperDetectionRegionList": {
+              "TamperDetectionRegion": {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "1",
+                "enabled": "false",
+                "sensitivityLevel": "0",
+                "RegionCoordinatesList": null
+              }
+            }
+          }
+        }
+      },
+      "Smart/LineDetection/1": {
+        "response": {
+          "LineDetection": {
+            "id": "1",
+            "enabled": "true",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "1000",
+              "normalizedScreenHeight": "1000"
+            },
+            "LineItemList": {
+              "@size": "1",
+              "LineItem": {
+                "id": "1",
+                "enabled": "false",
+                "sensitivityLevel": "50",
+                "directionSensitivity": "any",
+                "CoordinatesList": {
+                  "Coordinates": [
+                    {
+                      "positionX": "231",
+                      "positionY": "835"
+                    },
+                    {
+                      "positionX": "740",
+                      "positionY": "832"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "Smart/FieldDetection/1": {
+        "response": {
+          "FieldDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "1",
+            "enabled": "false",
+            "startTriggerTime": "500",
+            "endTriggerTime": "500",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "1000",
+              "normalizedScreenHeight": "1000"
+            },
+            "FieldDetectionRegionList": {
+              "@size": "1",
+              "FieldDetectionRegion": {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "1",
+                "enabled": "false",
+                "sensitivityLevel": "50",
+                "timeThreshold": "0",
+                "objectOccupation": "1"
+              }
+            }
+          }
+        }
+      },
+      "WLAlarm/PIR": {
+        "status_code": 403
+      }
+    }
+  }
+}

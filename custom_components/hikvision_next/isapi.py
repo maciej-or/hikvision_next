@@ -410,6 +410,11 @@ class ISAPI:
             if not event_type:
                 return None
 
+            if event_type.lower() == EVENT_PIR:
+                is_supported = str_to_bool(deep_get(system_capabilities, "WLAlarmCap.isSupportPIR", False))
+                if not is_supported:
+                    return None
+
             channel = event_trigger.get("videoInputChannelID", event_trigger.get("dynVideoInputChannelID", 0))
             io_port = event_trigger.get("inputIOPortID", event_trigger.get("dynInputIOPortID", 0))
             notifications = notification_list.get("EventTriggerNotification", [])
