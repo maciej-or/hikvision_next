@@ -40,7 +40,7 @@ class ISAPI_Client:
     async def _detect_auth_method(self):
         """Establish the connection with device."""
         if not self.session:
-            self.session = httpx.AsyncClient(timeout=self.timeout, verify=False)
+            self.session = httpx.AsyncClient(timeout=self.timeout)
 
         url = urljoin(self.host, self.isapi_prefix + "/System/deviceInfo")
         for method in [

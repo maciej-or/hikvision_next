@@ -189,7 +189,7 @@ class ISAPI:
         session: Optional[httpx.AsyncClient] = None,
     ) -> None:
         """Initialize."""
-        self.isapi = ISAPI_Client(host, username, password, timeout=20)
+        self.isapi = ISAPI_Client(host, username, password, session, timeout=20)
         self.host = host
         self.device_info = HikDeviceInfo()
         self.cameras: list[IPCamera | AnalogCamera] = []
