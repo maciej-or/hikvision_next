@@ -45,8 +45,8 @@ class EventsCoordinator(DataUpdateCoordinator):
                     if event.disabled:
                         continue
                     try:
-                        entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
-                        data[entity_id] = await self.isapi.get_event_enabled_state(event)
+                        _id = ENTITY_ID_FORMAT.format(event.unique_id)
+                        data[_id] = await self.isapi.get_event_enabled_state(event)
                     except Exception as ex:  # pylint: disable=broad-except
                         self.isapi.handle_exception(ex, f"Cannot fetch state for {event.id}")
 
@@ -55,18 +55,18 @@ class EventsCoordinator(DataUpdateCoordinator):
                 if event.disabled:
                     continue
                 try:
-                    entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
-                    data[entity_id] = await self.isapi.get_event_enabled_state(event)
+                    _id = ENTITY_ID_FORMAT.format(event.unique_id)
+                    data[_id] = await self.isapi.get_event_enabled_state(event)
                 except Exception as ex:  # pylint: disable=broad-except
                     self.isapi.handle_exception(ex, f"Cannot fetch state for {event.id}")
 
             # Get output port(s) status
             for i in range(1, self.isapi.device_info.output_ports + 1):
                 try:
-                    entity_id = ENTITY_ID_FORMAT.format(
+                    _id = ENTITY_ID_FORMAT.format(
                         f"{slugify(self.isapi.device_info.serial_no.lower())}_{i}_alarm_output"
                     )
-                    data[entity_id] = await self.isapi.get_port_status("output", i)
+                    data[_id] = await self.isapi.get_port_status("output", i)
                 except Exception as ex:  # pylint: disable=broad-except
                     self.isapi.handle_exception(ex, f"Cannot fetch state for alarm output {i}")
 
