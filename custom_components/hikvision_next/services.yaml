@@ -13,3 +13,15 @@ update_snapshot:
       example: "/media/hikvision_next/snapshots/2024-08/07/2024-08-07__11-54-19__camera01.jpg"
       selector:
         text:
+
+reboot:
+  name: Reboot
+  description: Reboot the device.
+  fields:
+    config_entry_id:
+      required: true
+      name: "Device"
+      description: "Permission needed  - Remote: Shutdown/Reboot"
+      selector:
+        config_entry:
+          integration: hikvision_next

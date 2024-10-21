@@ -10,7 +10,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 import homeassistant.helpers.entity_registry as er
 from custom_components.hikvision_next.notifications import EventNotificationsView
 from tests.test_notifications import mock_event_notification
-from tests.conftest import TEST_CONFIG
+from tests.conftest import TEST_HOST
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     SERVICE_TURN_OFF,
@@ -63,7 +63,7 @@ async def test_pir_switch(hass: HomeAssistant, init_integration: MockConfigEntry
     assert (switch := hass.states.get(entity_id))
     assert switch.state == STATE_ON
 
-    url = f"{TEST_CONFIG['host']}/ISAPI/WLAlarm/PIR"
+    url = f"{TEST_HOST}/ISAPI/WLAlarm/PIR"
     endpoint = respx.put(url)
 
     # switch to off

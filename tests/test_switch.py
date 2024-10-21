@@ -4,7 +4,7 @@ import respx
 import pytest
 import httpx
 from homeassistant.core import HomeAssistant
-from tests.conftest import TEST_CONFIG
+from tests.conftest import TEST_HOST
 from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 import homeassistant.helpers.entity_registry as er
@@ -64,7 +64,7 @@ async def test_event_switch_payload(hass: HomeAssistant, init_integration: MockC
             raise AssertionError("Request content does not match expected payload")
         return httpx.Response(200)
 
-    url = f"{TEST_CONFIG['host']}/ISAPI/ContentMgmt/InputProxy/channels/1/video/videoLoss"
+    url = f"{TEST_HOST}/ISAPI/ContentMgmt/InputProxy/channels/1/video/videoLoss"
     endpoint = respx.put(url).mock(side_effect=update_side_effect)
 
     # do not call if already on

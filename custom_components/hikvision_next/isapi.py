@@ -8,12 +8,12 @@ from dataclasses import dataclass, field
 import datetime
 from functools import reduce
 from http import HTTPStatus
-import httpx
 import json
 import logging
 from typing import Any, Optional
 from urllib.parse import quote, urlparse
 
+import httpx
 from httpx import HTTPStatusError, TimeoutException
 import xmltodict
 
@@ -21,7 +21,6 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import slugify
-from .isapi_client import ISAPI_Client
 
 from .const import (
     CONNECTION_TYPE_DIRECT,
@@ -35,6 +34,7 @@ from .const import (
     MUTEX_ALTERNATE_IDS,
     STREAM_TYPE,
 )
+from .isapi_client import ISAPI_Client
 
 Node = dict[str, Any]
 
@@ -776,6 +776,10 @@ class ISAPI:
 
         xml = xmltodict.unparse(data)
         await self.request(PUT, "Event/notification/httpHosts", present="xml", data=xml)
+
+    async def reboot(self):
+        """Reboot device."""
+        await self.request(PUT, "System/reboot", present="xml")
 
     async def request(
         self,
