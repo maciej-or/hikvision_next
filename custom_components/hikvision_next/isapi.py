@@ -440,6 +440,8 @@ class ISAPI:
             supported_events = deep_get(event_notification, "EventTriggerList.EventTrigger", [])
         else:
             supported_events = deep_get(event_triggers, "EventTriggerList.EventTrigger", [])
+        if not isinstance(supported_events, list):
+            supported_events = [supported_events]
 
         for event_trigger in supported_events:
             if event := get_event(event_trigger):
