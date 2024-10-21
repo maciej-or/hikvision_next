@@ -15,7 +15,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.template import Template
 from homeassistant.util import slugify
 
-from .const import DATA_ISAPI, DOMAIN
+from .const import ACTION_UPDATE_SNAPSHOT, DATA_ISAPI, DOMAIN
 from .isapi import ISAPI, CameraStreamInfo
 
 _LOGGER = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     platform = entity_platform.async_get_current_platform()
     platform.async_register_entity_service(
-        "update_snapshot",
+        ACTION_UPDATE_SNAPSHOT,
         {vol.Required(CONF_FILENAME): cv.template},
         "update_snapshot_filename",
     )
