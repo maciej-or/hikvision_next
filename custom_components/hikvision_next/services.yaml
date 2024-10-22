@@ -39,10 +39,12 @@ isapi_request:
     method:
       required: true
       name: "HTTP method"
-      default: POST
+      default: GET
       selector:
         select:
+          mode: dropdown
           options:
+            - GET
             - POST
             - PUT
     path:

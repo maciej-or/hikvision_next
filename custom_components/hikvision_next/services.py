@@ -3,7 +3,12 @@
 from httpx import HTTPStatusError
 import voluptuous as vol
 
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import (
+    HomeAssistant,
+    ServiceCall,
+    ServiceResponse,
+    SupportsResponse,
+)
 from homeassistant.exceptions import HomeAssistantError
 
 from .const import (
@@ -37,23 +42,32 @@ def setup_services(hass: HomeAssistant) -> None:
         except HTTPStatusError as ex:
             raise HomeAssistantError(ex.response.content) from ex
 
-    async def handle_isapi_request(call: ServiceCall):
+    async def handle_isapi_request(call: ServiceCall) -> ServiceResponse:
         """Handle the custom ISAPI request action call."""
         entries = hass.data[DOMAIN]
         entry_id = call.data.get(ATTR_CONFIG_ENTRY_ID)
         isapi = entries[entry_id][DATA_ISAPI]
         method = call.data.get("method", "POST")
-        path = call.data["path"]
+        path = call.data["path"].strip("/")
         payload = call.data.get("payload")
         try:
-            await isapi.request(method, path, present="xml", data=payload)
+            response = await isapi.request(method, path, present="xml", data=payload)
         except HTTPStatusError as ex:
-            raise HomeAssistantError(ex.response.content) from ex
+            if isinstance(ex.response.content, bytes):
+                response = ex.response.content.decode("utf-8")
+            else:
+                response = ex.response.content
+        return {"data": response.replace("\r", "")}
 
-    hass.services.async_register(DOMAIN, ACTION_REBOOT, handle_reboot)
+    hass.services.async_register(
+        DOMAIN,
+        ACTION_REBOOT,
+        handle_reboot,
+    )
     hass.services.async_register(
         DOMAIN,
         ACTION_ISAPI_REQUEST,
         handle_isapi_request,
         schema=ACTION_ISAPI_REQUEST_SCHEMA,
+        supports_response=SupportsResponse.ONLY,
     )
