@@ -50,6 +50,7 @@ class ISAPI_Client:
             response = await self.session.get(url, auth=method)
             if response.status_code == 200:
                 self._auth_method = method
+                break
 
         if not self._auth_method:
             response.raise_for_status()
