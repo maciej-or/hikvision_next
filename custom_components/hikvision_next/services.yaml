@@ -33,6 +33,7 @@ isapi_request:
     config_entry_id:
       required: true
       name: "Device"
+      description: "The Hikvision device."
       selector:
         config_entry:
           integration: hikvision_next
