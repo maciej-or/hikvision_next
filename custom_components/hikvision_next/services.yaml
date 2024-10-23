@@ -40,6 +40,7 @@ isapi_request:
     method:
       required: true
       name: "HTTP method"
+      description: "The HTTP method of the request."
       default: GET
       selector:
         select:
