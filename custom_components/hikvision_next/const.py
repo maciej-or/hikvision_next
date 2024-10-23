@@ -20,6 +20,7 @@ CONNECTION_TYPE_PROXIED = "Proxied"
 
 ATTR_CONFIG_ENTRY_ID = "config_entry_id"
 ACTION_REBOOT = "reboot"
+ACTION_ISAPI_REQUEST = "isapi_request"
 ACTION_UPDATE_SNAPSHOT = "update_snapshot"
 
 HIKVISION_EVENT = f"{DOMAIN}_event"

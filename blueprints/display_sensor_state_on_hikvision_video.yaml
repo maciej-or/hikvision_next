@@ -1,0 +1,81 @@
+blueprint:
+  name: Display Sensor State On Hikvision Video
+  description: |
+    Sets an overlay text on a Hikvision camera video.
+  domain: automation
+  input:
+    config_entry_id:
+      name: "Device"
+      description: "The Hikvision device."
+      selector:
+        config_entry:
+          integration: hikvision_next
+    camera_no:
+      name: "Camera"
+      description: "The camera number."
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 32
+          step: 1
+          mode: box
+    sensor_entity:
+      name: Sensor
+      description: "The sensor entity to display on the video."
+      selector:
+        entity:
+          domain: sensor
+    position_x:
+      name: "X"
+      description: "The X position of the overlay text."
+      default: 16
+      selector:
+        number:
+          min: 0
+          max: 1920
+          step: 1
+    position_y:
+      name: "Y"
+      description: "The Y position of the overlay text."
+      default: 570
+      selector:
+        number:
+          min: 0
+          max: 1080
+          step: 1
+    enabled:
+      name: "State"
+      description: "Enable or disable the overlay text."
+      default: true
+      selector:
+        boolean: {}
+mode: single
+variables:
+  entity_id: !input sensor_entity
+  camera_no: !input camera_no
+  position_x: !input position_x
+  position_y: !input position_y
+  enabled: !input enabled
+trigger:
+  - platform: time_pattern
+    minutes: /15
+action:
+  - service: hikvision_next.isapi_request
+    data:
+      method: PUT
+      config_entry_id: !input config_entry_id
+      path: "/System/Video/inputs/channels/{{camera_no}}/overlays/text"
+      payload: >
+        <?xml version="1.0" encoding="UTF-8"?>
+        <TextOverlayList version="2.0" xmlns="http://www.hikvision.com/ver20/XMLSchema">
+        <TextOverlay>
+        <id>1</id>
+        <enabled>{{ enabled | lower }}</enabled>
+        <positionX>{{ position_x }}</positionX>
+        <positionY>{{ position_y }}</positionY>
+        <displayText>{{ states(entity_id, with_unit=True) }}</displayText>
+        <directAngle></directAngle>
+        </TextOverlay>
+        </TextOverlayList>
+    response_variable: response
