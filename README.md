@@ -14,6 +14,7 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 - Image entities for the latest snapshots
 - Tracking HDD and NAS status
 - Tracking Notifications Host settings for diagnostic purposes
+- Remote reboot device
 - Basic and digest authentication support
 
 ### Supported events
@@ -34,9 +35,18 @@ Events must be set to alert the surveillance center in Linkage Action for Home A
 
 ### Blueprints
 
-Take Multiple Snapshots On Detection Event
+#### Take Multiple Snapshots On Detection Event
+
+Creates automation that allows to take snapshots from selected cameras when an event sensor is triggered.
 
 [<img src="https://my.home-assistant.io/badges/blueprint_import.svg">](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/maciej-or/hikvision_next/blob/main/blueprints/take_pictures_on_motion_detection.yaml)
+
+#### Display Sensor State On Hikvision Video
+
+Creates an automation that allows to display text overlay on a selected video stream with the state of a selected sensor. Refreshes every 15 minutes.
+
+[<img src="https://my.home-assistant.io/badges/blueprint_import.svg">](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/maciej-or/hikvision_next/blob/main/blueprints/display_sensor_state_on_hikvision_video.yaml)
+
 ## Preview
 
 ### IP Camera device view

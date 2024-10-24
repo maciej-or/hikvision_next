@@ -1,6 +1,6 @@
 update_snapshot:
   name: Update snapshot
-  description: Update the snapshot file in an image entity.
+  description: Update the snapshot file in an image entity. Used by take_pictures_on_motion_detection blueprint.
   target:
     entity:
       domain: image
@@ -28,7 +28,7 @@ reboot:
 
 isapi_request:
   name: ISAPI request
-  description: "Send a custom ISAPI request to the device. WARNING: You do this at your own risk!"
+  description: "Send a custom ISAPI request to the device."
   fields:
     config_entry_id:
       required: true
@@ -40,7 +40,7 @@ isapi_request:
     method:
       required: true
       name: "HTTP method"
-      description: "The HTTP method of the request."
+      description: "WARNING: You do POST and PUT at your own risk!"
       default: GET
       selector:
         select:
