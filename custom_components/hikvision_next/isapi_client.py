@@ -1,9 +1,12 @@
 import httpx
+import logging
 from typing import Any, AsyncIterator, List, Union
 from urllib.parse import urljoin
 import json
 import xmltodict
 from dataclasses import dataclass
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def response_parser(response, present="dict"):
@@ -43,16 +46,20 @@ class ISAPI_Client:
             self.session = httpx.AsyncClient(timeout=self.timeout)
 
         url = urljoin(self.host, self.isapi_prefix + "/System/deviceInfo")
-        for method in [
-            httpx.DigestAuth(self.username, self.password),
-            httpx.BasicAuth(self.username, self.password),
-        ]:
-            response = await self.session.get(url, auth=method)
-            if response.status_code == 200:
-                self._auth_method = method
-                break
+        _LOGGER.debug("--- [WWW-Authenticate detection] %s", self.host)
+        response = await self.session.get(url)
+        if response.status_code == 401:
+            www_authenticate = response.headers.get("WWW-Authenticate", "")
+            _LOGGER.debug("WWW-Authenticate header: %s", www_authenticate)
+            if "Basic" in www_authenticate:
+                self._auth_method = httpx.BasicAuth(self.username, self.password)
+            elif "Digest" in www_authenticate:
+                self._auth_method = httpx.DigestAuth(self.username, self.password)
 
         if not self._auth_method:
+            _LOGGER.error("Authentication method not detected, %s", response.status_code)
+            if response.headers:
+                _LOGGER.error("response.headers %s", response.headers)
             response.raise_for_status()
 
     def get_url(self, relative_url: str) -> str:
