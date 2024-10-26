@@ -8,12 +8,12 @@ from dataclasses import dataclass, field
 import datetime
 from functools import reduce
 from http import HTTPStatus
-import httpx
 import json
 import logging
 from typing import Any, Optional
 from urllib.parse import quote, urlparse
 
+import httpx
 from httpx import HTTPStatusError, TimeoutException
 import xmltodict
 
@@ -21,7 +21,6 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import slugify
-from .isapi_client import ISAPI_Client
 
 from .const import (
     CONNECTION_TYPE_DIRECT,
@@ -35,6 +34,7 @@ from .const import (
     MUTEX_ALTERNATE_IDS,
     STREAM_TYPE,
 )
+from .isapi_client import ISAPI_Client
 
 Node = dict[str, Any]
 
@@ -410,6 +410,11 @@ class ISAPI:
             if not event_type:
                 return None
 
+            if event_type.lower() == EVENT_PIR:
+                is_supported = str_to_bool(deep_get(system_capabilities, "WLAlarmCap.isSupportPIR", False))
+                if not is_supported:
+                    return None
+
             channel = event_trigger.get("videoInputChannelID", event_trigger.get("dynVideoInputChannelID", 0))
             io_port = event_trigger.get("inputIOPortID", event_trigger.get("dynInputIOPortID", 0))
             notifications = notification_list.get("EventTriggerNotification", [])
@@ -435,6 +440,8 @@ class ISAPI:
             supported_events = deep_get(event_notification, "EventTriggerList.EventTrigger", [])
         else:
             supported_events = deep_get(event_triggers, "EventTriggerList.EventTrigger", [])
+        if not isinstance(supported_events, list):
+            supported_events = [supported_events]
 
         for event_trigger in supported_events:
             if event := get_event(event_trigger):
@@ -771,6 +778,10 @@ class ISAPI:
 
         xml = xmltodict.unparse(data)
         await self.request(PUT, "Event/notification/httpHosts", present="xml", data=xml)
+
+    async def reboot(self):
+        """Reboot device."""
+        await self.request(PUT, "System/reboot", present="xml")
 
     async def request(
         self,

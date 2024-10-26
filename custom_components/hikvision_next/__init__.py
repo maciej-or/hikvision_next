@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 from contextlib import suppress
 import logging
+import traceback
 
 from httpx import TimeoutException
 
@@ -18,6 +19,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.helpers.httpx_client import get_async_client
+from homeassistant.helpers.typing import ConfigType
 
 from .const import (
     ALARM_SERVER_PATH,
@@ -31,6 +33,7 @@ from .const import (
 from .coordinator import EventsCoordinator, SecondaryCoordinator
 from .isapi import ISAPI
 from .notifications import EventNotificationsView
+from .services import setup_services
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,6 +44,14 @@ PLATFORMS = [
     Platform.SWITCH,
     Platform.IMAGE,
 ]
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Set up the Hikvision component."""
+
+    setup_services(hass)
+
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -59,12 +70,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device_info = isapi.hass_device_info()
         device_registry = dr.async_get(hass)
         device_registry.async_get_or_create(config_entry_id=entry.entry_id, **device_info)
-    except (asyncio.TimeoutError, TimeoutException) as ex:
+    except (TimeoutError, TimeoutException) as ex:
         raise ConfigEntryNotReady(f"Timeout while connecting to {host}. Cannot initialize {DOMAIN}") from ex
     except Exception as ex:  # pylint: disable=broad-except
-        raise ConfigEntryNotReady(
-            f"Unknown error connecting to {host}. Cannot initialize {DOMAIN}. Error is {ex}"
-        ) from ex
+        msg = f"Cannot initialize {DOMAIN} {host}. Error: {ex}\n"
+        _LOGGER.error(msg + traceback.format_exc())
+        raise ConfigEntryNotReady(msg) from ex
 
     coordinators = {}
 

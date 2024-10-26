@@ -1,6 +1,6 @@
 update_snapshot:
   name: Update snapshot
-  description: Update the snapshot file in an image entity.
+  description: Update the snapshot file in an image entity. Used by take_pictures_on_motion_detection blueprint.
   target:
     entity:
       domain: image
@@ -13,3 +13,52 @@ update_snapshot:
       example: "/media/hikvision_next/snapshots/2024-08/07/2024-08-07__11-54-19__camera01.jpg"
       selector:
         text:
+
+reboot:
+  name: Reboot
+  description: Reboot the device.
+  fields:
+    config_entry_id:
+      required: true
+      name: "Device"
+      description: "Permission needed  - Remote: Shutdown/Reboot"
+      selector:
+        config_entry:
+          integration: hikvision_next
+
+isapi_request:
+  name: ISAPI request
+  description: "Send a custom ISAPI request to the device."
+  fields:
+    config_entry_id:
+      required: true
+      name: "Device"
+      description: "The Hikvision device."
+      selector:
+        config_entry:
+          integration: hikvision_next
+    method:
+      required: true
+      name: "HTTP method"
+      description: "WARNING: You do POST and PUT at your own risk!"
+      default: GET
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - GET
+            - POST
+            - PUT
+    path:
+      required: true
+      name: "ISAPI path"
+      description: "The ISAPI endpoint to request. Example: /System/deviceInfo"
+      selector:
+        text:
+    payload:
+      required: false
+      name: "Request payload"
+      description: "XML data"
+      selector:
+        text:
+          multiline: true

@@ -14,6 +14,7 @@ from homeassistant.components.network import async_get_source_ip
 from homeassistant.config_entries import ConfigEntry, ConfigFlow
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.data_entry_flow import FlowResult
+from homeassistant.helpers.httpx_client import get_async_client
 
 from .const import DATA_ALARM_SERVER_HOST, DATA_SET_ALARM_SERVER, DOMAIN
 from .isapi import ISAPI
@@ -62,7 +63,8 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                     CONF_HOST: host,
                 }
 
-                isapi = ISAPI(host, username, password)
+                session = get_async_client(self.hass)
+                isapi = ISAPI(host, username, password, session)
                 await isapi.get_device_info()
 
                 if self._reauth_entry:

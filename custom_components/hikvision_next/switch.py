@@ -13,10 +13,10 @@ from homeassistant.util import slugify
 
 from .const import (
     DOMAIN,
+    EVENT_IO,
     EVENTS_COORDINATOR,
     HOLIDAY_MODE,
     SECONDARY_COORDINATOR,
-    EVENT_IO,
 )
 from .isapi import EventInfo
 
@@ -73,7 +73,7 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
     @property
     def is_on(self) -> bool | None:
         """Return True if the binary sensor is on."""
-        return self.coordinator.data.get(self.entity_id)
+        return self.coordinator.data.get(self.unique_id)
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on."""
@@ -92,6 +92,7 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
             raise
         finally:
             await self.coordinator.async_request_refresh()
+
 
 class NVROutputSwitch(CoordinatorEntity, SwitchEntity):
     """Detection events switch."""
@@ -114,7 +115,7 @@ class NVROutputSwitch(CoordinatorEntity, SwitchEntity):
     @property
     def is_on(self) -> bool | None:
         """Turn on."""
-        return self.coordinator.data.get(self.entity_id) == "active"
+        return self.coordinator.data.get(self.unique_id) == "active"
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on."""

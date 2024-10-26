@@ -76,7 +76,7 @@ def mock_device_endpoints(model):
 def mock_isapi():
     """Mock ISAPI instance."""
 
-    respx.get(f"{TEST_HOST}/ISAPI/System/status").respond(status_code=200)
+    respx.get(f"{TEST_HOST}/ISAPI/System/deviceInfo").respond(status_code=200)
     isapi = ISAPI(**TEST_CLIENT)
     return isapi
 

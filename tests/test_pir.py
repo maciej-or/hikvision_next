@@ -4,12 +4,13 @@ import respx
 import pytest
 from http import HTTPStatus
 from homeassistant.core import HomeAssistant
+from custom_components.hikvision_next.const import DOMAIN, EVENT_PIR
 from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 import homeassistant.helpers.entity_registry as er
 from custom_components.hikvision_next.notifications import EventNotificationsView
 from tests.test_notifications import mock_event_notification
-from tests.conftest import TEST_CONFIG
+from tests.conftest import TEST_HOST
 from homeassistant.const import (
     ATTR_ENTITY_ID,
     SERVICE_TURN_OFF,
@@ -62,7 +63,7 @@ async def test_pir_switch(hass: HomeAssistant, init_integration: MockConfigEntry
     assert (switch := hass.states.get(entity_id))
     assert switch.state == STATE_ON
 
-    url = f"{TEST_CONFIG['host']}/ISAPI/WLAlarm/PIR"
+    url = f"{TEST_HOST}/ISAPI/WLAlarm/PIR"
     endpoint = respx.put(url)
 
     # switch to off
@@ -73,3 +74,31 @@ async def test_pir_switch(hass: HomeAssistant, init_integration: MockConfigEntry
         blocking=True,
     )
     assert endpoint.called
+
+
+@pytest.mark.parametrize("init_integration", ["DS-2CD2443G0-IW", "DS-2CD2532F-IWS", "DS-2CD2386G2-IU"], indirect=True)
+async def test_pir_support_detection(
+    hass: HomeAssistant,
+    init_integration: MockConfigEntry,
+) -> None:
+    """Test PIR entities creation """
+
+    device_data = {
+        "DS-2CD2443G0-IW": {
+            "isSupportPIR": True,
+        },
+        "DS-2CD2532F-IWS": {
+            "isSupportPIR": False,
+        },
+        "DS-2CD2386G2-IU": {
+            "isSupportPIR": False,
+        }
+    }
+
+    entry = init_integration
+    isapi = hass.data[DOMAIN][entry.entry_id]["isapi"]
+    data = device_data[init_integration.title]
+    pir_events = [
+        s for s in isapi.supported_events if (s.event_id == EVENT_PIR)
+    ]
+    assert (len(pir_events) == 1) == data["isSupportPIR"]
