@@ -4,6 +4,7 @@ import pytest
 from unittest.mock import patch
 from homeassistant.core import HomeAssistant
 from custom_components.hikvision_next.const import DOMAIN
+from custom_components.hikvision_next.hikvision_device import HikvisionDevice
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from homeassistant.config_entries import ConfigEntryState
 from tests.conftest import TEST_CONFIG, TEST_CONFIG_WITH_ALARM_SERVER
@@ -27,9 +28,9 @@ async def test_basic_init(hass: HomeAssistant, init_integration: MockConfigEntry
     entry = init_integration
     assert entry.state == ConfigEntryState.LOADED
 
-    isapi = hass.data[DOMAIN][entry.entry_id]["isapi"]
-    assert isapi.host == TEST_CONFIG["host"]
-    assert init_integration.title in isapi.device_info.model
+    device: HikvisionDevice = entry.runtime_data
+    assert device.host == TEST_CONFIG["host"]
+    assert init_integration.title in device.device_info.model
 
 
 @pytest.mark.parametrize("init_integration", ["DS-7608NXI-I2"], indirect=True)
@@ -39,12 +40,12 @@ async def test_async_setup_entry_nvr(hass: HomeAssistant, init_integration: Mock
     entry = init_integration
     assert entry.state == ConfigEntryState.LOADED
 
-    isapi = hass.data[DOMAIN][entry.entry_id]["isapi"]
-    assert isapi.host == TEST_CONFIG["host"]
-    assert len(isapi.cameras) == 4
-    assert len(isapi.supported_events) == 63
+    device: HikvisionDevice = entry.runtime_data
+    assert device.host == TEST_CONFIG["host"]
+    assert len(device.cameras) == 4
+    assert len(device.supported_events) == 63
 
-    device_info = isapi.device_info
+    device_info = device.device_info
     assert device_info.device_type == "NVR"
     assert device_info.firmware == "V4.62.210"
     assert device_info.input_ports == 4
@@ -79,12 +80,12 @@ async def test_async_setup_entry_ipc(hass: HomeAssistant, init_integration: Mock
     entry = init_integration
     assert entry.state == ConfigEntryState.LOADED
 
-    isapi = hass.data[DOMAIN][entry.entry_id]["isapi"]
-    assert isapi.host == TEST_CONFIG["host"]
-    assert len(isapi.cameras) == 1
-    assert len(isapi.supported_events) == 14
+    device: HikvisionDevice = entry.runtime_data
+    assert device.host == TEST_CONFIG["host"]
+    assert len(device.cameras) == 1
+    assert len(device.supported_events) == 14
 
-    device_info = isapi.device_info
+    device_info = device.device_info
     assert device_info.device_type == "IPCamera"
     assert device_info.firmware == "V5.7.15"
     assert device_info.input_ports == 0

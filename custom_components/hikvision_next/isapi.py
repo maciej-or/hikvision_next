@@ -18,14 +18,11 @@ from httpx import HTTPStatusError, TimeoutException
 import xmltodict
 
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.util import slugify
 
 from .const import (
     CONNECTION_TYPE_DIRECT,
     CONNECTION_TYPE_PROXIED,
-    DOMAIN,
     EVENT_BASIC,
     EVENT_IO,
     EVENT_PIR,
@@ -577,30 +574,6 @@ class ISAPI:
         except IndexError:
             # Storage id does not exist
             return None
-
-    def hass_device_info(self, device_id: int = 0) -> DeviceInfo:
-        """Return Home Assistant entity device information."""
-        if device_id == 0:
-            return DeviceInfo(
-                manufacturer=self.device_info.manufacturer,
-                identifiers={(DOMAIN, self.device_info.serial_no)},
-                connections={(dr.CONNECTION_NETWORK_MAC, self.device_info.mac_address)},
-                model=self.device_info.model,
-                name=self.device_info.name,
-                sw_version=self.device_info.firmware,
-            )
-        else:
-            camera_info = self.get_camera_by_id(device_id)
-            is_ip_camera = isinstance(camera_info, IPCamera)
-
-            return DeviceInfo(
-                manufacturer=self.device_info.manufacturer,
-                identifiers={(DOMAIN, camera_info.serial_no)},
-                model=camera_info.model,
-                name=camera_info.name,
-                sw_version=camera_info.firmware if is_ip_camera else "Unknown",
-                via_device=(DOMAIN, self.device_info.serial_no) if self.device_info.is_nvr else None,
-            )
 
     def get_event_state_node(self, event: EventInfo) -> str:
         """Get xml key for event state."""
