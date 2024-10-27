@@ -39,6 +39,7 @@ def mock_config_entry(request) -> MockConfigEntry:
         domain=DOMAIN,
         data=config,
         version=2,
+        title=request.node.callspec.id,
     )
 
 
@@ -73,10 +74,13 @@ def mock_device_endpoints(model):
 
 
 @pytest.fixture
-def mock_isapi():
+def mock_isapi(respx_mock):
     """Mock ISAPI instance."""
 
-    respx.get(f"{TEST_HOST}/ISAPI/System/deviceInfo").respond(status_code=200)
+    digest_header = 'Digest realm="testrealm", qop="auth", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", opaque="799d5"'
+    respx.get(f"{TEST_HOST}/ISAPI/System/deviceInfo").respond(
+        status_code=401, headers={"WWW-Authenticate": digest_header}
+    )
     isapi = ISAPI(**TEST_CLIENT)
     return isapi
 
@@ -114,5 +118,4 @@ async def init_integration(respx_mock, request, mock_isapi, hass: HomeAssistant,
         await hass.config_entries.async_setup(mock_config_entry.entry_id)
         await hass.async_block_till_done()
 
-    mock_config_entry.title = model
     return mock_config_entry
