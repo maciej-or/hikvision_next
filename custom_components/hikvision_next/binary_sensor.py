@@ -28,7 +28,7 @@ async def async_setup_entry(
 
     # NVR Events
     if device.device_info.is_nvr:
-        for event in device.device_info.events_info:
+        for event in device.events_info:
             entities.append(EventBinarySensor(device, 0, event))
 
     async_add_entities(entities)

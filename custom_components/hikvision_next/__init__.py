@@ -159,6 +159,6 @@ def refresh_disabled_entities_in_registry(hass: HomeAssistant, device: Hikvision
             update_entity(event, SWITCH_ENTITY_ID_FORMAT)
             update_entity(event, BINARY_SENSOR_ENTITY_ID_FORMAT)
 
-    for event in device.device_info.events_info:
+    for event in device.events_info:
         update_entity(event, SWITCH_ENTITY_ID_FORMAT)
         update_entity(event, BINARY_SENSOR_ENTITY_ID_FORMAT)

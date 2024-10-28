@@ -100,6 +100,6 @@ async def test_pir_support_detection(
     device: HikvisionDevice = entry.runtime_data
     data = device_data[init_integration.title]
     pir_events = [
-        s for s in device.supported_events if (s.event_id == EVENT_PIR)
+        s for s in device.supported_events if (s.id == EVENT_PIR)
     ]
     assert (len(pir_events) == 1) == data["isSupportPIR"]

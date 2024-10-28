@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import suppress
-from dataclasses import dataclass, field
 import datetime
 from functools import reduce
 from http import HTTPStatus
@@ -18,13 +17,23 @@ from httpx import HTTPStatusError, TimeoutException
 import xmltodict
 
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.util import slugify
 
+from .api.models import (
+    AlarmServer,
+    AlertInfo,
+    AnalogCamera,
+    CameraStreamInfo,
+    CapabilitiesInfo,
+    EventInfo,
+    IPCamera,
+    ISAPIDeviceInfo,
+    MutexIssue,
+    ProtocolsInfo,
+    StorageInfo,
+)
 from .const import (
     CONNECTION_TYPE_DIRECT,
     CONNECTION_TYPE_PROXIED,
-    EVENT_BASIC,
-    EVENT_IO,
     EVENT_PIR,
     EVENTS,
     EVENTS_ALTERNATE_ID,
@@ -42,141 +51,8 @@ PUT = "PUT"
 POST = "POST"
 
 
-@dataclass
-class AlarmServer:
-    """Holds alarm server info."""
-
-    # Uses pylint invalid names to not break previous versions
-    ipAddress: str  # pylint: disable=invalid-name
-    portNo: int  # pylint: disable=invalid-name
-    url: str  # pylint: disable=invalid-name
-    protocolType: str  # pylint: disable=invalid-name
-
-
-@dataclass
-class AlertInfo:
-    """Holds NVR/Camera event notification info."""
-
-    channel_id: int
-    io_port_id: int
-    event_id: str
-    device_serial_no: Optional[str]
-    mac: str = ""
-    region_id: int = 0
-    detection_target: Optional[str] = None
-
-
-@dataclass
-class MutexIssue:
-    """Holds mutually exclusive event checking info."""
-
-    event_id: str
-    channels: list = field(default_factory=list)
-
-
-@dataclass
-class EventInfo:
-    """Holds event info of particular device."""
-
-    id: str
-    channel_id: int
-    io_port_id: int
-    unique_id: str
-    url: str
-    disabled: bool = False
-
-
-@dataclass
-class SupportedEventsInfo:
-    """Holds supported event info for NVR/IP Camera."""
-
-    channel_id: int
-    io_port_id: int
-    event_id: str
-    notifications: list[str] = field(default_factory=list)
-
-
-@dataclass
-class CameraStreamInfo:
-    """Holds info of a camera stream."""
-
-    id: int
-    name: str
-    type_id: int
-    type: str
-    enabled: bool
-    codec: str
-    width: int
-    height: int
-    audio: bool
-    use_alternate_picture_url: bool = False
-
-
-@dataclass
-class StorageInfo:
-    """Holds info for internal and NAS storage devices."""
-
-    id: int
-    name: str
-    type: str
-    status: str
-    capacity: int
-    freespace: int
-    property: str
-    ip: str = ""
-
-
-@dataclass
-class HikDeviceInfo:
-    """Holds info of an NVR/DVR or single IP Camera."""
-
-    name: str = ""
-    manufacturer: str = ""
-    model: str = ""
-    serial_no: str = ""
-    firmware: str = ""
-    mac_address: str = ""
-    ip_address: str = ""
-    device_type: str = ""
-    is_nvr: bool = False
-    support_analog_cameras: int = 0
-    support_digital_cameras: int = 0
-    support_holiday_mode: bool = False
-    support_alarm_server: bool = False
-    support_channel_zero: bool = False
-    support_event_mutex_checking: bool = False
-    input_ports: int = 0
-    output_ports: int = 0
-    rtsp_port: int = 554
-    storage: list[StorageInfo] = field(default_factory=list)
-    events_info: list[EventInfo] = field(default_factory=list)
-
-
-@dataclass
-class AnalogCamera:
-    """Analog cameras info."""
-
-    id: int
-    name: str
-    model: str
-    serial_no: str
-    input_port: int
-    connection_type: str
-    streams: list[CameraStreamInfo] = field(default_factory=list)
-    events_info: list[EventInfo] = field(default_factory=list)
-
-
-@dataclass
-class IPCamera(AnalogCamera):
-    """IP/Digital camera info."""
-
-    firmware: str = ""
-    ip_addr: str = ""
-    ip_port: int = 0
-
-
 class ISAPI:
-    """hikvisionapi async client wrapper."""
+    """Hikvision ISAPI client."""
 
     def __init__(
         self,
@@ -188,15 +64,18 @@ class ISAPI:
         """Initialize."""
         self.isapi = ISAPI_Client(host, username, password, session, timeout=20)
         self.host = host
-        self.device_info = HikDeviceInfo()
+        self.device_info = ISAPIDeviceInfo()
+        self.capabilities = CapabilitiesInfo()
         self.cameras: list[IPCamera | AnalogCamera] = []
-        self.supported_events: list[SupportedEventsInfo] = []
+        self.supported_events: list[EventInfo] = []
+        self.storage: list[StorageInfo] = []
+        self.protocols = ProtocolsInfo()
         self.pending_initialization = False
 
     async def get_device_info(self):
         """Get device info."""
         hw_info = (await self.request(GET, "System/deviceInfo")).get("DeviceInfo", {})
-        self.device_info = HikDeviceInfo(
+        self.device_info = ISAPIDeviceInfo(
             name=hw_info.get("deviceName"),
             manufacturer=str(hw_info.get("manufacturer", "Hikvision")).title(),
             model=hw_info.get("model"),
@@ -219,30 +98,28 @@ class ISAPI:
         self.supported_events = await self.get_supported_events(capabilities)
 
         # Set DeviceInfo
-        self.device_info.support_analog_cameras = int(deep_get(capabilities, "SysCap.VideoCap.videoInputPortNums", 0))
-        self.device_info.support_digital_cameras = int(deep_get(capabilities, "RacmCap.inputProxyNums", 0))
-        self.device_info.support_holiday_mode = str_to_bool(deep_get(capabilities, "SysCap.isSupportHolidy", "false"))
-        self.device_info.support_channel_zero = str_to_bool(
+        self.capabilities.support_analog_cameras = int(deep_get(capabilities, "SysCap.VideoCap.videoInputPortNums", 0))
+        self.capabilities.support_digital_cameras = int(deep_get(capabilities, "RacmCap.inputProxyNums", 0))
+        self.capabilities.support_holiday_mode = str_to_bool(deep_get(capabilities, "SysCap.isSupportHolidy", "false"))
+        self.capabilities.support_channel_zero = str_to_bool(
             deep_get(capabilities, "RacmCap.isSupportZeroChan", "false")
         )
-        self.device_info.support_event_mutex_checking = str_to_bool(
+        self.capabilities.support_event_mutex_checking = str_to_bool(
             capabilities.get("isSupportGetmutexFuncErrMsg", "false")
         )
-        self.device_info.input_ports = int(deep_get(capabilities, "SysCap.IOCap.IOInputPortNums", 0))
-        self.device_info.output_ports = int(deep_get(capabilities, "SysCap.IOCap.IOOutputPortNums", 0))
+        self.capabilities.input_ports = int(deep_get(capabilities, "SysCap.IOCap.IOInputPortNums", 0))
+        self.capabilities.output_ports = int(deep_get(capabilities, "SysCap.IOCap.IOOutputPortNums", 0))
 
         with suppress(Exception):
-            self.device_info.storage = await self.get_storage_devices()
-        self.device_info.events_info = await self.get_device_event_capabilities(
-            self.supported_events, self.device_info.serial_no, 0
-        )
+            self.storage = await self.get_storage_devices()
+
         self.device_info.support_alarm_server = bool(await self.get_alarm_server())
 
         await self.get_protocols()
 
         # Set if NVR based on whether more than 1 supported IP or analog cameras
         # Single IP camera will show 0 supported devices in total
-        if self.device_info.support_analog_cameras + self.device_info.support_digital_cameras > 1:
+        if self.capabilities.support_analog_cameras + self.capabilities.support_digital_cameras > 1:
             self.device_info.is_nvr = True
 
     async def get_cameras(self):
@@ -261,17 +138,11 @@ class ISAPI:
                     connection_type=CONNECTION_TYPE_DIRECT,
                     ip_addr=self.device_info.ip_address,
                     streams=await self.get_camera_streams(1),
-                    events_info=await self.get_device_event_capabilities(
-                        self.supported_events,
-                        self.device_info.serial_no,
-                        1,
-                        CONNECTION_TYPE_DIRECT,
-                    ),
                 )
             )
         else:
             # Get analog and digital cameras attached to NVR
-            if self.device_info.support_digital_cameras > 0:
+            if self.capabilities.support_digital_cameras > 0:
                 digital_cameras = deep_get(
                     (await self.request(GET, "ContentMgmt/InputProxy/channels")),
                     "InputProxyChannelList.InputProxyChannel",
@@ -306,17 +177,11 @@ class ISAPI:
                             ip_addr=source.get("ipAddress"),
                             ip_port=source.get("managePortNo"),
                             streams=await self.get_camera_streams(camera_id),
-                            events_info=await self.get_device_event_capabilities(
-                                self.supported_events,
-                                self.device_info.serial_no,
-                                camera_id,
-                                CONNECTION_TYPE_PROXIED,
-                            ),
                         )
                     )
 
             # Get analog cameras
-            if self.device_info.support_analog_cameras > 0:
+            if self.capabilities.support_analog_cameras > 0:
                 analog_cameras = deep_get(
                     (await self.request(GET, "System/Video/inputs/channels")),
                     "VideoInputChannelList.VideoInputChannel",
@@ -339,12 +204,6 @@ class ISAPI:
                             input_port=int(analog_camera.get("inputPort")),
                             connection_type=CONNECTION_TYPE_DIRECT,
                             streams=await self.get_camera_streams(camera_id),
-                            events_info=await self.get_device_event_capabilities(
-                                self.supported_events,
-                                self.device_info.serial_no,
-                                camera_id,
-                                CONNECTION_TYPE_DIRECT,
-                            ),
                         )
                     )
 
@@ -358,47 +217,10 @@ class ISAPI:
 
         for item in protocols:
             if item.get("protocol") == "RTSP" and item.get("portNo"):
-                self.device_info.rtsp_port = item.get("portNo")
+                self.protocols.rtsp_port = item.get("portNo")
                 break
 
-    async def get_device_event_capabilities(
-        self,
-        supported_events: list[SupportedEventsInfo],
-        serial_no: str,
-        device_id: int,
-        connection_type: str = CONNECTION_TYPE_DIRECT,
-    ) -> list[EventInfo]:
-        """Get events info handled by integration (device id:  NVR = 0, camera > 0)."""
-        events = []
-
-        if device_id == 0:  # NVR
-            device_supported_events = [
-                s for s in supported_events if (s.event_id in EVENTS and EVENTS[s.event_id].get("type") == EVENT_IO)
-            ]
-        else:  # Camera
-            device_supported_events = [
-                s for s in supported_events if (s.channel_id == int(device_id) and s.event_id in EVENTS)
-            ]
-
-        for event in device_supported_events:
-            # Build unique_id
-            device_id_param = f"_{device_id}" if device_id != 0 else ""
-            io_port_id_param = f"_{event.io_port_id}" if event.io_port_id != 0 else ""
-            unique_id = f"{slugify(serial_no.lower())}{device_id_param}{io_port_id_param}_{event.event_id}"
-
-            if EVENTS.get(event.event_id):
-                event_info = EventInfo(
-                    id=event.event_id,
-                    channel_id=event.channel_id,
-                    io_port_id=event.io_port_id,
-                    unique_id=unique_id,
-                    url=self.get_event_url(event, connection_type),
-                    disabled=("center" not in event.notifications),  # Disable if not set Notify Surveillance Center
-                )
-                events.append(event_info)
-        return events
-
-    async def get_supported_events(self, system_capabilities: dict) -> list[SupportedEventsInfo]:
+    async def get_supported_events(self, system_capabilities: dict) -> list[EventInfo]:
         """Get list of all supported events available."""
 
         def get_event(event_trigger: dict):
@@ -423,10 +245,10 @@ class ISAPI:
             if event_type.lower() in EVENTS_ALTERNATE_ID:
                 event_type = EVENTS_ALTERNATE_ID[event_type.lower()]
 
-            return SupportedEventsInfo(
+            return EventInfo(
                 channel_id=int(channel),
                 io_port_id=int(io_port),
-                event_id=event_type.lower(),
+                id=event_type.lower(),
                 notifications=[notify.get("notificationMethod") for notify in notifications] if notifications else [],
             )
 
@@ -445,7 +267,7 @@ class ISAPI:
                 events.append(event)
 
         # some devices do not have scenechangedetection in Event/triggers
-        if not [e for e in events if e.event_id == "scenechangedetection"]:
+        if not [e for e in events if e.id == "scenechangedetection"]:
             is_supported = str_to_bool(deep_get(system_capabilities, "SmartCap.isSupportSceneChangeDetection", False))
             if is_supported:
                 event_trigger = await self.request(GET, "Event/triggers/scenechangedetection-1")
@@ -454,35 +276,6 @@ class ISAPI:
                     events.append(event)
 
         return events
-
-    def get_event_url(self, event: SupportedEventsInfo, connection_type: str) -> str:
-        """Get event ISAPI URL."""
-
-        event_type = EVENTS[event.event_id]["type"]
-        slug = EVENTS[event.event_id]["slug"]
-
-        if event_type == EVENT_BASIC:
-            if connection_type == CONNECTION_TYPE_PROXIED:
-                # ISAPI/ContentMgmt/InputProxy/channels/{channel_id}/video/{event}
-                url = f"ContentMgmt/InputProxy/channels/{event.channel_id}/video/{slug}"
-            else:
-                # ISAPI/System/Video/inputs/channels/{channel_id}/{event}
-                url = f"System/Video/inputs/channels/{event.channel_id}/{slug}"
-
-        elif event_type == EVENT_IO:
-            if connection_type == CONNECTION_TYPE_PROXIED:
-                # ISAPI/ContentMgmt/IOProxy/{slug}/{channel_id}
-                url = f"ContentMgmt/IOProxy/{slug}/{event.io_port_id}"
-            else:
-                # ISAPI/System/IO/{slug}}/{channel_id}
-                url = f"System/IO/{slug}/{event.io_port_id}"
-        elif event_type == EVENT_PIR:
-            # ISAPI/WLAlarm/PIR
-            url = slug
-        else:
-            # ISAPI/Smart/{event}/{channel_id}
-            url = f"Smart/{slug}/{event.channel_id}"
-        return url
 
     async def get_camera_streams(self, channel_id: int) -> list[CameraStreamInfo]:
         """Get stream info for all cameras."""
@@ -516,7 +309,7 @@ class ISAPI:
             return None
 
     async def get_storage_devices(self):
-        """Get HDD storage devices."""
+        """Get HDD and NAS storage devices."""
         storage_list = []
         storage_info = (await self.request(GET, "ContentMgmt/Storage")).get("storage", {})
 
@@ -570,7 +363,7 @@ class ISAPI:
     def get_storage_device_by_id(self, device_id: int) -> StorageInfo | None:
         """Get storage object by id."""
         try:
-            return [storage_device for storage_device in self.device_info.storage if storage_device.id == device_id][0]
+            return [storage_device for storage_device in self.storage if storage_device.id == device_id][0]
         except IndexError:
             # Storage id does not exist
             return None
@@ -637,7 +430,7 @@ class ISAPI:
 
         # Validate that this event switch is not mutually exclusive with another enabled one
         mutex_issues = []
-        if channel_id != 0 and is_enabled and self.device_info.support_event_mutex_checking:
+        if channel_id != 0 and is_enabled and self.capabilities.support_event_mutex_checking:
             mutex_issues = await self.get_event_switch_mutex(event, channel_id)
 
         if not mutex_issues:
@@ -894,7 +687,7 @@ class ISAPI:
         """Get stream source."""
         u = quote(self.isapi.username, safe="")
         p = quote(self.isapi.password, safe="")
-        url = f"{self.device_info.ip_address}:{self.device_info.rtsp_port}/Streaming/channels/{stream.id}"
+        url = f"{self.device_info.ip_address}:{self.protocols.rtsp_port}/Streaming/channels/{stream.id}"
         return f"rtsp://{u}:{p}@{url}"
 
 

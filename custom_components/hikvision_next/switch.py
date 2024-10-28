@@ -33,15 +33,15 @@ async def async_setup_entry(
 
     # NVR supported events
     if device.device_info.is_nvr:
-        for event in device.device_info.events_info:
+        for event in device.events_info:
             entities.append(EventSwitch(0, event, events_coordinator))
 
     # Output port switch
-    for i in range(1, device.device_info.output_ports + 1):
+    for i in range(1, device.capabilities.output_ports + 1):
         entities.append(NVROutputSwitch(events_coordinator, i))
 
     # Holiday mode switch
-    if device.device_info.support_holiday_mode:
+    if device.capabilities.support_holiday_mode:
         entities.append(HolidaySwitch(secondary_coordinator))
 
     async_add_entities(entities)

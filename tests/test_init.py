@@ -46,25 +46,26 @@ async def test_async_setup_entry_nvr(hass: HomeAssistant, init_integration: Mock
     assert len(device.supported_events) == 63
 
     device_info = device.device_info
+    capabilities = device.capabilities
     assert device_info.device_type == "NVR"
     assert device_info.firmware == "V4.62.210"
-    assert device_info.input_ports == 4
+    assert capabilities.input_ports == 4
     assert TEST_CONFIG["host"].endswith(device_info.ip_address)
     assert device_info.is_nvr is True
     assert len(device_info.mac_address) == 17
     assert device_info.manufacturer == "Hikvision"
     assert device_info.model == "DS-7608NXI-I2/8P/S"
     assert device_info.name == "nvr"
-    assert device_info.output_ports == 1
-    assert device_info.rtsp_port == "10554"
+    assert capabilities.output_ports == 1
+    assert device.protocols.rtsp_port == "10554"
     assert device_info.serial_no == "DS-7608NXI-I0/0P/S0000000000CCRRJ00000000WCVU"
-    assert len(device_info.storage) == 1
+    assert len(device.storage) == 1
     assert device_info.support_alarm_server is True
-    assert device_info.support_analog_cameras == 0
-    assert device_info.support_channel_zero is True
-    assert device_info.support_digital_cameras == 8
-    assert device_info.support_event_mutex_checking is False
-    assert device_info.support_holiday_mode is True
+    assert capabilities.support_analog_cameras == 0
+    assert capabilities.support_channel_zero is True
+    assert capabilities.support_digital_cameras == 8
+    assert capabilities.support_event_mutex_checking is False
+    assert capabilities.support_holiday_mode is True
 
     # test successful unload
     await hass.config_entries.async_unload(entry.entry_id)
@@ -86,26 +87,26 @@ async def test_async_setup_entry_ipc(hass: HomeAssistant, init_integration: Mock
     assert len(device.supported_events) == 14
 
     device_info = device.device_info
+    capabilities = device.capabilities
     assert device_info.device_type == "IPCamera"
     assert device_info.firmware == "V5.7.15"
-    assert device_info.input_ports == 0
+    assert capabilities.input_ports == 0
     assert TEST_CONFIG["host"].endswith(device_info.ip_address)
     assert device_info.is_nvr is False
     assert len(device_info.mac_address) == 17
     assert device_info.manufacturer == "Hikvision"
     assert device_info.model == "DS-2CD2386G2-IU"
     assert device_info.name == "yard"
-    assert device_info.output_ports == 0
-    assert device_info.output_ports == 0
-    assert device_info.rtsp_port == "10554"
+    assert capabilities.output_ports == 0
+    assert device.protocols.rtsp_port == "10554"
     assert device_info.serial_no == "DS-2CD2386G2-IU00000000AAWRJ00000000"
-    assert len(device_info.storage) == 2
+    assert len(device.storage) == 2
     assert device_info.support_alarm_server is True
-    assert device_info.support_analog_cameras == 0
-    assert device_info.support_channel_zero is False
-    assert device_info.support_digital_cameras == 0
-    assert device_info.support_event_mutex_checking is False
-    assert device_info.support_holiday_mode is False
+    assert capabilities.support_analog_cameras == 0
+    assert capabilities.support_channel_zero is False
+    assert capabilities.support_digital_cameras == 0
+    assert capabilities.support_event_mutex_checking is False
+    assert capabilities.support_holiday_mode is False
 
     # test successful unload
     await hass.config_entries.async_unload(entry.entry_id)

@@ -35,7 +35,7 @@ async def async_setup_entry(
         for key in NOTIFICATION_HOST_KEYS:
             entities.append(AlarmServerSensor(coordinator, key))
 
-        for item in list(device.device_info.storage):
+        for item in list(device.storage):
             entities.append(StorageSensor(coordinator, item))
 
         async_add_entities(entities, True)

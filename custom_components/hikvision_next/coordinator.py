@@ -1,4 +1,4 @@
-"""Coordinators"""
+"""Coordinators."""
 
 from __future__ import annotations
 
@@ -50,7 +50,7 @@ class EventsCoordinator(DataUpdateCoordinator):
                         self.device.handle_exception(ex, f"Cannot fetch state for {event.id}")
 
             # Get NVR event status
-            for event in self.device.device_info.events_info:
+            for event in self.device.events_info:
                 if event.disabled:
                     continue
                 try:
@@ -60,7 +60,7 @@ class EventsCoordinator(DataUpdateCoordinator):
                     self.device.handle_exception(ex, f"Cannot fetch state for {event.id}")
 
             # Get output port(s) status
-            for i in range(1, self.device.device_info.output_ports + 1):
+            for i in range(1, self.device.capabilities.output_ports + 1):
                 try:
                     _id = ENTITY_ID_FORMAT.format(
                         f"{slugify(self.device.device_info.serial_no.lower())}_{i}_alarm_output"
@@ -71,9 +71,9 @@ class EventsCoordinator(DataUpdateCoordinator):
 
             # Refresh HDD data
             try:
-                self.device.device_info.storage = await self.device.get_storage_devices()
+                self.device.storage = await self.device.get_storage_devices()
             except Exception as ex:  # pylint: disable=broad-except
-                self.device.handle_exception(ex, "Cannot fetch state for HDD")
+                self.device.handle_exception(ex, "Cannot fetch storage state")
 
             return data
 
@@ -97,7 +97,7 @@ class SecondaryCoordinator(DataUpdateCoordinator):
         async with asyncio.timeout(20):
             data = {}
             try:
-                if self.device.device_info.support_holiday_mode:
+                if self.device.capabilities.support_holiday_mode:
                     data[HOLIDAY_MODE] = await self.device.get_holiday_enabled_state()
             except Exception as ex:  # pylint: disable=broad-except
                 self.device.handle_exception(ex, f"Cannot fetch state for {HOLIDAY_MODE}")
