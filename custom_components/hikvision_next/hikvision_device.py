@@ -110,7 +110,7 @@ class HikvisionDevice(ISAPI):
 
         for event in integration_supported_events:
             # Build unique_id
-            device_id_param = f"_{camera_id}" if camera_id != 0 else ""
+            device_id_param = f"_{camera_id}" if camera_id else ""
             io_port_id_param = f"_{event.io_port_id}" if event.io_port_id != 0 else ""
             unique_id = (
                 f"{slugify(self.device_info.serial_no.lower())}{device_id_param}{io_port_id_param}_{event.id}"

@@ -97,7 +97,6 @@ class ISAPI:
         # Get all supported events to reduce isapi queries
         self.supported_events = await self.get_supported_events(capabilities)
 
-        # Set DeviceInfo
         self.capabilities.support_analog_cameras = int(deep_get(capabilities, "SysCap.VideoCap.videoInputPortNums", 0))
         self.capabilities.support_digital_cameras = int(deep_get(capabilities, "RacmCap.inputProxyNums", 0))
         self.capabilities.support_holiday_mode = str_to_bool(deep_get(capabilities, "SysCap.isSupportHolidy", "false"))
@@ -149,9 +148,6 @@ class ISAPI:
                     [],
                 )
 
-                if not isinstance(digital_cameras, list):
-                    digital_cameras = [digital_cameras]
-
                 for digital_camera in digital_cameras:
                     camera_id = digital_camera.get("id")
                     source = digital_camera.get("sourceInputPortDescriptor")
@@ -187,9 +183,6 @@ class ISAPI:
                     "VideoInputChannelList.VideoInputChannel",
                     [],
                 )
-
-                if not isinstance(analog_cameras, list):
-                    analog_cameras = [analog_cameras]
 
                 for analog_camera in analog_cameras:
                     camera_id = analog_camera.get("id")
@@ -236,10 +229,7 @@ class ISAPI:
 
             channel = event_trigger.get("videoInputChannelID", event_trigger.get("dynVideoInputChannelID", 0))
             io_port = event_trigger.get("inputIOPortID", event_trigger.get("dynInputIOPortID", 0))
-            notifications = notification_list.get("EventTriggerNotification", [])
-
-            if not isinstance(notifications, list):
-                notifications = [notifications]
+            notifications = deep_get(notification_list, "EventTriggerNotification", [])
 
             # Translate to alternate IDs
             if event_type.lower() in EVENTS_ALTERNATE_ID:
@@ -259,8 +249,6 @@ class ISAPI:
             supported_events = deep_get(event_notification, "EventTriggerList.EventTrigger", [])
         else:
             supported_events = deep_get(event_triggers, "EventTriggerList.EventTrigger", [])
-        if not isinstance(supported_events, list):
-            supported_events = [supported_events]
 
         for event_trigger in supported_events:
             if event := get_event(event_trigger):
@@ -710,8 +698,12 @@ def get_stream_id(channel_id: str, stream_type: int = 1) -> int:
 
 def deep_get(dictionary: dict, path: str, default: Any = None) -> Any:
     """Get safely nested dictionary attribute."""
-    return reduce(
+    result = reduce(
         lambda d, key: d.get(key, default) if isinstance(d, dict) else default,
         path.split("."),
         dictionary,
     )
+    if default == [] and not isinstance(result, list):
+        return [result]
+
+    return result
