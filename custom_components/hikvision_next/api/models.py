@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 
+
 @dataclass
 class AlarmServer:
     """Holds alarm server info."""
@@ -43,6 +44,7 @@ class EventInfo:
     url: str = None
     disabled: bool = False
     notifications: list[str] = field(default_factory=list)
+
 
 @dataclass
 class CameraStreamInfo:
@@ -88,6 +90,7 @@ class ISAPIDeviceInfo:
     device_type: str = ""
     is_nvr: bool = False
 
+
 @dataclass
 class CapabilitiesInfo:
     """Holds info of an NVR/DVR or single IP Camera."""
@@ -100,6 +103,7 @@ class CapabilitiesInfo:
     support_event_mutex_checking: bool = False
     input_ports: int = 0
     output_ports: int = 0
+
 
 @dataclass
 class AnalogCamera:
@@ -122,6 +126,7 @@ class IPCamera(AnalogCamera):
     firmware: str = ""
     ip_addr: str = ""
     ip_port: int = 0
+
 
 @dataclass
 class ProtocolsInfo:

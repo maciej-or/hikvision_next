@@ -9,7 +9,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import HikvisionConfigEntry
-from .const import DATA_ALARM_SERVER_HOST, SECONDARY_COORDINATOR
+from .const import CONF_ALARM_SERVER_HOST, SECONDARY_COORDINATOR
 from .isapi import StorageInfo
 
 NOTIFICATION_HOST_KEYS = {
@@ -52,7 +52,7 @@ class AlarmServerSensor(CoordinatorEntity, SensorEntity):
         """Initialize."""
         super().__init__(coordinator)
         device = coordinator.device
-        self._attr_unique_id = f"{device.device_info.serial_no}_{DATA_ALARM_SERVER_HOST}_{key}"
+        self._attr_unique_id = f"{device.device_info.serial_no}_{CONF_ALARM_SERVER_HOST}_{key}"
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
         self._attr_device_info = device.hass_device_info()
         self._attr_translation_key = f"notifications_host_{NOTIFICATION_HOST_KEYS[key]}"
@@ -61,7 +61,7 @@ class AlarmServerSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self) -> str | None:
         """Return the state of the sensor."""
-        host = self.coordinator.data.get(DATA_ALARM_SERVER_HOST)
+        host = self.coordinator.data.get(CONF_ALARM_SERVER_HOST)
         return getattr(host, self.key) if host else None
 
 

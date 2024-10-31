@@ -5,12 +5,11 @@ from __future__ import annotations
 import asyncio
 from contextlib import suppress
 import datetime
-from functools import reduce
 from http import HTTPStatus
 import json
 import logging
-from typing import Any, Optional
-from urllib.parse import quote, urlparse
+from typing import Any, AsyncIterator
+from urllib.parse import quote, urljoin, urlparse
 
 import httpx
 from httpx import HTTPStatusError, TimeoutException
@@ -18,6 +17,15 @@ import xmltodict
 
 from homeassistant.exceptions import HomeAssistantError
 
+from .api.const import (
+    CONNECTION_TYPE_DIRECT,
+    CONNECTION_TYPE_PROXIED,
+    EVENTS_ALTERNATE_ID,
+    GET,
+    MUTEX_ALTERNATE_ID,
+    POST,
+    PUT,
+)
 from .api.models import (
     AlarmServer,
     AlertInfo,
@@ -31,24 +39,12 @@ from .api.models import (
     ProtocolsInfo,
     StorageInfo,
 )
-from .const import (
-    CONNECTION_TYPE_DIRECT,
-    CONNECTION_TYPE_PROXIED,
-    EVENT_PIR,
-    EVENTS,
-    EVENTS_ALTERNATE_ID,
-    MUTEX_ALTERNATE_IDS,
-    STREAM_TYPE,
-)
-from .isapi_client import ISAPI_Client
+from .api.utils import bool_to_str, deep_get, parse_isapi_response, str_to_bool
+from .const import EVENT_PIR, EVENTS, STREAM_TYPE
 
 Node = dict[str, Any]
 
 _LOGGER = logging.getLogger(__name__)
-
-GET = "GET"
-PUT = "PUT"
-POST = "POST"
 
 
 class ISAPI:
@@ -59,11 +55,18 @@ class ISAPI:
         host: str,
         username: str,
         password: str,
-        session: Optional[httpx.AsyncClient] = None,
+        session: httpx.AsyncClient = None,
     ) -> None:
         """Initialize."""
-        self.isapi = ISAPI_Client(host, username, password, session, timeout=20)
+
         self.host = host
+        self.username = username
+        self.password = password
+        self.timeout = 20
+        self.isapi_prefix = "ISAPI"
+        self._session = session
+        self._auth_method: httpx._auth.Auth = None
+
         self.device_info = ISAPIDeviceInfo()
         self.capabilities = CapabilitiesInfo()
         self.cameras: list[IPCamera | AnalogCamera] = []
@@ -356,7 +359,7 @@ class ISAPI:
             # Storage id does not exist
             return None
 
-    def get_event_state_node(self, event: EventInfo) -> str:
+    def _get_event_state_node(self, event: EventInfo) -> str:
         """Get xml key for event state."""
         slug = EVENTS[event.id]["slug"]
 
@@ -377,7 +380,7 @@ class ISAPI:
     async def get_event_enabled_state(self, event: EventInfo) -> bool:
         """Get event detection state."""
         state = await self.request(GET, event.url)
-        node = self.get_event_state_node(event)
+        node = self._get_event_state_node(event)
         return str_to_bool(state[node].get("enabled", "false")) if state.get(node) else False
 
     async def get_event_switch_mutex(self, event: EventInfo, channel_id: int) -> list[MutexIssue]:
@@ -389,8 +392,8 @@ class ISAPI:
 
         # Use alt event ID for mutex due to crap API!
         event_id = event.id
-        if MUTEX_ALTERNATE_IDS.get(event.id):
-            event_id = MUTEX_ALTERNATE_IDS[event.id]
+        if MUTEX_ALTERNATE_ID.get(event.id):
+            event_id = MUTEX_ALTERNATE_ID[event.id]
 
         data = {"function": event_id, "channelID": int(channel_id)}
         url = "System/mutexFunction?format=json"
@@ -423,7 +426,7 @@ class ISAPI:
 
         if not mutex_issues:
             data = await self.request(GET, event.url)
-            node = self.get_event_state_node(event)
+            node = self._get_event_state_node(event)
             new_state = bool_to_str(is_enabled)
             if new_state == data[node]["enabled"]:
                 return
@@ -437,7 +440,7 @@ class ISAPI:
                 on channels {mutex_issues[0].channels} first"""
             )
 
-    async def get_port_status(self, port_type: str, port_no: int) -> str:
+    async def get_io_port_status(self, port_type: str, port_no: int) -> str:
         """Get status of physical ports."""
         if port_type == "input":
             status = await self.request(GET, f"System/IO/inputs/{port_no}/status")
@@ -445,7 +448,7 @@ class ISAPI:
             status = await self.request(GET, f"System/IO/outputs/{port_no}/status")
         return deep_get(status, "IOPortStatus.ioState")
 
-    async def set_port_state(self, port_no: int, turn_on: bool):
+    async def set_output_port_state(self, port_no: int, turn_on: bool):
         """Set status of output port."""
         data = {}
         if turn_on:
@@ -537,31 +540,6 @@ class ISAPI:
         """Reboot device."""
         await self.request(PUT, "System/reboot", present="xml")
 
-    async def request(
-        self,
-        method: str,
-        url: str,
-        present: str = "dict",
-        **data,
-    ) -> Any:
-        """Send request and log response, returns {} if request fails."""
-
-        full_url = self.isapi.get_url(url)
-        try:
-            response = await self.isapi.request(method, full_url, present, **data)
-            _LOGGER.debug("--- [%s] %s", method, full_url)
-            if data:
-                _LOGGER.debug(">>> payload:\n%s", data)
-            _LOGGER.debug("\n%s", response)
-        except HTTPStatusError as ex:
-            _LOGGER.info("--- [%s] %s\n%s", method, full_url, ex)
-            if self.pending_initialization:
-                # supress http errors during initialization
-                return {}
-            raise
-        else:
-            return response
-
     def handle_exception(self, ex: Exception, details: str = "") -> bool:
         """Handle common exception, returns False if exception remains unhandled."""
 
@@ -572,16 +550,11 @@ class ISAPI:
                     return True
             return False
 
-        host = self.isapi.host
+        host = self.host
         if is_reauth_needed():
             # Re-establish session
-            self.isapi = ISAPI_Client(
-                host,
-                self.isapi.username,
-                self.isapi.password,
-                self.isapi.session,
-                timeout=20,
-            )
+            self._session = None
+            self._auth_method = None
             return True
 
         elif isinstance(ex, (asyncio.TimeoutError, TimeoutException)):
@@ -650,12 +623,12 @@ class ISAPI:
 
         if stream.use_alternate_picture_url:
             url = f"ContentMgmt/StreamingProxy/channels/{stream.id}/picture"
-            full_url = self.isapi.get_url(url)
-            chunks = self.isapi.request_bytes(GET, full_url, params=params)
+            full_url = self.get_isapi_url(url)
+            chunks = self.request_bytes(GET, full_url, params=params)
         else:
             url = f"Streaming/channels/{stream.id}/picture"
-            full_url = self.isapi.get_url(url)
-            chunks = self.isapi.request_bytes(GET, full_url, params=params)
+            full_url = self.get_isapi_url(url)
+            chunks = self.request_bytes(GET, full_url, params=params)
         data = b"".join([chunk async for chunk in chunks])
 
         if data.startswith(b"<?xml "):
@@ -673,37 +646,80 @@ class ISAPI:
 
     def get_stream_source(self, stream: CameraStreamInfo) -> str:
         """Get stream source."""
-        u = quote(self.isapi.username, safe="")
-        p = quote(self.isapi.password, safe="")
+        u = quote(self.username, safe="")
+        p = quote(self.password, safe="")
         url = f"{self.device_info.ip_address}:{self.protocols.rtsp_port}/Streaming/channels/{stream.id}"
         return f"rtsp://{u}:{p}@{url}"
 
+    async def _detect_auth_method(self):
+        """Establish the connection with device."""
+        if not self._session:
+            self._session = httpx.AsyncClient(timeout=self.timeout)
 
-def str_to_bool(value: str) -> bool:
-    """Convert text to boolean."""
-    if value:
-        return value.lower() == "true"
-    return False
+        url = urljoin(self.host, self.isapi_prefix + "/System/deviceInfo")
+        _LOGGER.debug("--- [WWW-Authenticate detection] %s", self.host)
+        response = await self._session.get(url)
+        if response.status_code == 401:
+            www_authenticate = response.headers.get("WWW-Authenticate", "")
+            _LOGGER.debug("WWW-Authenticate header: %s", www_authenticate)
+            if "Basic" in www_authenticate:
+                self._auth_method = httpx.BasicAuth(self.username, self.password)
+            elif "Digest" in www_authenticate:
+                self._auth_method = httpx.DigestAuth(self.username, self.password)
 
+        if not self._auth_method:
+            _LOGGER.error("Authentication method not detected, %s", response.status_code)
+            if response.headers:
+                _LOGGER.error("response.headers %s", response.headers)
+            response.raise_for_status()
 
-def bool_to_str(value: bool) -> str:
-    """Convert boolean to 'true' or 'false'."""
-    return "true" if value else "false"
+    def get_isapi_url(self, relative_url: str) -> str:
+        return f"{self.host}/{self.isapi_prefix}/{relative_url}"
 
+    async def request(
+        self,
+        method: str,
+        url: str,
+        present: str = "dict",
+        data: str = None,
+    ) -> Any:
+        """Send request and log response, returns {} if request fails."""
+        if not self._auth_method:
+            await self._detect_auth_method()
 
-def get_stream_id(channel_id: str, stream_type: int = 1) -> int:
-    """Get stream id."""
-    return int(channel_id) * 100 + stream_type
+        full_url = self.get_isapi_url(url)
+        try:
+            response = await self._session.request(
+                method,
+                full_url,
+                auth=self._auth_method,
+                data=data,
+                timeout=self.timeout,
+            )
+            response.raise_for_status()
+            result = parse_isapi_response(response, present)
+            _LOGGER.debug("--- [%s] %s", method, full_url)
+            if data:
+                _LOGGER.debug(">>> payload:\n%s", data)
+            _LOGGER.debug("\n%s", result)
+        except HTTPStatusError as ex:
+            _LOGGER.info("--- [%s] %s\n%s", method, full_url, ex)
+            if self.pending_initialization:
+                # supress http errors during initialization
+                return {}
+            raise
+        else:
+            return result
 
+    async def request_bytes(
+        self,
+        method: str,
+        full_url: str,
+        **data,
+    ) -> AsyncIterator[bytes]:
+        if not self._auth_method:
+            await self._detect_auth_method()
 
-def deep_get(dictionary: dict, path: str, default: Any = None) -> Any:
-    """Get safely nested dictionary attribute."""
-    result = reduce(
-        lambda d, key: d.get(key, default) if isinstance(d, dict) else default,
-        path.split("."),
-        dictionary,
-    )
-    if default == [] and not isinstance(result, list):
-        return [result]
-
-    return result
+        async with self._session.stream(method, full_url, auth=self._auth_method, **data) as response:
+            async for chunk in response.aiter_bytes():
+                yield chunk

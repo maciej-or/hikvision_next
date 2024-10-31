@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import slugify
 
-from .const import DATA_ALARM_SERVER_HOST, DOMAIN, HOLIDAY_MODE
+from .const import CONF_ALARM_SERVER_HOST, DOMAIN, HOLIDAY_MODE
 
 SCAN_INTERVAL_EVENTS = timedelta(seconds=120)
 SCAN_INTERVAL_HOLIDAYS = timedelta(minutes=60)
@@ -65,7 +65,7 @@ class EventsCoordinator(DataUpdateCoordinator):
                     _id = ENTITY_ID_FORMAT.format(
                         f"{slugify(self.device.device_info.serial_no.lower())}_{i}_alarm_output"
                     )
-                    data[_id] = await self.device.get_port_status("output", i)
+                    data[_id] = await self.device.get_io_port_status("output", i)
                 except Exception as ex:  # pylint: disable=broad-except
                     self.device.handle_exception(ex, f"Cannot fetch state for alarm output {i}")
 
@@ -104,7 +104,7 @@ class SecondaryCoordinator(DataUpdateCoordinator):
             try:
                 if self.device.device_info.support_alarm_server:
                     alarm_server = await self.device.get_alarm_server()
-                    data[DATA_ALARM_SERVER_HOST] = alarm_server
+                    data[CONF_ALARM_SERVER_HOST] = alarm_server
             except Exception as ex:  # pylint: disable=broad-except
-                self.device.handle_exception(ex, f"Cannot fetch state for {DATA_ALARM_SERVER_HOST}")
+                self.device.handle_exception(ex, f"Cannot fetch state for {CONF_ALARM_SERVER_HOST}")
             return data

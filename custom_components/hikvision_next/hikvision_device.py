@@ -7,12 +7,14 @@ from homeassistant.helpers.httpx_client import get_async_client
 from homeassistant.util import slugify
 
 from .api.models import EventInfo
-from .const import (
-    ALARM_SERVER_PATH,
+from .api.const import (
     CONNECTION_TYPE_DIRECT,
     CONNECTION_TYPE_PROXIED,
-    DATA_ALARM_SERVER_HOST,
-    DATA_SET_ALARM_SERVER,
+)
+from .const import (
+    ALARM_SERVER_PATH,
+    CONF_ALARM_SERVER_HOST,
+    CONF_SET_ALARM_SERVER,
     DOMAIN,
     EVENT_BASIC,
     EVENT_IO,
@@ -32,8 +34,8 @@ class HikvisionDevice(ISAPI):
         """Initialize device."""
 
         self.hass = hass
-        self.control_alarm_server_host = entry.data[DATA_SET_ALARM_SERVER]
-        self.alarm_server_host = entry.data[DATA_ALARM_SERVER_HOST]
+        self.control_alarm_server_host = entry.data[CONF_SET_ALARM_SERVER]
+        self.alarm_server_host = entry.data[CONF_ALARM_SERVER_HOST]
 
         # init ISAPI client
         host = entry.data[CONF_HOST]
