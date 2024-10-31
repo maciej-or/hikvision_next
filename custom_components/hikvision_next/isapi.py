@@ -2,20 +2,16 @@
 
 from __future__ import annotations
 
-import asyncio
 from contextlib import suppress
 import datetime
-from http import HTTPStatus
 import json
 import logging
 from typing import Any, AsyncIterator
 from urllib.parse import quote, urljoin, urlparse
 
 import httpx
-from httpx import HTTPStatusError, TimeoutException
+from httpx import HTTPStatusError
 import xmltodict
-
-from homeassistant.exceptions import HomeAssistantError
 
 from .api.const import (
     CONNECTION_TYPE_DIRECT,
@@ -434,11 +430,7 @@ class ISAPI:
             xml = xmltodict.unparse(data)
             await self.request(PUT, event.url, present="xml", data=xml)
         else:
-            raise HomeAssistantError(
-                f"""You cannot enable {EVENTS[event.id]['label']} events.
-                Please disable {EVENTS[mutex_issues[0].event_id]['label']}
-                on channels {mutex_issues[0].channels} first"""
-            )
+            raise SetEventStateMutexError(event, mutex_issues)
 
     async def get_io_port_status(self, port_type: str, port_no: int) -> str:
         """Get status of physical ports."""
@@ -539,29 +531,6 @@ class ISAPI:
     async def reboot(self):
         """Reboot device."""
         await self.request(PUT, "System/reboot", present="xml")
-
-    def handle_exception(self, ex: Exception, details: str = "") -> bool:
-        """Handle common exception, returns False if exception remains unhandled."""
-
-        def is_reauth_needed():
-            if isinstance(ex, HTTPStatusError):
-                status_code = ex.response.status_code
-                if status_code in (HTTPStatus.UNAUTHORIZED,):
-                    return True
-            return False
-
-        host = self.host
-        if is_reauth_needed():
-            # Re-establish session
-            self._session = None
-            self._auth_method = None
-            return True
-
-        elif isinstance(ex, (asyncio.TimeoutError, TimeoutException)):
-            raise HomeAssistantError(f"Timeout while connecting to {host} {details}") from ex
-
-        _LOGGER.warning("Unexpected exception | %s | %s", details, ex)
-        return False
 
     @staticmethod
     def parse_event_notification(xml: str) -> AlertInfo:
@@ -723,3 +692,11 @@ class ISAPI:
         async with self._session.stream(method, full_url, auth=self._auth_method, **data) as response:
             async for chunk in response.aiter_bytes():
                 yield chunk
+
+class SetEventStateMutexError(Exception):
+    """Error setting event mutex."""
+
+    def __init__(self, event: EventInfo, mutex_issues: []) -> None:
+        """Initialize exception."""
+        self.event = event
+        self.mutex_issues = mutex_issues

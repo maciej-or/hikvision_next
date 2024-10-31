@@ -5,7 +5,10 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.httpx_client import get_async_client
 from homeassistant.util import slugify
-
+import asyncio
+from http import HTTPStatus
+from homeassistant.exceptions import HomeAssistantError
+import httpx
 from .api.models import EventInfo
 from .api.const import (
     CONNECTION_TYPE_DIRECT,
@@ -25,7 +28,9 @@ from .const import (
 )
 from .coordinator import EventsCoordinator, SecondaryCoordinator
 from .isapi import ISAPI, IPCamera
+import logging
 
+_LOGGER = logging.getLogger(__name__)
 
 class HikvisionDevice(ISAPI):
     """Hikvision device for Home Assistant integration."""
@@ -158,3 +163,26 @@ class HikvisionDevice(ISAPI):
             # ISAPI/Smart/{event}/{channel_id}
             url = f"Smart/{slug}/{event.channel_id}"
         return url
+
+    def handle_exception(self, ex: Exception, details: str = "") -> bool:
+        """Handle common exception, returns False if exception remains unhandled."""
+
+        def is_reauth_needed():
+            if isinstance(ex, httpx.HTTPStatusError):
+                status_code = ex.response.status_code
+                if status_code in (HTTPStatus.UNAUTHORIZED,):
+                    return True
+            return False
+
+        host = self.host
+        if is_reauth_needed():
+            # Re-establish session
+            self._session = None
+            self._auth_method = None
+            return True
+
+        elif isinstance(ex, (asyncio.TimeoutError, httpx.TimeoutException)):
+            raise HomeAssistantError(f"Timeout while connecting to {host} {details}") from ex
+
+        _LOGGER.warning("Unexpected exception | %s | %s", details, ex)
+        return False
