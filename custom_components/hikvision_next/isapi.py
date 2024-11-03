@@ -531,12 +531,9 @@ class ISAPI:
         await self.request(PUT, "System/Holidays", present="xml", data=xml)
 
     def _get_event_notification_host(self, data: Node) -> Node:
-        hosts = deep_get(data, "HttpHostNotificationList.HttpHostNotification", {})
-        if isinstance(hosts, list):
-            # <HttpHostNotificationList xmlns="http://www.hikvision.com/ver20/XMLSchema">
+        hosts = deep_get(data, "HttpHostNotificationList.HttpHostNotification", [])
+        if hosts:
             return hosts[0]
-        # <HttpHostNotificationList xmlns="http://www.isapi.org/ver20/XMLSchema">
-        return hosts
 
     async def get_alarm_server(self) -> AlarmServer | None:
         """Get event notifications listener server URL."""
