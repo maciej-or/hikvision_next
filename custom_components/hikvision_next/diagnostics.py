@@ -13,9 +13,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntry
 
 from . import HikvisionConfigEntry
-from .const import STREAM_TYPE
-
-GET = "get"
+from .api.const import GET, STREAM_TYPE
 
 
 def anonymise_mac(orignal: str):

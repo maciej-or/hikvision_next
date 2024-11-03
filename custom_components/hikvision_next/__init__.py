@@ -52,7 +52,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) ->
     device.pending_initialization = True
     try:
         await device.get_hardware_info()
-        await device.get_cameras()
         device_info = device.hass_device_info()
         device_registry = dr.async_get(hass)
         device_registry.async_get_or_create(config_entry_id=entry.entry_id, **device_info)

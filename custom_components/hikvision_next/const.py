@@ -4,6 +4,8 @@ from typing import Final
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 
+from .api.const import EVENTS as ISAPI_EVENTS
+
 DOMAIN: Final = "hikvision_next"
 
 CONF_SET_ALARM_SERVER: Final = "set_alarm_server"
@@ -20,83 +22,46 @@ ACTION_ISAPI_REQUEST = "isapi_request"
 ACTION_UPDATE_SNAPSHOT = "update_snapshot"
 
 HIKVISION_EVENT = f"{DOMAIN}_event"
-EVENT_BASIC: Final = "basic"
-EVENT_IO: Final = "io"
-EVENT_SMART: Final = "smart"
-EVENT_PIR: Final = "pir"
+
 EVENTS = {
     "motiondetection": {
-        "type": EVENT_BASIC,
-        "label": "Motion",
-        "slug": "motionDetection",
-        "mutex": True,
+        **ISAPI_EVENTS["motiondetection"],
         "device_class": BinarySensorDeviceClass.MOTION,
     },
     "tamperdetection": {
-        "type": EVENT_BASIC,
-        "label": "Video Tampering",
-        "slug": "tamperDetection",
+        **ISAPI_EVENTS["tamperdetection"],
         "device_class": BinarySensorDeviceClass.TAMPER,
     },
     "videoloss": {
-        "type": EVENT_BASIC,
-        "label": "Video Loss",
-        "slug": "videoLoss",
+        **ISAPI_EVENTS["videoloss"],
         "device_class": BinarySensorDeviceClass.PROBLEM,
     },
     "scenechangedetection": {
-        "type": EVENT_SMART,
-        "label": "Scene Change",
-        "slug": "SceneChangeDetection",
-        "mutex": True,
+        **ISAPI_EVENTS["scenechangedetection"],
         "device_class": BinarySensorDeviceClass.TAMPER,
     },
     "fielddetection": {
-        "type": EVENT_SMART,
-        "label": "Intrusion",
-        "slug": "FieldDetection",
-        "mutex": True,
+        **ISAPI_EVENTS["fielddetection"],
         "device_class": BinarySensorDeviceClass.MOTION,
     },
     "linedetection": {
-        "type": EVENT_SMART,
-        "label": "Line Crossing",
-        "slug": "LineDetection",
-        "mutex": True,
+        **ISAPI_EVENTS["linedetection"],
         "device_class": BinarySensorDeviceClass.MOTION,
     },
     "regionentrance": {
-        "type": EVENT_SMART,
-        "label": "Region Entrance",
-        "slug": "regionEntrance",
+        **ISAPI_EVENTS["regionentrance"],
         "device_class": BinarySensorDeviceClass.MOTION,
     },
     "regionexiting": {
-        "type": EVENT_SMART,
-        "label": "Region Exiting",
-        "slug": "regionExiting",
+        **ISAPI_EVENTS["regionexiting"],
         "device_class": BinarySensorDeviceClass.MOTION,
     },
     "io": {
-        "type": EVENT_IO,
-        "label": "Alarm Input",
-        "slug": "inputs",
-        "direct_node": "IOInputPort",
-        "proxied_node": "IOProxyInputPort",
+        **ISAPI_EVENTS["io"],
         "device_class": BinarySensorDeviceClass.MOTION,
     },
     "pir": {
-        "type": EVENT_PIR,
-        "label": "PIR",
-        "slug": "WLAlarm/PIR",
-        "direct_node": "PIRAlarm",
+        **ISAPI_EVENTS["pir"],
         "device_class": BinarySensorDeviceClass.MOTION,
-    }
-}
-
-STREAM_TYPE = {
-    1: "Main Stream",
-    2: "Sub-stream",
-    3: "Third Stream",
-    4: "Transcoded Stream",
+    },
 }

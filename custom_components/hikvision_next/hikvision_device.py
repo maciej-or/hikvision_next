@@ -1,36 +1,36 @@
+"ISAPI client for Home Assistant integration."
+
+import asyncio
+from http import HTTPStatus
+import logging
+
+import httpx
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.httpx_client import get_async_client
 from homeassistant.util import slugify
-import asyncio
-from http import HTTPStatus
-from homeassistant.exceptions import HomeAssistantError
-import httpx
+
+from .api.const import CONNECTION_TYPE_DIRECT, EVENT_IO
 from .api.models import EventInfo
-from .api.const import (
-    CONNECTION_TYPE_DIRECT,
-    CONNECTION_TYPE_PROXIED,
-)
 from .const import (
     ALARM_SERVER_PATH,
     CONF_ALARM_SERVER_HOST,
     CONF_SET_ALARM_SERVER,
     DOMAIN,
-    EVENT_BASIC,
-    EVENT_IO,
-    EVENT_PIR,
     EVENTS,
     EVENTS_COORDINATOR,
     SECONDARY_COORDINATOR,
 )
 from .coordinator import EventsCoordinator, SecondaryCoordinator
 from .isapi import ISAPI, IPCamera
-import logging
 
 _LOGGER = logging.getLogger(__name__)
+
 
 class HikvisionDevice(ISAPI):
     """Hikvision device for Home Assistant integration."""
@@ -55,17 +55,21 @@ class HikvisionDevice(ISAPI):
         """Initialize coordinators."""
 
         # init events supported by integration
-        self.events_info = await self.get_device_event_capabilities()
+        self.events_info = self.get_device_event_capabilities()
         for camera in self.cameras:
-            camera.events_info = await self.get_device_event_capabilities(camera.id, camera.connection_type)
+            camera.events_info = self.get_device_event_capabilities(camera.id, camera.connection_type)
 
         # create coordinators
         self.coordinators = {}
         self.coordinators[EVENTS_COORDINATOR] = EventsCoordinator(self.hass, self)
-        if self.capabilities.support_holiday_mode or self.device_info.support_alarm_server or self.capabilities.storage:
+        if (
+            self.capabilities.support_holiday_mode
+            or self.capabilities.support_alarm_server
+            or self.capabilities.storage
+        ):
             self.coordinators[SECONDARY_COORDINATOR] = SecondaryCoordinator(self.hass, self)
 
-        if self.control_alarm_server_host and self.device_info.support_alarm_server:
+        if self.control_alarm_server_host and self.capabilities.support_alarm_server:
             await self.set_alarm_server(self.alarm_server_host, ALARM_SERVER_PATH)
 
         # first data fetch
@@ -96,7 +100,7 @@ class HikvisionDevice(ISAPI):
                 via_device=(DOMAIN, self.device_info.serial_no) if self.device_info.is_nvr else None,
             )
 
-    async def get_device_event_capabilities(
+    def get_device_event_capabilities(
         self,
         camera_id: int | None = None,
         connection_type: str = CONNECTION_TYPE_DIRECT,
@@ -106,9 +110,7 @@ class HikvisionDevice(ISAPI):
 
         if camera_id is None:  # NVR
             integration_supported_events = [
-                s
-                for s in self.supported_events
-                if (s.id in EVENTS and EVENTS[s.id].get("type") == EVENT_IO)
+                s for s in self.supported_events if (s.id in EVENTS and EVENTS[s.id].get("type") == EVENT_IO)
             ]
         else:  # Camera
             integration_supported_events = [
@@ -119,50 +121,13 @@ class HikvisionDevice(ISAPI):
             # Build unique_id
             device_id_param = f"_{camera_id}" if camera_id else ""
             io_port_id_param = f"_{event.io_port_id}" if event.io_port_id != 0 else ""
-            unique_id = (
-                f"{slugify(self.device_info.serial_no.lower())}{device_id_param}{io_port_id_param}_{event.id}"
-            )
+            unique_id = f"{slugify(self.device_info.serial_no.lower())}{device_id_param}{io_port_id_param}_{event.id}"
 
             if EVENTS.get(event.id):
-                event_info = EventInfo(
-                    id=event.id,
-                    channel_id=event.channel_id,
-                    io_port_id=event.io_port_id,
-                    unique_id=unique_id,
-                    url=self.get_event_url(event, connection_type),
-                    disabled=("center" not in event.notifications),  # Disable if not set Notify Surveillance Center
-                )
-                events.append(event_info)
+                event.unique_id = unique_id
+                event.disabled = "center" not in event.notifications  # Disable if not set Notify Surveillance Center
+                events.append(event)
         return events
-
-    def get_event_url(self, event: EventInfo, connection_type: str) -> str:
-        """Get event ISAPI URL."""
-
-        event_type = EVENTS[event.id]["type"]
-        slug = EVENTS[event.id]["slug"]
-
-        if event_type == EVENT_BASIC:
-            if connection_type == CONNECTION_TYPE_PROXIED:
-                # ISAPI/ContentMgmt/InputProxy/channels/{channel_id}/video/{event}
-                url = f"ContentMgmt/InputProxy/channels/{event.channel_id}/video/{slug}"
-            else:
-                # ISAPI/System/Video/inputs/channels/{channel_id}/{event}
-                url = f"System/Video/inputs/channels/{event.channel_id}/{slug}"
-
-        elif event_type == EVENT_IO:
-            if connection_type == CONNECTION_TYPE_PROXIED:
-                # ISAPI/ContentMgmt/IOProxy/{slug}/{channel_id}
-                url = f"ContentMgmt/IOProxy/{slug}/{event.io_port_id}"
-            else:
-                # ISAPI/System/IO/{slug}}/{channel_id}
-                url = f"System/IO/{slug}/{event.io_port_id}"
-        elif event_type == EVENT_PIR:
-            # ISAPI/WLAlarm/PIR
-            url = slug
-        else:
-            # ISAPI/Smart/{event}/{channel_id}
-            url = f"Smart/{slug}/{event.channel_id}"
-        return url
 
     def handle_exception(self, ex: Exception, details: str = "") -> bool:
         """Handle common exception, returns False if exception remains unhandled."""

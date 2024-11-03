@@ -7,13 +7,16 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import HikvisionConfigEntry
-from .const import EVENT_IO, EVENTS
+from .api.const import EVENT_IO
+from .const import EVENTS
 from .hikvision_device import HikvisionDevice
 from .isapi import EventInfo
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: HikvisionConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: HikvisionConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Add binary sensors for hikvision events states."""
 

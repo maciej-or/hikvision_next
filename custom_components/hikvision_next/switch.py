@@ -12,12 +12,15 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
 from . import HikvisionConfigEntry
-from .const import EVENT_IO, EVENTS_COORDINATOR, HOLIDAY_MODE, SECONDARY_COORDINATOR, EVENTS
+from .api.const import EVENT_IO
+from .const import EVENTS, EVENTS_COORDINATOR, HOLIDAY_MODE, SECONDARY_COORDINATOR
 from .isapi import EventInfo, SetEventStateMutexError
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: HikvisionConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: HikvisionConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Add hikvision_next entities from a config_entry."""
 

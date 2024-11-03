@@ -60,7 +60,7 @@ async def test_async_setup_entry_nvr(hass: HomeAssistant, init_integration: Mock
     assert device.protocols.rtsp_port == "10554"
     assert device_info.serial_no == "DS-7608NXI-I0/0P/S0000000000CCRRJ00000000WCVU"
     assert len(device.storage) == 1
-    assert device_info.support_alarm_server is True
+    assert capabilities.support_alarm_server is True
     assert capabilities.support_analog_cameras == 0
     assert capabilities.support_channel_zero is True
     assert capabilities.support_digital_cameras == 8
@@ -101,7 +101,7 @@ async def test_async_setup_entry_ipc(hass: HomeAssistant, init_integration: Mock
     assert device.protocols.rtsp_port == "10554"
     assert device_info.serial_no == "DS-2CD2386G2-IU00000000AAWRJ00000000"
     assert len(device.storage) == 2
-    assert device_info.support_alarm_server is True
+    assert capabilities.support_alarm_server is True
     assert capabilities.support_analog_cameras == 0
     assert capabilities.support_channel_zero is False
     assert capabilities.support_digital_cameras == 0

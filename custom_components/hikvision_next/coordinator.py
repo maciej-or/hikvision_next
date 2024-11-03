@@ -102,7 +102,7 @@ class SecondaryCoordinator(DataUpdateCoordinator):
             except Exception as ex:  # pylint: disable=broad-except
                 self.device.handle_exception(ex, f"Cannot fetch state for {HOLIDAY_MODE}")
             try:
-                if self.device.device_info.support_alarm_server:
+                if self.device.capabilities.support_alarm_server:
                     alarm_server = await self.device.get_alarm_server()
                     data[CONF_ALARM_SERVER_HOST] = alarm_server
             except Exception as ex:  # pylint: disable=broad-except
