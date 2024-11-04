@@ -4,7 +4,7 @@ from typing import Final
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 
-from .api.const import EVENTS as ISAPI_EVENTS
+from .isapi.const import EVENTS as ISAPI_EVENTS
 
 DOMAIN: Final = "hikvision_next"
 

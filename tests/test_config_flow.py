@@ -61,7 +61,7 @@ async def test_wrong_credentials_config_flow(hass, mock_isapi):
     assert result.get("errors") == {"base": "invalid_auth"}
 
 
-@patch("custom_components.hikvision_next.isapi.ISAPI.get_device_info")
+@patch("custom_components.hikvision_next.isapi.ISAPIClient.get_device_info")
 async def test_unexpeced_exception_config_flowget_device_info_mock(get_device_info_mock, hass, mock_isapi):
     """Test a config flow with unexpeced exception."""
 

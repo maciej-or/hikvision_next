@@ -12,7 +12,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
 from . import HikvisionConfigEntry
-from .api.const import EVENT_IO
+from .isapi.const import EVENT_IO
 from .const import EVENTS, EVENTS_COORDINATOR, HOLIDAY_MODE, SECONDARY_COORDINATOR
 from .isapi import EventInfo, SetEventStateMutexError
 

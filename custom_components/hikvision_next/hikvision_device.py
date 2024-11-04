@@ -15,8 +15,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.httpx_client import get_async_client
 from homeassistant.util import slugify
 
-from .api.const import CONNECTION_TYPE_DIRECT, EVENT_IO
-from .api.models import EventInfo
+from .isapi.const import CONNECTION_TYPE_DIRECT, EVENT_IO
 from .const import (
     ALARM_SERVER_PATH,
     CONF_ALARM_SERVER_HOST,
@@ -27,12 +26,12 @@ from .const import (
     SECONDARY_COORDINATOR,
 )
 from .coordinator import EventsCoordinator, SecondaryCoordinator
-from .isapi import ISAPI, IPCamera
+from .isapi import EventInfo, ISAPIClient, IPCamera
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class HikvisionDevice(ISAPI):
+class HikvisionDevice(ISAPIClient):
     """Hikvision device for Home Assistant integration."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:

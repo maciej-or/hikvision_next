@@ -122,7 +122,7 @@ async def test_async_setup_entry_nvr_with_alarm_server(hass: HomeAssistant, init
 
     entry = init_integration
 
-    with patch("custom_components.hikvision_next.isapi.ISAPI.set_alarm_server") as set_alarm_server_mock:
+    with patch("custom_components.hikvision_next.isapi.ISAPIClient.set_alarm_server") as set_alarm_server_mock:
         await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()
 

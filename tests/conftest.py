@@ -7,7 +7,7 @@ import xmltodict
 from custom_components.hikvision_next.const import DOMAIN, CONF_SET_ALARM_SERVER, CONF_ALARM_SERVER_HOST
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from pytest_homeassistant_custom_component.common import MockConfigEntry
-from custom_components.hikvision_next.isapi import ISAPI
+from custom_components.hikvision_next.isapi import ISAPIClient
 from homeassistant.core import HomeAssistant
 
 TEST_HOST_IP = "1.0.0.255"
@@ -81,7 +81,7 @@ def mock_isapi(respx_mock):
     respx.get(f"{TEST_HOST}/ISAPI/System/deviceInfo").respond(
         status_code=401, headers={"WWW-Authenticate": digest_header}
     )
-    isapi = ISAPI(**TEST_CLIENT)
+    isapi = ISAPIClient(**TEST_CLIENT)
     return isapi
 
 

@@ -7,7 +7,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import HikvisionConfigEntry
-from .api.const import EVENT_IO
+from .isapi.const import EVENT_IO
 from .const import EVENTS
 from .hikvision_device import HikvisionDevice
 from .isapi import EventInfo

@@ -13,7 +13,7 @@ import httpx
 from httpx import HTTPStatusError
 import xmltodict
 
-from .api.const import (
+from .const import (
     CONNECTION_TYPE_DIRECT,
     CONNECTION_TYPE_PROXIED,
     EVENT_BASIC,
@@ -27,7 +27,7 @@ from .api.const import (
     PUT,
     STREAM_TYPE,
 )
-from .api.models import (
+from .models import (
     AlarmServer,
     AlertInfo,
     AnalogCamera,
@@ -40,14 +40,14 @@ from .api.models import (
     ProtocolsInfo,
     StorageInfo,
 )
-from .api.utils import bool_to_str, deep_get, parse_isapi_response, str_to_bool
+from .utils import bool_to_str, deep_get, parse_isapi_response, str_to_bool
 
 Node = dict[str, Any]
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class ISAPI:
+class ISAPIClient:
     """Hikvision ISAPI client."""
 
     def __init__(

@@ -19,7 +19,7 @@ from homeassistant.util import slugify
 
 from .const import ALARM_SERVER_PATH, DOMAIN, HIKVISION_EVENT
 from .hikvision_device import HikvisionDevice
-from .isapi import ISAPI, AlertInfo, IPCamera
+from .isapi import ISAPIClient, AlertInfo, IPCamera
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -134,7 +134,7 @@ class EventNotificationsView(HomeAssistantView):
     def get_alert_info(self, xml: str) -> AlertInfo:
         """Parse incoming EventNotificationAlert XML message."""
 
-        alert = ISAPI.parse_event_notification(xml)
+        alert = ISAPIClient.parse_event_notification(xml)
 
         if alert.channel_id > 32:
             # channel id above 32 is an IP camera

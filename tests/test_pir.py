@@ -4,7 +4,7 @@ import respx
 import pytest
 from http import HTTPStatus
 from homeassistant.core import HomeAssistant
-from custom_components.hikvision_next.api.const import EVENT_PIR
+from custom_components.hikvision_next.isapi.const import EVENT_PIR
 from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 import homeassistant.helpers.entity_registry as er
