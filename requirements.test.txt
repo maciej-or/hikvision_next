@@ -6,7 +6,7 @@ requests-toolbelt==1.0.0
 pytest
 pytest-asyncio
 pytest-cov>=4.1.0
-pytest-homeassistant-custom-component
+pytest-homeassistant-custom-component>=0.13.179
 
 #
 async-timeout

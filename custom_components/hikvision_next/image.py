@@ -7,7 +7,6 @@ import voluptuous as vol
 
 from homeassistant.components.camera import Camera
 from homeassistant.components.image import ImageEntity
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_ENTITY_ID, CONF_FILENAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
@@ -15,23 +14,26 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.template import Template
 from homeassistant.util import slugify
 
-from .const import ACTION_UPDATE_SNAPSHOT, DATA_ISAPI, DOMAIN
-from .isapi import ISAPI, CameraStreamInfo
+from . import HikvisionConfigEntry
+from .const import ACTION_UPDATE_SNAPSHOT
+from .hikvision_device import HikvisionDevice
+from .isapi import CameraStreamInfo
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
+async def async_setup_entry(
+    hass: HomeAssistant, entry: HikvisionConfigEntry, async_add_entities: AddEntitiesCallback
+) -> None:
     """Add images with snapshots."""
 
-    config = hass.data[DOMAIN][entry.entry_id]
-    isapi: ISAPI = config[DATA_ISAPI]
+    device = entry.runtime_data
 
     entities = []
-    for camera in isapi.cameras:
+    for camera in device.cameras:
         for stream in camera.streams:
             if stream.type_id == 1:
-                entities.append(SnapshotFile(hass, isapi, camera, stream))
+                entities.append(SnapshotFile(hass, device, camera, stream))
 
     async_add_entities(entities)
 
@@ -52,7 +54,7 @@ class SnapshotFile(ImageEntity):
     def __init__(
         self,
         hass: HomeAssistant,
-        isapi: ISAPI,
+        device: HikvisionDevice,
         camera: Camera,
         stream_info: CameraStreamInfo,
     ) -> None:
@@ -60,7 +62,7 @@ class SnapshotFile(ImageEntity):
 
         ImageEntity.__init__(self, hass)
 
-        self._attr_unique_id = slugify(f"{isapi.device_info.serial_no.lower()}_{stream_info.id}_snapshot")
+        self._attr_unique_id = slugify(f"{device.device_info.serial_no.lower()}_{stream_info.id}_snapshot")
         self.entity_id = f"camera.{self.unique_id}"
         self._attr_translation_key = "snapshot"
         self._attr_translation_placeholders = {"camera": camera.name}

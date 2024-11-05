@@ -17,8 +17,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_registry import async_get
 from homeassistant.util import slugify
 
-from .const import ALARM_SERVER_PATH, DATA_ISAPI, DOMAIN, HIKVISION_EVENT
-from .isapi import ISAPI, AlertInfo, IPCamera
+from .const import ALARM_SERVER_PATH, DOMAIN, HIKVISION_EVENT
+from .hikvision_device import HikvisionDevice
+from .isapi import ISAPIClient, AlertInfo, IPCamera
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,7 +41,7 @@ class EventNotificationsView(HomeAssistantView):
         self.requires_auth = False
         self.url = ALARM_SERVER_PATH
         self.name = DOMAIN
-        self.isapi: ISAPI
+        self.device: HikvisionDevice
         self.hass = hass
 
     async def post(self, request: web.Request):
@@ -49,7 +50,7 @@ class EventNotificationsView(HomeAssistantView):
         try:
             _LOGGER.debug("--- Incoming event notification ---")
             _LOGGER.debug("Source: %s", request.remote)
-            self.isapi = self.get_isapi_instance(request.remote)
+            self.device = self.get_isapi_device(request.remote)
             xml = await self.parse_event_request(request)
             _LOGGER.debug("alert info: %s", xml)
             self.trigger_sensor(xml)
@@ -59,7 +60,7 @@ class EventNotificationsView(HomeAssistantView):
         response = web.Response(status=HTTPStatus.OK, content_type=CONTENT_TYPE_TEXT_PLAIN)
         return response
 
-    def get_isapi_instance(self, device_ip) -> ISAPI:
+    def get_isapi_device(self, device_ip) -> HikvisionDevice:
         """Get isapi instance for device sending alert."""
         integration_entries = self.hass.config_entries.async_entries(DOMAIN)
         instances_hosts = []
@@ -79,8 +80,7 @@ class EventNotificationsView(HomeAssistantView):
         if not entry:
             raise ValueError(f"Cannot find ISAPI instance for device {device_ip} in {instances_hosts}")
 
-        config = self.hass.data[DOMAIN][entry.entry_id]
-        return config.get(DATA_ISAPI)
+        return entry.runtime_data
 
     def get_ip(self, ip_string: str) -> str:
         """Return an IP if either hostname or IP is provided."""
@@ -134,7 +134,7 @@ class EventNotificationsView(HomeAssistantView):
     def get_alert_info(self, xml: str) -> AlertInfo:
         """Parse incoming EventNotificationAlert XML message."""
 
-        alert = ISAPI.parse_event_notification(xml)
+        alert = ISAPIClient.parse_event_notification(xml)
 
         if alert.channel_id > 32:
             # channel id above 32 is an IP camera
@@ -143,7 +143,7 @@ class EventNotificationsView(HomeAssistantView):
             try:
                 alert.channel_id = [
                     camera.id
-                    for camera in self.isapi.cameras
+                    for camera in self.device.cameras
                     if isinstance(camera, IPCamera) and camera.input_port == alert.channel_id - 32
                 ][0]
             except IndexError:
@@ -157,7 +157,7 @@ class EventNotificationsView(HomeAssistantView):
         alert = self.get_alert_info(xml)
         _LOGGER.debug("Alert: %s", alert)
 
-        serial_no = self.isapi.device_info.serial_no.lower()
+        serial_no = self.device.device_info.serial_no.lower()
 
         device_id_param = f"_{alert.channel_id}" if alert.channel_id != 0 else ""
         io_port_id_param = f"_{alert.io_port_id}" if alert.io_port_id != 0 else ""
@@ -178,7 +178,7 @@ class EventNotificationsView(HomeAssistantView):
     def fire_hass_event(self, alert: AlertInfo):
         """Fire HASS event."""
         camera_name = ""
-        if camera := self.isapi.get_camera_by_id(alert.channel_id):
+        if camera := self.device.get_camera_by_id(alert.channel_id):
             camera_name = camera.name
 
         message = {

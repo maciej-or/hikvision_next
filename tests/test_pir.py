@@ -4,10 +4,11 @@ import respx
 import pytest
 from http import HTTPStatus
 from homeassistant.core import HomeAssistant
-from custom_components.hikvision_next.const import DOMAIN, EVENT_PIR
+from custom_components.hikvision_next.isapi.const import EVENT_PIR
 from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 import homeassistant.helpers.entity_registry as er
+from custom_components.hikvision_next.hikvision_device import HikvisionDevice
 from custom_components.hikvision_next.notifications import EventNotificationsView
 from tests.test_notifications import mock_event_notification
 from tests.conftest import TEST_HOST
@@ -96,9 +97,9 @@ async def test_pir_support_detection(
     }
 
     entry = init_integration
-    isapi = hass.data[DOMAIN][entry.entry_id]["isapi"]
+    device: HikvisionDevice = entry.runtime_data
     data = device_data[init_integration.title]
     pir_events = [
-        s for s in isapi.supported_events if (s.event_id == EVENT_PIR)
+        s for s in device.supported_events if (s.id == EVENT_PIR)
     ]
     assert (len(pir_events) == 1) == data["isSupportPIR"]
