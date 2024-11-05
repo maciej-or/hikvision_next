@@ -5,7 +5,7 @@ import pytest
 import respx
 import xmltodict
 from custom_components.hikvision_next.const import DOMAIN, CONF_SET_ALARM_SERVER, CONF_ALARM_SERVER_HOST
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.hikvision_next.isapi import ISAPIClient
 from homeassistant.core import HomeAssistant
@@ -17,9 +17,10 @@ TEST_CLIENT = {
     CONF_USERNAME: "u1",
     CONF_PASSWORD: "***",
 }
-TEST_CONFIG = {**TEST_CLIENT, CONF_SET_ALARM_SERVER: False, CONF_ALARM_SERVER_HOST: ""}
+TEST_CONFIG = {**TEST_CLIENT, CONF_VERIFY_SSL: True, CONF_SET_ALARM_SERVER: False, CONF_ALARM_SERVER_HOST: ""}
 TEST_CONFIG_WITH_ALARM_SERVER = {
     **TEST_CLIENT,
+    CONF_VERIFY_SSL: True,
     CONF_SET_ALARM_SERVER: True,
     CONF_ALARM_SERVER_HOST: "http://1.0.0.11:8123",
 }

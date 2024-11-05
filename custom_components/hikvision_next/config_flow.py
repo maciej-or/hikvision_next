@@ -12,12 +12,11 @@ import voluptuous as vol
 
 from homeassistant.components.network import async_get_source_ip
 from homeassistant.config_entries import ConfigEntry, ConfigFlow
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.helpers.httpx_client import get_async_client
 
 from .const import CONF_ALARM_SERVER_HOST, CONF_SET_ALARM_SERVER, DOMAIN
-from .isapi import ISAPIClient
+from .hikvision_device import HikvisionDevice
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,6 +36,7 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_HOST, default=user_input.get(CONF_HOST, "http://")): str,
                 vol.Required(CONF_USERNAME, default=user_input.get(CONF_USERNAME, "")): str,
                 vol.Required(CONF_PASSWORD, default=user_input.get(CONF_PASSWORD, "")): str,
+                vol.Required(CONF_VERIFY_SSL, default=True): bool,
                 vol.Required(
                     CONF_SET_ALARM_SERVER,
                     default=user_input.get(CONF_SET_ALARM_SERVER, True),
@@ -56,23 +56,20 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 host = user_input[CONF_HOST].rstrip("/")
-                username = user_input[CONF_USERNAME]
-                password = user_input[CONF_PASSWORD]
                 user_input_validated = {
                     **user_input,
                     CONF_HOST: host,
                 }
 
-                session = get_async_client(self.hass)
-                isapi = ISAPIClient(host, username, password, session)
-                await isapi.get_device_info()
+                device = HikvisionDevice(self.hass, data=user_input_validated)
+                await device.get_device_info()
 
                 if self._reauth_entry:
                     self.hass.config_entries.async_update_entry(self._reauth_entry, data=user_input_validated)
                     self.hass.async_create_task(self.hass.config_entries.async_reload(self._reauth_entry.entry_id))
                     return self.async_abort(reason="reauth_successful")
 
-                await self.async_set_unique_id(isapi.device_info.serial_no)
+                await self.async_set_unique_id(device.device_info.serial_no)
                 self._abort_if_unique_id_configured()
 
             except HTTPStatusError as error:
@@ -88,7 +85,7 @@ class HikvisionFlowHandler(ConfigFlow, domain=DOMAIN):
                 _LOGGER.error("Unexpected %s %s", {type(ex).__name__}, ex)
                 errors["base"] = f"Unexpected {type(ex).__name__}: {ex}"
             else:
-                return self.async_create_entry(title=isapi.device_info.name, data=user_input_validated)
+                return self.async_create_entry(title=device.device_info.name, data=user_input_validated)
 
         schema = await self.get_schema(user_input or {})
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
