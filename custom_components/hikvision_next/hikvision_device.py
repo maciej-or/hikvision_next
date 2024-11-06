@@ -3,11 +3,12 @@
 import asyncio
 from http import HTTPStatus
 import logging
+from typing import Any
 
 import httpx
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
@@ -15,7 +16,6 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.httpx_client import get_async_client
 from homeassistant.util import slugify
 
-from .isapi.const import CONNECTION_TYPE_DIRECT, EVENT_IO
 from .const import (
     ALARM_SERVER_PATH,
     CONF_ALARM_SERVER_HOST,
@@ -26,7 +26,8 @@ from .const import (
     SECONDARY_COORDINATOR,
 )
 from .coordinator import EventsCoordinator, SecondaryCoordinator
-from .isapi import EventInfo, ISAPIClient, IPCamera
+from .isapi import EventInfo, IPCamera, ISAPIClient
+from .isapi.const import CONNECTION_TYPE_DIRECT, EVENT_IO
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,18 +35,25 @@ _LOGGER = logging.getLogger(__name__)
 class HikvisionDevice(ISAPIClient):
     """Hikvision device for Home Assistant integration."""
 
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        entry: ConfigEntry | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> None:
         """Initialize device."""
 
+        config = entry.data if entry else data
         self.hass = hass
-        self.control_alarm_server_host = entry.data[CONF_SET_ALARM_SERVER]
-        self.alarm_server_host = entry.data[CONF_ALARM_SERVER_HOST]
+        self.control_alarm_server_host = config[CONF_SET_ALARM_SERVER]
+        self.alarm_server_host = config[CONF_ALARM_SERVER_HOST]
 
         # init ISAPI client
-        host = entry.data[CONF_HOST]
-        username = entry.data[CONF_USERNAME]
-        password = entry.data[CONF_PASSWORD]
-        session = get_async_client(hass)
+        host = config[CONF_HOST]
+        username = config[CONF_USERNAME]
+        password = config[CONF_PASSWORD]
+        varify_ssl = config.get(CONF_VERIFY_SSL, True)
+        session = get_async_client(hass, varify_ssl)
         super().__init__(host, username, password, session)
 
         self.events_info: list[EventInfo] = []
