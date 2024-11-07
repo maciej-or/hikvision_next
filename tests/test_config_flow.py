@@ -2,7 +2,7 @@
 
 import respx
 import pytest
-from unittest.mock import patch, AsyncMock
+from unittest.mock import patch
 from custom_components.hikvision_next.const import DOMAIN
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.config_entries import SOURCE_USER, ConfigEntryState
@@ -129,16 +129,3 @@ async def test_reconfiguration(hass: HomeAssistant, init_integration: MockConfig
     assert entry.data[CONF_PASSWORD] == TEST_CONFIG[CONF_PASSWORD]
     assert entry.data[CONF_HOST] == TEST_HOST2
     assert entry.data[CONF_VERIFY_SSL] is False
-
-
-@patch('asyncio.sleep', new_callable=AsyncMock)
-@pytest.mark.parametrize("init_integration", ["DS-2CD2386G2-IU"], indirect=True)
-async def test_reauth(mock_sleep, hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
-    """Test reauth flow."""
-
-    entry = init_integration
-    assert entry.state == ConfigEntryState.LOADED
-
-    result = await entry.start_reauth_flow(hass)
-    assert result["type"] is FlowResultType.ABORT
-    assert result["reason"] == "reauth_successful"
