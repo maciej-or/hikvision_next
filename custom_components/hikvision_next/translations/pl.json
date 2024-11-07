@@ -1,7 +1,8 @@
 {
   "config": {
     "abort": {
-      "already_configured": "Urządzenie jest już skonfigurowane"
+      "already_configured": "Urządzenie jest już skonfigurowane",
+      "reconfigure_successful": "Ponowna konfiguracja powiodła się"
     },
     "step": {
       "user": {
