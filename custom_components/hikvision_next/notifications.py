@@ -157,7 +157,11 @@ class EventNotificationsView(HomeAssistantView):
         alert = self.get_alert_info(xml)
         _LOGGER.debug("Alert: %s", alert)
 
-        serial_no = self.isapi.device_info.serial_no.lower()
+        # Adjust serial_no based on whether there are multiple channels
+        if len(self.isapi.cameras) > 1:
+            serial_no = f"{self.isapi.device_info.serial_no}-CH{alert.channel_id}".lower()
+        else:
+            serial_no = self.isapi.device_info.serial_no.lower()
 
         device_id_param = f"_{alert.channel_id}" if alert.channel_id != 0 else ""
         io_port_id_param = f"_{alert.io_port_id}" if alert.io_port_id != 0 else ""
