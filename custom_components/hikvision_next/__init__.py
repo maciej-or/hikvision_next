@@ -7,8 +7,6 @@ from contextlib import suppress
 import logging
 import traceback
 
-from httpx import TimeoutException
-
 from homeassistant.components.binary_sensor import (
     ENTITY_ID_FORMAT as BINARY_SENSOR_ENTITY_ID_FORMAT,
 )
@@ -16,12 +14,13 @@ from homeassistant.components.switch import ENTITY_ID_FORMAT as SWITCH_ENTITY_ID
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.helpers.typing import ConfigType
 
 from .const import DOMAIN
 from .hikvision_device import HikvisionDevice
+from .isapi import ISAPIUnauthorizedError
 from .notifications import EventNotificationsView
 from .services import setup_services
 
@@ -55,10 +54,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) ->
         device_info = device.hass_device_info()
         device_registry = dr.async_get(hass)
         device_registry.async_get_or_create(config_entry_id=entry.entry_id, **device_info)
-    except (TimeoutError, TimeoutException) as ex:
-        raise ConfigEntryNotReady(f"Timeout while connecting to {device.host}. Cannot initialize {DOMAIN}") from ex
+    except ISAPIUnauthorizedError as ex:
+        raise ConfigEntryAuthFailed from ex
     except Exception as ex:  # pylint: disable=broad-except
-        msg = f"Cannot initialize {DOMAIN} {device.host}. Error: {ex}\n"
+        msg = f"Cannot initialize {DOMAIN} {device.host}. Error: {ex.message}\n"
         _LOGGER.error(msg + traceback.format_exc())
         raise ConfigEntryNotReady(msg) from ex
 
