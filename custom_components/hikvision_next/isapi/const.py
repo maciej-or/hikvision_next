@@ -81,6 +81,7 @@ STREAM_TYPE = {
 
 EVENTS_ALTERNATE_ID = {
     "vmd": "motiondetection",
+    "thermometry": "motiondetection",
     "shelteralarm": "tamperdetection",
     "VMDHumanVehicle": "motiondetection",
 }
