@@ -148,7 +148,7 @@ class ISAPIClient:
     
                 camera = IPCamera(
                     id=channel_id,
-                    name=self.device_info.name,
+                    name=camera_name,
                     model=self.device_info.model,
                     serial_no=self.device_info.serial_no,
                     firmware=self.device_info.firmware,
