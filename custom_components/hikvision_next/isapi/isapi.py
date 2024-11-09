@@ -126,10 +126,28 @@ class ISAPIClient:
         """Get camera objects for all connected cameras."""
 
         if not self.device_info.is_nvr:
-            # Get single IP camera
-            self.cameras.append(
-                IPCamera(
-                    id=1,
+            # Fetch the list of streaming channels (cameras), can be multiple for thermal cameras for example
+            streaming_channels = await self.request(GET, "Streaming/channels")
+            streaming_channel_list = streaming_channels.get("StreamingChannelList", {}).get("StreamingChannel", [])
+    
+            if not isinstance(streaming_channel_list, list):
+                streaming_channel_list = [streaming_channel_list]
+    
+            channel_ids = set()
+            for streaming_channel in streaming_channel_list:
+                stream_id = int(streaming_channel["id"])
+                channel_id = stream_id // 100  # Calculate channel_id from stream_id
+                channel_ids.add(channel_id)
+    
+            for channel_id in sorted(channel_ids):
+                # Determine camera name
+                if len(channel_ids) > 1:
+                    camera_name = f"{self.device_info.name} - Channel {channel_id}"
+                else:
+                    camera_name = self.device_info.name
+    
+                camera = IPCamera(
+                    id=channel_id,
                     name=self.device_info.name,
                     model=self.device_info.model,
                     serial_no=self.device_info.serial_no,
@@ -137,9 +155,9 @@ class ISAPIClient:
                     input_port=1,
                     connection_type=CONNECTION_TYPE_DIRECT,
                     ip_addr=self.device_info.ip_address,
-                    streams=await self.get_camera_streams(1),
+                    streams=await self.get_camera_streams(channel_id),
                 )
-            )
+                self.cameras.append(camera)
         else:
             # Get analog and digital cameras attached to NVR
             if self.capabilities.support_digital_cameras > 0:
