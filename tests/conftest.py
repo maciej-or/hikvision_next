@@ -117,11 +117,14 @@ async def init_integration(respx_mock, request, mock_isapi, hass: HomeAssistant,
     if not skip_setup:
         await hass.config_entries.async_setup(mock_config_entry.entry_id)
         await hass.async_block_till_done()
+        unique_id = None
+        if mock_config_entry.state.value == 'loaded':
+            unique_id = mock_config_entry.runtime_data.device_info.serial_no
         hass.config_entries.async_update_entry(
             mock_config_entry,
             data={**mock_config_entry.data},
             title=model,
-            unique_id=mock_config_entry.runtime_data.device_info.serial_no,
+            unique_id=unique_id,
         )
 
     return mock_config_entry

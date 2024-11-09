@@ -12,9 +12,9 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
 from . import HikvisionConfigEntry
+from .const import EVENTS_COORDINATOR, HOLIDAY_MODE, SECONDARY_COORDINATOR
+from .isapi import EventInfo, ISAPISetEventStateMutexError
 from .isapi.const import EVENT_IO
-from .const import EVENTS, EVENTS_COORDINATOR, HOLIDAY_MODE, SECONDARY_COORDINATOR
-from .isapi import EventInfo, SetEventStateMutexError
 
 
 async def async_setup_entry(
@@ -79,12 +79,8 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
         """Turn on."""
         try:
             await self.coordinator.device.set_event_enabled_state(self.device_id, self.event, True)
-        except SetEventStateMutexError as ex:
-            raise HomeAssistantError(
-                f"""You cannot enable {EVENTS[ex.event.id]['label']} events.
-                Please disable {EVENTS[ex.mutex_issues[0].event_id]['label']}
-                on channels {ex.mutex_issues[0].channels} first"""
-            )
+        except ISAPISetEventStateMutexError as ex:
+            raise HomeAssistantError(ex.message)
         except Exception as ex:
             raise ex
         finally:

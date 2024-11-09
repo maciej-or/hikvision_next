@@ -2,6 +2,7 @@
   "config": {
     "abort": {
       "already_configured": "Urządzenie jest już skonfigurowane",
+      "reauth_successful": "Ponowne uwierzytelnienie powiodło się",
       "reconfigure_successful": "Ponowna konfiguracja powiodła się"
     },
     "step": {

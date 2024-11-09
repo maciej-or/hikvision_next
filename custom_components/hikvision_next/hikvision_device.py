@@ -1,7 +1,6 @@
 "ISAPI client for Home Assistant integration."
 
 import asyncio
-from http import HTTPStatus
 import logging
 from typing import Any
 
@@ -26,7 +25,13 @@ from .const import (
     SECONDARY_COORDINATOR,
 )
 from .coordinator import EventsCoordinator, SecondaryCoordinator
-from .isapi import EventInfo, IPCamera, ISAPIClient
+from .isapi import (
+    EventInfo,
+    IPCamera,
+    ISAPIClient,
+    ISAPIForbiddenError,
+    ISAPIUnauthorizedError,
+)
 from .isapi.const import CONNECTION_TYPE_DIRECT, EVENT_IO
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,6 +49,7 @@ class HikvisionDevice(ISAPIClient):
         """Initialize device."""
 
         config = entry.data if entry else data
+        self.entry = entry
         self.hass = hass
         self.control_alarm_server_host = config[CONF_SET_ALARM_SERVER]
         self.alarm_server_host = config[CONF_ALARM_SERVER_HOST]
@@ -136,25 +142,16 @@ class HikvisionDevice(ISAPIClient):
                 events.append(event)
         return events
 
-    def handle_exception(self, ex: Exception, details: str = "") -> bool:
-        """Handle common exception, returns False if exception remains unhandled."""
-
-        def is_reauth_needed():
-            if isinstance(ex, httpx.HTTPStatusError):
-                status_code = ex.response.status_code
-                if status_code in (HTTPStatus.UNAUTHORIZED,):
-                    return True
-            return False
+    def handle_exception(self, ex: Exception, details: str = ""):
+        """Handle common exceptions."""
 
         host = self.host
-        if is_reauth_needed():
-            # Re-establish session
-            self._session = None
-            self._auth_method = None
-            return True
 
+        if isinstance(ex, ISAPIUnauthorizedError):
+            self.entry.async_start_reauth(self.hass)
+        elif isinstance(ex, ISAPIForbiddenError):
+            raise HomeAssistantError(f"{ex.message} {details}")
         elif isinstance(ex, (asyncio.TimeoutError, httpx.TimeoutException)):
-            raise HomeAssistantError(f"Timeout while connecting to {host} {details}") from ex
+            raise HomeAssistantError(f"Timeout while connecting to {host} {details}")
 
         _LOGGER.warning("Unexpected exception | %s | %s", details, ex)
-        return False

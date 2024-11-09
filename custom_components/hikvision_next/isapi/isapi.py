@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 import datetime
+from http import HTTPStatus
 import json
 import logging
 from typing import Any, AsyncIterator
@@ -481,7 +482,7 @@ class ISAPIClient:
             xml = xmltodict.unparse(data)
             await self.request(PUT, event.url, present="xml", data=xml)
         else:
-            raise SetEventStateMutexError(event, mutex_issues)
+            raise ISAPISetEventStateMutexError(event, mutex_issues)
 
     async def get_io_port_status(self, port_type: str, port_no: int) -> str:
         """Get status of physical ports."""
@@ -701,11 +702,11 @@ class ISAPIClient:
         data: str = None,
     ) -> Any:
         """Send request and log response, returns {} if request fails."""
-        if not self._auth_method:
-            await self._detect_auth_method()
-
         full_url = self.get_isapi_url(url)
         try:
+            if not self._auth_method:
+                await self._detect_auth_method()
+
             response = await self._session.request(
                 method,
                 full_url,
@@ -721,7 +722,11 @@ class ISAPIClient:
             _LOGGER.debug("\n%s", result)
         except HTTPStatusError as ex:
             _LOGGER.info("--- [%s] %s\n%s", method, full_url, ex)
-            if self.pending_initialization:
+            if ex.response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise ISAPIUnauthorizedError(full_url)
+            if ex.response.status_code == HTTPStatus.FORBIDDEN and not self.pending_initialization:
+                raise ISAPIForbiddenError(full_url)
+            elif self.pending_initialization:
                 # supress http errors during initialization
                 return {}
             raise
@@ -742,10 +747,29 @@ class ISAPIClient:
                 yield chunk
 
 
-class SetEventStateMutexError(Exception):
+class ISAPISetEventStateMutexError(Exception):
     """Error setting event mutex."""
 
     def __init__(self, event: EventInfo, mutex_issues: []) -> None:
         """Initialize exception."""
         self.event = event
         self.mutex_issues = mutex_issues
+        self.message = f"""You cannot enable {EVENTS[event.id]['label']} events.
+            Please disable {EVENTS[mutex_issues[0].event_id]['label']}
+            on channels {mutex_issues[0].channels} first"""
+
+
+class ISAPIUnauthorizedError(Exception):
+    """HTTP Error 401."""
+
+    def __init__(self, url) -> None:
+        """Initialize exception."""
+        self.message = f"Unauthorized request {url}, check username and password."
+
+
+class ISAPIForbiddenError(Exception):
+    """HTTP Error 403."""
+
+    def __init__(self, url) -> None:
+        """Initialize exception."""
+        self.message = f"Forbidden request {url}, check user permissions."

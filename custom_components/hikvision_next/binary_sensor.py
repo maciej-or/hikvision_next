@@ -7,10 +7,10 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import HikvisionConfigEntry
-from .isapi.const import EVENT_IO
 from .const import EVENTS
 from .hikvision_device import HikvisionDevice
 from .isapi import EventInfo
+from .isapi.const import EVENT_IO
 
 
 async def async_setup_entry(
