@@ -128,31 +128,27 @@ class ISAPIClient:
         if not self.device_info.is_nvr:
             # Fetch the list of streaming channels (cameras), can be multiple for thermal cameras for example
             streaming_channels = await self.request(GET, "Streaming/channels")
-            streaming_channel_list = streaming_channels.get("StreamingChannelList", {}).get("StreamingChannel", [])
-    
-            if not isinstance(streaming_channel_list, list):
-                streaming_channel_list = [streaming_channel_list]
-    
+            streaming_channel_list = deep_get(streaming_channels, "StreamingChannelList.StreamingChannel", [])
+
             channel_ids = set()
             for streaming_channel in streaming_channel_list:
-                stream_id = int(streaming_channel["id"])
-                channel_id = stream_id // 100  # Calculate channel_id from stream_id
+                channel_id = int(deep_get(streaming_channel, "Video.videoInputChannelID", 1))
                 channel_ids.add(channel_id)
-    
+
             for channel_id in sorted(channel_ids):
                 # Determine camera name
                 if len(channel_ids) > 1:
                     camera_name = f"{self.device_info.name} - Channel {channel_id}"
                 else:
                     camera_name = self.device_info.name
-    
+
                 camera = IPCamera(
                     id=channel_id,
                     name=camera_name,
                     model=self.device_info.model,
                     serial_no=self.device_info.serial_no,
                     firmware=self.device_info.firmware,
-                    input_port=1,
+                    input_port=channel_id,
                     connection_type=CONNECTION_TYPE_DIRECT,
                     ip_addr=self.device_info.ip_address,
                     streams=await self.get_camera_streams(channel_id),

@@ -17,6 +17,7 @@ from tests.conftest import TEST_CONFIG, TEST_CONFIG_WITH_ALARM_SERVER
     "DS-2CD2146G2-ISU",
     "DS-2CD2443G0-IW",
     "DS-2CD2532F-IWS",
+    "DS-2TD1228-2-QA",
     "DS-7616NI-K2",
     "DS-7616NI-Q2",
     "DS-7732NI-M4",

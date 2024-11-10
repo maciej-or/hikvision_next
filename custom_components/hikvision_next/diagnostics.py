@@ -88,6 +88,7 @@ async def _async_get_diagnostics(
         "Event/triggers",
         "Event/triggers/scenechangedetection-1",
         "Event/notification/httpHosts",
+        "Streaming/channels",
     ]
 
     for endpoint in endpoints:
