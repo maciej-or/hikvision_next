@@ -122,7 +122,7 @@ class NVROutputSwitch(CoordinatorEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on."""
         try:
-            await self.coordinator.device.set_port_state(self._port_no, True)
+            await self.coordinator.device.set_output_port_state(self._port_no, True)
         except Exception as ex:
             raise ex
         finally:
@@ -130,7 +130,7 @@ class NVROutputSwitch(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         try:
-            await self.coordinator.device.set_port_state(self._port_no, False)
+            await self.coordinator.device.set_output_port_state(self._port_no, False)
         except Exception as ex:
             raise ex
         finally:

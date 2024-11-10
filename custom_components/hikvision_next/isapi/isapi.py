@@ -723,10 +723,10 @@ class ISAPIClient:
         except HTTPStatusError as ex:
             _LOGGER.info("--- [%s] %s\n%s", method, full_url, ex)
             if ex.response.status_code == HTTPStatus.UNAUTHORIZED:
-                raise ISAPIUnauthorizedError(full_url)
+                raise ISAPIUnauthorizedError(ex) from ex
             if ex.response.status_code == HTTPStatus.FORBIDDEN and not self.pending_initialization:
-                raise ISAPIForbiddenError(full_url)
-            elif self.pending_initialization:
+                raise ISAPIForbiddenError(ex) from ex
+            if self.pending_initialization:
                 # supress http errors during initialization
                 return {}
             raise
@@ -762,14 +762,16 @@ class ISAPISetEventStateMutexError(Exception):
 class ISAPIUnauthorizedError(Exception):
     """HTTP Error 401."""
 
-    def __init__(self, url) -> None:
+    def __init__(self, ex: HTTPStatusError, *args) -> None:
         """Initialize exception."""
-        self.message = f"Unauthorized request {url}, check username and password."
+        self.message = f"Unauthorized request {ex.request.url}, check username and password."
+        self.response = ex.response
 
 
 class ISAPIForbiddenError(Exception):
     """HTTP Error 403."""
 
-    def __init__(self, url) -> None:
+    def __init__(self, ex: HTTPStatusError, *args) -> None:
         """Initialize exception."""
-        self.message = f"Forbidden request {url}, check user permissions."
+        self.message = f"Forbidden request {ex.request.url}, check user permissions."
+        self.response = ex.response
