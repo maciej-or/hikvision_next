@@ -53,6 +53,9 @@
       },
       "io": {
         "name": "Alarm Input {io_port_id}"
+      },
+      "thermometry": {
+        "name": "Temperature"
       }
     },
     "switch": {
@@ -88,6 +91,9 @@
       },
       "io": {
         "name": "Alarm Input {io_port_id}"
+      },
+      "thermometry": {
+        "name": "Temperature detection"
       }
     },
     "camera": {
