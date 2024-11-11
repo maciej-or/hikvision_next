@@ -12,6 +12,7 @@ from homeassistant.core import (
 from homeassistant.exceptions import HomeAssistantError
 
 from .const import ACTION_ISAPI_REQUEST, ACTION_REBOOT, ATTR_CONFIG_ENTRY_ID, DOMAIN
+from .isapi import ISAPIForbiddenError, ISAPIUnauthorizedError
 
 ACTION_ISAPI_REQUEST_SCHEMA = vol.Schema(
     {
@@ -33,7 +34,7 @@ def setup_services(hass: HomeAssistant) -> None:
         device = entry.runtime_data
         try:
             await device.reboot()
-        except HTTPStatusError as ex:
+        except (HTTPStatusError, ISAPIForbiddenError, ISAPIUnauthorizedError) as ex:
             raise HomeAssistantError(ex.response.content) from ex
 
     async def handle_isapi_request(call: ServiceCall) -> ServiceResponse:
@@ -46,7 +47,7 @@ def setup_services(hass: HomeAssistant) -> None:
         payload = call.data.get("payload")
         try:
             response = await device.request(method, path, present="xml", data=payload)
-        except HTTPStatusError as ex:
+        except (HTTPStatusError, ISAPIForbiddenError, ISAPIUnauthorizedError) as ex:
             if isinstance(ex.response.content, bytes):
                 response = ex.response.content.decode("utf-8")
             else:

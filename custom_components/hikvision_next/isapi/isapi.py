@@ -219,36 +219,45 @@ class ISAPIClient:
 
         def get_event(event_trigger: dict):
             notification_list = event_trigger.get("EventTriggerNotificationList", {}) or {}
+
             event_type = event_trigger.get("eventType")
             if not event_type:
                 return None
-
-            if event_type.lower() == EVENT_PIR:
-                is_supported = str_to_bool(deep_get(system_capabilities, "WLAlarmCap.isSupportPIR", False))
-                if not is_supported:
-                    return None
-
-            channel_id = int(
-                event_trigger.get(
-                    "videoInputChannelID",
-                    event_trigger.get("dynVideoInputChannelID", 0),
-                )
-            )
-            io_port = int(event_trigger.get("inputIOPortID", event_trigger.get("dynInputIOPortID", 0)))
-            notifications = deep_get(notification_list, "EventTriggerNotification", [])
-
             event_id = event_type.lower()
             # Translate to alternate IDs
             if event_id in EVENTS_ALTERNATE_ID:
                 event_id = EVENTS_ALTERNATE_ID[event_id]
 
-            url = self.get_event_url(event_id, channel_id, io_port)
+            if event_id == EVENT_PIR:
+                is_supported = str_to_bool(deep_get(system_capabilities, "WLAlarmCap.isSupportPIR", False))
+                if not is_supported:
+                    return None
+
+            channel_id = 0
+            io_port = 0
+            is_proxy = False
+
+            if event_id == EVENT_IO:
+                io_port = int(event_trigger.get("inputIOPortID", 0))
+                if not io_port:
+                    io_port = int(event_trigger.get("dynInputIOPortID", 0))
+                    is_proxy = io_port > 0
+            else:
+                channel_id = int(event_trigger.get("videoInputChannelID", 0))
+                if not channel_id:
+                    channel_id = int(event_trigger.get("dynVideoInputChannelID", 0))
+                    is_proxy = channel_id > 0
+
+            url = self.get_event_url(event_id, channel_id, io_port, is_proxy)
+
+            notifications = deep_get(notification_list, "EventTriggerNotification", [])
 
             return EventInfo(
                 channel_id=channel_id,
                 io_port_id=io_port,
                 id=event_id,
                 url=url,
+                is_proxy=is_proxy,
                 notifications=[notify.get("notificationMethod") for notify in notifications] if notifications else [],
             )
 
@@ -275,7 +284,7 @@ class ISAPIClient:
 
         return events
 
-    def get_event_url(self, event_id: str, channel_id: int, io_port_id: int) -> str | None:
+    def get_event_url(self, event_id: str, channel_id: int, io_port_id: int, is_proxy: bool) -> str | None:
         """Get event ISAPI URL."""
 
         if not EVENTS.get(event_id):
@@ -283,29 +292,22 @@ class ISAPIClient:
 
         event_type = EVENTS[event_id]["type"]
         slug = EVENTS[event_id]["slug"]
-        camera = self.get_camera_by_id(channel_id)
-        connection_type = camera.connection_type if camera else CONNECTION_TYPE_DIRECT
 
         if event_type == EVENT_BASIC:
-            if connection_type == CONNECTION_TYPE_PROXIED:
-                # ISAPI/ContentMgmt/InputProxy/channels/{channel_id}/video/{event}
+            if is_proxy:
                 url = f"ContentMgmt/InputProxy/channels/{channel_id}/video/{slug}"
             else:
-                # ISAPI/System/Video/inputs/channels/{channel_id}/{event}
                 url = f"System/Video/inputs/channels/{channel_id}/{slug}"
 
         elif event_type == EVENT_IO:
-            if connection_type == CONNECTION_TYPE_PROXIED:
-                # ISAPI/ContentMgmt/IOProxy/{slug}/{channel_id}
+            if is_proxy:
                 url = f"ContentMgmt/IOProxy/{slug}/{io_port_id}"
             else:
-                # ISAPI/System/IO/{slug}}/{channel_id}
                 url = f"System/IO/{slug}/{io_port_id}"
         elif event_type == EVENT_PIR:
             # ISAPI/WLAlarm/PIR
             url = slug
         else:
-            # ISAPI/Smart/{event}/{channel_id}
             url = f"Smart/{slug}/{channel_id}"
         return url
 
@@ -407,16 +409,10 @@ class ISAPIClient:
         slug = EVENTS[event.id]["slug"]
 
         # Alternate node name for some event types
-        if event.channel_id == 0:  # NVR
-            if EVENTS[event.id].get("direct_node"):
-                slug = EVENTS[event.id]["direct_node"]
-        else:
-            camera = self.get_camera_by_id(event.channel_id)
-            if camera.connection_type == CONNECTION_TYPE_DIRECT and EVENTS[event.id].get("direct_node"):
-                slug = EVENTS[event.id]["direct_node"]
-
-            if camera.connection_type == CONNECTION_TYPE_PROXIED and EVENTS[event.id].get("proxied_node"):
-                slug = EVENTS[event.id]["proxied_node"]
+        if event.is_proxy and (proxied_node := EVENTS[event.id].get("proxied_node")):
+            slug = proxied_node
+        if not event.is_proxy and (direct_node := EVENTS[event.id].get("direct_node")):
+            slug = direct_node
 
         return slug[0].upper() + slug[1:]
 
@@ -490,7 +486,7 @@ class ISAPIClient:
             status = await self.request(GET, f"System/IO/inputs/{port_no}/status")
         else:
             status = await self.request(GET, f"System/IO/outputs/{port_no}/status")
-        return deep_get(status, "IOPortStatus.ioState")
+        return deep_get(status, "IOPortStatus.ioState", "inactive") == "active"
 
     async def set_output_port_state(self, port_no: int, turn_on: bool):
         """Set status of output port."""

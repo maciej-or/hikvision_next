@@ -443,6 +443,30 @@
           }
         }
       },
+      "ContentMgmt/IOProxy/inputs/301": {
+        "response": {
+          "IOProxyInputPort": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": "301",
+            "enabled": "false",
+            "IODescriptor": {
+              "proxyProtocol": "HIKVISION",
+              "userName": "admin",
+              "addressingFormatType": "ipaddress",
+              "ipAddress": "1.0.0.80",
+              "managePortNo": "8000",
+              "innerIOPortID": "1"
+            },
+            "triggering": "high",
+            "name": null,
+            "CombinationAlarm": {
+              "channel": "1",
+              "EventTypeList": null
+            }
+          }
+        }
+      },
       "System/Holidays": {
         "response": {
           "HolidayList": {
@@ -1420,7 +1444,12 @@
                 "id": "IO-301",
                 "eventType": "IO",
                 "dynInputIOPortID": "301",
-                "EventTriggerNotificationList": null
+                "EventTriggerNotificationList": {
+                  "EventTriggerNotification": {
+                    "id": "center",
+                    "notificationMethod": "center"
+                  }
+                }
               },
               {
                 "id": "VMD-1",
@@ -1694,9 +1723,9 @@
                       "dynVideoInputID": "2"
                     },
                     {
-                      "id": "center",
-                      "notificationMethod": "center"
-                    }
+                    "id": "center",
+                    "notificationMethod": "center"
+                  }
                   ]
                 }
               },
@@ -1992,9 +2021,9 @@
                 "eventType": "diskerror",
                 "EventTriggerNotificationList": {
                   "EventTriggerNotification": {
-                    "id": "beep",
-                    "notificationMethod": "beep"
-                  }
+                      "id": "beep",
+                      "notificationMethod": "beep"
+                    }
                 }
               },
               {
