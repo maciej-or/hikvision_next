@@ -69,11 +69,6 @@ EVENTS = {
         "slug": "WLAlarm/PIR",
         "direct_node": "PIRAlarm",
     },
-    "thermometry": {
-        "type": EVENT_BASIC,
-        "label": "Thermometry",
-        "slug": "thermometry",
-    },
 }
 
 STREAM_TYPE = {
@@ -86,6 +81,7 @@ STREAM_TYPE = {
 
 EVENTS_ALTERNATE_ID = {
     "vmd": "motiondetection",
+    "thermometry": "motiondetection",
     "shelteralarm": "tamperdetection",
     "VMDHumanVehicle": "motiondetection",
 }
