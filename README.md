@@ -82,6 +82,7 @@ The scope supported features depends on device model, setup and firmware version
   - Remote: Parameters Settings
   - Remote: Log Search / Interrogate Working Status
   - Remote: Live View
+  - Remote: Notify Surveillance Center / Trigger Alarm Output
 - Events
   - Notify Surveillance Center
   - Regions if needed
