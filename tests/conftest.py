@@ -105,7 +105,7 @@ def mock_isapi_device(respx_mock, request, mock_isapi):
     """Mock all device ISAPI requests."""
 
     model = request.param
-    mock_device_endpoints(model)
+    mock_device_endpoints(model, TEST_HOST)
     return mock_isapi
 
 
