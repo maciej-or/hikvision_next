@@ -25,6 +25,22 @@
                     "containerPath": "/app"
                 }]
             }
+        },
+        {
+            "label": "docker-run: debug 1 file",
+            "type": "docker-run",
+            "dependsOn": ["docker-build phcc"],
+            "python": {
+              "args": ["./tests/test_init.py"],
+              "module": "pytest"
+            },
+            "dockerRun":{
+                "image":"mine/pytest-homeassistant-custom-component:latest",
+                "volumes":[{
+                    "localPath":"${workspaceFolder}",
+                    "containerPath": "/app"
+                }]
+            }
         }
     ]
 }
