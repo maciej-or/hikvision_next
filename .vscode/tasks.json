@@ -1,0 +1,30 @@
+{
+    "tasks": [
+        {
+          "label": "docker-build phcc",
+          "type": "docker-build",
+          "platform": "python",
+          "dockerBuild":{
+            "context": "${workspaceFolder}",
+            "dockerfile":"${workspaceFolder}/run_test.dockerfile",
+            "tag":"mine/pytest-homeassistant-custom-component:latest"
+          }
+        },
+        {
+            "label": "docker-run: debug",
+            "type": "docker-run",
+            "dependsOn": ["docker-build phcc"],
+            "python": {
+              "args": ["."],
+              "module": "pytest"
+            },
+            "dockerRun":{
+                "image":"mine/pytest-homeassistant-custom-component:latest",
+                "volumes":[{
+                    "localPath":"${workspaceFolder}",
+                    "containerPath": "/app"
+                }]
+            }
+        }
+    ]
+}

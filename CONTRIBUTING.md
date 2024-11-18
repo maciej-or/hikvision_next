@@ -47,11 +47,12 @@ If you develop on windows, there are some limits with pytest-homeassistant-custo
 
 See this [issue](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component/issues/154) for more detail.
 
-The simplest way is to use docker on your PC:
+#### RUN Test Environment on windows
+If you just want run the tests, the simplest way is to use docker on your PC:
 - Install [docker](https://docs.docker.com/desktop/setup/install/windows-install/)
 - next, in a cmd window:
 ```
-REM go to the hikvision_next directory. example:
+REM go to your hikvision_next directory. example:
 cd C:\Users\john\Documents\github\hikvision_next
 
 REM Build a docker container 
@@ -60,3 +61,68 @@ docker build -f run_test.dockerfile -t mine/pytest-homeassistant-custom-componen
 REM Clear console and Run test in your container
 cls && docker run --rm -v .:/app mine/pytest-homeassistant-custom-component:latest
 ```
+
+#### DEBUG Test Environment in VS Code on windows
+If you want to debug the tests in Visual Studio Code:
+0. Install [docker](https://docs.docker.com/desktop/setup/install/windows-install/)
+
+1. Configure VS Code tasks(in ./vscode/task.json)
+```
+{
+    "tasks": [
+        {
+          "label": "docker-build phcc",
+          "type": "docker-build",
+          "platform": "python",
+          "dockerBuild":{
+            "context": "${workspaceFolder}",
+            "dockerfile":"${workspaceFolder}/run_test.dockerfile",
+            "tag":"minevs/pytest-homeassistant-custom-component:latest"
+          }
+        },
+        {
+            "label": "docker-run: debug",
+            "type": "docker-run",
+            "dependsOn": ["docker-build phcc"],
+            "python": {
+              "args": ["."],
+              "module": "pytest"
+            },
+            "dockerRun":{
+                "image":"minevs/pytest-homeassistant-custom-component:latest",
+                "volumes":[{
+                    "localPath":"${workspaceFolder}",
+                    "containerPath": "/app"
+                }]
+            }
+        }
+    ]
+}
+```
+
+2. Configure VS Code launcher(in ./vscode/launch.json)
+```
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+          "name": "Docker: Python tests debug",
+          "type": "docker",
+          "request": "launch",
+          "preLaunchTask": "docker-run: debug",
+          "python": {
+            "pathMappings": [
+              {
+                "localRoot": "${workspaceFolder}",
+                "remoteRoot": "/app"
+              }
+            ]
+          }
+        }
+    ]
+}
+```
+
+3. add a breakpoint
+
+4. run the "Docker: Python tests debug" job in VS Code
