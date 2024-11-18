@@ -10,6 +10,8 @@
           "host": "URL",
           "password": "Senha",
           "username": "Nome de usuário",
+          "set_rtsp_port": "Forçar porta RTSP (se estiver acessando o NVR/câmera por meio de um roteador com encaminhamento de porta)",
+          "rtsp_port": "Porta RTSP do NVR ou câmera",
           "set_alarm_server": "Defina o servidor de alarme usando o seguinte endereço:",
           "alarm_server": "Endereço do Home Assistant acessível pelo dispositivo Hikvison"
         }

@@ -56,6 +56,8 @@ class ISAPIClient:
         host: str,
         username: str,
         password: str,
+        force_rtsp_port: bool = False,
+        rtsp_port_forced: int = None,
         session: httpx.AsyncClient = None,
     ) -> None:
         """Initialize."""
@@ -67,6 +69,14 @@ class ISAPIClient:
         self.isapi_prefix = "ISAPI"
         self._session = session
         self._auth_method: httpx._auth.Auth = None
+            
+        _LOGGER.error("--RLEB \n\n\n\n\n\n  force_rtsp_port:%s \n  rtsp_port_forced:%s"
+                          ,force_rtsp_port,
+                          rtsp_port_forced
+                          )
+
+        self.force_rtsp_port = force_rtsp_port
+        self.rtsp_port_forced=rtsp_port_forced
 
         self.device_info = ISAPIDeviceInfo()
         self.capabilities = CapabilitiesInfo()
@@ -210,9 +220,13 @@ class ISAPIClient:
         )
 
         for item in protocols:
-            if item.get("protocol") == "RTSP" and item.get("portNo"):
-                self.protocols.rtsp_port = item.get("portNo")
+            if self.force_rtsp_port:
+                self.protocols.rtsp_port = str(self.rtsp_port_forced)
                 break
+            else:
+                if item.get("protocol") == "RTSP" and item.get("portNo"):
+                    self.protocols.rtsp_port = item.get("portNo")
+                    break
 
     async def get_supported_events(self, system_capabilities: dict) -> list[EventInfo]:
         """Get list of all supported events available."""

@@ -7,7 +7,7 @@ from custom_components.hikvision_next.const import DOMAIN
 from custom_components.hikvision_next.hikvision_device import HikvisionDevice
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from homeassistant.config_entries import ConfigEntryState
-from tests.conftest import TEST_CONFIG, TEST_CONFIG_WITH_ALARM_SERVER
+from tests.conftest import TEST_CONFIG, TEST_CONFIG_WITH_ALARM_SERVER, TEST_CLIENT_OUTSIDE_NETWORK
 
 
 @pytest.mark.parametrize("init_integration",
@@ -135,3 +135,45 @@ async def test_async_setup_entry_nvr_with_alarm_server(hass: HomeAssistant, init
 
         assert set_alarm_server_mock.call_args[0] == ("http://0.0.0.0:80", "/")
         assert not hass.data.get(DOMAIN)
+
+
+@pytest.mark.parametrize("mock_config_entry", [TEST_CLIENT_OUTSIDE_NETWORK], indirect=True)
+@pytest.mark.parametrize("init_integration", [("DS-2CD2386G2-IU")], indirect=True)
+async def test_async_setup_entry_nvr_outside_network(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
+    """Test a successful IP camera setup entry outside network."""
+
+    entry = init_integration
+    assert entry.state == ConfigEntryState.LOADED
+
+    device: HikvisionDevice = entry.runtime_data
+    assert device.host == TEST_CLIENT_OUTSIDE_NETWORK["host"]
+    assert len(device.cameras) == 1
+    assert len(device.supported_events) == 14
+
+    device_info = device.device_info
+    capabilities = device.capabilities
+    assert device_info.device_type == "IPCamera"
+    assert device_info.firmware == "V5.7.15"
+    assert capabilities.input_ports == 0
+    assert TEST_CLIENT_OUTSIDE_NETWORK["host"].endswith(device_info.ip_address)
+    assert device_info.is_nvr is False
+    assert len(device_info.mac_address) == 17
+    assert device_info.manufacturer == "Hikvision"
+    assert device_info.model == "DS-2CD2386G2-IU"
+    assert device_info.name == "yard"
+    assert capabilities.output_ports == 0
+    assert device.protocols.rtsp_port == "5151"
+    assert device_info.serial_no == "DS-2CD2386G2-IU00000000AAWRJ00000000"
+    assert len(device.storage) == 2
+    assert capabilities.support_alarm_server is True
+    assert capabilities.support_analog_cameras == 0
+    assert capabilities.support_channel_zero is False
+    assert capabilities.support_digital_cameras == 0
+    assert capabilities.support_event_mutex_checking is False
+    assert capabilities.support_holiday_mode is False
+
+    # test successful unload
+    await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert not hass.data.get(DOMAIN)

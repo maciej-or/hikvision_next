@@ -4,7 +4,7 @@ import json
 import pytest
 import respx
 import xmltodict
-from custom_components.hikvision_next.const import DOMAIN, CONF_SET_ALARM_SERVER, CONF_ALARM_SERVER_HOST
+from custom_components.hikvision_next.const import DOMAIN, CONF_SET_ALARM_SERVER, CONF_ALARM_SERVER_HOST, FORCE_RTSP_PORT, RTSP_PORT_FORCED
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.hikvision_next.isapi import ISAPIClient
@@ -16,7 +16,20 @@ TEST_CLIENT = {
     CONF_HOST: TEST_HOST,
     CONF_USERNAME: "u1",
     CONF_PASSWORD: "***",
+    FORCE_RTSP_PORT: False,
+    RTSP_PORT_FORCED: 554,
 }
+
+TEST_CLIENT_OUTSIDE_NETWORK = {
+    CONF_HOST: "http://address.domain",
+    CONF_USERNAME: "u1",
+    CONF_PASSWORD: "***",
+    FORCE_RTSP_PORT: True,
+    RTSP_PORT_FORCED: 5151, 
+    CONF_SET_ALARM_SERVER: False, 
+    CONF_ALARM_SERVER_HOST: ""
+}
+
 TEST_CONFIG = {**TEST_CLIENT, CONF_VERIFY_SSL: True, CONF_SET_ALARM_SERVER: False, CONF_ALARM_SERVER_HOST: ""}
 TEST_CONFIG_WITH_ALARM_SERVER = {
     **TEST_CLIENT,
@@ -57,15 +70,17 @@ def mock_endpoint(endpoint, file=None, status_code=200):
         return respx.get(url).respond(status_code=status_code)
     return respx.get(url).respond(text=load_fixture(path, file))
 
-
-def mock_device_endpoints(model):
+def mock_device_endpoints(model, base_url):
     """Mock all ISAPI requests used for device initialization."""
+
+    if not base_url:
+        base_url=TEST_HOST
 
     f = open(f"tests/fixtures/devices/{model}.json", "r")
     diagnostics = json.load(f)
     f.close()
     for endpoint, data in diagnostics["data"]["ISAPI"].items():
-        url = f"{TEST_HOST}/ISAPI/{endpoint}"
+        url = f"{base_url}/ISAPI/{endpoint}"
         if status_code := data.get("status_code"):
             respx.get(url).respond(status_code=status_code)
         elif response := data.get("response"):
@@ -109,8 +124,10 @@ async def init_integration(respx_mock, request, mock_isapi, hass: HomeAssistant,
     if len(request.param) == 2:
         model = request.param[0]
         skip_setup = request.param[1]
+    
+    base_url=mock_config_entry.data.get('host')
 
-    mock_device_endpoints(model)
+    mock_device_endpoints(model, base_url)
 
     mock_config_entry.add_to_hass(hass)
 
