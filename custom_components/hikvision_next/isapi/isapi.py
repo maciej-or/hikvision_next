@@ -13,6 +13,7 @@ from urllib.parse import quote, urljoin, urlparse
 import httpx
 from httpx import HTTPStatusError
 import xmltodict
+import ipaddress
 
 from .const import (
     CONNECTION_TYPE_DIRECT,
@@ -563,6 +564,7 @@ class ISAPIClient:
             portNo=int(host.get("portNo")),
             url=host.get("url"),
             protocolType=host.get("protocolType"),
+            hostName=host.get("hostName"),
         )
 
     async def set_alarm_server(self, base_url: str, path: str) -> None:
@@ -573,9 +575,29 @@ class ISAPIClient:
         if not data:
             return
         host = self._get_event_notification_host(data)
+
+        host_ipaddress_hostname = ""
+        if host.get("addressingFormatType") == "ipaddress":
+            host_ipaddress_hostname = host.get("ipAddress")
+            _LOGGER.debug("alarm_server url is an ip: %s", host_ipaddress_hostname)
+        else:
+            host_ipaddress_hostname = host.get("hostname")
+            _LOGGER.debug("alarm_server url is a hostname: %s", host_ipaddress_hostname)
+
+        address_scheme_port_upper = address.scheme.upper()
+
+        address_port = address.port
+        try:
+            int(address_port)
+        except Exception:
+            if address_scheme_port_upper == "HTTPS":
+                address_port = 443
+            else:
+                address_port = 80
+
         if (
             host["protocolType"] == address.scheme.upper()
-            and host.get("ipAddress") == address.hostname
+            and host_ipaddress_hostname == address.hostname
             and host.get("portNo") == str(address.port)
             and host["url"] == path
         ):
@@ -583,9 +605,23 @@ class ISAPIClient:
         host["url"] = path
         host["protocolType"] = address.scheme.upper()
         host["parameterFormatType"] = "XML"
-        host["addressingFormatType"] = "ipaddress"
-        host["ipAddress"] = address.hostname
-        host["portNo"] = address.port
+
+        # if address.hostname is an ip
+        try:
+            ipaddress.ip_address(address.hostname)
+
+            host["addressingFormatType"] = "ipaddress"
+            host["ipAddress"] = address.hostname
+            host["hostName"] = None
+            del host["hostName"]
+        except ValueError:
+            _LOGGER.debug("address.hostname is not an ip! %s", address.hostname)
+            host["addressingFormatType"] = "hostname"
+            host["ipAddress"] = None
+            del host["ipAddress"]
+            host["hostName"] = address.hostname
+            
+        host["portNo"] = address_port
         host["httpAuthenticationMethod"] = "none"
 
         xml = xmltodict.unparse(data)
