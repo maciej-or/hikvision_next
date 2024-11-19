@@ -70,11 +70,6 @@ class ISAPIClient:
         self.isapi_prefix = "ISAPI"
         self._session = session
         self._auth_method: httpx._auth.Auth = None
-            
-        _LOGGER.error("--RLEB \n\n\n\n\n\n  force_rtsp_port:%s \n  rtsp_port_forced:%s"
-                          ,force_rtsp_port,
-                          rtsp_port_forced
-                          )
 
         self.force_rtsp_port = force_rtsp_port
         self.rtsp_port_forced=rtsp_port_forced
