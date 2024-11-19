@@ -138,7 +138,7 @@ async def test_async_setup_entry_nvr_with_alarm_server(hass: HomeAssistant, init
 
 
 @pytest.mark.parametrize("mock_config_entry", [TEST_CLIENT_OUTSIDE_NETWORK], indirect=True)
-@pytest.mark.parametrize("init_integration", [("DS-2CD2386G2-IU")], indirect=True)
+@pytest.mark.parametrize("init_integration", [("DS-2CD2T86G2-ISU")], indirect=True)
 async def test_async_setup_entry_nvr_outside_network(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test a successful IP camera setup entry outside network."""
 
@@ -148,23 +148,23 @@ async def test_async_setup_entry_nvr_outside_network(hass: HomeAssistant, init_i
     device: HikvisionDevice = entry.runtime_data
     assert device.host == TEST_CLIENT_OUTSIDE_NETWORK["host"]
     assert len(device.cameras) == 1
-    assert len(device.supported_events) == 14
+    assert len(device.supported_events) == 15
 
     device_info = device.device_info
     capabilities = device.capabilities
     assert device_info.device_type == "IPCamera"
-    assert device_info.firmware == "V5.7.15"
-    assert capabilities.input_ports == 0
+    assert device_info.firmware == "V5.7.18"
+    assert capabilities.input_ports == 1
     assert TEST_CLIENT_OUTSIDE_NETWORK["host"].endswith(device_info.ip_address)
     assert device_info.is_nvr is False
     assert len(device_info.mac_address) == 17
     assert device_info.manufacturer == "Hikvision"
-    assert device_info.model == "DS-2CD2386G2-IU"
-    assert device_info.name == "yard"
-    assert capabilities.output_ports == 0
+    assert device_info.model == "DS-2CD2T86G2-ISU/SL"
+    assert device_info.name == "IP CAMERA 3"
+    assert capabilities.output_ports == 1
     assert device.protocols.rtsp_port == "5151"
-    assert device_info.serial_no == "DS-2CD2386G2-IU00000000AAWRJ00000000"
-    assert len(device.storage) == 2
+    assert device_info.serial_no == "DS-2CD2T86G2-ISU/SL00000000BBWRAE0000000"
+    assert len(device.storage) == 1
     assert capabilities.support_alarm_server is True
     assert capabilities.support_analog_cameras == 0
     assert capabilities.support_channel_zero is False
