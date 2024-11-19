@@ -6,14 +6,14 @@
           "DeviceInfo": {
             "@version": "2.0",
             "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
-            "deviceName": "CAMERA 3",
-            "deviceID": "f1474000-98bf-00b0-0000-a0ff0ce0c000",
+            "deviceName": "CAMERA 1",
+            "deviceID": "e57bc000-b4dd-00b0-0000-000c00de0fd0",
             "deviceDescription": "IPCamera",
             "deviceLocation": "hangzhou",
             "systemContact": "Hikvision.China",
-            "model": "DS-2CD2T86G2-ISU/SL",
-            "serialNumber": "DS-2CD2T86G2-ISU/SL00000000AAWRAE0000000",
-            "macAddress": "1e:70:fe:e0:b2:be",
+            "model": "DS-2CD2346G2-ISU/SL",
+            "serialNumber": "DS-2CD2346G2-ISU/SL00000000AAWRJ00000000",
+            "macAddress": "e0:2c:37:93:d9:54",
             "firmwareVersion": "V5.7.18",
             "firmwareReleasedDate": "build 240826",
             "encoderVersion": "V7.3",
@@ -22,12 +22,12 @@
             "bootReleasedDate": "100316",
             "hardwareVersion": "0x0",
             "deviceType": "IPCamera",
-            "telecontrolID": "153",
+            "telecontrolID": "152",
             "supportBeep": "false",
             "supportVideoLoss": "false",
             "firmwareVersionInfo": "B-R-G5-0",
             "manufacturer": "hikvision",
-            "subSerialNumber": "AE0000000",
+            "subSerialNumber": "J00000000",
             "OEMCode": "1"
           }
         }
@@ -182,7 +182,7 @@
                 "true"
               ],
               "isIrreversible": "true",
-              "salt": "87832f32100522b6799243f617f82db6679b20eb4d78e88c6917921dc0978159",
+              "salt": "bfec7d07a533914c4bd75cc3678d5be61c4175dc0336c54aacbf13f73693dad2",
               "isSupportOnvifInfo": "true",
               "isSupportDeviceCertificatesManagement": "true",
               "isSupportDeviceSelfSignCertExport": "true",
@@ -435,7 +435,7 @@
               "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
               "id": "1",
               "inputPort": "1",
-              "name": "Passage",
+              "name": "Atelier",
               "videoFormat": "PAL"
             }
           }
@@ -459,8 +459,8 @@
                 "hddPath": null,
                 "hddType": "SATA",
                 "status": "ok",
-                "capacity": "244480",
-                "freeSpace": "81597",
+                "capacity": "121942",
+                "freeSpace": "26623",
                 "property": "RW",
                 "formatType": "EXT4",
                 "Encryption": {
@@ -477,7 +477,7 @@
                     "#text": "EXT4"
                   }
                 },
-                "installationTime": "17-Nov-2024 19:46"
+                "installationTime": "17-Nov-2024 20:01"
               }
             },
             "nasList": {
@@ -701,6 +701,11 @@
                 "EventTriggerNotificationList": {
                   "EventTriggerNotification": [
                     {
+                      "id": "email",
+                      "notificationMethod": "email",
+                      "notificationRecurrence": "beginning"
+                    },
+                    {
                       "id": "record-1",
                       "notificationMethod": "record",
                       "notificationRecurrence": "beginning",
@@ -753,6 +758,11 @@
                 "EventTriggerNotificationList": {
                   "EventTriggerNotification": [
                     {
+                      "id": "email",
+                      "notificationMethod": "email",
+                      "notificationRecurrence": "beginning"
+                    },
+                    {
                       "id": "record-1",
                       "notificationMethod": "record",
                       "notificationRecurrence": "beginning",
@@ -785,6 +795,11 @@
                       "notificationMethod": "record",
                       "notificationRecurrence": "beginning",
                       "videoInputID": "1"
+                    },
+                    {
+                      "id": "FTP",
+                      "notificationMethod": "FTP",
+                      "notificationRecurrence": "beginning"
                     }
                   ]
                 }
@@ -851,12 +866,20 @@
                 "videoInputChannelID": "1",
                 "dynVideoInputChannelID": "1",
                 "EventTriggerNotificationList": {
-                  "EventTriggerNotification": {
-                    "id": "record-1",
-                    "notificationMethod": "record",
-                    "notificationRecurrence": "beginning",
-                    "videoInputID": "1"
-                  }
+                  "EventTriggerNotification": [
+                    {
+                      "id": "IO-1",
+                      "notificationMethod": "IO",
+                      "notificationRecurrence": "beginning",
+                      "outputIOPortID": "1"
+                    },
+                    {
+                      "id": "record-1",
+                      "notificationMethod": "record",
+                      "notificationRecurrence": "beginning",
+                      "videoInputID": "1"
+                    }
+                  ]
                 }
               },
               {
@@ -990,7 +1013,7 @@
             "@version": "2.0",
             "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
             "id": "101",
-            "channelName": "Passage",
+            "channelName": "Atelier",
             "enabled": "true",
             "Transport": {
               "maxPacketSize": "1000",
@@ -1028,8 +1051,8 @@
                 }
               },
               "SRTPMulticast": {
-                "SRTPVideoDestPortNo": "18862",
-                "SRTPAudioDestPortNo": "18860"
+                "SRTPVideoDestPortNo": "18860",
+                "SRTPAudioDestPortNo": "18862"
               }
             },
             "Video": {
@@ -1037,11 +1060,13 @@
               "videoInputChannelID": "1",
               "videoCodecType": "H.265",
               "videoScanType": "progressive",
-              "videoResolutionWidth": "3840",
-              "videoResolutionHeight": "2160",
-              "videoQualityControlType": "CBR",
-              "constantBitRate": "12288",
+              "videoResolutionWidth": "2688",
+              "videoResolutionHeight": "1520",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "4096",
               "fixedQuality": "100",
+              "vbrUpperCap": "4096",
+              "vbrLowerCap": "32",
               "maxFrameRate": "2500",
               "keyFrameInterval": "2000",
               "snapShotImageType": "JPEG",
@@ -1059,7 +1084,7 @@
               "SmartCodec": {
                 "enabled": "true"
               },
-              "vbrAverageCap": "6144"
+              "vbrAverageCap": "2048"
             },
             "Audio": {
               "enabled": "true",
@@ -1075,7 +1100,7 @@
             "@version": "2.0",
             "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
             "id": "102",
-            "channelName": "Passage",
+            "channelName": "Atelier",
             "enabled": "true",
             "Transport": {
               "maxPacketSize": "1000",
@@ -1113,8 +1138,8 @@
                 }
               },
               "SRTPMulticast": {
-                "SRTPVideoDestPortNo": "18868",
-                "SRTPAudioDestPortNo": "18866"
+                "SRTPVideoDestPortNo": "18866",
+                "SRTPAudioDestPortNo": "18868"
               }
             },
             "Video": {
@@ -1158,7 +1183,7 @@
             "@version": "2.0",
             "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
             "id": "103",
-            "channelName": "Passage",
+            "channelName": "Atelier",
             "enabled": "true",
             "Transport": {
               "maxPacketSize": "1000",
@@ -1196,8 +1221,8 @@
                 }
               },
               "SRTPMulticast": {
-                "SRTPVideoDestPortNo": "18862",
-                "SRTPAudioDestPortNo": "18860"
+                "SRTPVideoDestPortNo": "18860",
+                "SRTPAudioDestPortNo": "18862"
               }
             },
             "Video": {
@@ -1205,11 +1230,13 @@
               "videoInputChannelID": "1",
               "videoCodecType": "H.265",
               "videoScanType": "progressive",
-              "videoResolutionWidth": "3840",
-              "videoResolutionHeight": "2160",
-              "videoQualityControlType": "CBR",
-              "constantBitRate": "12288",
+              "videoResolutionWidth": "2688",
+              "videoResolutionHeight": "1520",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "4096",
               "fixedQuality": "100",
+              "vbrUpperCap": "4096",
+              "vbrLowerCap": "32",
               "maxFrameRate": "2500",
               "keyFrameInterval": "2000",
               "snapShotImageType": "JPEG",
@@ -1227,7 +1254,7 @@
               "SmartCodec": {
                 "enabled": "true"
               },
-              "vbrAverageCap": "6144"
+              "vbrAverageCap": "2048"
             },
             "Audio": {
               "enabled": "true",
@@ -1243,7 +1270,7 @@
             "@version": "2.0",
             "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
             "id": "104",
-            "channelName": "Passage",
+            "channelName": "Atelier",
             "enabled": "true",
             "Transport": {
               "maxPacketSize": "1000",
@@ -1281,8 +1308,8 @@
                 }
               },
               "SRTPMulticast": {
-                "SRTPVideoDestPortNo": "18862",
-                "SRTPAudioDestPortNo": "18860"
+                "SRTPVideoDestPortNo": "18860",
+                "SRTPAudioDestPortNo": "18862"
               }
             },
             "Video": {
@@ -1290,11 +1317,13 @@
               "videoInputChannelID": "1",
               "videoCodecType": "H.265",
               "videoScanType": "progressive",
-              "videoResolutionWidth": "3840",
-              "videoResolutionHeight": "2160",
-              "videoQualityControlType": "CBR",
-              "constantBitRate": "12288",
+              "videoResolutionWidth": "2688",
+              "videoResolutionHeight": "1520",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "4096",
               "fixedQuality": "100",
+              "vbrUpperCap": "4096",
+              "vbrLowerCap": "32",
               "maxFrameRate": "2500",
               "keyFrameInterval": "2000",
               "snapShotImageType": "JPEG",
@@ -1312,7 +1341,7 @@
               "SmartCodec": {
                 "enabled": "true"
               },
-              "vbrAverageCap": "6144"
+              "vbrAverageCap": "2048"
             },
             "Audio": {
               "enabled": "true",
@@ -1352,14 +1381,14 @@
             "MotionDetectionLayout": {
               "@version": "2.0",
               "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
-              "sensitivityLevel": "60",
+              "sensitivityLevel": "40",
               "layout": {
-                "gridMap": "fffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffc",
+                "gridMap": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
                 "RegionList": {
                   "@size": "4"
                 }
               },
-              "targetType": "human,vehicle"
+              "targetType": null
             }
           }
         }
@@ -1383,20 +1412,20 @@
                 "RegionCoordinatesList": {
                   "RegionCoordinates": [
                     {
-                      "positionX": "26",
-                      "positionY": "38"
+                      "positionX": "68",
+                      "positionY": "28"
                     },
                     {
-                      "positionX": "671",
-                      "positionY": "38"
+                      "positionX": "652",
+                      "positionY": "28"
                     },
                     {
-                      "positionX": "671",
-                      "positionY": "418"
+                      "positionX": "652",
+                      "positionY": "494"
                     },
                     {
-                      "positionX": "26",
-                      "positionY": "418"
+                      "positionX": "68",
+                      "positionY": "494"
                     }
                   ]
                 }
@@ -1426,19 +1455,19 @@
                   "CoordinatesList": {
                     "Coordinates": [
                       {
-                        "positionX": "0",
-                        "positionY": "1000"
+                        "positionX": "664",
+                        "positionY": "0"
                       },
                       {
-                        "positionX": "0",
-                        "positionY": "1000"
+                        "positionX": "996",
+                        "positionY": "694"
                       }
                     ]
                   },
                   "detectionTarget": "human",
                   "alarmConfidence": {
                     "@opt": "low,mediumLow,mediumHigh,high",
-                    "#text": "low"
+                    "#text": "mediumLow"
                   }
                 },
                 {
@@ -1450,11 +1479,11 @@
                     "Coordinates": [
                       {
                         "positionX": "0",
-                        "positionY": "1000"
+                        "positionY": "0"
                       },
                       {
                         "positionX": "0",
-                        "positionY": "1000"
+                        "positionY": "0"
                       }
                     ]
                   },
@@ -1473,11 +1502,11 @@
                     "Coordinates": [
                       {
                         "positionX": "0",
-                        "positionY": "1000"
+                        "positionY": "0"
                       },
                       {
                         "positionX": "0",
-                        "positionY": "1000"
+                        "positionY": "0"
                       }
                     ]
                   },
@@ -1496,11 +1525,11 @@
                     "Coordinates": [
                       {
                         "positionX": "0",
-                        "positionY": "1000"
+                        "positionY": "0"
                       },
                       {
                         "positionX": "0",
-                        "positionY": "1000"
+                        "positionY": "0"
                       }
                     ]
                   },
@@ -1539,53 +1568,33 @@
                   "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
                   "id": "1",
                   "enabled": "false",
-                  "sensitivityLevel": "75",
+                  "sensitivityLevel": "60",
                   "timeThreshold": "5",
                   "RegionCoordinatesList": {
                     "RegionCoordinates": [
                       {
-                        "positionX": "1",
-                        "positionY": "1"
+                        "positionX": "4",
+                        "positionY": "717"
                       },
                       {
-                        "positionX": "1000",
+                        "positionX": "422",
+                        "positionY": "892"
+                      },
+                      {
+                        "positionX": "998",
+                        "positionY": "907"
+                      },
+                      {
+                        "positionX": "994",
                         "positionY": "0"
                       },
                       {
-                        "positionX": "1000",
-                        "positionY": "417"
-                      },
-                      {
-                        "positionX": "861",
-                        "positionY": "519"
-                      },
-                      {
-                        "positionX": "777",
-                        "positionY": "596"
-                      },
-                      {
-                        "positionX": "625",
-                        "positionY": "674"
-                      },
-                      {
-                        "positionX": "349",
-                        "positionY": "715"
-                      },
-                      {
-                        "positionX": "323",
-                        "positionY": "722"
-                      },
-                      {
-                        "positionX": "180",
-                        "positionY": "742"
-                      },
-                      {
-                        "positionX": "0",
-                        "positionY": "711"
+                        "positionX": "6",
+                        "positionY": "17"
                       }
                     ]
                   },
-                  "detectionTarget": "human,vehicle",
+                  "detectionTarget": "human",
                   "alarmConfidence": {
                     "@opt": "low,mediumLow,mediumHigh,high",
                     "#text": "mediumHigh"

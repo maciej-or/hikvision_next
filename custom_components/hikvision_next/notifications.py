@@ -50,8 +50,9 @@ class EventNotificationsView(HomeAssistantView):
         try:
             _LOGGER.debug("--- Incoming event notification ---")
             _LOGGER.debug("Source: %s", request.remote)
-            self.device = self.get_isapi_device(request.remote)
             xml = await self.parse_event_request(request)
+            alert_raw = ISAPIClient.parse_event_notification(xml)
+            self.device = self.get_isapi_device(request.remote, alert_raw)
             _LOGGER.debug("alert info: %s", xml)
             self.trigger_sensor(xml)
         except Exception as ex:  # pylint: disable=broad-except
@@ -60,7 +61,7 @@ class EventNotificationsView(HomeAssistantView):
         response = web.Response(status=HTTPStatus.OK, content_type=CONTENT_TYPE_TEXT_PLAIN)
         return response
 
-    def get_isapi_device(self, device_ip) -> HikvisionDevice:
+    def get_isapi_device(self, device_ip, alert: AlertInfo) -> HikvisionDevice:
         """Get isapi instance for device sending alert."""
         integration_entries = self.hass.config_entries.async_entries(DOMAIN)
         instances_hosts = []
@@ -68,17 +69,40 @@ class EventNotificationsView(HomeAssistantView):
         if len(integration_entries) == 1:
             entry = integration_entries[0]
         else:
-            for item in integration_entries:
-                url = item.data.get(CONF_HOST)
-                instances_hosts.append(url)
-                if item.disabled_by:
-                    continue
-                if self.get_ip(urlparse(url).hostname) == device_ip:
-                    entry = item
-                    break
+            # Search device by mac_address
+            try:
+                for item in integration_entries:
+                    if item.disabled_by:
+                        continue
 
-        if not entry:
-            raise ValueError(f"Cannot find ISAPI instance for device {device_ip} in {instances_hosts}")
+                    item_mac_address = item.runtime_data.device_info.mac_address
+
+                    if item_mac_address == alert.mac:
+                        _LOGGER.debug("Item matched with mac_address: %s", item_mac_address)
+                        entry = item
+                        break
+            except Exception as ex:
+                _LOGGER.debug("Alert without mac address: %s", ex)
+
+
+            if not entry:
+                # Search device by ip_address
+                for item in integration_entries:
+                    if item.disabled_by:
+                        continue
+
+                    url = item.data.get(CONF_HOST)
+                    instances_hosts.append(url)
+
+                    try:
+                        if self.get_ip(urlparse(url).hostname) == device_ip:
+                            entry = item
+                            break
+                    except Exception as ex:
+                        _LOGGER.debug("url %s without ip: %s", url, ex)
+
+                if not entry:
+                    raise ValueError(f"Cannot find ISAPI instance for device {device_ip} in {instances_hosts}")
 
         return entry.runtime_data
 

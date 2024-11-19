@@ -31,11 +31,11 @@ async def test_sensor_value_outside_network(
     """Test sensors value."""
 
     for entity_id, state in [
-        ("sensor.ds_2cd2t86g2_isu_sl00000000bbwrae0000000_alarm_server_hostname", "host.domain"),
-        ("sensor.ds_2cd2t86g2_isu_sl00000000bbwrae0000000_alarm_server_portno", "443"),
-        ("sensor.ds_2cd2t86g2_isu_sl00000000bbwrae0000000_alarm_server_url", "/api/hikvision"),
-        ("sensor.ds_2cd2t86g2_isu_sl00000000bbwrae0000000_alarm_server_protocoltype", "HTTPS"),
-        ("sensor.ds_2cd2t86g2_isu_sl00000000bbwrae0000000_1_hdde", "OK"),
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_alarm_server_hostname", "ha.hostname.domain"),
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_alarm_server_portno", "443"),
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_alarm_server_url", "/api/hikvision"),
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_alarm_server_protocoltype", "HTTPS"),
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_hdde", "OK"),
     ]:
         assert (sensor := hass.states.get(entity_id))
         assert sensor.state == state

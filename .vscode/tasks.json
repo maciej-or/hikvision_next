@@ -31,7 +31,7 @@
             "type": "docker-run",
             "dependsOn": ["docker-build phcc"],
             "python": {
-              "args": ["./tests/test_init.py"],
+              "args": ["./tests/test_notifications.py"],
               "module": "pytest"
             },
             "dockerRun":{

@@ -21,7 +21,7 @@ TEST_CLIENT = {
 }
 
 TEST_CLIENT_OUTSIDE_NETWORK = {
-    CONF_HOST: "http://address.domain",
+    CONF_HOST: "https://address.domain",
     CONF_USERNAME: "u1",
     CONF_PASSWORD: "***",
     FORCE_RTSP_PORT: True,
@@ -118,12 +118,40 @@ async def init_integration(respx_mock, request, mock_isapi, hass: HomeAssistant,
         model - fixtures/devices subfolder
         skip_setup - default False, if True skips setup of the integration
     """
+    return await load_an_integ(request.param, hass, mock_config_entry)
 
-    model = request.param
+
+@pytest.fixture
+async def init_integration_outside_network(respx_mock, request, mock_isapi, hass: HomeAssistant, mock_config_entry: MockConfigEntry):
+    """
+    Mock integration in device context.
+
+    :param request: model or (model, skip_setup)
+        model - fixtures/devices subfolder
+        skip_setup - default False, if True skips setup of the integration
+    """
+    entry= MockConfigEntry(
+        domain=DOMAIN,
+        data=TEST_CLIENT_OUTSIDE_NETWORK,
+        version=2
+    )
+    return await load_an_integ(request.param, hass, entry)
+
+
+async def load_an_integ(model, hass: HomeAssistant, mock_config_entry: MockConfigEntry):
+    # async def init_integration(respx_mock, request, mock_isapi, hass: HomeAssistant, mock_config_entry: MockConfigEntry):
+    """
+    Mock integration in device context.
+
+    :param request: model or (model, skip_setup)
+        model - fixtures/devices subfolder
+        skip_setup - default False, if True skips setup of the integration
+    """
+
     skip_setup = False
-    if len(request.param) == 2:
-        model = request.param[0]
-        skip_setup = request.param[1]
+    if len(model) == 2:
+        model = model[0]
+        skip_setup = model[1]
     
     base_url=mock_config_entry.data.get('host')
 

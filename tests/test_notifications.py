@@ -1,13 +1,14 @@
 """Test event notifications."""
 
 import pytest
+import copy
 from http import HTTPStatus
 from homeassistant.core import HomeAssistant, Event
 from custom_components.hikvision_next.notifications import EventNotificationsView
-from custom_components.hikvision_next.const import HIKVISION_EVENT
+from custom_components.hikvision_next.const import HIKVISION_EVENT, DOMAIN
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from unittest.mock import MagicMock
-from tests.conftest import load_fixture, TEST_HOST_IP
+from tests.conftest import load_fixture, load_an_integ, TEST_HOST_IP, TEST_CONFIG, TEST_CLIENT_OUTSIDE_NETWORK
 from homeassistant.const import (
     STATE_ON,
     STATE_OFF
@@ -122,3 +123,119 @@ async def test_field_detection_alert(
     assert data["event_id"] == "fielddetection"
     assert data["detection_target"] == "vehicle"
     assert data["region_id"] == 2
+
+
+
+@pytest.mark.parametrize("init_integration_outside_network", ["DS-2CD2T86G2-ISU"], indirect=True)
+async def test_nvr_and_cam_notification_alert(
+    hass: HomeAssistant, init_integration_outside_network: MockConfigEntry,
+) -> None:
+    """Test incoming multiple notifications with 1 NVR in the same network et 3 cameras outside."""
+    """NOTE: Notification on NVR is without macAddress"""
+    """NOTE: Notification on CAMERA is with macAddress"""
+    
+    """LOAD A NVR IN THE SAME NETWORK but without macAddress in notification"""
+    model_nvr_1 = "DS-7608NXI-I2"
+    config_nvr_1 =  copy.copy(TEST_CONFIG)
+    entry_nvr_1 = MockConfigEntry(
+        domain=DOMAIN,
+        data=config_nvr_1,
+        version=2
+    )
+    await load_an_integ(model_nvr_1, hass, entry_nvr_1)
+    entity_nvr_1_id = "binary_sensor.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_fielddetection"
+
+    """LOAD ANOTHER CAMERA OUTSIDE THE NETWORK."""
+    model_cam_2="DS-2CD2346G2-ISU"
+    config_cam_2 = copy.copy(TEST_CLIENT_OUTSIDE_NETWORK)
+    config_cam_2['rtsp_port_forced']=5153
+    entry_cam_2= MockConfigEntry(
+        domain=DOMAIN,
+        data=config_cam_2,
+        version=2
+    )
+    await load_an_integ(model_cam_2, hass, entry_cam_2)
+    entity_cam_2_id = "binary_sensor.ds_2cd2346g2_isu_sl00000000aawrj00000000_1_1_io"
+
+    """LOAD ANOTHER CAMERA OUTSIDE THE NETWORK."""
+    model_cam_1="DS-2CD2T46G2-ISU"
+    config_cam_1 = copy.copy(TEST_CLIENT_OUTSIDE_NETWORK)
+    config_cam_1['rtsp_port_forced']=5153
+    entry_cam_1= MockConfigEntry(
+        domain=DOMAIN,
+        data=config_cam_1,
+        version=2
+    )
+    await load_an_integ(model_cam_1, hass, entry_cam_1)
+    entity_cam_1_id = "binary_sensor.ds_2cd2t46g2_isu_sl00000000aawrg00000000_1_1_io"
+
+
+    entity_cam_3_id = "binary_sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_1_io"
+    bus_events = []
+    def bus_event_listener(event: Event) -> None:
+        bus_events.append(event)
+    hass.bus.async_listen(HIKVISION_EVENT, bus_event_listener)
+
+    assert (sensor_cam_1 := hass.states.get(entity_cam_1_id))
+    assert (sensor_cam_2 := hass.states.get(entity_cam_2_id))
+    assert (sensor_cam_3 := hass.states.get(entity_cam_3_id))
+    assert (sensor_nvr_1 := hass.states.get(entity_nvr_1_id))
+    assert sensor_cam_1.state == STATE_OFF
+    assert sensor_cam_2.state == STATE_OFF
+    assert sensor_cam_3.state == STATE_OFF
+    assert sensor_nvr_1.state == STATE_OFF
+
+    
+    """NOTIFICATION ON CAM 3 SENSOR"""
+    view = EventNotificationsView(hass)
+    mock_request = mock_event_notification("cam3_DS-2CD2T86G2-ISU_io_notification")
+    response = await view.post(mock_request)
+
+    assert response.status == HTTPStatus.OK
+    
+
+    assert (sensor_cam_1 := hass.states.get(entity_cam_1_id))
+    assert (sensor_cam_2 := hass.states.get(entity_cam_2_id))
+    assert (sensor_cam_3 := hass.states.get(entity_cam_3_id))
+    assert (sensor_nvr_1 := hass.states.get(entity_nvr_1_id))
+    assert sensor_cam_1.state == STATE_OFF
+    assert sensor_cam_2.state == STATE_OFF
+    assert sensor_cam_3.state == STATE_ON
+    assert sensor_nvr_1.state == STATE_OFF
+
+    
+    """NOTIFICATION ON CAM 1 SENSOR"""
+    view = EventNotificationsView(hass)
+    mock_request = mock_event_notification("cam1_DS-2CD2T46G2-ISU_io_notification")
+    response = await view.post(mock_request)
+
+    assert response.status == HTTPStatus.OK
+    
+
+    assert (sensor_cam_1 := hass.states.get(entity_cam_1_id))
+    assert (sensor_cam_2 := hass.states.get(entity_cam_2_id))
+    assert (sensor_cam_3 := hass.states.get(entity_cam_3_id))
+    assert (sensor_nvr_1 := hass.states.get(entity_nvr_1_id))
+    assert sensor_cam_1.state == STATE_ON
+    assert sensor_cam_2.state == STATE_OFF
+    assert sensor_cam_3.state == STATE_ON
+    assert sensor_nvr_1.state == STATE_OFF
+
+    
+    
+    """NOTIFICATION WITHOUT MAC ADDRESS ON NVR"""
+    view = EventNotificationsView(hass)
+    mock_request = mock_event_notification("nvr_2_fielddetection")
+    response = await view.post(mock_request)
+    
+    assert response.status == HTTPStatus.OK
+    
+
+    assert (sensor_cam_1 := hass.states.get(entity_cam_1_id))
+    assert (sensor_cam_2 := hass.states.get(entity_cam_2_id))
+    assert (sensor_cam_3 := hass.states.get(entity_cam_3_id))
+    assert (sensor_nvr_1 := hass.states.get(entity_nvr_1_id))
+    assert sensor_cam_1.state == STATE_ON
+    assert sensor_cam_2.state == STATE_OFF
+    assert sensor_cam_3.state == STATE_ON
+    assert sensor_nvr_1.state == STATE_ON
