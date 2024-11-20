@@ -7,7 +7,7 @@ from custom_components.hikvision_next.const import DOMAIN
 from custom_components.hikvision_next.hikvision_device import HikvisionDevice
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from homeassistant.config_entries import ConfigEntryState
-from tests.conftest import TEST_CONFIG, TEST_CONFIG_WITH_ALARM_SERVER, TEST_CLIENT_OUTSIDE_NETWORK
+from tests.conftest import TEST_CONFIG, TEST_CONFIG_WITH_ALARM_SERVER, TEST_CONFIG_OUTSIDE_NETWORK
 
 
 @pytest.mark.parametrize(
@@ -143,7 +143,8 @@ async def test_async_setup_entry_nvr_with_alarm_server(hass: HomeAssistant, init
         assert not hass.data.get(DOMAIN)
 
 
-@pytest.mark.parametrize("mock_config_entry", [TEST_CLIENT_OUTSIDE_NETWORK], indirect=True)
+@pytest.mark.parametrize("mock_isapi", [TEST_CONFIG_OUTSIDE_NETWORK['host']], indirect=True)
+@pytest.mark.parametrize("mock_config_entry", [TEST_CONFIG_OUTSIDE_NETWORK], indirect=True)
 @pytest.mark.parametrize("init_integration", [("DS-2CD2T86G2-ISU")], indirect=True)
 async def test_async_setup_entry_nvr_outside_network(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test a successful IP camera setup entry outside network."""
@@ -152,7 +153,7 @@ async def test_async_setup_entry_nvr_outside_network(hass: HomeAssistant, init_i
     assert entry.state == ConfigEntryState.LOADED
 
     device: HikvisionDevice = entry.runtime_data
-    assert device.host == TEST_CLIENT_OUTSIDE_NETWORK["host"]
+    assert device.host == TEST_CONFIG_OUTSIDE_NETWORK["host"]
     assert len(device.cameras) == 1
     assert len(device.supported_events) == 15
 
@@ -161,7 +162,7 @@ async def test_async_setup_entry_nvr_outside_network(hass: HomeAssistant, init_i
     assert device_info.device_type == "IPCamera"
     assert device_info.firmware == "V5.7.18"
     assert capabilities.input_ports == 1
-    assert TEST_CLIENT_OUTSIDE_NETWORK["host"].endswith(device_info.ip_address)
+    assert TEST_CONFIG_OUTSIDE_NETWORK["host"].endswith(device_info.ip_address)
     assert device_info.is_nvr is False
     assert len(device_info.mac_address) == 17
     assert device_info.manufacturer == "Hikvision"
