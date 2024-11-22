@@ -51,10 +51,11 @@ class EventNotificationsView(HomeAssistantView):
             _LOGGER.debug("--- Incoming event notification ---")
             _LOGGER.debug("Source: %s", request.remote)
             xml = await self.parse_event_request(request)
-            alert_raw = ISAPIClient.parse_event_notification(xml)
-            self.device = self.get_isapi_device(request.remote, alert_raw)
             _LOGGER.debug("alert info: %s", xml)
-            self.trigger_sensor(xml)
+            alert = ISAPIClient.parse_event_notification(xml)
+            self.device = self.get_isapi_device(request.remote, alert)
+            self.update_alert_channel(alert)
+            self.trigger_sensor(alert)
         except Exception as ex:  # pylint: disable=broad-except
             _LOGGER.warning("Cannot process incoming event %s", ex)
 
@@ -155,10 +156,8 @@ class EventNotificationsView(HomeAssistantView):
             raise ValueError(f"Unexpected event Content-Type {content_type_header}")
         return xml
 
-    def get_alert_info(self, xml: str) -> AlertInfo:
-        """Parse incoming EventNotificationAlert XML message."""
-
-        alert = ISAPIClient.parse_event_notification(xml)
+    def update_alert_channel(self, alert: AlertInfo) -> AlertInfo:
+        """Fix channel id for NVR/DVR alert."""
 
         if alert.channel_id > 32:
             # channel id above 32 is an IP camera
@@ -173,12 +172,9 @@ class EventNotificationsView(HomeAssistantView):
             except IndexError:
                 alert.channel_id = alert.channel_id - 32
 
-        return alert
-
-    def trigger_sensor(self, xml: str) -> None:
+    def trigger_sensor(self, alert: AlertInfo) -> None:
         """Determine entity and set binary sensor state."""
 
-        alert = self.get_alert_info(xml)
         _LOGGER.debug("Alert: %s", alert)
 
         serial_no = self.device.device_info.serial_no.lower()
