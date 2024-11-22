@@ -571,28 +571,15 @@ class ISAPIClient:
             return
         host = self._get_event_notification_host(data)
 
-        host_ipaddress_hostname = ""
+        old_address = ""
         if host.get("addressingFormatType") == "ipaddress":
-            host_ipaddress_hostname = host.get("ipAddress")
-            _LOGGER.debug("alarm_server url is an ip: %s", host_ipaddress_hostname)
+            old_address = host.get("ipAddress")
         else:
-            host_ipaddress_hostname = host.get("hostname")
-            _LOGGER.debug("alarm_server url is a hostname: %s", host_ipaddress_hostname)
-
-        address_scheme_port_upper = address.scheme.upper()
-
-        address_port = address.port
-        try:
-            int(address_port)
-        except Exception:
-            if address_scheme_port_upper == "HTTPS":
-                address_port = 443
-            else:
-                address_port = 80
+            old_address = host.get("hostname")
 
         if (
             host["protocolType"] == address.scheme.upper()
-            and host_ipaddress_hostname == address.hostname
+            and old_address == address.hostname
             and host.get("portNo") == str(address.port)
             and host["url"] == path
         ):
@@ -601,22 +588,22 @@ class ISAPIClient:
         host["protocolType"] = address.scheme.upper()
         host["parameterFormatType"] = "XML"
 
-        # if address.hostname is an ip
         try:
             ipaddress.ip_address(address.hostname)
 
+            # if address.hostname is an ip
             host["addressingFormatType"] = "ipaddress"
             host["ipAddress"] = address.hostname
             host["hostName"] = None
             del host["hostName"]
         except ValueError:
-            _LOGGER.debug("address.hostname is not an ip! %s", address.hostname)
+            # if address.hostname is a domain
             host["addressingFormatType"] = "hostname"
             host["ipAddress"] = None
             del host["ipAddress"]
             host["hostName"] = address.hostname
-            
-        host["portNo"] = address_port
+
+        host["portNo"] = address.port or (443 if address.scheme == "https" else 80)
         host["httpAuthenticationMethod"] = "none"
 
         xml = xmltodict.unparse(data)

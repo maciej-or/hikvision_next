@@ -70,7 +70,7 @@ async def test_update_notification_hosts(mock_isapi):
 
 
 @respx.mock
-async def test_update_notification_hosts_outside_network(mock_isapi):
+async def test_update_notification_hosts_from_ipaddress_to_hostname(mock_isapi):
     isapi = mock_isapi
 
     def update_side_effect(request, route):
@@ -82,6 +82,6 @@ async def test_update_notification_hosts_outside_network(mock_isapi):
     mock_endpoint("Event/notification/httpHosts", "nvr_single_item")
     url = f"{isapi.host}/ISAPI/Event/notification/httpHosts"
     endpoint = respx.put(url).mock(side_effect=update_side_effect)
-    await isapi.set_alarm_server("https://outside.network", "/api/hikvision")
+    await isapi.set_alarm_server("https://ha.hostname.domain", "/api/hikvision")
 
     assert endpoint.called
