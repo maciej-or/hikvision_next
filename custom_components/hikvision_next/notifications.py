@@ -63,7 +63,7 @@ class EventNotificationsView(HomeAssistantView):
         return response
 
     def get_isapi_device(self, device_ip, alert: AlertInfo) -> HikvisionDevice:
-        """Get isapi instance for device sending alert."""
+        """Get integration instance for device sending alert."""
         integration_entries = self.hass.config_entries.async_entries(DOMAIN)
         instance_identifiers = []
         entry = None
@@ -88,7 +88,7 @@ class EventNotificationsView(HomeAssistantView):
                     if item.disabled_by:
                         continue
 
-                    url = item.data.get(CONF_HOST)
+                    url = item.runtime_data.host
                     instance_identifiers.append(url)
 
                     if self.get_ip(urlparse(url).hostname) == device_ip:
