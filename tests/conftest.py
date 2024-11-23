@@ -4,7 +4,7 @@ import json
 import pytest
 import respx
 import xmltodict
-from custom_components.hikvision_next.const import DOMAIN, CONF_SET_ALARM_SERVER, CONF_ALARM_SERVER_HOST, FORCE_RTSP_PORT, RTSP_PORT_FORCED
+from custom_components.hikvision_next.const import DOMAIN, CONF_SET_ALARM_SERVER, CONF_ALARM_SERVER_HOST, RTSP_PORT_FORCED
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.hikvision_next.isapi import ISAPIClient
@@ -15,9 +15,7 @@ TEST_HOST = f"http://{TEST_HOST_IP}"
 TEST_CLIENT = {
     CONF_HOST: TEST_HOST,
     CONF_USERNAME: "u1",
-    CONF_PASSWORD: "***",
-    FORCE_RTSP_PORT: False,
-    RTSP_PORT_FORCED: 554,
+    CONF_PASSWORD: "***"
 }
 
 TEST_CONFIG = {**TEST_CLIENT, CONF_VERIFY_SSL: True, CONF_SET_ALARM_SERVER: False, CONF_ALARM_SERVER_HOST: ""}
@@ -30,7 +28,6 @@ TEST_CONFIG_WITH_ALARM_SERVER = {
 TEST_CONFIG_OUTSIDE_NETWORK = {
     **TEST_CONFIG,
     CONF_HOST: "https://address.domain",
-    FORCE_RTSP_PORT: True,
     RTSP_PORT_FORCED: 5151,
 }
 

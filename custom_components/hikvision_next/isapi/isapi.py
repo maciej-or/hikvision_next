@@ -57,7 +57,6 @@ class ISAPIClient:
         host: str,
         username: str,
         password: str,
-        force_rtsp_port: bool = False,
         rtsp_port_forced: int = None,
         session: httpx.AsyncClient = None,
     ) -> None:
@@ -71,7 +70,6 @@ class ISAPIClient:
         self._session = session
         self._auth_method: httpx._auth.Auth = None
 
-        self.force_rtsp_port = force_rtsp_port
         self.rtsp_port_forced=rtsp_port_forced
 
         self.device_info = ISAPIDeviceInfo()
@@ -216,7 +214,7 @@ class ISAPIClient:
         )
 
         for item in protocols:
-            if self.force_rtsp_port:
+            if self.rtsp_port_forced:
                 self.protocols.rtsp_port = str(self.rtsp_port_forced)
                 break
             else:

@@ -10,8 +10,7 @@
           "host": "URL",
           "password": "Mot de passe",
           "username": "Nom d'utilisateur",
-          "force_rtsp_port": "Force RTSP port (if accessing the NVR/Camera through a router with port forwarding)",
-          "rtsp_port_forced": "RTSP Port of NVR or Camera",
+          "rtsp_port_forced": "Port RTSP du NVR ou de la Caméra (Facultatif)",
           "set_alarm_server": "Définir le serveur d'alarme à l'aide l'adresse suivante :",
           "alarm_server": "Adresse d'Home Assistant accessible par l'appareil Hikvision"
         }
