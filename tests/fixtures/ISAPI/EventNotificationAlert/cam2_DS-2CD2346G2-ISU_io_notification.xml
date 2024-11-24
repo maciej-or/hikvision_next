@@ -1,0 +1,15 @@
+<EventNotificationAlert version="2.0" 
+xmlns="http://www.hikvision.com/ver20/XMLSchema">
+<ipAddress>192.168.1.152</ipAddress>
+<portNo>443</portNo>
+<protocol>HTTPS</protocol>
+<macAddress>e0:2c:37:93:d9:54</macAddress>
+<channelID>1</channelID>
+<dateTime>2024-11-19T16:53:28+01:00</dateTime>
+<activePostCount>1</activePostCount>
+<eventType>IO</eventType>
+<eventState>active</eventState>
+<eventDescription>IO alarm</eventDescription>
+<inputIOPortID>1</inputIOPortID>
+<channelName>Cam 2</channelName>
+</EventNotificationAlert>

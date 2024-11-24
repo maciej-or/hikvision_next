@@ -7,7 +7,7 @@ from custom_components.hikvision_next.const import DOMAIN
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.config_entries import SOURCE_USER, ConfigEntryState
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
-from tests.conftest import TEST_CONFIG, TEST_HOST, load_fixture, mock_endpoint
+from tests.conftest import TEST_CONFIG, TEST_HOST, TEST_CONFIG_OUTSIDE_NETWORK, load_fixture, mock_endpoint
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -108,6 +108,22 @@ async def test_user_input_validation(hass, mock_isapi_device):
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["data"] == TEST_CONFIG
+
+
+@pytest.mark.parametrize("mock_isapi_device", [("DS-2CD2386G2-IU", TEST_CONFIG_OUTSIDE_NETWORK['host'])], indirect=True)
+async def test_user_input_validation_with_rtsp_port(hass, mock_isapi_device):
+    """Test a successful config flow."""
+
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
+
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "user"
+
+    user_input = TEST_CONFIG_OUTSIDE_NETWORK
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=user_input)
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["data"] == TEST_CONFIG_OUTSIDE_NETWORK
 
 
 @respx.mock

@@ -10,6 +10,7 @@
           "host": "URL",
           "password": "Пароль",
           "username": "Имя пользователя",
+          "rtsp_port_forced": "Порт NVR или камеры RTSP (опционально)",
           "set_alarm_server": "Установить сервер тревоги используя следующий адрес:",
           "alarm_server": "Home Assistant адрес, доступный Hikvison устройству"
         }
