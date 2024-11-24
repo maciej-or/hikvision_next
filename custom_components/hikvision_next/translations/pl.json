@@ -12,6 +12,7 @@
           "host": "URL",
           "password": "Hasło",
           "username": "Nazwa użytkownika",
+          "rtsp_port_forced": "Port NVR lub kamery RTSP (opcjonalnie)",
           "verify_ssl": "Zweryfikuj certyfikat SSL urządzenia Hikvision",
           "set_alarm_server": "Ustaw host powiadomień używając następującego adresu:",
           "alarm_server": "Adres Home Assistant dostępny dla urządzenia Hikvision"

@@ -13,6 +13,7 @@ from urllib.parse import quote, urljoin, urlparse
 import httpx
 from httpx import HTTPStatusError
 import xmltodict
+import ipaddress
 
 from .const import (
     CONNECTION_TYPE_DIRECT,
@@ -56,6 +57,7 @@ class ISAPIClient:
         host: str,
         username: str,
         password: str,
+        rtsp_port_forced: int = None,
         session: httpx.AsyncClient = None,
     ) -> None:
         """Initialize."""
@@ -67,6 +69,8 @@ class ISAPIClient:
         self.isapi_prefix = "ISAPI"
         self._session = session
         self._auth_method: httpx._auth.Auth = None
+
+        self.rtsp_port_forced=rtsp_port_forced
 
         self.device_info = ISAPIDeviceInfo()
         self.capabilities = CapabilitiesInfo()
@@ -211,7 +215,10 @@ class ISAPIClient:
 
         for item in protocols:
             if item.get("protocol") == "RTSP" and item.get("portNo"):
-                self.protocols.rtsp_port = item.get("portNo")
+                if self.rtsp_port_forced:
+                    self.protocols.rtsp_port = str(self.rtsp_port_forced)
+                else:
+                    self.protocols.rtsp_port = item.get("portNo")
                 break
 
     async def get_supported_events(self, system_capabilities: dict) -> list[EventInfo]:
@@ -549,6 +556,7 @@ class ISAPIClient:
             portNo=int(host.get("portNo")),
             url=host.get("url"),
             protocolType=host.get("protocolType"),
+            hostName=host.get("hostName"),
         )
 
     async def set_alarm_server(self, base_url: str, path: str) -> None:
@@ -559,9 +567,16 @@ class ISAPIClient:
         if not data:
             return
         host = self._get_event_notification_host(data)
+
+        old_address = ""
+        if host.get("addressingFormatType") == "ipaddress":
+            old_address = host.get("ipAddress")
+        else:
+            old_address = host.get("hostname")
+
         if (
             host["protocolType"] == address.scheme.upper()
-            and host.get("ipAddress") == address.hostname
+            and old_address == address.hostname
             and host.get("portNo") == str(address.port)
             and host["url"] == path
         ):
@@ -569,9 +584,23 @@ class ISAPIClient:
         host["url"] = path
         host["protocolType"] = address.scheme.upper()
         host["parameterFormatType"] = "XML"
-        host["addressingFormatType"] = "ipaddress"
-        host["ipAddress"] = address.hostname
-        host["portNo"] = address.port
+
+        try:
+            ipaddress.ip_address(address.hostname)
+
+            # if address.hostname is an ip
+            host["addressingFormatType"] = "ipaddress"
+            host["ipAddress"] = address.hostname
+            host["hostName"] = None
+            del host["hostName"]
+        except ValueError:
+            # if address.hostname is a domain
+            host["addressingFormatType"] = "hostname"
+            host["ipAddress"] = None
+            del host["ipAddress"]
+            host["hostName"] = address.hostname
+
+        host["portNo"] = address.port or (443 if address.scheme == "https" else 80)
         host["httpAuthenticationMethod"] = "none"
 
         xml = xmltodict.unparse(data)

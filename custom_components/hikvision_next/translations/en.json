@@ -13,6 +13,7 @@
           "password": "Password",
           "username": "Username",
           "verify_ssl": "Verify Hikvision device SSL certificate",
+          "rtsp_port_forced": "RTSP Port of NVR or Camera (Optional)",
           "set_alarm_server": "Set notifications host using following address:",
           "alarm_server": "Home Assistant address accessible by Hikvison device"
         }

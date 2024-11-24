@@ -10,6 +10,7 @@
           "host": "Link",
           "password": "Password",
           "username": "Utilizador",
+          "rtsp_port_forced": "Porta NVR ou câmara RTSP (opcional)",
           "set_alarm_server": "Sefinir um alarme usando o seguinte endereço:",
           "alarm_server": "Home Assistant endreço é acessivel pelo Hikvison device?"
         }

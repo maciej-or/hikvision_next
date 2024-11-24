@@ -16,6 +16,7 @@ from homeassistant.helpers.httpx_client import get_async_client
 from homeassistant.util import slugify
 
 from .const import (
+    RTSP_PORT_FORCED,
     ALARM_SERVER_PATH,
     CONF_ALARM_SERVER_HOST,
     CONF_SET_ALARM_SERVER,
@@ -59,8 +60,9 @@ class HikvisionDevice(ISAPIClient):
         username = config[CONF_USERNAME]
         password = config[CONF_PASSWORD]
         varify_ssl = config.get(CONF_VERIFY_SSL, True)
+        rtsp_port_forced = config.get(RTSP_PORT_FORCED, None)
         session = get_async_client(hass, varify_ssl)
-        super().__init__(host, username, password, session)
+        super().__init__(host, username, password, rtsp_port_forced, session)
 
         self.events_info: list[EventInfo] = []
 
