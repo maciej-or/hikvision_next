@@ -20,6 +20,7 @@ from homeassistant.util import slugify
 from .const import ALARM_SERVER_PATH, DOMAIN, HIKVISION_EVENT
 from .hikvision_device import HikvisionDevice
 from .isapi import AlertInfo, IPCamera, ISAPIClient
+from .isapi.const import EVENT_IO
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -172,7 +173,7 @@ class EventNotificationsView(HomeAssistantView):
 
         serial_no = self.device.device_info.serial_no.lower()
 
-        device_id_param = f"_{alert.channel_id}" if alert.channel_id != 0 else ""
+        device_id_param = f"_{alert.channel_id}" if alert.channel_id != 0 and alert.event_id != EVENT_IO else ""
         io_port_id_param = f"_{alert.io_port_id}" if alert.io_port_id != 0 else ""
         unique_id = f"binary_sensor.{slugify(serial_no)}{device_id_param}{io_port_id_param}_{alert.event_id}"
 

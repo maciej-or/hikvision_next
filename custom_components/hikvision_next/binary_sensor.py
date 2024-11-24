@@ -24,15 +24,14 @@ async def async_setup_entry(
 
     entities = []
 
-    # Camera Events
+    # Video Events
     for camera in device.cameras:
         for event in camera.events_info:
             entities.append(EventBinarySensor(device, camera.id, event))
 
-    # NVR Events
-    if device.device_info.is_nvr:
-        for event in device.events_info:
-            entities.append(EventBinarySensor(device, 0, event))
+    # General Events
+    for event in device.events_info:
+        entities.append(EventBinarySensor(device, 0, event))
 
     async_add_entities(entities)
 
