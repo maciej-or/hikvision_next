@@ -57,7 +57,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) ->
     except ISAPIUnauthorizedError as ex:
         raise ConfigEntryAuthFailed from ex
     except Exception as ex:  # pylint: disable=broad-except
-        msg = f"Cannot initialize {DOMAIN} {device.host}. Error: {ex.message}\n"
+        msg = f"Cannot initialize {DOMAIN} {device.host}. Error: {ex}\n"
         _LOGGER.error(msg + traceback.format_exc())
         raise ConfigEntryNotReady(msg) from ex
 

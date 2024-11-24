@@ -7,27 +7,27 @@ from custom_components.hikvision_next.const import DOMAIN
 from custom_components.hikvision_next.hikvision_device import HikvisionDevice
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from homeassistant.config_entries import ConfigEntryState
+
 from tests.conftest import TEST_CONFIG, TEST_CONFIG_WITH_ALARM_SERVER, TEST_CONFIG_OUTSIDE_NETWORK
 
 
-@pytest.mark.parametrize(
-    "init_integration",
-    [
-        "DS-7608NXI-I2",
-        "DS-2CD2386G2-IU",
-        "DS-2CD2146G2-ISU",
-        "DS-2CD2443G0-IW",
-        "DS-2CD2532F-IWS",
-        "DS-2CD2346G2-ISU",
-        "DS-2CD2T46G2-ISU",
-        "DS-2CD2T86G2-ISU",
-        "DS-7616NI-K2",
-        "DS-7616NI-Q2",
-        "DS-7732NI-M4",
-        "iDS-7204HUHI-M1",
-    ],
-    indirect=True,
-)
+@pytest.mark.parametrize("init_integration",
+[
+    "DS-7608NXI-I2",
+    "DS-2CD2386G2-IU",
+    "DS-2CD2146G2-ISU",
+    "DS-2CD2443G0-IW",
+    "DS-2CD2532F-IWS",
+    "DS-2TD1228-2-QA",
+    "DS-2CD2346G2-ISU",
+    "DS-2CD2T46G2-ISU",
+    "DS-2CD2T86G2-ISU",
+    "DS-7616NI-K2",
+    "DS-7616NI-Q2",
+    "DS-7732NI-M4",
+    "iDS-7204HUHI-M1"
+], indirect=True)
+
 async def test_basic_init(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test a successful setup entry."""
 
