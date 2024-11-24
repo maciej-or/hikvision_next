@@ -41,21 +41,23 @@ The fixtures can be recorded for any device in the Device Info window by clickin
 
 This approach should make it easier to develop this integration for an even greater number of devices without the need for physical access to the device.
 
-### NOTE: Test Environment on windows
+### NOTE: Test Environment on Windows
 
 If you develop on windows, there are some limits with pytest-homeassistant-custom-component when you want to run the unit tests
 
 See this [issue](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component/issues/154) for more detail.
 
-#### RUN Test Environment on windows
+#### RUN Test Environment on Windows
 If you just want run the tests, the simplest way is to use docker on your PC:
-- Install [docker](https://docs.docker.com/desktop/setup/install/windows-install/)
-- next, in a cmd window:
+
+1. Install [docker](https://docs.docker.com/desktop/setup/install/windows-install/)
+
+2. in a cmd window run:
 ```
 REM go to your hikvision_next directory. example:
 cd C:\Users\john\Documents\github\hikvision_next
 
-REM Build a docker container 
+REM Build a docker container
 docker build -f run_test.dockerfile -t mine/pytest-homeassistant-custom-component:latest .
 
 REM Clear console and Run test in your container
@@ -64,9 +66,10 @@ cls && docker run --rm -v .:/app mine/pytest-homeassistant-custom-component:late
 
 #### DEBUG Test Environment in VS Code on windows
 If you want to debug the tests in Visual Studio Code:
-0. Install [docker](https://docs.docker.com/desktop/setup/install/windows-install/)
 
-1. Configure VS Code tasks(in ./vscode/task.json)
+1. Install [docker](https://docs.docker.com/desktop/setup/install/windows-install/)
+
+2. Configure VS Code tasks(in ./vscode/task.json)
 ```
 {
     "tasks": [
@@ -100,7 +103,7 @@ If you want to debug the tests in Visual Studio Code:
 }
 ```
 
-2. Configure VS Code launcher(in ./vscode/launch.json)
+3. Configure VS Code launcher(in ./vscode/launch.json)
 ```
 {
     "version": "0.2.0",
@@ -123,6 +126,6 @@ If you want to debug the tests in Visual Studio Code:
 }
 ```
 
-3. add a breakpoint
+4. add a breakpoint
 
-4. run the "Docker: Python tests debug" job in VS Code
+5. run the "Docker: Python tests debug" job in VS Code
