@@ -13,6 +13,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntry
 
 from . import HikvisionConfigEntry
+from .isapi import ISAPIForbiddenError, ISAPIUnauthorizedError
 from .isapi.const import GET, STREAM_TYPE
 
 
@@ -115,9 +116,9 @@ async def get_isapi_data(isapi, endpoint: str) -> dict:
     try:
         response = await isapi.request(GET, endpoint)
         entry["response"] = anonymise_data(response)
-    except HTTPStatusError as ex:
+    except (HTTPStatusError, ISAPIUnauthorizedError, ISAPIForbiddenError) as ex:
         entry["status_code"] = ex.response.status_code
-    except Exception as ex:
+    except Exception as ex:  # noqa: BLE001
         entry["error"] = ex
     return entry
 

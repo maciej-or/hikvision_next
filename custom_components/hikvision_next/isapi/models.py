@@ -7,6 +7,7 @@ class AlarmServer:
 
     # Uses pylint invalid names to not break previous versions
     ipAddress: str  # pylint: disable=invalid-name
+    hostName: str  # pylint: disable=invalid-name
     portNo: int  # pylint: disable=invalid-name
     url: str  # pylint: disable=invalid-name
     protocolType: str  # pylint: disable=invalid-name
@@ -41,7 +42,8 @@ class EventInfo:
     channel_id: int
     io_port_id: int
     unique_id: str = None
-    url: str = None
+    url: str = None  # URL to fetch the event status (enabled/disabled)
+    is_proxy: bool = False  # True if the event comes from device connected via NVR
     disabled: bool = False
     notifications: list[str] = field(default_factory=list)
 

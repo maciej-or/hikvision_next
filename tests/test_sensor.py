@@ -23,6 +23,23 @@ async def test_sensor_value(
         assert (sensor := hass.states.get(entity_id))
         assert sensor.state == state
 
+@pytest.mark.parametrize("init_integration", ["DS-2CD2T86G2-ISU"], indirect=True)
+async def test_sensor_value_outside_network(
+    hass: HomeAssistant,
+    init_integration: MockConfigEntry,
+) -> None:
+    """Test sensors value."""
+
+    for entity_id, state in [
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_alarm_server_hostname", "ha.hostname.domain"),
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_alarm_server_portno", "443"),
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_alarm_server_url", "/api/hikvision"),
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_alarm_server_protocoltype", "HTTPS"),
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_hdde", "OK"),
+    ]:
+        assert (sensor := hass.states.get(entity_id))
+        assert sensor.state == state
+
 
 @pytest.mark.parametrize("init_integration", ["DS-2CD2146G2-ISU", "DS-7608NXI-I2"], indirect=True)
 async def test_scenechange_support(

@@ -13,6 +13,7 @@ from urllib.parse import quote, urljoin, urlparse
 import httpx
 from httpx import HTTPStatusError
 import xmltodict
+import ipaddress
 
 from .const import (
     CONNECTION_TYPE_DIRECT,
@@ -56,6 +57,7 @@ class ISAPIClient:
         host: str,
         username: str,
         password: str,
+        rtsp_port_forced: int = None,
         session: httpx.AsyncClient = None,
     ) -> None:
         """Initialize."""
@@ -67,6 +69,8 @@ class ISAPIClient:
         self.isapi_prefix = "ISAPI"
         self._session = session
         self._auth_method: httpx._auth.Auth = None
+
+        self.rtsp_port_forced=rtsp_port_forced
 
         self.device_info = ISAPIDeviceInfo()
         self.capabilities = CapabilitiesInfo()
@@ -225,7 +229,10 @@ class ISAPIClient:
 
         for item in protocols:
             if item.get("protocol") == "RTSP" and item.get("portNo"):
-                self.protocols.rtsp_port = item.get("portNo")
+                if self.rtsp_port_forced:
+                    self.protocols.rtsp_port = str(self.rtsp_port_forced)
+                else:
+                    self.protocols.rtsp_port = item.get("portNo")
                 break
 
     async def get_supported_events(self, system_capabilities: dict) -> list[EventInfo]:
@@ -233,36 +240,45 @@ class ISAPIClient:
 
         def get_event(event_trigger: dict):
             notification_list = event_trigger.get("EventTriggerNotificationList", {}) or {}
+
             event_type = event_trigger.get("eventType")
             if not event_type:
                 return None
-
-            if event_type.lower() == EVENT_PIR:
-                is_supported = str_to_bool(deep_get(system_capabilities, "WLAlarmCap.isSupportPIR", False))
-                if not is_supported:
-                    return None
-
-            channel_id = int(
-                event_trigger.get(
-                    "videoInputChannelID",
-                    event_trigger.get("dynVideoInputChannelID", 0),
-                )
-            )
-            io_port = int(event_trigger.get("inputIOPortID", event_trigger.get("dynInputIOPortID", 0)))
-            notifications = deep_get(notification_list, "EventTriggerNotification", [])
-
             event_id = event_type.lower()
             # Translate to alternate IDs
             if event_id in EVENTS_ALTERNATE_ID:
                 event_id = EVENTS_ALTERNATE_ID[event_id]
 
-            url = self.get_event_url(event_id, channel_id, io_port)
+            if event_id == EVENT_PIR:
+                is_supported = str_to_bool(deep_get(system_capabilities, "WLAlarmCap.isSupportPIR", False))
+                if not is_supported:
+                    return None
+
+            channel_id = 0
+            io_port = 0
+            is_proxy = False
+
+            if event_id == EVENT_IO:
+                io_port = int(event_trigger.get("inputIOPortID", 0))
+                if not io_port:
+                    io_port = int(event_trigger.get("dynInputIOPortID", 0))
+                    is_proxy = io_port > 0
+            else:
+                channel_id = int(event_trigger.get("videoInputChannelID", 0))
+                if not channel_id:
+                    channel_id = int(event_trigger.get("dynVideoInputChannelID", 0))
+                    is_proxy = channel_id > 0
+
+            url = self.get_event_url(event_id, channel_id, io_port, is_proxy)
+
+            notifications = deep_get(notification_list, "EventTriggerNotification", [])
 
             return EventInfo(
                 channel_id=channel_id,
                 io_port_id=io_port,
                 id=event_id,
                 url=url,
+                is_proxy=is_proxy,
                 notifications=[notify.get("notificationMethod") for notify in notifications] if notifications else [],
             )
 
@@ -289,7 +305,7 @@ class ISAPIClient:
 
         return events
 
-    def get_event_url(self, event_id: str, channel_id: int, io_port_id: int) -> str | None:
+    def get_event_url(self, event_id: str, channel_id: int, io_port_id: int, is_proxy: bool) -> str | None:
         """Get event ISAPI URL."""
 
         if not EVENTS.get(event_id):
@@ -297,29 +313,22 @@ class ISAPIClient:
 
         event_type = EVENTS[event_id]["type"]
         slug = EVENTS[event_id]["slug"]
-        camera = self.get_camera_by_id(channel_id)
-        connection_type = camera.connection_type if camera else CONNECTION_TYPE_DIRECT
 
         if event_type == EVENT_BASIC:
-            if connection_type == CONNECTION_TYPE_PROXIED:
-                # ISAPI/ContentMgmt/InputProxy/channels/{channel_id}/video/{event}
+            if is_proxy:
                 url = f"ContentMgmt/InputProxy/channels/{channel_id}/video/{slug}"
             else:
-                # ISAPI/System/Video/inputs/channels/{channel_id}/{event}
                 url = f"System/Video/inputs/channels/{channel_id}/{slug}"
 
         elif event_type == EVENT_IO:
-            if connection_type == CONNECTION_TYPE_PROXIED:
-                # ISAPI/ContentMgmt/IOProxy/{slug}/{channel_id}
+            if is_proxy:
                 url = f"ContentMgmt/IOProxy/{slug}/{io_port_id}"
             else:
-                # ISAPI/System/IO/{slug}}/{channel_id}
                 url = f"System/IO/{slug}/{io_port_id}"
         elif event_type == EVENT_PIR:
             # ISAPI/WLAlarm/PIR
             url = slug
         else:
-            # ISAPI/Smart/{event}/{channel_id}
             url = f"Smart/{slug}/{channel_id}"
         return url
 
@@ -421,16 +430,10 @@ class ISAPIClient:
         slug = EVENTS[event.id]["slug"]
 
         # Alternate node name for some event types
-        if event.channel_id == 0:  # NVR
-            if EVENTS[event.id].get("direct_node"):
-                slug = EVENTS[event.id]["direct_node"]
-        else:
-            camera = self.get_camera_by_id(event.channel_id)
-            if camera.connection_type == CONNECTION_TYPE_DIRECT and EVENTS[event.id].get("direct_node"):
-                slug = EVENTS[event.id]["direct_node"]
-
-            if camera.connection_type == CONNECTION_TYPE_PROXIED and EVENTS[event.id].get("proxied_node"):
-                slug = EVENTS[event.id]["proxied_node"]
+        if event.is_proxy and (proxied_node := EVENTS[event.id].get("proxied_node")):
+            slug = proxied_node
+        if not event.is_proxy and (direct_node := EVENTS[event.id].get("direct_node")):
+            slug = direct_node
 
         return slug[0].upper() + slug[1:]
 
@@ -504,7 +507,7 @@ class ISAPIClient:
             status = await self.request(GET, f"System/IO/inputs/{port_no}/status")
         else:
             status = await self.request(GET, f"System/IO/outputs/{port_no}/status")
-        return deep_get(status, "IOPortStatus.ioState")
+        return deep_get(status, "IOPortStatus.ioState", "inactive") == "active"
 
     async def set_output_port_state(self, port_no: int, turn_on: bool):
         """Set status of output port."""
@@ -563,6 +566,7 @@ class ISAPIClient:
             portNo=int(host.get("portNo")),
             url=host.get("url"),
             protocolType=host.get("protocolType"),
+            hostName=host.get("hostName"),
         )
 
     async def set_alarm_server(self, base_url: str, path: str) -> None:
@@ -573,9 +577,16 @@ class ISAPIClient:
         if not data:
             return
         host = self._get_event_notification_host(data)
+
+        old_address = ""
+        if host.get("addressingFormatType") == "ipaddress":
+            old_address = host.get("ipAddress")
+        else:
+            old_address = host.get("hostname")
+
         if (
             host["protocolType"] == address.scheme.upper()
-            and host.get("ipAddress") == address.hostname
+            and old_address == address.hostname
             and host.get("portNo") == str(address.port)
             and host["url"] == path
         ):
@@ -583,9 +594,23 @@ class ISAPIClient:
         host["url"] = path
         host["protocolType"] = address.scheme.upper()
         host["parameterFormatType"] = "XML"
-        host["addressingFormatType"] = "ipaddress"
-        host["ipAddress"] = address.hostname
-        host["portNo"] = address.port
+
+        try:
+            ipaddress.ip_address(address.hostname)
+
+            # if address.hostname is an ip
+            host["addressingFormatType"] = "ipaddress"
+            host["ipAddress"] = address.hostname
+            host["hostName"] = None
+            del host["hostName"]
+        except ValueError:
+            # if address.hostname is a domain
+            host["addressingFormatType"] = "hostname"
+            host["ipAddress"] = None
+            del host["ipAddress"]
+            host["hostName"] = address.hostname
+
+        host["portNo"] = address.port or (443 if address.scheme == "https" else 80)
         host["httpAuthenticationMethod"] = "none"
 
         xml = xmltodict.unparse(data)
@@ -737,10 +762,10 @@ class ISAPIClient:
         except HTTPStatusError as ex:
             _LOGGER.info("--- [%s] %s\n%s", method, full_url, ex)
             if ex.response.status_code == HTTPStatus.UNAUTHORIZED:
-                raise ISAPIUnauthorizedError(full_url)
+                raise ISAPIUnauthorizedError(ex) from ex
             if ex.response.status_code == HTTPStatus.FORBIDDEN and not self.pending_initialization:
-                raise ISAPIForbiddenError(full_url)
-            elif self.pending_initialization:
+                raise ISAPIForbiddenError(ex) from ex
+            if self.pending_initialization:
                 # supress http errors during initialization
                 return {}
             raise
@@ -776,14 +801,16 @@ class ISAPISetEventStateMutexError(Exception):
 class ISAPIUnauthorizedError(Exception):
     """HTTP Error 401."""
 
-    def __init__(self, url) -> None:
+    def __init__(self, ex: HTTPStatusError, *args) -> None:
         """Initialize exception."""
-        self.message = f"Unauthorized request {url}, check username and password."
+        self.message = f"Unauthorized request {ex.request.url}, check username and password."
+        self.response = ex.response
 
 
 class ISAPIForbiddenError(Exception):
     """HTTP Error 403."""
 
-    def __init__(self, url) -> None:
+    def __init__(self, ex: HTTPStatusError, *args) -> None:
         """Initialize exception."""
-        self.message = f"Forbidden request {url}, check user permissions."
+        self.message = f"Forbidden request {ex.request.url}, check user permissions."
+        self.response = ex.response
