@@ -110,7 +110,7 @@ async def test_user_input_validation(hass, mock_isapi_device):
     assert result["data"] == TEST_CONFIG
 
 
-@pytest.mark.parametrize("mock_isapi_device", ["DS-2CD2386G2-IU"], indirect=True)
+@pytest.mark.parametrize("mock_isapi_device", [("DS-2CD2386G2-IU", TEST_CONFIG_OUTSIDE_NETWORK['host'])], indirect=True)
 async def test_user_input_validation_with_rtsp_port(hass, mock_isapi_device):
     """Test a successful config flow."""
 
@@ -119,17 +119,11 @@ async def test_user_input_validation_with_rtsp_port(hass, mock_isapi_device):
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
 
-    user_input = {
-        **TEST_CONFIG_OUTSIDE_NETWORK,
-        CONF_HOST: TEST_HOST,
-    }
+    user_input = TEST_CONFIG_OUTSIDE_NETWORK
     result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=user_input)
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert result["data"] == {
-        **TEST_CONFIG_OUTSIDE_NETWORK,
-        CONF_HOST: TEST_HOST,
-    }
+    assert result["data"] == TEST_CONFIG_OUTSIDE_NETWORK
 
 
 @respx.mock

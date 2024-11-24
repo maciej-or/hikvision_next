@@ -214,13 +214,12 @@ class ISAPIClient:
         )
 
         for item in protocols:
-            if self.rtsp_port_forced:
-                self.protocols.rtsp_port = str(self.rtsp_port_forced)
-                break
-            else:
-                if item.get("protocol") == "RTSP" and item.get("portNo"):
+            if item.get("protocol") == "RTSP" and item.get("portNo"):
+                if self.rtsp_port_forced:
+                    self.protocols.rtsp_port = str(self.rtsp_port_forced)
+                else:
                     self.protocols.rtsp_port = item.get("portNo")
-                    break
+                break
 
     async def get_supported_events(self, system_capabilities: dict) -> list[EventInfo]:
         """Get list of all supported events available."""

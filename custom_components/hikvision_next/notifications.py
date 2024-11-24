@@ -12,7 +12,7 @@ from aiohttp import web
 from requests_toolbelt.multipart import MultipartDecoder
 
 from homeassistant.components.http import HomeAssistantView
-from homeassistant.const import CONF_HOST, CONTENT_TYPE_TEXT_PLAIN, STATE_ON, Platform
+from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN, STATE_ON, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_registry import async_get
 from homeassistant.util import slugify
