@@ -10,7 +10,8 @@
           "host": "URL",
           "password": "Пароль",
           "username": "Имя пользователя",
-          "rtsp_port_forced": "Порт NVR или камеры RTSP (опционально)",
+          "rtsp_port_forced": "Порт RTSP перенаправлен на маршрутизатор (необязательно)",
+          "verify_ssl": "Проверьте SSL-сертификат устройства Hikvision (снимите флажок для self-signed сертификата)",
           "set_alarm_server": "Установить сервер тревоги используя следующий адрес:",
           "alarm_server": "Home Assistant адрес, доступный Hikvison устройству"
         }
@@ -24,4 +25,3 @@
     }
   }
 }
-
