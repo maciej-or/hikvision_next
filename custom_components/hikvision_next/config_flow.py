@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import logging
 from collections.abc import Mapping
+import logging
 from typing import Any
 
 import voluptuous as vol
@@ -18,7 +18,12 @@ from homeassistant.config_entries import (
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
 
 from . import HikvisionConfigEntry
-from .const import CONF_ALARM_SERVER_HOST, CONF_SET_ALARM_SERVER, DOMAIN, RTSP_PORT_FORCED
+from .const import (
+    CONF_ALARM_SERVER_HOST,
+    CONF_SET_ALARM_SERVER,
+    DOMAIN,
+    RTSP_PORT_FORCED,
+)
 from .hikvision_device import HikvisionDevice
 from .isapi import ISAPIForbiddenError, ISAPIUnauthorizedError
 
@@ -38,10 +43,10 @@ class HikvisionConfigFlow(ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_HOST, default="http://"): str,
                 vol.Required(CONF_USERNAME): str,
                 vol.Required(CONF_PASSWORD): str,
-                vol.Optional(CONF_VERIFY_SSL, default=True): bool,
-                vol.Optional(RTSP_PORT_FORCED):  vol.And(int, vol.Range(min=1)),
                 vol.Required(CONF_SET_ALARM_SERVER, default=True): bool,
                 vol.Required(CONF_ALARM_SERVER_HOST): str,
+                vol.Optional(CONF_VERIFY_SSL, default=True): bool,
+                vol.Optional(RTSP_PORT_FORCED): vol.And(int, vol.Range(min=1)),
             }
         )
         if self.source in (SOURCE_RECONFIGURE, SOURCE_REAUTH):
