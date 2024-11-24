@@ -1783,6 +1783,167 @@
             "sensitivityLevel": "70"
           }
         }
+      },
+      "Streaming/channels": {
+        "response": {
+          "StreamingChannelList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "StreamingChannel": [
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "101",
+                "channelName": "yard",
+                "enabled": "true",
+                "Transport": {
+                  "maxPacketSize": "1000",
+                  "ControlProtocolList": {
+                    "ControlProtocol": [
+                      {
+                        "streamingTransport": "RTSP"
+                      },
+                      {
+                        "streamingTransport": "HTTP"
+                      },
+                      {
+                        "streamingTransport": "SHTTP"
+                      },
+                      {
+                        "streamingTransport": "SRTP"
+                      }
+                    ]
+                  },
+                  "Unicast": {
+                    "enabled": "true",
+                    "rtpTransportType": "RTP/TCP"
+                  },
+                  "Multicast": {
+                    "enabled": "true",
+                    "destIPAddress": "0.0.0.0",
+                    "videoDestPortNo": "8860"
+                  },
+                  "Security": {
+                    "enabled": "true",
+                    "certificateType": "digest",
+                    "SecurityAlgorithm": {
+                      "algorithmType": "MD5"
+                    }
+                  },
+                  "SRTPMulticast": {
+                    "SRTPVideoDestPortNo": "18860"
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "1",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "3840",
+                  "videoResolutionHeight": "2160",
+                  "videoQualityControlType": "VBR",
+                  "constantBitRate": "12288",
+                  "fixedQuality": "100",
+                  "vbrUpperCap": "12288",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "2500",
+                  "keyFrameInterval": "2000",
+                  "snapShotImageType": "JPEG",
+                  "H264Profile": "Main",
+                  "GovLength": "50",
+                  "SVC": {
+                    "enabled": "false"
+                  },
+                  "PacketType": ["PS", "RTP"],
+                  "smoothing": "50",
+                  "H265Profile": "Main",
+                  "SmartCodec": {
+                    "enabled": "false"
+                  }
+                },
+                "Audio": {
+                  "enabled": "false",
+                  "audioInputChannelID": "1",
+                  "audioCompressionType": "G.711ulaw"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "102",
+                "channelName": "yard",
+                "enabled": "true",
+                "Transport": {
+                  "maxPacketSize": "1000",
+                  "ControlProtocolList": {
+                    "ControlProtocol": [
+                      {
+                        "streamingTransport": "RTSP"
+                      },
+                      {
+                        "streamingTransport": "HTTP"
+                      },
+                      {
+                        "streamingTransport": "SHTTP"
+                      },
+                      {
+                        "streamingTransport": "SRTP"
+                      }
+                    ]
+                  },
+                  "Unicast": {
+                    "enabled": "true",
+                    "rtpTransportType": "RTP/TCP"
+                  },
+                  "Multicast": {
+                    "enabled": "true",
+                    "destIPAddress": "0.0.0.0",
+                    "videoDestPortNo": "8866"
+                  },
+                  "Security": {
+                    "enabled": "true",
+                    "certificateType": "digest",
+                    "SecurityAlgorithm": {
+                      "algorithmType": "MD5"
+                    }
+                  },
+                  "SRTPMulticast": {
+                    "SRTPVideoDestPortNo": "18866"
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "1",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "640",
+                  "videoResolutionHeight": "360",
+                  "videoQualityControlType": "VBR",
+                  "constantBitRate": "256",
+                  "fixedQuality": "60",
+                  "vbrUpperCap": "256",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "1000",
+                  "keyFrameInterval": "4000",
+                  "snapShotImageType": "JPEG",
+                  "H264Profile": "Baseline",
+                  "GovLength": "40",
+                  "SVC": {
+                    "enabled": "false"
+                  },
+                  "PacketType": ["PS", "RTP"],
+                  "smoothing": "50",
+                  "H265Profile": "Main"
+                },
+                "Audio": {
+                  "enabled": "false",
+                  "audioInputChannelID": "1",
+                  "audioCompressionType": "G.711ulaw"
+                }
+              }
+            ]
+          }
+        }
       }
     }
   }
