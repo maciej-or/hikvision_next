@@ -42,7 +42,8 @@ class EventInfo:
     channel_id: int
     io_port_id: int
     unique_id: str = None
-    url: str = None
+    url: str = None  # URL to fetch the event status (enabled/disabled)
+    is_proxy: bool = False  # True if the event comes from device connected via NVR
     disabled: bool = False
     notifications: list[str] = field(default_factory=list)
 

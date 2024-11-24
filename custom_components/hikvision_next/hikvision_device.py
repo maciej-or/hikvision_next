@@ -33,7 +33,7 @@ from .isapi import (
     ISAPIForbiddenError,
     ISAPIUnauthorizedError,
 )
-from .isapi.const import CONNECTION_TYPE_DIRECT, EVENT_IO
+from .isapi.const import EVENT_IO
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -72,7 +72,7 @@ class HikvisionDevice(ISAPIClient):
         # init events supported by integration
         self.events_info = self.get_device_event_capabilities()
         for camera in self.cameras:
-            camera.events_info = self.get_device_event_capabilities(camera.id, camera.connection_type)
+            camera.events_info = self.get_device_event_capabilities(camera.id)
 
         # create coordinators
         self.coordinators = {}
@@ -118,7 +118,6 @@ class HikvisionDevice(ISAPIClient):
     def get_device_event_capabilities(
         self,
         camera_id: int | None = None,
-        connection_type: str = CONNECTION_TYPE_DIRECT,
     ) -> list[EventInfo]:
         """Get events info handled by integration (camera id:  NVR = None, camera > 0)."""
         events = []
