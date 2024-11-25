@@ -1,6 +1,5 @@
 "ISAPI client for Home Assistant integration."
 
-import asyncio
 import logging
 from typing import Any
 
@@ -9,20 +8,19 @@ import httpx
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.httpx_client import get_async_client
 from homeassistant.util import slugify
 
 from .const import (
-    RTSP_PORT_FORCED,
     ALARM_SERVER_PATH,
     CONF_ALARM_SERVER_HOST,
     CONF_SET_ALARM_SERVER,
     DOMAIN,
     EVENTS,
     EVENTS_COORDINATOR,
+    RTSP_PORT_FORCED,
     SECONDARY_COORDINATOR,
 )
 from .coordinator import EventsCoordinator, SecondaryCoordinator
@@ -52,6 +50,7 @@ class HikvisionDevice(ISAPIClient):
         config = entry.data if entry else data
         self.entry = entry
         self.hass = hass
+        self.auth_token_expired = False
         self.control_alarm_server_host = config[CONF_SET_ALARM_SERVER]
         self.alarm_server_host = config[CONF_ALARM_SERVER_HOST]
 
@@ -59,10 +58,10 @@ class HikvisionDevice(ISAPIClient):
         host = config[CONF_HOST]
         username = config[CONF_USERNAME]
         password = config[CONF_PASSWORD]
-        varify_ssl = config.get(CONF_VERIFY_SSL, True)
+        verify_ssl = config.get(CONF_VERIFY_SSL, True)
         rtsp_port_forced = config.get(RTSP_PORT_FORCED, None)
-        session = get_async_client(hass, varify_ssl)
-        super().__init__(host, username, password, rtsp_port_forced, session)
+        session = get_async_client(hass, verify_ssl)
+        super().__init__(host, username, password, verify_ssl, rtsp_port_forced, session)
 
         self.events_info: list[EventInfo] = []
 
@@ -146,13 +145,24 @@ class HikvisionDevice(ISAPIClient):
     def handle_exception(self, ex: Exception, details: str = ""):
         """Handle common exceptions."""
 
-        host = self.host
+        error = "Unexpected exception"
 
         if isinstance(ex, ISAPIUnauthorizedError):
+            if not self.auth_token_expired:
+                # after device reboot, authorization token may have expired
+                self.auth_token_expired = True
+                self._auth_method = None
+                self._session = get_async_client(self.hass, self.verify_ssl)
+                _LOGGER.warning("Unauthorized access to %s, started checking if token expired", self.host)
+                return
+            self.auth_token_expired = False
             self.entry.async_start_reauth(self.hass)
+            error = "Unauthorized access"
         elif isinstance(ex, ISAPIForbiddenError):
-            raise HomeAssistantError(f"{ex.message} {details}")
-        elif isinstance(ex, (asyncio.TimeoutError, httpx.TimeoutException)):
-            raise HomeAssistantError(f"Timeout while connecting to {host} {details}")
+            error = "Forbidden access"
+        elif isinstance(ex, (httpx.TimeoutException, httpx.ConnectTimeout)):
+            error = "Timeout"
+        elif isinstance(ex, (httpx.ConnectError, httpx.NetworkError)):
+            error = "Connection error"
 
-        _LOGGER.warning("Unexpected exception | %s | %s", details, ex)
+        _LOGGER.warning("%s | %s | %s | %s", error, self.host, details, ex)

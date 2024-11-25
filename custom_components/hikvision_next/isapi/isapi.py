@@ -5,6 +5,7 @@ from __future__ import annotations
 from contextlib import suppress
 import datetime
 from http import HTTPStatus
+import ipaddress
 import json
 import logging
 from typing import Any, AsyncIterator
@@ -13,7 +14,6 @@ from urllib.parse import quote, urljoin, urlparse
 import httpx
 from httpx import HTTPStatusError
 import xmltodict
-import ipaddress
 
 from .const import (
     CONNECTION_TYPE_DIRECT,
@@ -57,6 +57,7 @@ class ISAPIClient:
         host: str,
         username: str,
         password: str,
+        verify_ssl: bool = True,
         rtsp_port_forced: int = None,
         session: httpx.AsyncClient = None,
     ) -> None:
@@ -65,12 +66,13 @@ class ISAPIClient:
         self.host = host
         self.username = username
         self.password = password
+        self.verify_ssl = verify_ssl
         self.timeout = 20
         self.isapi_prefix = "ISAPI"
         self._session = session
         self._auth_method: httpx._auth.Auth = None
 
-        self.rtsp_port_forced=rtsp_port_forced
+        self.rtsp_port_forced = rtsp_port_forced
 
         self.device_info = ISAPIDeviceInfo()
         self.capabilities = CapabilitiesInfo()
@@ -711,7 +713,7 @@ class ISAPIClient:
     async def _detect_auth_method(self):
         """Establish the connection with device."""
         if not self._session:
-            self._session = httpx.AsyncClient(timeout=self.timeout)
+            self._session = httpx.AsyncClient(timeout=self.timeout, verify=self.verify_ssl)
 
         url = urljoin(self.host, self.isapi_prefix + "/System/deviceInfo")
         _LOGGER.debug("--- [WWW-Authenticate detection] %s", self.host)
@@ -728,9 +730,9 @@ class ISAPIClient:
             _LOGGER.error("Authentication method not detected, %s", response.status_code)
             if response.headers:
                 _LOGGER.error("response.headers %s", response.headers)
-            response.raise_for_status()
 
     def get_isapi_url(self, relative_url: str) -> str:
+        """Build full ISAPI URL."""
         return f"{self.host}/{self.isapi_prefix}/{relative_url}"
 
     async def request(
@@ -740,7 +742,7 @@ class ISAPIClient:
         present: str = "dict",
         data: str = None,
     ) -> Any:
-        """Send request and log response, returns {} if request fails."""
+        """Send ISAPI request and log response, returns {} if request fails."""
         full_url = self.get_isapi_url(url)
         try:
             if not self._auth_method:
@@ -778,12 +780,17 @@ class ISAPIClient:
         full_url: str,
         **data,
     ) -> AsyncIterator[bytes]:
-        if not self._auth_method:
-            await self._detect_auth_method()
+        """Send ISAPI request for binary data."""
 
-        async with self._session.stream(method, full_url, auth=self._auth_method, **data) as response:
-            async for chunk in response.aiter_bytes():
-                yield chunk
+        try:
+            if not self._auth_method:
+                await self._detect_auth_method()
+
+            async with self._session.stream(method, full_url, auth=self._auth_method, **data) as response:
+                async for chunk in response.aiter_bytes():
+                    yield chunk
+        except httpx.HTTPError as ex:
+            _LOGGER.warning("Failed request [%s] %s | %s", method, full_url, ex)
 
 
 class ISAPISetEventStateMutexError(Exception):
@@ -814,3 +821,4 @@ class ISAPIForbiddenError(Exception):
         """Initialize exception."""
         self.message = f"Forbidden request {ex.request.url}, check user permissions."
         self.response = ex.response
+        _LOGGER.warning(self.message)
