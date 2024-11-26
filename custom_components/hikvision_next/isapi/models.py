@@ -5,12 +5,11 @@ from dataclasses import dataclass, field
 class AlarmServer:
     """Holds alarm server info."""
 
-    # Uses pylint invalid names to not break previous versions
-    ipAddress: str  # pylint: disable=invalid-name
-    hostName: str  # pylint: disable=invalid-name
-    portNo: int  # pylint: disable=invalid-name
-    url: str  # pylint: disable=invalid-name
-    protocolType: str  # pylint: disable=invalid-name
+    ip_address: str
+    host_name: str
+    port_no: int
+    url: str
+    protocol_type: str
 
 
 @dataclass

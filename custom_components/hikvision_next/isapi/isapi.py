@@ -564,11 +564,11 @@ class ISAPIClient:
         host = self._get_event_notification_host(data)
 
         return AlarmServer(
-            ipAddress=host.get("ipAddress"),
-            portNo=int(host.get("portNo")),
+            ip_address=host.get("ipAddress"),
+            port_no=int(host.get("portNo")),
             url=host.get("url"),
-            protocolType=host.get("protocolType"),
-            hostName=host.get("hostName"),
+            protocol_type=host.get("protocolType"),
+            host_name=host.get("hostName"),
         )
 
     async def set_alarm_server(self, base_url: str, path: str) -> None:

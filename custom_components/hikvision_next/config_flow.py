@@ -33,7 +33,7 @@ _LOGGER = logging.getLogger(__name__)
 class HikvisionConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for hikvision device."""
 
-    VERSION = 2
+    VERSION = 3
     _entry: HikvisionConfigEntry
 
     async def get_schema(self, user_input: dict[str, Any]):

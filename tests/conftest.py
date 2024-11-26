@@ -45,7 +45,7 @@ def mock_config_entry(request) -> MockConfigEntry:
     return MockConfigEntry(
         domain=DOMAIN,
         data=config,
-        version=2
+        version=3
     )
 
 
@@ -150,7 +150,7 @@ async def init_multi_device_integration(respx_mock, request, mock_isapi, hass: H
         config_entry = MockConfigEntry(
             domain=DOMAIN,
             data=device['config'],
-            version=2
+            version=3
         )
         model = device['model']
         mock_device_endpoints(model, device['config'][CONF_HOST])
