@@ -110,12 +110,12 @@
         "name": "Host powiadomień protokół"
       },
       "notifications_host_ip_address": {
-        "name": "Host powiadomień IP"
+        "name": "Host powiadomień"
       },
       "notifications_host_port_no": {
         "name": "Host powiadomień port"
       },
-      "notifications_host_url": {
+      "notifications_host_path": {
         "name": "Host powiadomień ścieżka"
       }
     },

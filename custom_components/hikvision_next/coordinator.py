@@ -103,7 +103,13 @@ class SecondaryCoordinator(DataUpdateCoordinator):
         try:
             if self.device.capabilities.support_alarm_server:
                 alarm_server = await self.device.get_alarm_server()
-                data[CONF_ALARM_SERVER_HOST] = alarm_server
+                data[CONF_ALARM_SERVER_HOST] = {
+                    "protocol_type": alarm_server.protocol_type,
+                    "address": alarm_server.ip_address or alarm_server.host_name,
+                    "port_no": alarm_server.port_no,
+                    "path": alarm_server.url,
+
+                }
         except Exception as ex:  # pylint: disable=broad-except
             self.device.handle_exception(ex, f"Cannot fetch state for {CONF_ALARM_SERVER_HOST}")
         return data

@@ -6,7 +6,7 @@ import asyncio
 from contextlib import suppress
 import logging
 import traceback
-
+from homeassistant.util import slugify
 from homeassistant.components.binary_sensor import (
     ENTITY_ID_FORMAT as BINARY_SENSOR_ENTITY_ID_FORMAT,
 )
@@ -130,11 +130,24 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
         config_entry.version = 2
 
-        _LOGGER.debug(
-            "Migration to version %s.%s successful",
-            config_entry.version,
-            config_entry.minor_version,
+    # 2 -> 3: Delete previous alaram server sensor entities
+    if config_entry.version == 2:
+        old_keys = ["protocoltype", "ipaddress", "portno", "url"]
+        entity_registry = er.async_get(hass)
+        for key in old_keys:
+            entity_id = f"sensor.{slugify(config_entry.unique_id)}_alarm_server_{key}"
+            entity_registry.async_remove(entity_id)
+
+        hass.config_entries.async_update_entry(
+            config_entry,
+            version=3,
         )
+
+    _LOGGER.debug(
+        "Migration to version %s.%s successful",
+        config_entry.version,
+        config_entry.minor_version,
+    )
 
     return True
 
