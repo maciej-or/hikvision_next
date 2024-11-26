@@ -1,7 +1,9 @@
 {
   "config": {
     "abort": {
-      "already_configured": "Device is already configured"
+      "already_configured": "Device is already configured",
+      "reauth_successful": "Re-authentication was successful",
+      "reconfigure_successful": "Re-configuration was successful"
     },
     "step": {
       "user": {
@@ -10,6 +12,8 @@
           "host": "URL",
           "password": "Password",
           "username": "Username",
+          "verify_ssl": "Verify Hikvision device SSL certificate (uncheck for self-signed certificate)",
+          "rtsp_port_forced": "RTSP port forwarded on router (Optional)",
           "set_alarm_server": "Set notifications host using following address:",
           "alarm_server": "Home Assistant address accessible by Hikvison device"
         }
@@ -105,13 +109,13 @@
       "notifications_host_protocol_type": {
         "name": "Notifications Host Protocol"
       },
-      "notifications_host_ip_address": {
-        "name": "Notifications Host IP"
+      "notifications_host_address": {
+        "name": "Notifications Host"
       },
       "notifications_host_port_no": {
         "name": "Notifications Host Port"
       },
-      "notifications_host_url": {
+      "notifications_host_path": {
         "name": "Notifications Host Path"
       }
     },

@@ -1,7 +1,9 @@
 {
   "config": {
     "abort": {
-      "already_configured": "Urządzenie jest już skonfigurowane"
+      "already_configured": "Urządzenie jest już skonfigurowane",
+      "reauth_successful": "Ponowne uwierzytelnienie powiodło się",
+      "reconfigure_successful": "Ponowna konfiguracja powiodła się"
     },
     "step": {
       "user": {
@@ -10,6 +12,8 @@
           "host": "URL",
           "password": "Hasło",
           "username": "Nazwa użytkownika",
+          "rtsp_port_forced": "Port RTSP przekierowany na routerze (opcjonalnie)",
+          "verify_ssl": "Zweryfikuj certyfikat SSL urządzenia Hikvision (odznacz dla certyfikatu self-signed)",
           "set_alarm_server": "Ustaw host powiadomień używając następującego adresu:",
           "alarm_server": "Adres Home Assistant dostępny dla urządzenia Hikvision"
         }
@@ -106,12 +110,12 @@
         "name": "Host powiadomień protokół"
       },
       "notifications_host_ip_address": {
-        "name": "Host powiadomień IP"
+        "name": "Host powiadomień"
       },
       "notifications_host_port_no": {
         "name": "Host powiadomień port"
       },
-      "notifications_host_url": {
+      "notifications_host_path": {
         "name": "Host powiadomień ścieżka"
       }
     },

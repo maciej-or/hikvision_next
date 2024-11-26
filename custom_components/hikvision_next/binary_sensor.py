@@ -3,31 +3,35 @@
 from __future__ import annotations
 
 from homeassistant.components.binary_sensor import ENTITY_ID_FORMAT, BinarySensorEntity
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DATA_ISAPI, DOMAIN, EVENTS, EVENT_IO
+from . import HikvisionConfigEntry
+from .const import EVENTS
+from .hikvision_device import HikvisionDevice
 from .isapi import EventInfo
+from .isapi.const import EVENT_IO
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: HikvisionConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
     """Add binary sensors for hikvision events states."""
 
-    config = hass.data[DOMAIN][entry.entry_id]
-    isapi = config[DATA_ISAPI]
+    device = entry.runtime_data
 
     entities = []
 
-    # Camera Events
-    for camera in isapi.cameras:
+    # Video Events
+    for camera in device.cameras:
         for event in camera.events_info:
-            entities.append(EventBinarySensor(isapi, camera.id, event))
+            entities.append(EventBinarySensor(device, camera.id, event))
 
-    # NVR Events
-    if isapi.device_info.is_nvr:
-        for event in isapi.device_info.events_info:
-            entities.append(EventBinarySensor(isapi, 0, event))
+    # General Events
+    for event in device.events_info:
+        entities.append(EventBinarySensor(device, 0, event))
 
     async_add_entities(entities)
 
@@ -38,7 +42,7 @@ class EventBinarySensor(BinarySensorEntity):
     _attr_has_entity_name = True
     _attr_is_on = False
 
-    def __init__(self, isapi, device_id: int, event: EventInfo) -> None:
+    def __init__(self, device: HikvisionDevice, device_id: int, event: EventInfo) -> None:
         """Initialize."""
         self.entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
         self._attr_unique_id = self.entity_id
@@ -46,5 +50,5 @@ class EventBinarySensor(BinarySensorEntity):
         if event.id == EVENT_IO:
             self._attr_translation_placeholders = {"io_port_id": event.io_port_id}
         self._attr_device_class = EVENTS[event.id]["device_class"]
-        self._attr_device_info = isapi.hass_device_info(device_id)
+        self._attr_device_info = device.hass_device_info(device_id)
         self._attr_entity_registry_enabled_default = not event.disabled

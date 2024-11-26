@@ -10,6 +10,8 @@
           "host": "Link",
           "password": "Password",
           "username": "Utilizador",
+          "rtsp_port_forced": "Porta RTSP encaminhada no router (opcional)",
+          "verify_ssl": "Verifique o certificado SSL do dispositivo Hikvision (desmarque o certificado self-signed)",
           "set_alarm_server": "Sefinir um alarme usando o seguinte endereço:",
           "alarm_server": "Home Assistant endreço é acessivel pelo Hikvison device?"
         }

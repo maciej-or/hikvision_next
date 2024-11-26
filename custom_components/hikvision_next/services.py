@@ -11,13 +11,8 @@ from homeassistant.core import (
 )
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import (
-    ACTION_ISAPI_REQUEST,
-    ACTION_REBOOT,
-    ATTR_CONFIG_ENTRY_ID,
-    DATA_ISAPI,
-    DOMAIN,
-)
+from .const import ACTION_ISAPI_REQUEST, ACTION_REBOOT, ATTR_CONFIG_ENTRY_ID, DOMAIN
+from .isapi import ISAPIForbiddenError, ISAPIUnauthorizedError
 
 ACTION_ISAPI_REQUEST_SCHEMA = vol.Schema(
     {
@@ -34,25 +29,25 @@ def setup_services(hass: HomeAssistant) -> None:
 
     async def handle_reboot(call: ServiceCall):
         """Handle the reboot action call."""
-        entries = hass.data[DOMAIN]
         entry_id = call.data.get(ATTR_CONFIG_ENTRY_ID)
-        isapi = entries[entry_id][DATA_ISAPI]
+        entry = hass.config_entries.async_get_entry(entry_id)
+        device = entry.runtime_data
         try:
-            await isapi.reboot()
-        except HTTPStatusError as ex:
+            await device.reboot()
+        except (HTTPStatusError, ISAPIForbiddenError, ISAPIUnauthorizedError) as ex:
             raise HomeAssistantError(ex.response.content) from ex
 
     async def handle_isapi_request(call: ServiceCall) -> ServiceResponse:
         """Handle the custom ISAPI request action call."""
-        entries = hass.data[DOMAIN]
         entry_id = call.data.get(ATTR_CONFIG_ENTRY_ID)
-        isapi = entries[entry_id][DATA_ISAPI]
+        entry = hass.config_entries.async_get_entry(entry_id)
+        device = entry.runtime_data
         method = call.data.get("method", "POST")
         path = call.data["path"].strip("/")
         payload = call.data.get("payload")
         try:
-            response = await isapi.request(method, path, present="xml", data=payload)
-        except HTTPStatusError as ex:
+            response = await device.request(method, path, present="xml", data=payload)
+        except (HTTPStatusError, ISAPIForbiddenError, ISAPIUnauthorizedError) as ex:
             if isinstance(ex.response.content, bytes):
                 response = ex.response.content.decode("utf-8")
             else:

@@ -5,8 +5,9 @@ import respx
 import httpx
 from homeassistant.core import HomeAssistant
 from homeassistant.const import STATE_IDLE
-from homeassistant.components import camera as camera_component
+from homeassistant.components.camera.helper import get_camera_from_entity_id
 from homeassistant.components.camera import DOMAIN as CAMERA_DOMAIN
+from custom_components.hikvision_next.hikvision_device import HikvisionDevice
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from tests.conftest import load_fixture
 from tests.conftest import TEST_HOST
@@ -22,7 +23,7 @@ async def test_camera(hass: HomeAssistant, init_integration: MockConfigEntry) ->
     entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_101"
     assert hass.states.get(entity_id)
 
-    camera_entity = camera_component._get_camera_from_entity_id(hass, entity_id)
+    camera_entity = get_camera_from_entity_id(hass, entity_id)
     assert camera_entity.state == STATE_IDLE
     assert camera_entity.name == "garden"
 
@@ -47,7 +48,7 @@ async def test_camera_snapshot(hass: HomeAssistant, init_integration: MockConfig
     """Test camera snapshot."""
 
     entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_101"
-    camera_entity = camera_component._get_camera_from_entity_id(hass, entity_id)
+    camera_entity = get_camera_from_entity_id(hass, entity_id)
 
     image_url = f"{TEST_HOST}/ISAPI/Streaming/channels/101/picture"
     respx.get(image_url).respond(content=b"binary image data")
@@ -61,7 +62,7 @@ async def test_camera_snapshot_device_error(hass: HomeAssistant, init_integratio
     """Test camera snapshot with 2 attempts."""
 
     entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_101"
-    camera_entity = camera_component._get_camera_from_entity_id(hass, entity_id)
+    camera_entity = get_camera_from_entity_id(hass, entity_id)
 
     image_url = f"{TEST_HOST}/ISAPI/Streaming/channels/101/picture"
     route = respx.get(image_url)
@@ -81,7 +82,7 @@ async def test_camera_snapshot_alternate_url(hass: HomeAssistant, init_integrati
     """Test camera snapshot with alternate url."""
 
     entity_id = "camera.ds_7616ni_q2_00p0000000000ccrre00000000wcvu_101"
-    camera_entity = camera_component._get_camera_from_entity_id(hass, entity_id)
+    camera_entity = get_camera_from_entity_id(hass, entity_id)
 
     error_response = load_fixture("ISAPI/Streaming.channels.x0y.picture", "badXmlContent")
     image_url = f"{TEST_HOST}/ISAPI/Streaming/channels/101/picture"
@@ -116,7 +117,7 @@ async def test_camera_stream_info(hass: HomeAssistant, init_integration: MockCon
 
     data = device_data[init_integration.title]
     entity_id = data["entity_id"]
-    camera_entity = camera_component._get_camera_from_entity_id(hass, entity_id)
+    camera_entity = get_camera_from_entity_id(hass, entity_id)
 
     assert camera_entity.stream_info.codec == data["codec"]
     assert camera_entity.stream_info.width == data["width"]
@@ -124,3 +125,12 @@ async def test_camera_stream_info(hass: HomeAssistant, init_integration: MockCon
 
     stream_url = await camera_entity.stream_source()
     assert stream_url == f"rtsp://u1:%2A%2A%2A@1.0.0.255:{data['rtsp_port']}/Streaming/channels/101"
+
+@pytest.mark.parametrize("init_integration", ["DS-2TD1228-2-QA"], indirect=True)
+async def test_camera_multichannel(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
+    entry = init_integration
+
+    device: HikvisionDevice = entry.runtime_data
+    assert len(device.cameras) == 2 # video channel + thermal channel
+    assert device.cameras[0].input_port == 1
+    assert device.cameras[1].input_port == 2

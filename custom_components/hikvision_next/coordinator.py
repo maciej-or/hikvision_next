@@ -1,8 +1,7 @@
-"""Coordinators"""
+"""Coordinators."""
 
 from __future__ import annotations
 
-import asyncio
 from datetime import timedelta
 import logging
 
@@ -11,8 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import slugify
 
-from .const import DATA_ALARM_SERVER_HOST, DOMAIN, HOLIDAY_MODE
-from .isapi import ISAPI
+from .const import CONF_ALARM_SERVER_HOST, DOMAIN, HOLIDAY_MODE
 
 SCAN_INTERVAL_EVENTS = timedelta(seconds=120)
 SCAN_INTERVAL_HOLIDAYS = timedelta(minutes=60)
@@ -23,9 +21,9 @@ _LOGGER = logging.getLogger(__name__)
 class EventsCoordinator(DataUpdateCoordinator):
     """Manage fetching events state from NVR or camera."""
 
-    def __init__(self, hass: HomeAssistant, isapi: ISAPI) -> None:
+    def __init__(self, hass: HomeAssistant, device) -> None:
         """Initialize."""
-        self.isapi = isapi
+        self.device = device
 
         super().__init__(
             hass,
@@ -36,55 +34,56 @@ class EventsCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         """Update data via ISAPI."""
-        async with asyncio.timeout(30):
-            data = {}
+        data = {}
 
-            # Get camera event status
-            for camera in self.isapi.cameras:
-                for event in camera.events_info:
-                    if event.disabled:
-                        continue
-                    try:
-                        _id = ENTITY_ID_FORMAT.format(event.unique_id)
-                        data[_id] = await self.isapi.get_event_enabled_state(event)
-                    except Exception as ex:  # pylint: disable=broad-except
-                        self.isapi.handle_exception(ex, f"Cannot fetch state for {event.id}")
-
-            # Get NVR event status
-            for event in self.isapi.device_info.events_info:
+        # Get camera event status
+        for camera in self.device.cameras:
+            for event in camera.events_info:
                 if event.disabled:
                     continue
                 try:
                     _id = ENTITY_ID_FORMAT.format(event.unique_id)
-                    data[_id] = await self.isapi.get_event_enabled_state(event)
+                    data[_id] = await self.device.get_event_enabled_state(event)
                 except Exception as ex:  # pylint: disable=broad-except
-                    self.isapi.handle_exception(ex, f"Cannot fetch state for {event.id}")
+                    self.device.handle_exception(ex, f"Cannot fetch state for {event.id}")
 
-            # Get output port(s) status
-            for i in range(1, self.isapi.device_info.output_ports + 1):
-                try:
-                    _id = ENTITY_ID_FORMAT.format(
-                        f"{slugify(self.isapi.device_info.serial_no.lower())}_{i}_alarm_output"
-                    )
-                    data[_id] = await self.isapi.get_port_status("output", i)
-                except Exception as ex:  # pylint: disable=broad-except
-                    self.isapi.handle_exception(ex, f"Cannot fetch state for alarm output {i}")
-
-            # Refresh HDD data
+        # Get NVR event status
+        for event in self.device.events_info:
+            if event.disabled:
+                continue
             try:
-                self.isapi.device_info.storage = await self.isapi.get_storage_devices()
+                _id = ENTITY_ID_FORMAT.format(event.unique_id)
+                data[_id] = await self.device.get_event_enabled_state(event)
             except Exception as ex:  # pylint: disable=broad-except
-                self.isapi.handle_exception(ex, "Cannot fetch state for HDD")
+                self.device.handle_exception(ex, f"Cannot fetch state for {event.id}")
 
-            return data
+        # Get output port(s) status
+        for i in range(1, self.device.capabilities.output_ports + 1):
+            try:
+                _id = ENTITY_ID_FORMAT.format(f"{slugify(self.device.device_info.serial_no.lower())}_{i}_alarm_output")
+                data[_id] = await self.device.get_io_port_status("output", i)
+            except Exception as ex:  # pylint: disable=broad-except
+                self.device.handle_exception(ex, f"Cannot fetch state for alarm output {i}")
+
+        # Refresh HDD data
+        try:
+            self.device.storage = await self.device.get_storage_devices()
+        except Exception as ex:  # pylint: disable=broad-except
+            self.device.handle_exception(ex, "Cannot fetch storage state")
+
+
+        if self.device.auth_token_expired:
+            self.device.auth_token_expired = False
+
+        return data
 
 
 class SecondaryCoordinator(DataUpdateCoordinator):
     """Manage fetching events state from NVR."""
 
-    def __init__(self, hass: HomeAssistant, isapi: ISAPI) -> None:
+    def __init__(self, hass: HomeAssistant, device) -> None:
         """Initialize."""
-        self.isapi = isapi
+        self.device = device
 
         super().__init__(
             hass,
@@ -95,17 +94,22 @@ class SecondaryCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         """Update data via ISAPI."""
-        async with asyncio.timeout(20):
-            data = {}
-            try:
-                if self.isapi.device_info.support_holiday_mode:
-                    data[HOLIDAY_MODE] = await self.isapi.get_holiday_enabled_state()
-            except Exception as ex:  # pylint: disable=broad-except
-                self.isapi.handle_exception(ex, f"Cannot fetch state for {HOLIDAY_MODE}")
-            try:
-                if self.isapi.device_info.support_alarm_server:
-                    alarm_server = await self.isapi.get_alarm_server()
-                    data[DATA_ALARM_SERVER_HOST] = alarm_server
-            except Exception as ex:  # pylint: disable=broad-except
-                self.isapi.handle_exception(ex, f"Cannot fetch state for {DATA_ALARM_SERVER_HOST}")
-            return data
+        data = {}
+        try:
+            if self.device.capabilities.support_holiday_mode:
+                data[HOLIDAY_MODE] = await self.device.get_holiday_enabled_state()
+        except Exception as ex:  # pylint: disable=broad-except
+            self.device.handle_exception(ex, f"Cannot fetch state for {HOLIDAY_MODE}")
+        try:
+            if self.device.capabilities.support_alarm_server:
+                alarm_server = await self.device.get_alarm_server()
+                data[CONF_ALARM_SERVER_HOST] = {
+                    "protocol_type": alarm_server.protocol_type,
+                    "address": alarm_server.ip_address or alarm_server.host_name,
+                    "port_no": alarm_server.port_no,
+                    "path": alarm_server.url,
+
+                }
+        except Exception as ex:  # pylint: disable=broad-except
+            self.device.handle_exception(ex, f"Cannot fetch state for {CONF_ALARM_SERVER_HOST}")
+        return data

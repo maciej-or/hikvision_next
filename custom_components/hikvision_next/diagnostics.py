@@ -9,13 +9,12 @@ from typing import Any
 
 from httpx import HTTPStatusError
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntry
 
-from .const import DATA_ISAPI, DOMAIN, STREAM_TYPE
-
-GET = "get"
+from . import HikvisionConfigEntry
+from .isapi import ISAPIForbiddenError, ISAPIUnauthorizedError
+from .isapi.const import GET, STREAM_TYPE
 
 
 def anonymise_mac(orignal: str):
@@ -56,7 +55,7 @@ ANON_KEYS = {
 anon_map = {}
 
 
-async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
+async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: HikvisionConfigEntry) -> dict[str, Any]:
     """Return diagnostics for a config entry."""
     return await _async_get_diagnostics(hass, entry)
 
@@ -64,10 +63,10 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
 @callback
 async def _async_get_diagnostics(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: HikvisionConfigEntry,
     device: DeviceEntry | None = None,
 ) -> dict[str, Any]:
-    isapi = hass.data[DOMAIN][entry.entry_id][DATA_ISAPI]
+    device = entry.runtime_data
 
     # Get info set
     info = {}
@@ -90,21 +89,22 @@ async def _async_get_diagnostics(
         "Event/triggers",
         "Event/triggers/scenechangedetection-1",
         "Event/notification/httpHosts",
+        "Streaming/channels",
     ]
 
     for endpoint in endpoints:
-        responses[endpoint] = await get_isapi_data(isapi, endpoint)
+        responses[endpoint] = await get_isapi_data(device, endpoint)
 
     # channels
-    for camera in isapi.cameras:
+    for camera in device.cameras:
         for stream_type_id in STREAM_TYPE:
             endpoint = f"Streaming/channels/{camera.id}0{stream_type_id}"
-            responses[endpoint] = await get_isapi_data(isapi, endpoint)
+            responses[endpoint] = await get_isapi_data(device, endpoint)
 
     # event states
-    for camera in isapi.cameras:
+    for camera in device.cameras:
         for event in camera.events_info:
-            responses[event.url] = await get_isapi_data(isapi, event.url)
+            responses[event.url] = await get_isapi_data(device, event.url)
 
     info["ISAPI"] = responses
     return info
@@ -116,9 +116,9 @@ async def get_isapi_data(isapi, endpoint: str) -> dict:
     try:
         response = await isapi.request(GET, endpoint)
         entry["response"] = anonymise_data(response)
-    except HTTPStatusError as ex:
+    except (HTTPStatusError, ISAPIUnauthorizedError, ISAPIForbiddenError) as ex:
         entry["status_code"] = ex.response.status_code
-    except Exception as ex:
+    except Exception as ex:  # noqa: BLE001
         entry["error"] = ex
     return entry
 

@@ -14,11 +14,28 @@ async def test_sensor_value(
     """Test sensors value."""
 
     for entity_id, state in [
-        ("sensor.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_alarm_server_ipaddress", "1.0.0.159"),
-        ("sensor.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_alarm_server_portno", "8123"),
-        ("sensor.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_alarm_server_url", "/api/hikvision"),
-        ("sensor.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_alarm_server_protocoltype", "HTTP"),
+        ("sensor.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_alarm_server_address", "1.0.0.159"),
+        ("sensor.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_alarm_server_port_no", "8123"),
+        ("sensor.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_alarm_server_path", "/api/hikvision"),
+        ("sensor.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_alarm_server_protocol_type", "HTTP"),
         ("sensor.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_hdd1", "OK"),
+    ]:
+        assert (sensor := hass.states.get(entity_id))
+        assert sensor.state == state
+
+@pytest.mark.parametrize("init_integration", ["DS-2CD2T86G2-ISU"], indirect=True)
+async def test_sensor_value_outside_network(
+    hass: HomeAssistant,
+    init_integration: MockConfigEntry,
+) -> None:
+    """Test sensors value."""
+
+    for entity_id, state in [
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_alarm_server_address", "ha.hostname.domain"),
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_alarm_server_port_no", "443"),
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_alarm_server_path", "/api/hikvision"),
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_alarm_server_protocol_type", "HTTPS"),
+        ("sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_hdde", "OK"),
     ]:
         assert (sensor := hass.states.get(entity_id))
         assert sensor.state == state

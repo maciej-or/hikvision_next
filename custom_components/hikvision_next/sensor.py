@@ -3,49 +3,42 @@
 from __future__ import annotations
 
 from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorEntity
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import (
-    DATA_ALARM_SERVER_HOST,
-    DOMAIN,
-    EVENTS_COORDINATOR,
-    SECONDARY_COORDINATOR,
-)
+from . import HikvisionConfigEntry
+from .const import CONF_ALARM_SERVER_HOST, SECONDARY_COORDINATOR
 from .isapi import StorageInfo
 
-NOTIFICATION_HOST_KEYS = {
-    "protocolType": "protocol_type",
-    "ipAddress": "ip_address",
-    "portNo": "port_no",
-    "url": "url",
-}
+NOTIFICATION_HOST_KEYS = [
+    "protocol_type",
+    "address", # ip_address or host_name
+    "port_no",
+    "path",
+]
 
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: HikvisionConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Add diagnostic sensors for hikvision alarm server settings."""
+    """Add diagnostic sensors for hikvision alarm server settings and storage items."""
 
-    config = hass.data[DOMAIN][entry.entry_id]
-    coordinator = config.get(SECONDARY_COORDINATOR)
+    device = entry.runtime_data
+    coordinator = device.coordinators.get(SECONDARY_COORDINATOR)
 
     entities = []
     if coordinator:
         for key in NOTIFICATION_HOST_KEYS:
             entities.append(AlarmServerSensor(coordinator, key))
 
-    events_coordinator = config.get(EVENTS_COORDINATOR)
-    if events_coordinator:
-        for item in list(events_coordinator.isapi.device_info.storage):
+        for item in list(device.storage):
             entities.append(StorageSensor(coordinator, item))
 
-    async_add_entities(entities, True)
+        async_add_entities(entities, True)
 
 
 class AlarmServerSensor(CoordinatorEntity, SensorEntity):
@@ -58,20 +51,18 @@ class AlarmServerSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, key: str) -> None:
         """Initialize."""
         super().__init__(coordinator)
-        isapi = coordinator.isapi
-        self._attr_unique_id = (
-            f"{isapi.device_info.serial_no}_{DATA_ALARM_SERVER_HOST}_{key}"
-        )
+        device = coordinator.device
+        self._attr_unique_id = f"{device.device_info.serial_no}_{CONF_ALARM_SERVER_HOST}_{key}"
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
-        self._attr_device_info = isapi.hass_device_info()
-        self._attr_translation_key = f"notifications_host_{NOTIFICATION_HOST_KEYS[key]}"
+        self._attr_device_info = device.hass_device_info()
+        self._attr_translation_key = f"notifications_host_{key}"
         self.key = key
 
     @property
     def native_value(self) -> str | None:
         """Return the state of the sensor."""
-        host = self.coordinator.data.get(DATA_ALARM_SERVER_HOST)
-        return getattr(host, self.key) if host else None
+        host = self.coordinator.data.get(CONF_ALARM_SERVER_HOST)
+        return host.get(self.key)
 
 
 class StorageSensor(CoordinatorEntity, SensorEntity):
@@ -84,17 +75,17 @@ class StorageSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, hdd: StorageInfo) -> None:
         """Initialize."""
         super().__init__(coordinator)
-        isapi = coordinator.isapi
-        self._attr_unique_id = f"{isapi.device_info.serial_no}_{hdd.id}_{hdd.name}"
+        device = coordinator.device
+        self._attr_unique_id = f"{device.device_info.serial_no}_{hdd.id}_{hdd.name}"
         self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
-        self._attr_device_info = isapi.hass_device_info()
+        self._attr_device_info = device.hass_device_info()
         self._attr_name = f"{hdd.type} {hdd.name}"
         self.hdd = hdd
 
     @property
     def native_value(self) -> str | None:
         """Return the state of the sensor."""
-        hdd = self.coordinator.isapi.get_storage_device_by_id(self.hdd.id)
+        hdd = self.coordinator.device.get_storage_device_by_id(self.hdd.id)
         return str(hdd.status).upper() if hdd else None
 
     @property
