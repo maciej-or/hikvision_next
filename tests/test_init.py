@@ -25,7 +25,8 @@ from tests.conftest import TEST_CONFIG, TEST_CONFIG_WITH_ALARM_SERVER, TEST_CONF
     "DS-7616NI-K2",
     "DS-7616NI-Q2",
     "DS-7732NI-M4",
-    "iDS-7204HUHI-M1"
+    "iDS-7204HUHI-M1",
+    "iDS-7208HQHI-M1"
 ], indirect=True)
 
 async def test_basic_init(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
