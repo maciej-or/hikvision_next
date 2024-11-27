@@ -35,10 +35,9 @@ async def async_setup_entry(
         for event in camera.events_info:
             entities.append(EventSwitch(camera.id, event, events_coordinator))
 
-    # NVR supported events
-    if device.device_info.is_nvr:
-        for event in device.events_info:
-            entities.append(EventSwitch(0, event, events_coordinator))
+    # Device supported events
+    for event in device.events_info:
+        entities.append(EventSwitch(0, event, events_coordinator))
 
     # Output port switch
     for i in range(1, device.capabilities.output_ports + 1):

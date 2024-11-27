@@ -49,6 +49,23 @@ async def test_event_switch_state(
         assert switch_entity.disabled
 
 
+@pytest.mark.parametrize("init_integration", ["DS-2CD2T86G2-ISU"], indirect=True)
+async def test_event_switch_state_of_a_camera(
+    hass: HomeAssistant,
+    init_integration: MockConfigEntry,
+) -> None:
+    """Test switch state of a camera."""
+
+    for entity_id, state in [
+        ("switch.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_fielddetection", STATE_ON),
+        ("switch.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_scenechangedetection", STATE_ON),
+        ("switch.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_io", STATE_OFF),
+        ("switch.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_alarm_output", STATE_OFF)
+    ]:
+        assert (switch := hass.states.get(entity_id))
+        assert switch.state == state
+
+
 @pytest.mark.parametrize("init_integration", ["DS-7608NXI-I2"], indirect=True)
 async def test_event_switch_payload(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test event switch."""
