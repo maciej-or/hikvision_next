@@ -136,7 +136,9 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         entity_registry = er.async_get(hass)
         for key in old_keys:
             entity_id = f"sensor.{slugify(config_entry.unique_id)}_alarm_server_{key}"
-            entity_registry.async_remove(entity_id)
+            entity = entity_registry.async_get(entity_id)
+            if entity:
+                entity_registry.async_remove(entity_id)
 
         hass.config_entries.async_update_entry(
             config_entry,
