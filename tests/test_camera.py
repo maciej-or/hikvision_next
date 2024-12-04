@@ -110,7 +110,6 @@ device_data = {
     },
 }
 
-
 @pytest.mark.parametrize("init_integration", ["DS-7608NXI-I2", "DS-7616NI-Q2"], indirect=True)
 async def test_camera_stream_info(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test camera snapshot with alternate url."""
@@ -134,3 +133,17 @@ async def test_camera_multichannel(hass: HomeAssistant, init_integration: MockCo
     assert len(device.cameras) == 2 # video channel + thermal channel
     assert device.cameras[0].input_port == 1
     assert device.cameras[1].input_port == 2
+
+
+@pytest.mark.parametrize("init_integration", ["DS-7608NXI-I2", "DS-7732NI-M4"], indirect=True)
+async def test_nvr_with_onvif_cameras(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
+    """Test proxy cameras with repeated serial no."""
+
+    entry = init_integration
+    device: HikvisionDevice = entry.runtime_data
+
+    unique_serial_no = set()
+    for camera in device.cameras:
+        unique_serial_no.add(camera.serial_no)
+
+    assert len(device.cameras) == len(unique_serial_no)
