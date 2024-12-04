@@ -175,12 +175,10 @@ class ISAPIClient:
                     if not source:
                         continue
 
-                    # Generate serial number if not provided by camera
-                    # As combination of protocol and IP
                     serial_no = source.get("serialNumber")
-
-                    if not serial_no:
-                        serial_no = str(source.get("proxyProtocol")) + str(source.get("ipAddress", "")).replace(".", "")
+                    if not serial_no or self.get_camera_by_serial_no(serial_no):
+                        # serial no is not always recognized correcly by NVR
+                        serial_no = f"{self.device_info.serial_no}_{source.get("proxyProtocol")}_{camera_id}"
 
                     self.cameras.append(
                         IPCamera(
@@ -366,6 +364,13 @@ class ISAPIClient:
         except IndexError:
             # Camera id does not exist
             return None
+
+    def get_camera_by_serial_no(self, serial_no: str) -> IPCamera | AnalogCamera | None:
+        """Get camera object by serial number."""
+        for c in self.cameras:
+            if c.serial_no == serial_no:
+                return c
+        return None
 
     async def get_storage_devices(self):
         """Get HDD and NAS storage devices."""

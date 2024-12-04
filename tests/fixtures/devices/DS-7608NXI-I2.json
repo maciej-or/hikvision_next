@@ -1198,7 +1198,7 @@
                   "connMode": "plugplay",
                   "streamType": "auto",
                   "model": "DS-2CD2386G2-IU",
-                  "serialNumber": "DS-2CD2386G2-IU00000000AAWRK00000000",
+                  "serialNumber": "DS-2CD2386G2-IU00000000AAWRK00000001",
                   "firmwareVersion": "V5.7.15 build 240201",
                   "deviceID": null
                 },
@@ -1221,7 +1221,7 @@
                   "connMode": "plugplay",
                   "streamType": "auto",
                   "model": "DS-2CD2386G2-IU",
-                  "serialNumber": "DS-2CD2386G2-IU00000000AAWRK00000000",
+                  "serialNumber": "DS-2CD2386G2-IU00000000AAWRK00000002",
                   "firmwareVersion": "V5.7.15 build 240201",
                   "deviceID": null
                 },
