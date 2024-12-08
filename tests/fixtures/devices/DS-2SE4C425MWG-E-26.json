@@ -1,0 +1,2084 @@
+{
+  "data": {
+    "ISAPI": {
+      "System/deviceInfo": {
+        "response": {
+          "DeviceInfo": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "deviceName": "IP DOME",
+            "deviceID": "bfd2c000-2120-00b0-000a-00000000000c",
+            "deviceDescription": "IPDome",
+            "deviceLocation": "hangzhou",
+            "systemContact": "Hikvision.China",
+            "model": "DS-2SE4C425MWG-E-26",
+            "serialNumber": "DS-2SE4C425MWG-E/0000000000AAWRFC0000000",
+            "macAddress": "46:c0:7b:b4:78:f6",
+            "firmwareVersion": "V5.8.1",
+            "firmwareReleasedDate": "build 240929",
+            "encoderVersion": "V7.3",
+            "encoderReleasedDate": "build 240925",
+            "bootVersion": "V1.3.4",
+            "bootReleasedDate": "100316",
+            "hardwareVersion": "0x0",
+            "deviceType": "IPDome",
+            "telecontrolID": "88",
+            "supportBeep": "true",
+            "supportVideoLoss": "false",
+            "firmwareVersionInfo": "B-R-G7-0",
+            "manufacturer": "hikvision",
+            "subSerialNumber": "FC0000000",
+            "OEMCode": "1",
+            "firmware": "opdevsdk mediaDrv:v2.0.0",
+            "platformName": "G7",
+            "encryptionModel": "0xb20919"
+          }
+        }
+      },
+      "System/capabilities": {
+        "response": {
+          "DeviceCap": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "SysCap": {
+              "isSupportDst": "true",
+              "NetworkCap": {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "isSupportWireless": "false",
+                "isSupportPPPoE": "true",
+                "isSupportBond": "false",
+                "isSupport802_1x": "true",
+                "isSupportNtp": "true",
+                "isSupportFtp": "true",
+                "isSupportUpnp": "true",
+                "isSupportDdns": "true",
+                "isSupportHttps": "true",
+                "SnmpCap": {
+                  "isSupport": "true"
+                },
+                "isSupportExtNetCfg": "false",
+                "isSupportIPFilter": "true",
+                "isSupportEZVIZ": "true",
+                "isSupportEhome": "true",
+                "isSupportWirelessDial": "false",
+                "isSupportWirelessServer": "false",
+                "isSupportWPS": "false",
+                "isWirelessMutexWithWirelessServer": "false",
+                "isSupportMACFilter": "true",
+                "verificationCode": {
+                  "@min": "6",
+                  "@max": "12"
+                },
+                "VerificationCodeModification": {
+                  "verificationCodeType": {
+                    "@opt": "normal,empty",
+                    "#text": "normal"
+                  },
+                  "isSupportDeclarationURL": "true",
+                  "isSupportPrivacyPolicyURL": "true",
+                  "verificationCodeModify": {
+                    "@opt": "true,false",
+                    "#text": "true"
+                  },
+                  "Hyperlinks": {
+                    "declarationURL": "https://www.hik-connect.com/views/terms/termsofservice.html",
+                    "privacyPolicyURL": "https://www.hik-connect.com/views/terms/privacypolicy.html"
+                  }
+                },
+                "isSupportIntegrate": "true",
+                "isSupportPlatformAccess": "false",
+                "isSupportGetLinkSocketIP": "true",
+                "isSupportWebSocket": "true",
+                "isSupportWebSocketS": "true",
+                "isSupportVideoImgDB": "false",
+                "isSupportDynamicHostName": "true",
+                "isSupportTCPAcceleration": "true",
+                "isSupportFlowControl": "true",
+                "isSupportEmailEncrypt": "true",
+                "isSupportIntranetSegment": "true",
+                "isSupportEventDataOverWebSocket": {
+                  "@opt": "true,false",
+                  "#text": "true"
+                }
+              },
+              "IOCap": {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "IOInputPortNums": "1",
+                "IOOutputPortNums": "1",
+                "isSupportStrobeLamp": "false"
+              },
+              "SerialCap": {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "rs485PortNums": "1",
+                "supportRS232Config": "false",
+                "rs422PortNums": "0",
+                "rs232PortNums": "0"
+              },
+              "VideoCap": {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "videoInputPortNums": "0",
+                "videoOutputPortNums": "0",
+                "isSupportHeatmap": "false",
+                "isSupportCounting": "false",
+                "isSupportPicture": "false",
+                "isSupportPrivacyMask": "true",
+                "isSupportBinocularPreviewSwitch": "false",
+                "isSupportCalibCheck": "false",
+                "isSupportPIP": "true",
+                "OSDLanguage": {
+                  "@opt": "GBK,EUC-KR",
+                  "@def": "GBK"
+                },
+                "isSupportVideoOutputMode": "false"
+              },
+              "AudioCap": {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "audioInputNums": "1",
+                "audioOutputNums": "1",
+                "isSupportDeviceAudioCapture": "true"
+              },
+              "isSupportExternalDevice": "false",
+              "isSupportSubscribeEvent": "true",
+              "isSupportDiagnosedData": "true",
+              "isSupportMetadata": "true"
+            },
+            "voicetalkNums": "1",
+            "isSupportSnapshot": "true",
+            "SecurityCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "supportUserNums": "32",
+              "userBondIpNums": "0",
+              "userBondMacNums": "0",
+              "isSupCertificate": "true",
+              "issupIllegalLoginLock": "true",
+              "isSupportOnlineUser": "true",
+              "isSupportAnonymous": "false",
+              "isSupportStreamEncryption": "false",
+              "securityVersion": {
+                "@opt": "1"
+              },
+              "keyIterateNum": "100",
+              "isSupportUserCheck": "true",
+              "isSupportSecurityQuestionConfig": "true",
+              "supportSecurityNode": {
+                "@opt": "wirelessDial"
+              },
+              "SecurityLimits": {
+                "LoginPasswordLenLimit": {
+                  "@min": "1",
+                  "@max": "16"
+                },
+                "SecurityAnswerLenLimit": {
+                  "@min": "1",
+                  "@max": "128"
+                }
+              },
+              "RSAKeyLength": {
+                "@opt": "1024,2048",
+                "@def": "2048"
+              },
+              "isSupportONVIFUserManagement": "true",
+              "isSupportGB35114Certificate": "false",
+              "WebCertificateCap": {
+                "CertificateType": {
+                  "@opt": "digest,digest/basic"
+                },
+                "SecurityAlgorithm": {
+                  "algorithmType": {
+                    "@opt": "MD5,SHA256,MD5/SHA256"
+                  }
+                }
+              },
+              "isSupportConfigFileImport": "true",
+              "isSupportConfigFileExport": "true",
+              "cfgFileSecretKeyLenLimit": {
+                "@min": "1",
+                "@max": "16"
+              },
+              "isIrreversible": "true",
+              "salt": "ce60798705f164bdc2428c06d34b768ef854545b215b5354a1818f67ba31acea",
+              "isSupportOnvifInfo": "true",
+              "isSupportDeviceCertificatesManagement": "true",
+              "isSupportDeviceSelfSignCertExport": "true",
+              "isSupportSecurityEmail": "true",
+              "maxIllegalLoginTimes": {
+                "@min": "3",
+                "@max": "20",
+                "@def": "7"
+              },
+              "SecurityAdvanced": {
+                "noOperationEnabled": "true",
+                "noOperationTime": {
+                  "@min": "1",
+                  "@max": "60",
+                  "@def": "15"
+                }
+              },
+              "LoginLinkNum": {
+                "maxLinkNum": {
+                  "@min": "1",
+                  "@max": "128",
+                  "@def": "50"
+                }
+              },
+              "isSupportCertificateCustomID": "true",
+              "isSupportEncryptCertificate": "true",
+              "maxIllegalLoginLockTime": {
+                "@min": "1",
+                "@max": "120",
+                "@def": "30"
+              },
+              "isSupportSoftwareLicense": "true",
+              "isSupportPasswordProtection": "true"
+            },
+            "EventCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportHDFull": "true",
+              "isSupportHDError": "true",
+              "isSupportNicBroken": "true",
+              "isSupportIpConflict": "true",
+              "isSupportIllAccess": "true",
+              "isSupportViException": "false",
+              "isSupportViMismatch": "false",
+              "isSupportRecordException": "false",
+              "isSupportTriggerFocus": "false",
+              "isSupportMotionDetection": "true",
+              "isSupportVideoLoss": "false",
+              "isSupportTamperDetection": "true",
+              "isSupportFireDetection": "false",
+              "isSupportStudentsStoodUp": "false",
+              "isSupportFramesPeopleCounting": "false",
+              "isSupportPersonQueueDetection": "false",
+              "isSupportFaceContrast": "false",
+              "isSupportFaceLib": "false",
+              "isSupportPersonDensityDetection": "false",
+              "isSupportTeacherBehaviorDetect": "false",
+              "isSupportCityManagement": "false",
+              "isSupportMixedTargetDetection": "false",
+              "isSupportFaceSnapModeling": "false",
+              "isSupportIntersectionAnalysis": "false",
+              "isSupportLuma": "false",
+              "isSupportChroma": "false",
+              "isSupportSnow": "false",
+              "isSupportStreak": "false",
+              "isSupportFreeze": "false",
+              "isSupportSigLose": "false",
+              "isSupportClarity": "false",
+              "isSupportJitter": "false",
+              "isSupportBlock": "false",
+              "isSupportFlowers": "false",
+              "isSupportNoise": "false",
+              "isSupportGhost": "false",
+              "isSupportPurple": "false",
+              "isSupportICR": "false",
+              "isSupportProtectiveFilm": "false",
+              "isSupportAbnormalReboot": "true",
+              "isSupportFaceSnap": "true"
+            },
+            "RacmCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "nasNums": "8",
+              "pictureSearchType": {
+                "@opt": "allPic,CMR,MOTION,ALARM,LineDetection,FieldDetection,regionEntrance,regionExiting,faceSnap"
+              },
+              "recordSearchType": {
+                "@opt": "CMR,MOTION,ALARM,EDR,ALARMANDMOTION,LineDetection,FieldDetection,AudioDetection,regionEntrance,regionExiting,AllEvent"
+              },
+              "SecurityLog": {
+                "isSupportSecurityLog": "true",
+                "isSupportLogServer": "true",
+                "isSupportLogServerTest": "true",
+                "SecurityLogTypeList": {
+                  "SecurityLogType": [
+                    {
+                      "primaryType": "All",
+                      "secondaryType": {
+                        "@opt": "all"
+                      }
+                    },
+                    {
+                      "primaryType": "Operation",
+                      "secondaryType": {
+                        "@opt": "all,alarmSmsSend,callOnline,devicePowerOff,devicePowerOn,deviceRecycle,localAddIpc,localAddNas,localUserManagement,localCfgSecurity,localCfgNetwork,localCfgTime,localCfgPara,localCtrlPtz,localDelIpc,localDelNas,localDial,localDialParaSet,localDialScheduleSet,localDownloadCfgFile,localDownloadCountingFile,localDownloadHeatMapFile,localDownloadPicFile,localDownloadRecFile,localExportBlackWhiteListFile,localExportIpcCfg,localFormatDisk,localHdTest,localImportBlackWhiteListFile,localImportIpcCfg,localIpcUpgrade,localLock,localLockFile,localLogOut,localLogin,localManulAlarm,localPin,localPlayByFile,localPlayByTime,localResetPasswd,localSetIpc,localSetNas,localSetSIPServer,localSetSnmp,localSmsRead,localSmsSearch,localSmsSend,localSpareOperate,localStartPicRec,localStartRec,localStopPicRec,localStopRec,localTagOperation,localUnlock,localUnlockFile,localUpdate,localUploadCfgFile,localWhitelistSet,platOper,remoteAddIpc,remoteAddNas,remoteArm,remotecfgauditpolicy,remoteUserManagement,remoteCfgSecurity,remoteCfgNetwork,remoteCfgTime,remoteCfgPara,remoteCreateCloudStoragePool,remoteCtrlPtz,remoteDelHdisk,remoteDelIpc,remoteDelNas,remoteDeleteCloudStoragePool,remoteDeletePic,remoteDeleteRecord,remoteDialConnect,remoteDialDisconn,remoteDialParaSet,remoteDialScheduleSet,remoteDisArm,remoteDisableCloudStorage,remoteDownloadCfgFile,remoteDownloadRecFile,remoteEnableCloudStorage,remoteExportBlackWhiteListFile,remoteExportIpcCfg,remoteFormatHd,remoteGetParaSecurity,remoteGetParaNetwork,remoteGetPara,remoteGetStatus,remoteImportBlackWhiteListFile,VcaLibRestore,remoteImportIpcCfg,remoteLoadHdisk,remoteLockFile,remoteLogin,remoteLogout,remoteManulAlarm,remoteModCloudStorageParam,remoteModCloudStorageVolume,remotePicBackUp,remotePin,remotePlayByFile,remotePlayByTime,remotePowerOff,remotePowerRecycle,remoteSetIpc,remoteSetNas,remoteSetSIPServer,remoteSetSnmp,remoteSmsRead,remoteSmsSearch,remoteSmsSend,remoteSpareOperate,remoteStartPicRec,remoteStartRec,remoteStartTransChan,remoteStopPicRec,remoteStopRec,remoteStopTransChan,remoteTagOperation,remoteUnloadHdisk,remoteUnlockFile,remoteUpgrade,remoteUploadCfgFile,remoteWhitelistSet,remotelIpcUpgrade,smsControl,smsRecv,startVoiceTalk,stopAbnormal,stopVoiceTalk,localSetDeviceActive,localParamSimpleDefault,localParamFactoryDefault,remoteSetDeviceActive,remoteParamSimpleDefault,remoteParamFactoryDefault,localWPSLink,remoteWPSLink,localResetLoginPassWord,remoteResetLoginPassWord,localfaceBaseCreate,localfaceBaseModify,localfaceBaseDelete,localfaceDataAppend,localfaceDataEdit,localfaceDataDelete,localVcaAnalysisConfig,remotefaceBaseCreate,remotefaceBaseModify,remotefaceBaseDelete,remotefaceDataAppend,remotefaceDataEdit,remotefaceDataDelete,remoteVcaAnalysisConfig,localClusterNetworkConfig,localClusterAddDevice,localClusterDelDevice,remoteClusterNetworkConfig,remoteClusterAddDevice,remoteClusterDelDevice,localSetPoeWorkMode,remoteSetPoeWorkMode,localClusterModeConfig,remoteClusterModeConfig,localIOTCfgFileInput,localIOTCfgFileOutput,localIOTAdd,localIOTDelete,localIOTSet,remoteIOTCfgFileInput,remoteIOTCfgFileOutput,remoteIOTAdd,remoteIOTDelete,remoteIOTSet,localCheckTime,remoteCheckTime,remoteFaceContrastTask,unlockSession,terminateHttp,terminateHttps,terminateSSH,selfTest,remoterecplan,singlecertification"
+                      }
+                    },
+                    {
+                      "primaryType": "Event",
+                      "secondaryType": {
+                        "@opt": "all,anrRecordException,dialException,hdError,hdFull,illlegealAccess,ipConflict,ipcDisconnect,ipcIpConfilict,ipcmCrash,netBroken,poePowerException,recordError,recordOverFLow,spareException,startIpcMasException,uploadDataCsException,viAndResMismatch,videoException,videoFormatMismatch,videoLost,syncIPCPasswd,ezvizOffline,SDCardAbnormal,SDCardDamage,plateAbnormal,abnormalPort,POC,vcaCameraAngleAnomaly,dataDiskError,intelligentSystemRunningError,facesnapResolutionOverflow,SMDResolutionOverflow,clusterConfigFailed,clusterStorFullException,clusterOfflineNodeException,clusterRecordCycleException,clusterIPCTransferException,vcaSenceException,ClusterDeviceOffline,clusterDisasterToleranceExcept,clusterVersionException,getSubStreamFailure,locked,hddSHMDetectException,faceModelException,validateCert,establishSecSession,replayAttacks,ntpCheckTime,lowAuditLogStorage,httpConnect,httpsConnect,sshConnect,httpDisconnect,httpsDisconnect,sshDisconnect,signcheck35114,IntrusionPrevention,applicationProtocolFirewall"
+                      }
+                    },
+                    {
+                      "primaryType": "Other",
+                      "secondaryType": {
+                        "@opt": "all"
+                      }
+                    }
+                  ]
+                }
+              },
+              "isSupportRacmChannelsCap": {
+                "@opt": "true,false",
+                "#text": "true"
+              }
+            },
+            "PTZCtrlCap": {
+              "isSupportPatrols": "true"
+            },
+            "SmartCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportROI": "true",
+              "isSupportAudioDetection": "true",
+              "isSupportFaceDetect": "false",
+              "isSupportLineDetection": "true",
+              "isSupportFieldDetection": "true",
+              "isSupportRegionEntrance": "true",
+              "isSupportRegionExiting": "true",
+              "isSupportLoitering": "false",
+              "isSupportGroup": "false",
+              "isSupportRapidMove": "false",
+              "isSupportParking": "false",
+              "isSupportUnattendedBaggage": "false",
+              "isSupportAttendedBaggage": "false",
+              "isSupportIntelliTrace": "false",
+              "isSupportPeopleDetection": "false",
+              "isSupportDefocusDetection": "false",
+              "isSupportSceneChangeDetection": "false",
+              "isSupportStorageDetection": "false",
+              "isSupportChannelResource": "false",
+              "advancedParaSupportChannels": {
+                "@opt": "2"
+              },
+              "isSupportSmartOverlapParams": "true",
+              "isSupportSmartCalibration": "true"
+            },
+            "WLAlarmCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportTeleControl": "false",
+              "isSupportPIR": "false",
+              "isSupportWLSensors": "false",
+              "isSupportCallHelp": "false",
+              "WLSensorsNum": "0"
+            },
+            "isSupportGIS": "true",
+            "isSupportCompass": "true",
+            "isSupportRoadInfoOverlays": "false",
+            "TestCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportFTPTest": "true",
+              "isSupportPingTest": "true",
+              "isSupportNTPTest": "true",
+              "isSupportNASTest": "true",
+              "isSupportEmailTest": "true"
+            },
+            "PanoramaCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportGeneratePanorama": "false",
+              "isSupportPanoramaPosition3D": "false",
+              "isSupportPreset": "false",
+              "isSupportExportPanoramaSplicingParamFile": "false",
+              "isSupportImportPanoramaSplicingParamFile": "false",
+              "isSupportGetPanoramaSplicingPictures": "false",
+              "isSupportGetPanoramicSplicingStatus": "false",
+              "isSupportStopPanoramicSplicing": "false",
+              "isSupportSplicingChannelMotionControl": "false",
+              "isSupportImportPanoramicSplicingPicture": "false",
+              "isSupportExportPanoramicSplicingPicture": "false"
+            },
+            "isSupportFaceCaptureStatistics": "false",
+            "isSupportElectronicsEnlarge": "true",
+            "OpenPlatformCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "isSupportOpenPlatform": "false"
+            },
+            "isSupportTraffic": "false",
+            "isSupportRtspOverHTTPS": "true",
+            "isSupportFirmwareVersionInfo": "true",
+            "isSupportStreamDualVCA": "false",
+            "isSupportLaserSpotManual": "false",
+            "isSupportSetupCalibration": "false",
+            "isOnlySupportAnalogChannel": "true",
+            "isSupportIoTGateway": "true",
+            "isSupportChannelEventCap": "true",
+            "isSupportChannelEventListCap": "true",
+            "VCAResourceChannelsCap": {
+              "ChannelsList": [
+                {
+                  "channelsID": "1"
+                },
+                {
+                  "channelsID": "2"
+                }
+              ]
+            },
+            "isSupportPanoramaCalibration": "true",
+            "supportPanoramaChannel": {
+              "@opt": "2"
+            },
+            "supportSnapshotChannel": {
+              "@opt": "1,2"
+            },
+            "isSupportGPSCalibratation": "false",
+            "isSupportGPSLabelTracking": "false",
+            "isSupportCalibrationStream": "false",
+            "isSupportActiveMulticast": "true",
+            "isSupportChannelFullEventCap": "true",
+            "isSupportAUXInfoCap": "true",
+            "isSupportVehicleMonitor": "false",
+            "isSupportManualVehicleMonitor": "false",
+            "isSupportPatchUpgrade": "true",
+            "isSupportSnapshotAsync": "true",
+            "isSupportOnlineUpgradeTask": "true",
+            "isSupportDataAware": "true",
+            "isSupportRTMP": "false",
+            "isSupportAbnormalReboot": "true",
+            "isSupportAutoMaintenance": "false",
+            "isSupportSIMCardStatus": "false",
+            "isSupportBVCorrectDataSearch": "true",
+            "isSupportISUPHttpPassthrough": "true",
+            "manualEvent": "faceCapture,fielddetection,linedetection",
+            "isSupportPanoramaStitch": "true",
+            "isSupportTOFShelterAlarm": "false",
+            "isSupportT1Test": "true",
+            "isSupportOTAPModel": "true",
+            "isSupportTimeTypeSTD": "true",
+            "isSupportTimeZone": "true",
+            "isSupportPresetSwitchingInformation": "true",
+            "isSupportGetPlaybackStreamInfo": "true",
+            "isSupportRealTimeStreamInfo": "true",
+            "isSupportChildmanage": "true",
+            "isSupportGetAllPIPCofigParams": "true",
+            "isSupportPIP": "true",
+            "isSupportAuthorizeMicAcquisitionParam": "true",
+            "isSupportFans": "true",
+            "isSupportEmmcInfo": "true",
+            "isSupportPerimeterAlgoTargetFilterParams": "false",
+            "isSupportRestorePerimeterAlgoDefaultParam": "false",
+            "isSupportPicInfoOverlap": "true"
+          }
+        }
+      },
+      "System/IO/inputs/1/status": {
+        "response": {
+          "IOPortStatus": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "ioPortID": "1",
+            "ioPortType": "input",
+            "ioState": "inactive"
+          }
+        }
+      },
+      "System/IO/outputs/1/status": {
+        "response": {
+          "IOPortStatus": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "ioPortID": "1",
+            "ioPortType": "output",
+            "ioState": "inactive"
+          }
+        }
+      },
+      "System/Holidays": {
+        "status_code": 404
+      },
+      "System/Video/inputs/channels": {
+        "response": {
+          "VideoInputChannelList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "VideoInputChannel": [
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "1",
+                "inputPort": "1",
+                "name": "DS-2SE4C425MWG-E-26(FC2493386)",
+                "videoFormat": "PAL",
+                "channelDescription": "PTZ"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "2",
+                "inputPort": "2",
+                "name": "IPdome 02",
+                "videoFormat": "PAL",
+                "channelDescription": "Panoramic"
+              }
+            ]
+          }
+        }
+      },
+      "ContentMgmt/InputProxy/channels": {
+        "status_code": 403
+      },
+      "ContentMgmt/Storage": {
+        "response": {
+          "storage": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "hddList": {
+              "@version": "1.0",
+              "@xmlns": "http://www.hikvision.com/ver10/XMLSchema",
+              "@size": "8",
+              "hdd": {
+                "id": "1",
+                "hddName": "SD1",
+                "hddPath": null,
+                "hddType": "SATA",
+                "status": "ok",
+                "capacity": "237708",
+                "freeSpace": "213093",
+                "property": "RW",
+                "formatType": "EXT4",
+                "Encryption": {
+                  "passwordLen": {
+                    "@min": "6",
+                    "@max": "64"
+                  },
+                  "encryptionStatus": {
+                    "@opt": "unencrypted,encrypted,verfyFailed",
+                    "#text": "unencrypted"
+                  },
+                  "encryptFormatType": {
+                    "@opt": "EXT4",
+                    "#text": "EXT4"
+                  }
+                },
+                "installationTime": "16-Nov-2024 23:22"
+              }
+            },
+            "nasList": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "nas": {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "9",
+                "addressingFormatType": "ipaddress",
+                "ipAddress": "1.0.0.125",
+                "portNo": "0",
+                "nasType": "NFS",
+                "nasName": "NAS",
+                "path": "/config/kamera",
+                "status": "unformatted",
+                "capacity": "119460",
+                "freeSpace": "0",
+                "property": "RW",
+                "mountType": "SMB/CIFS",
+                "userName": "booa",
+                "Encryption": {
+                  "encryptionStatus": {
+                    "@opt": "unencrypted,encrypted,verfyFailed",
+                    "#text": "unencrypted"
+                  }
+                }
+              },
+              "supportMountType": {
+                "@opt": "NFS,SMB/CIFS"
+              },
+              "authentication": {
+                "@opt": "SMB/CIFS"
+              }
+            },
+            "workMode": "quota"
+          }
+        }
+      },
+      "Security/adminAccesses": {
+        "response": {
+          "AdminAccessProtocolList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "AdminAccessProtocol": [
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "1",
+                "enabled": "true",
+                "protocol": "HTTP",
+                "portNo": "80"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "2",
+                "enabled": "true",
+                "protocol": "HTTPS",
+                "redirectToHttps": "false",
+                "portNo": "443",
+                "TLS1_1Enable": "false",
+                "TLS1_2Enable": "true",
+                "TLS1_3Enable": "true"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "3",
+                "enabled": "true",
+                "protocol": "DEV_MANAGE",
+                "portNo": "8000"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "4",
+                "enabled": "true",
+                "protocol": "RTSP",
+                "portNo": "554"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "5",
+                "enabled": "true",
+                "protocol": "SDK_OVER_TLS",
+                "portNo": "8443"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "6",
+                "enabled": "true",
+                "protocol": "WebSocket",
+                "portNo": "7681"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "7",
+                "enabled": "false",
+                "protocol": "WebSocketS",
+                "portNo": "7682"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "8",
+                "enabled": "false",
+                "protocol": "SRTP",
+                "portNo": "322"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "10",
+                "enabled": "true",
+                "protocol": "Bonjour"
+              }
+            ]
+          }
+        }
+      },
+      "Event/triggers": {
+        "response": {
+          "EventTriggerList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "EventTrigger": [
+              {
+                "id": "IO-1",
+                "eventType": "IO",
+                "eventDescription": "IO Event trigger Information",
+                "inputIOPortID": "1",
+                "videoInputChannelID": "1",
+                "dynVideoInputChannelID": "1",
+                "EventTriggerNotificationList": null
+              },
+              {
+                "id": "VMD-1",
+                "eventType": "VMD",
+                "eventDescription": "VMD Event trigger Information",
+                "videoInputChannelID": "1",
+                "dynVideoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "EventTriggerNotification": [
+                    {
+                      "id": "center",
+                      "notificationMethod": "center",
+                      "notificationRecurrence": "beginning"
+                    },
+                    {
+                      "id": "FTP",
+                      "notificationMethod": "FTP",
+                      "notificationRecurrence": "beginning"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "tamper-1",
+                "eventType": "tamperdetection",
+                "eventDescription": "shelteralarm Event trigger Information",
+                "videoInputChannelID": "1",
+                "dynVideoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "EventTriggerNotification": {
+                    "id": "center",
+                    "notificationMethod": "center",
+                    "notificationRecurrence": "beginning"
+                  }
+                }
+              },
+              {
+                "id": "diskfull",
+                "eventType": "diskfull",
+                "eventDescription": "exception Information",
+                "videoInputChannelID": "1",
+                "dynVideoInputChannelID": "1",
+                "EventTriggerNotificationList": null
+              },
+              {
+                "id": "diskerror",
+                "eventType": "diskerror",
+                "eventDescription": "exception Information",
+                "videoInputChannelID": "1",
+                "dynVideoInputChannelID": "1",
+                "EventTriggerNotificationList": null
+              },
+              {
+                "id": "nicbroken",
+                "eventType": "nicbroken",
+                "eventDescription": "exception Information",
+                "videoInputChannelID": "1",
+                "dynVideoInputChannelID": "1",
+                "EventTriggerNotificationList": null
+              },
+              {
+                "id": "ipconflict",
+                "eventType": "ipconflict",
+                "eventDescription": "exception Information",
+                "videoInputChannelID": "1",
+                "dynVideoInputChannelID": "1",
+                "EventTriggerNotificationList": null
+              },
+              {
+                "id": "illaccess",
+                "eventType": "illaccess",
+                "eventDescription": "exception Information",
+                "videoInputChannelID": "1",
+                "dynVideoInputChannelID": "1",
+                "EventTriggerNotificationList": null
+              },
+              {
+                "id": "audioexception-1",
+                "eventType": "audioexception",
+                "eventDescription": "audioexception Event trigger Information",
+                "videoInputChannelID": "1",
+                "dynVideoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "EventTriggerNotification": {
+                    "id": "center",
+                    "notificationMethod": "center",
+                    "notificationRecurrence": "beginning"
+                  }
+                }
+              },
+              {
+                "id": "storageDetection-1",
+                "eventType": "storageDetection",
+                "eventDescription": "storageDetection Event trigger Information",
+                "videoInputChannelID": "1",
+                "dynVideoInputChannelID": "1",
+                "EventTriggerNotificationList": null
+              },
+              {
+                "id": "faceSnap-1",
+                "eventType": "faceSnap",
+                "eventDescription": "faceSnap Event trigger Information",
+                "videoInputChannelID": "1",
+                "dynVideoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "EventTriggerNotification": {
+                    "id": "FTP",
+                    "notificationMethod": "FTP",
+                    "notificationRecurrence": "beginning"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "Event/channels/capabilities": {
+        "response": {
+          "ChannelEventCapList": {
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "@version": "2.0",
+            "ChannelEventCap": [
+              {
+                "eventType": {
+                  "@opt": "faceSnap,faceCapture,motionDetection,VMD,tamperDetection,Shelteralarm,ROI,audioDetection,audioexception,storageDetection,diskfull,diskerror,nicbroken,ipconflict,illaccess,abnormalReboot"
+                },
+                "shieldEventType": { "@opt": "faceSnap,faceCapture" },
+                "channelID": "1",
+                "id": "1"
+              },
+              {
+                "eventType": {
+                  "@opt": "ROI,fieldDetection,fielddetection,lineDetection,linedetection,regionEntrance,regionExiting,storageDetection,diskfull,diskerror,nicbroken,ipconflict,illaccess,abnormalReboot"
+                },
+                "channelID": "2",
+                "id": "2"
+              }
+            ]
+          }
+        }
+      },
+      "Event/triggers/fielddetection-2": {
+        "response": {
+          "EventTrigger": {
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "@version": "2.0",
+            "id": "fielddetection-2",
+            "eventType": "fielddetection",
+            "eventDescription": "fielddetection Event trigger Information",
+            "videoInputChannelID": "2",
+            "dynVideoInputChannelID": "2",
+            "EventTriggerNotificationList": {
+              "EventTriggerNotification": [
+                {
+                  "id": "center",
+                  "notificationMethod": "center",
+                  "notificationRecurrence": "beginning"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "Event/triggers/linedetection-2": {
+        "response": {
+          "EventTrigger": {
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "@version": "2.0",
+            "id": "linedetection-2",
+            "eventType": "linedetection",
+            "eventDescription": "Linedetection Event trigger Information",
+            "videoInputChannelID": "2",
+            "dynVideoInputChannelID": "2",
+            "EventTriggerNotificationList": {
+              "EventTriggerNotification": [
+                {
+                  "id": "center",
+                  "notificationMethod": "center",
+                  "notificationRecurrence": "beginning"
+                },
+                {
+                  "id": "FTP",
+                  "notificationMethod": "FTP",
+                  "notificationRecurrence": "beginning"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "Event/triggers/regionentrance-2": {
+        "response": {
+          "EventTrigger": {
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "@version": "2.0",
+            "id": "regionEntrance-2",
+            "eventType": "regionEntrance",
+            "eventDescription": "RegionEntrance Event trigger Information",
+            "videoInputChannelID": "2",
+            "dynVideoInputChannelID": "2",
+            "EventTriggerNotificationList": null
+          }
+        }
+      },
+      "Event/triggers/regionexiting-2": {
+        "response": {
+          "EventTrigger": {
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "@version": "2.0",
+            "id": "regionExiting-2",
+            "eventType": "regionExiting",
+            "eventDescription": "RegionExiting Event trigger Information",
+            "videoInputChannelID": "2",
+            "dynVideoInputChannelID": "2",
+            "EventTriggerNotificationList": null
+          }
+        }
+      },
+      "Event/triggers/scenechangedetection-1": {
+        "status_code": 403
+      },
+      "Event/notification/httpHosts": {
+        "response": {
+          "HttpHostNotificationList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "HttpHostNotification": [
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "1",
+                "url": "/api/hikvision",
+                "protocolType": "HTTPS",
+                "parameterFormatType": "XML",
+                "addressingFormatType": "ipaddress",
+                "ipAddress": "1.0.0.125",
+                "portNo": "8123",
+                "userName": null,
+                "httpAuthenticationMethod": "none",
+                "httpBroken": "true"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "2",
+                "url": "/",
+                "protocolType": "HTTP",
+                "parameterFormatType": "XML",
+                "addressingFormatType": "ipaddress",
+                "ipAddress": "0.0.0.0",
+                "portNo": "80",
+                "userName": null,
+                "httpAuthenticationMethod": "none",
+                "httpBroken": "true"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "3",
+                "url": "/",
+                "protocolType": "HTTP",
+                "parameterFormatType": "XML",
+                "addressingFormatType": "ipaddress",
+                "ipAddress": "0.0.0.0",
+                "portNo": "80",
+                "userName": null,
+                "httpAuthenticationMethod": "none",
+                "httpBroken": "true"
+              }
+            ]
+          }
+        }
+      },
+      "Streaming/channels": {
+        "response": {
+          "StreamingChannelList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "StreamingChannel": [
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "101",
+                "channelName": "DS-2SE4C425MWG-E-26(FC2493386)",
+                "enabled": "true",
+                "Transport": {
+                  "maxPacketSize": "1000",
+                  "ControlProtocolList": {
+                    "ControlProtocol": [
+                      {
+                        "streamingTransport": "RTSP"
+                      },
+                      {
+                        "streamingTransport": "HTTP"
+                      },
+                      {
+                        "streamingTransport": "SHTTP"
+                      },
+                      {
+                        "streamingTransport": "SRTP"
+                      }
+                    ]
+                  },
+                  "Unicast": {
+                    "enabled": "true",
+                    "rtpTransportType": "RTP/TCP"
+                  },
+                  "Multicast": {
+                    "enabled": "true",
+                    "destIPAddress": "0.0.0.0",
+                    "videoDestPortNo": "8860",
+                    "audioDestPortNo": "8862"
+                  },
+                  "Security": {
+                    "enabled": "true",
+                    "certificateType": "digest",
+                    "SecurityAlgorithm": {
+                      "algorithmType": "MD5"
+                    }
+                  },
+                  "SRTPMulticast": {
+                    "SRTPVideoDestPortNo": "18862",
+                    "SRTPAudioDestPortNo": "18860"
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "1",
+                  "videoCodecType": "H.265",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "2560",
+                  "videoResolutionHeight": "1440",
+                  "videoQualityControlType": "VBR",
+                  "constantBitRate": "3072",
+                  "fixedQuality": "100",
+                  "vbrUpperCap": "3072",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "2500",
+                  "keyFrameInterval": "2000",
+                  "snapShotImageType": "JPEG",
+                  "GovLength": "50",
+                  "SVC": {
+                    "enabled": "true",
+                    "SVCMode": "manual"
+                  },
+                  "PacketType": ["PS", "RTP"],
+                  "smoothing": "50",
+                  "H265Profile": "Main",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "1536"
+                },
+                "Audio": {
+                  "enabled": "false",
+                  "audioInputChannelID": "1",
+                  "audioCompressionType": "G.711ulaw"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "102",
+                "channelName": "DS-2SE4C425MWG-E-26(FC2493386)",
+                "enabled": "true",
+                "Transport": {
+                  "maxPacketSize": "1000",
+                  "ControlProtocolList": {
+                    "ControlProtocol": [
+                      {
+                        "streamingTransport": "RTSP"
+                      },
+                      {
+                        "streamingTransport": "HTTP"
+                      },
+                      {
+                        "streamingTransport": "SHTTP"
+                      },
+                      {
+                        "streamingTransport": "SRTP"
+                      }
+                    ]
+                  },
+                  "Unicast": {
+                    "enabled": "true",
+                    "rtpTransportType": "RTP/TCP"
+                  },
+                  "Multicast": {
+                    "enabled": "true",
+                    "destIPAddress": "0.0.0.0",
+                    "videoDestPortNo": "8866",
+                    "audioDestPortNo": "8868"
+                  },
+                  "Security": {
+                    "enabled": "true",
+                    "certificateType": "digest",
+                    "SecurityAlgorithm": {
+                      "algorithmType": "MD5"
+                    }
+                  },
+                  "SRTPMulticast": {
+                    "SRTPVideoDestPortNo": "18868",
+                    "SRTPAudioDestPortNo": "18866"
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "1",
+                  "videoCodecType": "H.265",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "704",
+                  "videoResolutionHeight": "576",
+                  "videoQualityControlType": "VBR",
+                  "constantBitRate": "512",
+                  "fixedQuality": "60",
+                  "vbrUpperCap": "512",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "2500",
+                  "keyFrameInterval": "2000",
+                  "snapShotImageType": "JPEG",
+                  "GovLength": "50",
+                  "SVC": {
+                    "enabled": "false"
+                  },
+                  "PacketType": ["PS", "RTP"],
+                  "smoothing": "50",
+                  "H265Profile": "Main"
+                },
+                "Audio": {
+                  "enabled": "false",
+                  "audioInputChannelID": "1",
+                  "audioCompressionType": "G.711ulaw"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "103",
+                "channelName": "DS-2SE4C425MWG-E-26(FC2493386)",
+                "enabled": "true",
+                "Transport": {
+                  "maxPacketSize": "1000",
+                  "ControlProtocolList": {
+                    "ControlProtocol": [
+                      {
+                        "streamingTransport": "RTSP"
+                      },
+                      {
+                        "streamingTransport": "HTTP"
+                      },
+                      {
+                        "streamingTransport": "SHTTP"
+                      },
+                      {
+                        "streamingTransport": "SRTP"
+                      }
+                    ]
+                  },
+                  "Unicast": {
+                    "enabled": "true",
+                    "rtpTransportType": "RTP/TCP"
+                  },
+                  "Multicast": {
+                    "enabled": "true",
+                    "destIPAddress": "0.0.0.0",
+                    "videoDestPortNo": "8872",
+                    "audioDestPortNo": "8874"
+                  },
+                  "Security": {
+                    "enabled": "true",
+                    "certificateType": "digest",
+                    "SecurityAlgorithm": {
+                      "algorithmType": "MD5"
+                    }
+                  },
+                  "SRTPMulticast": {
+                    "SRTPVideoDestPortNo": "18874",
+                    "SRTPAudioDestPortNo": "18872"
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "1",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "1280",
+                  "videoResolutionHeight": "720",
+                  "videoQualityControlType": "VBR",
+                  "constantBitRate": "1024",
+                  "fixedQuality": "100",
+                  "vbrUpperCap": "1024",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "1000",
+                  "keyFrameInterval": "5000",
+                  "snapShotImageType": "JPEG",
+                  "H264Profile": "Main",
+                  "GovLength": "50",
+                  "SVC": {
+                    "enabled": "true",
+                    "SVCMode": "manual"
+                  },
+                  "PacketType": ["PS", "RTP"],
+                  "smoothing": "50",
+                  "H265Profile": "Main"
+                },
+                "Audio": {
+                  "enabled": "false",
+                  "audioInputChannelID": "1",
+                  "audioCompressionType": "G.711ulaw"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "201",
+                "channelName": "IPdome 02",
+                "enabled": "true",
+                "Transport": {
+                  "maxPacketSize": "1000",
+                  "ControlProtocolList": {
+                    "ControlProtocol": [
+                      {
+                        "streamingTransport": "RTSP"
+                      },
+                      {
+                        "streamingTransport": "HTTP"
+                      },
+                      {
+                        "streamingTransport": "SHTTP"
+                      },
+                      {
+                        "streamingTransport": "SRTP"
+                      }
+                    ]
+                  },
+                  "Unicast": {
+                    "enabled": "true",
+                    "rtpTransportType": "RTP/TCP"
+                  },
+                  "Multicast": {
+                    "enabled": "true",
+                    "destIPAddress": "0.0.0.0",
+                    "videoDestPortNo": "8956",
+                    "audioDestPortNo": "8958"
+                  },
+                  "Security": {
+                    "enabled": "true",
+                    "certificateType": "digest",
+                    "SecurityAlgorithm": {
+                      "algorithmType": "MD5"
+                    }
+                  },
+                  "SRTPMulticast": {
+                    "SRTPVideoDestPortNo": "18958",
+                    "SRTPAudioDestPortNo": "18956"
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "2",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "3680",
+                  "videoResolutionHeight": "1656",
+                  "videoQualityControlType": "VBR",
+                  "constantBitRate": "4096",
+                  "fixedQuality": "100",
+                  "vbrUpperCap": "4096",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "2500",
+                  "keyFrameInterval": "2000",
+                  "snapShotImageType": "JPEG",
+                  "H264Profile": "Main",
+                  "GovLength": "50",
+                  "SVC": {
+                    "enabled": "true",
+                    "SVCMode": "manual"
+                  },
+                  "PacketType": ["PS", "RTP"],
+                  "smoothing": "50",
+                  "H265Profile": "Main",
+                  "SmartCodec": {
+                    "enabled": "false"
+                  }
+                },
+                "Audio": {
+                  "enabled": "false",
+                  "audioInputChannelID": "1",
+                  "audioCompressionType": "G.711ulaw"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+                "id": "202",
+                "channelName": "IPdome 02",
+                "enabled": "true",
+                "Transport": {
+                  "maxPacketSize": "1000",
+                  "ControlProtocolList": {
+                    "ControlProtocol": [
+                      {
+                        "streamingTransport": "RTSP"
+                      },
+                      {
+                        "streamingTransport": "HTTP"
+                      },
+                      {
+                        "streamingTransport": "SHTTP"
+                      },
+                      {
+                        "streamingTransport": "SRTP"
+                      }
+                    ]
+                  },
+                  "Unicast": {
+                    "enabled": "true",
+                    "rtpTransportType": "RTP/TCP"
+                  },
+                  "Multicast": {
+                    "enabled": "true",
+                    "destIPAddress": "0.0.0.0",
+                    "videoDestPortNo": "8962",
+                    "audioDestPortNo": "8964"
+                  },
+                  "Security": {
+                    "enabled": "true",
+                    "certificateType": "digest",
+                    "SecurityAlgorithm": {
+                      "algorithmType": "MD5"
+                    }
+                  },
+                  "SRTPMulticast": {
+                    "SRTPVideoDestPortNo": "18964",
+                    "SRTPAudioDestPortNo": "18962"
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "2",
+                  "videoCodecType": "H.265",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "1200",
+                  "videoResolutionHeight": "536",
+                  "videoQualityControlType": "VBR",
+                  "constantBitRate": "512",
+                  "fixedQuality": "100",
+                  "vbrUpperCap": "512",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "2500",
+                  "keyFrameInterval": "2000",
+                  "snapShotImageType": "JPEG",
+                  "GovLength": "50",
+                  "SVC": {
+                    "enabled": "true",
+                    "SVCMode": "auto"
+                  },
+                  "PacketType": ["PS", "RTP"],
+                  "smoothing": "50",
+                  "H265Profile": "Main"
+                },
+                "Audio": {
+                  "enabled": "false",
+                  "audioInputChannelID": "1",
+                  "audioCompressionType": "G.711ulaw"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "Streaming/channels/101": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "101",
+            "channelName": "DS-2SE4C425MWG-E-26(FC2493386)",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  },
+                  {
+                    "streamingTransport": "SRTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "0.0.0.0",
+                "videoDestPortNo": "8860",
+                "audioDestPortNo": "8862"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18862",
+                "SRTPAudioDestPortNo": "18860"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "H.265",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "2560",
+              "videoResolutionHeight": "1440",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "3072",
+              "fixedQuality": "100",
+              "vbrUpperCap": "3072",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "true",
+                "SVCMode": "manual"
+              },
+              "PacketType": ["PS", "RTP"],
+              "smoothing": "50",
+              "H265Profile": "Main",
+              "SmartCodec": {
+                "enabled": "true"
+              },
+              "vbrAverageCap": "1536"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/102": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "102",
+            "channelName": "DS-2SE4C425MWG-E-26(FC2493386)",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  },
+                  {
+                    "streamingTransport": "SRTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "0.0.0.0",
+                "videoDestPortNo": "8866",
+                "audioDestPortNo": "8868"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18868",
+                "SRTPAudioDestPortNo": "18866"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "H.265",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "704",
+              "videoResolutionHeight": "576",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "512",
+              "fixedQuality": "60",
+              "vbrUpperCap": "512",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "false"
+              },
+              "PacketType": ["PS", "RTP"],
+              "smoothing": "50",
+              "H265Profile": "Main"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/103": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "103",
+            "channelName": "DS-2SE4C425MWG-E-26(FC2493386)",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  },
+                  {
+                    "streamingTransport": "SRTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "0.0.0.0",
+                "videoDestPortNo": "8872",
+                "audioDestPortNo": "8874"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18874",
+                "SRTPAudioDestPortNo": "18872"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "1280",
+              "videoResolutionHeight": "720",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "1024",
+              "fixedQuality": "100",
+              "vbrUpperCap": "1024",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1000",
+              "keyFrameInterval": "5000",
+              "snapShotImageType": "JPEG",
+              "H264Profile": "Main",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "true",
+                "SVCMode": "manual"
+              },
+              "PacketType": ["PS", "RTP"],
+              "smoothing": "50",
+              "H265Profile": "Main"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/104": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "104",
+            "channelName": "DS-2SE4C425MWG-E-26(FC2493386)",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  },
+                  {
+                    "streamingTransport": "SRTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "0.0.0.0",
+                "videoDestPortNo": "8860",
+                "audioDestPortNo": "8862"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18862",
+                "SRTPAudioDestPortNo": "18860"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "H.265",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "2560",
+              "videoResolutionHeight": "1440",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "3072",
+              "fixedQuality": "100",
+              "vbrUpperCap": "3072",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "true",
+                "SVCMode": "manual"
+              },
+              "PacketType": ["PS", "RTP"],
+              "smoothing": "50",
+              "H265Profile": "Main",
+              "SmartCodec": {
+                "enabled": "true"
+              },
+              "vbrAverageCap": "1536"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/201": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "201",
+            "channelName": "IPdome 02",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  },
+                  {
+                    "streamingTransport": "SRTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "0.0.0.0",
+                "videoDestPortNo": "8956",
+                "audioDestPortNo": "8958"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18958",
+                "SRTPAudioDestPortNo": "18956"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "2",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "3680",
+              "videoResolutionHeight": "1656",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "4096",
+              "fixedQuality": "100",
+              "vbrUpperCap": "4096",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "H264Profile": "Main",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "true",
+                "SVCMode": "manual"
+              },
+              "PacketType": ["PS", "RTP"],
+              "smoothing": "50",
+              "H265Profile": "Main",
+              "SmartCodec": {
+                "enabled": "false"
+              }
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/202": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "202",
+            "channelName": "IPdome 02",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  },
+                  {
+                    "streamingTransport": "SRTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "0.0.0.0",
+                "videoDestPortNo": "8962",
+                "audioDestPortNo": "8964"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18964",
+                "SRTPAudioDestPortNo": "18962"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "2",
+              "videoCodecType": "H.265",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "1200",
+              "videoResolutionHeight": "536",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "512",
+              "fixedQuality": "100",
+              "vbrUpperCap": "512",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "true",
+                "SVCMode": "auto"
+              },
+              "PacketType": ["PS", "RTP"],
+              "smoothing": "50",
+              "H265Profile": "Main"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/203": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "203",
+            "channelName": "IPdome 02",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  },
+                  {
+                    "streamingTransport": "SRTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "0.0.0.0",
+                "videoDestPortNo": "8956",
+                "audioDestPortNo": "8958"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18958",
+                "SRTPAudioDestPortNo": "18956"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "2",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "3680",
+              "videoResolutionHeight": "1656",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "4096",
+              "fixedQuality": "100",
+              "vbrUpperCap": "4096",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "H264Profile": "Main",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "true",
+                "SVCMode": "manual"
+              },
+              "PacketType": ["PS", "RTP"],
+              "smoothing": "50",
+              "H265Profile": "Main",
+              "SmartCodec": {
+                "enabled": "false"
+              }
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/204": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "id": "204",
+            "channelName": "IPdome 02",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  },
+                  {
+                    "streamingTransport": "SRTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "0.0.0.0",
+                "videoDestPortNo": "8956",
+                "audioDestPortNo": "8958"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18958",
+                "SRTPAudioDestPortNo": "18956"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "2",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "3680",
+              "videoResolutionHeight": "1656",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "4096",
+              "fixedQuality": "100",
+              "vbrUpperCap": "4096",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "H264Profile": "Main",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "true",
+                "SVCMode": "manual"
+              },
+              "PacketType": ["PS", "RTP"],
+              "smoothing": "50",
+              "H265Profile": "Main",
+              "SmartCodec": {
+                "enabled": "false"
+              }
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/1/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "enabled": "false",
+            "enableHighlight": "true",
+            "samplingInterval": "2",
+            "startTriggerTime": "500",
+            "endTriggerTime": "500",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "sensitivityLevel": "60",
+              "layout": {
+                "gridMap": "fffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffcfffffc"
+              }
+            },
+            "enableWithMoving": "true"
+          }
+        }
+      },
+      "System/Video/inputs/channels/1/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "tampersensitivityLevel": "30",
+            "TamperDetectionRegionList": {
+              "TamperDetectionRegion": {
+                "id": "1",
+                "enabled": "false",
+                "sensitivityLevel": "30",
+                "RegionCoordinatesList": null
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

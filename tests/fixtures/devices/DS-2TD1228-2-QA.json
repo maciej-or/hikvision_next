@@ -723,6 +723,9 @@
           }
         }
       },
+      "Event/channels/capabilities": {
+        "status_code": 403
+      },
       "Event/triggers/scenechangedetection-1": {
         "response": {
           "EventTrigger": {
