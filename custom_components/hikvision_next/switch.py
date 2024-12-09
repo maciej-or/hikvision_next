@@ -116,7 +116,7 @@ class NVROutputSwitch(CoordinatorEntity, SwitchEntity):
     @property
     def is_on(self) -> bool | None:
         """Turn on."""
-        return self.coordinator.data.get(self.unique_id) == "active"
+        return self.coordinator.data.get(self.unique_id)
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on."""
