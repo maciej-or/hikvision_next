@@ -101,8 +101,8 @@ class ISAPIClient:
         await self.get_device_info()
         capabilities = (await self.request(GET, "System/capabilities")).get("DeviceCap", {})
 
-        self.capabilities.support_analog_cameras = int(deep_get(capabilities, "SysCap.VideoCap.videoInputPortNums", 0))
-        self.capabilities.support_digital_cameras = int(deep_get(capabilities, "RacmCap.inputProxyNums", 0))
+        self.capabilities.analog_cameras_inputs = int(deep_get(capabilities, "SysCap.VideoCap.videoInputPortNums", 0))
+        self.capabilities.digital_cameras_inputs = int(deep_get(capabilities, "RacmCap.inputProxyNums", 0))
         self.capabilities.support_holiday_mode = str_to_bool(deep_get(capabilities, "SysCap.isSupportHolidy", "false"))
         self.capabilities.support_channel_zero = str_to_bool(
             deep_get(capabilities, "RacmCap.isSupportZeroChan", "false")
@@ -116,7 +116,7 @@ class ISAPIClient:
 
         # Set if NVR based on whether more than 1 supported IP or analog cameras
         # Single IP camera will show 0 supported devices in total
-        if self.capabilities.support_analog_cameras + self.capabilities.support_digital_cameras > 1:
+        if self.capabilities.analog_cameras_inputs + self.capabilities.digital_cameras_inputs > 1:
             self.device_info.is_nvr = True
 
         await self.get_cameras()
@@ -141,6 +141,7 @@ class ISAPIClient:
                 channel_id = int(deep_get(streaming_channel, "Video.videoInputChannelID", 1))
                 channel_ids.add(channel_id)
 
+            self.capabilities.is_multi_channel = len(channel_ids) > 1
             for channel_id in sorted(channel_ids):
                 # Determine camera name
                 if len(channel_ids) > 1:
@@ -162,7 +163,7 @@ class ISAPIClient:
                 self.cameras.append(camera)
         else:
             # Get analog and digital cameras attached to NVR
-            if self.capabilities.support_digital_cameras > 0:
+            if self.capabilities.digital_cameras_inputs > 0:
                 digital_cameras = deep_get(
                     (await self.request(GET, "ContentMgmt/InputProxy/channels")),
                     "InputProxyChannelList.InputProxyChannel",
@@ -196,7 +197,7 @@ class ISAPIClient:
                     )
 
             # Get analog cameras
-            if self.capabilities.support_analog_cameras > 0:
+            if self.capabilities.analog_cameras_inputs > 0:
                 analog_cameras = deep_get(
                     (await self.request(GET, "System/Video/inputs/channels")),
                     "VideoInputChannelList.VideoInputChannel",
@@ -306,7 +307,7 @@ class ISAPIClient:
                     events.append(event)
 
         # multichannel camera needs to fetch events for each channel
-        if not self.device_info.is_nvr and len(self.cameras) > 1:
+        if self.capabilities.is_multi_channel:
             channels_capabilities = await self.request(GET, "Event/channels/capabilities")
             channel_events = deep_get(channels_capabilities, "ChannelEventCapList.ChannelEventCap", [])
             for event_cap in channel_events:

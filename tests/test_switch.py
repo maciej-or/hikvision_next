@@ -194,6 +194,8 @@ async def test_ipc_multichannel_event_switch(
     """Test IPC two-channels events."""
 
     device: HikvisionDevice = init_integration.runtime_data
+
+    assert device.capabilities.is_multi_channel
     assert len(device.cameras[0].events_info) == 2
     assert len(device.cameras[1].events_info) == 4
 
