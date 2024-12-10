@@ -22,6 +22,7 @@ from tests.conftest import TEST_CONFIG, TEST_CONFIG_WITH_ALARM_SERVER, TEST_CONF
     "DS-2CD2346G2-ISU",
     "DS-2CD2T46G2-ISU",
     "DS-2CD2T86G2-ISU",
+    "DS-2SE4C425MWG-E-26",
     "DS-7616NI-K2",
     "DS-7616NI-Q2",
     "DS-7732NI-M4",
@@ -68,9 +69,10 @@ async def test_async_setup_entry_nvr(hass: HomeAssistant, init_integration: Mock
     assert device_info.serial_no == "DS-7608NXI-I0/0P/S0000000000CCRRJ00000000WCVU"
     assert len(device.storage) == 1
     assert capabilities.support_alarm_server is True
-    assert capabilities.support_analog_cameras == 0
+    assert capabilities.analog_cameras_inputs == 0
     assert capabilities.support_channel_zero is True
-    assert capabilities.support_digital_cameras == 8
+    assert capabilities.digital_cameras_inputs == 8
+    assert capabilities.is_multi_channel is False
     assert capabilities.support_event_mutex_checking is False
     assert capabilities.support_holiday_mode is True
 
@@ -109,9 +111,10 @@ async def test_async_setup_entry_ipc(hass: HomeAssistant, init_integration: Mock
     assert device_info.serial_no == "DS-2CD2386G2-IU00000000AAWRJ00000000"
     assert len(device.storage) == 2
     assert capabilities.support_alarm_server is True
-    assert capabilities.support_analog_cameras == 0
+    assert capabilities.analog_cameras_inputs == 0
     assert capabilities.support_channel_zero is False
-    assert capabilities.support_digital_cameras == 0
+    assert capabilities.digital_cameras_inputs == 0
+    assert capabilities.is_multi_channel is False
     assert capabilities.support_event_mutex_checking is False
     assert capabilities.support_holiday_mode is False
 
@@ -174,9 +177,9 @@ async def test_async_setup_entry_nvr_outside_network(hass: HomeAssistant, init_i
     assert device_info.serial_no == "DS-2CD2T86G2-ISU/SL00000000AAWRAE0000000"
     assert len(device.storage) == 1
     assert capabilities.support_alarm_server is True
-    assert capabilities.support_analog_cameras == 0
+    assert capabilities.analog_cameras_inputs == 0
     assert capabilities.support_channel_zero is False
-    assert capabilities.support_digital_cameras == 0
+    assert capabilities.digital_cameras_inputs == 0
     assert capabilities.support_event_mutex_checking is False
     assert capabilities.support_holiday_mode is False
 
