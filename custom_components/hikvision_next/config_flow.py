@@ -41,11 +41,11 @@ class HikvisionConfigFlow(ConfigFlow, domain=DOMAIN):
         schema = vol.Schema(
             {
                 vol.Required(CONF_HOST, default="http://"): str,
+                vol.Optional(CONF_VERIFY_SSL, default=True): bool,
                 vol.Required(CONF_USERNAME): str,
                 vol.Required(CONF_PASSWORD): str,
                 vol.Required(CONF_SET_ALARM_SERVER, default=True): bool,
                 vol.Required(CONF_ALARM_SERVER_HOST): str,
-                vol.Optional(CONF_VERIFY_SSL, default=True): bool,
                 vol.Optional(RTSP_PORT_FORCED): vol.And(int, vol.Range(min=1)),
             }
         )
