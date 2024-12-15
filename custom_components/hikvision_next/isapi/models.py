@@ -96,8 +96,9 @@ class ISAPIDeviceInfo:
 class CapabilitiesInfo:
     """Holds info of an NVR/DVR or single IP Camera."""
 
-    support_analog_cameras: int = 0
-    support_digital_cameras: int = 0
+    analog_cameras_inputs: int = 0  # number of analog cameras connected to NVR/DVR
+    digital_cameras_inputs: int = 0  # number of digital cameras connected to NVR/DVR
+    is_multi_channel: bool = False  # if camera has multiple channels
     support_holiday_mode: bool = False
     support_alarm_server: bool = False
     support_channel_zero: bool = False

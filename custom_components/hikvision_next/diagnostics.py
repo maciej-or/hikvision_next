@@ -87,6 +87,7 @@ async def _async_get_diagnostics(
         "ContentMgmt/Storage",
         "Security/adminAccesses",
         "Event/triggers",
+        "Event/channels/capabilities",
         "Event/triggers/scenechangedetection-1",
         "Event/notification/httpHosts",
         "Streaming/channels",

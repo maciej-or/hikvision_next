@@ -49,6 +49,23 @@ async def test_event_switch_state(
         assert switch_entity.disabled
 
 
+@pytest.mark.parametrize("init_integration", ["DS-2CD2T86G2-ISU"], indirect=True)
+async def test_event_switch_state_of_a_camera(
+    hass: HomeAssistant,
+    init_integration: MockConfigEntry,
+) -> None:
+    """Test switch state of a camera."""
+
+    for entity_id, state in [
+        ("switch.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_fielddetection", STATE_ON),
+        ("switch.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_scenechangedetection", STATE_ON),
+        ("switch.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_io", STATE_OFF),
+        ("switch.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_alarm_output", STATE_OFF)
+    ]:
+        assert (switch := hass.states.get(entity_id))
+        assert switch.state == state
+
+
 @pytest.mark.parametrize("init_integration", ["DS-7608NXI-I2"], indirect=True)
 async def test_event_switch_payload(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test event switch."""
@@ -167,3 +184,27 @@ async def test_ipc_event_switch_state_url(
             assert e.url == f"System/Video/inputs/channels/{e.channel_id}/motionDetection"
         if e.id == "fielddetection":
             assert e.url == f"Smart/FieldDetection/{e.channel_id}"
+
+
+@pytest.mark.parametrize("init_integration", ["DS-2SE4C425MWG-E-26"], indirect=True)
+async def test_ipc_multichannel_event_switch(
+    hass: HomeAssistant,
+    init_integration: MockConfigEntry,
+) -> None:
+    """Test IPC two-channels events."""
+
+    device: HikvisionDevice = init_integration.runtime_data
+
+    assert device.capabilities.is_multi_channel
+    assert len(device.cameras[0].events_info) == 2
+    assert len(device.cameras[1].events_info) == 4
+
+    switch_entities = [
+        'switch.ds_2se4c425mwg_e_0000000000aawrfc0000000_1_motiondetection',
+        'switch.ds_2se4c425mwg_e_0000000000aawrfc0000000_1_tamperdetection',
+        'switch.ds_2se4c425mwg_e_0000000000aawrfc0000000_2_fielddetection',
+        'switch.ds_2se4c425mwg_e_0000000000aawrfc0000000_2_linedetection',
+        # 2 events are diabled
+    ]
+    for entity_id in switch_entities:
+        assert hass.states.get(entity_id)
