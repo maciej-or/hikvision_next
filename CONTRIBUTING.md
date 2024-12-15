@@ -35,7 +35,7 @@ They test specific ISAPI requests and use data from `tests/fixtures/ISAPI`. They
 
 ### The behavior of the Hikvision device in HomeAssistant
 
-They initialize the entire device in the HomeAssistant environment and uses data from `tests/fixtures/devices`. Each JSON file contains all the responses to GET requests sent by the given device.
+They initialize the entire device in the HomeAssistant environment and use data from `tests/fixtures/devices`. Each JSON file contains all the responses to GET requests sent by the given device.
 
 The fixtures can be recorded for any device in the Device Info window by clicking DOWNLOAD DIAGNOSTICS button. All sensitive data such as MAC addresses, IPs, and serial numbers are anonymized so they can be safely made public.
 
