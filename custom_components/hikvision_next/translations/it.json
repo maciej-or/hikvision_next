@@ -10,8 +10,8 @@
           "host": "URL",
           "password": "Password",
           "username": "Username",
-          "verify_ssl": "Verificare il certificato SSL del dispositivo Hikvision (deselezionare per il certificato self-signed)",
-          "rtsp_port_forced": "Porta RTSP inoltrata sul router (facoltativo)",
+          "verify_ssl": "Verificare il certificato SSL (deselezionare per il certificato self-signed)",
+          "rtsp_port_forced": "Forza la porta RTSP (facoltativo)",
           "set_alarm_server": "Indirizzo del server di ricezione degli allarmi:",
           "alarm_server": "indirizzo di Home Assistant accessibile dal dispositivo Hikvison"
         }
