@@ -54,6 +54,9 @@
       },
       "io": {
         "name": "Alarm Input {io_port_id}"
+      },
+      "anpr": {
+        "name": "License Plate"
       }
     },
     "switch": {
@@ -89,6 +92,9 @@
       },
       "io": {
         "name": "Alarm Input {io_port_id}"
+      },
+      "anpr": {
+        "name": "License Plate Recognition"
       }
     },
     "camera": {
