@@ -80,6 +80,33 @@ async def test_ipc_intrusion_detection_alert(
     assert sensor.state == STATE_ON
 
 
+@pytest.mark.parametrize("init_integration", ["DS-2CD2386G2-IU"], indirect=True)
+async def test_ipc_vmd_detection_alert(
+    hass: HomeAssistant, init_integration: MockConfigEntry,
+) -> None:
+    """Test incoming motion detection event alert from ip camera."""
+
+    entity_id = "binary_sensor.ds_2cd2386g2_iu00000000aawrj00000000_1_motiondetection"
+
+    assert (sensor := hass.states.get(entity_id))
+    assert sensor.state == STATE_OFF
+
+    view = EventNotificationsView(hass)
+    mock_request = mock_event_notification("vmd")
+    response = await view.post(mock_request)
+
+    assert response.status == HTTPStatus.OK
+    assert (sensor := hass.states.get(entity_id))
+    assert sensor.state == STATE_ON
+
+    mock_request = mock_event_notification("vmd_human")
+    response = await view.post(mock_request)
+
+    assert response.status == HTTPStatus.OK
+    assert (sensor := hass.states.get(entity_id))
+    assert sensor.state == STATE_ON
+
+
 @pytest.mark.parametrize("init_integration", ["DS-2TD1228-2-QA"], indirect=True)
 async def test_ipc_motion_detection_on_thermometry_channel_alert(
     hass: HomeAssistant, init_integration: MockConfigEntry,
