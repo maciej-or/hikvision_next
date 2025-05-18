@@ -1,0 +1,18 @@
+<EventNotificationAlert version="1.0"
+  xmlns="http://www.hikvision.com/ver20/XMLSchema">
+  <ipAddress>1.0.0.255</ipAddress>
+  <portNo>80</portNo>
+  <protocol>HTTP</protocol>
+  <macAddress>a6:63:9e:f8:01:09</macAddress>
+  <dynChannelID>1</dynChannelID>
+  <dateTime>2025-03-05T10:50:46+00:00</dateTime>
+  <activePostCount>1</activePostCount>
+  <eventType>VMD</eventType>
+  <eventState>active</eventState>
+  <eventDescription>Motion alarm</eventDescription>
+  <detectionPictureTransType>url</detectionPictureTransType>
+  <detectionPicturesNumber>1</detectionPicturesNumber>
+  <bkgUrl>http://192.168.20.24:80/picture/Streaming/tracks/103/?name=ch00001_00000000012032933529600294553&amp;size=294553</bkgUrl>
+  <URLCertificationType>digest</URLCertificationType>
+  <targetType>human</targetType>
+</EventNotificationAlert>
