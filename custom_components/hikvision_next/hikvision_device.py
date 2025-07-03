@@ -22,10 +22,12 @@ from .const import (
     EVENTS_COORDINATOR,
     RTSP_PORT_FORCED,
     SECONDARY_COORDINATOR,
+    BEHAVIOR_RULES_COORDINATOR
 )
-from .coordinator import EventsCoordinator, SecondaryCoordinator
+from .coordinator import EventsCoordinator, SecondaryCoordinator, BehaviorRulesCoordinator
 from .isapi import (
     EventInfo,
+    BehaviorRuleInfo,
     IPCamera,
     ISAPIClient,
     ISAPIForbiddenError,
@@ -64,6 +66,7 @@ class HikvisionDevice(ISAPIClient):
         super().__init__(host, username, password, verify_ssl, rtsp_port_forced, session)
 
         self.events_info: list[EventInfo] = []
+        self.behavior_rules: list[BehaviorRuleInfo] = []
 
     async def init_coordinators(self):
         """Initialize coordinators."""
@@ -82,6 +85,9 @@ class HikvisionDevice(ISAPIClient):
             or self.capabilities.storage
         ):
             self.coordinators[SECONDARY_COORDINATOR] = SecondaryCoordinator(self.hass, self)
+
+        if self.behavior_rules:
+            self.coordinators[BEHAVIOR_RULES_COORDINATOR] = BehaviorRulesCoordinator(self.hass, self)
 
         if self.control_alarm_server_host and self.capabilities.support_alarm_server:
             await self.set_alarm_server(self.alarm_server_host, ALARM_SERVER_PATH)

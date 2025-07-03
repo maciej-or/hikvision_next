@@ -40,6 +40,7 @@ from .models import (
     ISAPIDeviceInfo,
     MutexIssue,
     ProtocolsInfo,
+    BehaviorRuleInfo,
     StorageInfo,
 )
 from .utils import bool_to_str, deep_get, parse_isapi_response, str_to_bool
@@ -78,6 +79,7 @@ class ISAPIClient:
         self.capabilities = CapabilitiesInfo()
         self.cameras: list[IPCamera | AnalogCamera] = []
         self.supported_events: list[EventInfo] = []
+        self.behavior_rules: list[BehaviorRuleInfo] = []
         self.storage: list[StorageInfo] = []
         self.protocols = ProtocolsInfo()
         self.pending_initialization = False
@@ -122,6 +124,7 @@ class ISAPIClient:
         await self.get_cameras()
 
         self.supported_events = await self.get_supported_events(capabilities)
+        self.behavior_rules = await self.get_behavior_rules()
 
         await self.get_protocols()
 
@@ -235,6 +238,45 @@ class ISAPIClient:
                 else:
                     self.protocols.rtsp_port = item.get("portNo")
                 break
+
+    async def get_behavior_rules(self) -> list[EventInfo]:
+        
+        rules  = []
+
+        for camera in self.cameras:
+
+            channel_id = camera.id
+            channels_capabilities = await self.request(GET, f"Event/channels/{channel_id}/capabilities")
+            _LOGGER.debug("Capabilities for channel %s: %s", channel_id, channels_capabilities)
+            if "fieldDetection" not in deep_get(channels_capabilities, "ChannelEventCap.eventType", {}).get("@opt", "").split(","):
+                continue
+
+            camera_rules_raw = await self.request(GET, f"Intelligent/channels/{channel_id}/behaviorRule/1")
+            _LOGGER.debug("Behavior rules for channel %s: %s", channel_id, camera_rules_raw)
+            camera_rules = deep_get(camera_rules_raw, "BehaviorRule.RuleInfoList.RuleInfo", [])
+            for rule in camera_rules:
+                rule_id = rule.get("ruleId")
+                rule_name = rule.get("ruleName")
+                event_type = rule.get("eventType", "")
+                rule_type = rule.get("ruleType", "")
+                en=str_to_bool(rule.get("enabled", "false"))
+
+                _LOGGER.debug("Rule name: %s, id: %s, type: %s, enabled: %s", rule_name, rule_id, rule_type, en)
+
+                if not rule_id or not rule_name:
+                    continue
+
+                rules.append(BehaviorRuleInfo(
+                    id=rule_id,
+                    name=rule_name,
+                    channel_id=channel_id,
+                    event_type=event_type.lower(),
+                    rule_type=rule_type.lower(),
+                    enabled=en,
+                ))
+                _LOGGER.debug("Behavior rule added %s for channel %s: %s", rule_id, channel_id, rule)
+
+        return rules
 
     async def get_supported_events(self, system_capabilities: dict) -> list[EventInfo]:
         """Get list of all supported events available."""
@@ -548,6 +590,26 @@ class ISAPIClient:
 
         xml = xmltodict.unparse(data)
         await self.request(PUT, f"System/IO/outputs/{port_no}/trigger", present="xml", data=xml)
+
+    async def set_behavior_rule_enabled(self, rule: BehaviorRuleInfo, enabled: bool):
+        """Enable or disable a behavior rule."""
+        data = {
+            "BehaviorRule": {
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "@version": "2.0",
+                "sid": "1",
+                "RuleInfoList": {
+                    "RuleInfo": {
+                        "ruleId": str(rule.id),
+                        "ruleName": rule.name,
+                        "enabled": "true" if enabled else "false"
+                    }
+                }
+            }
+        }
+
+        xml = xmltodict.unparse(data, full_document=True)
+        await self.request(PUT, f"Intelligent/channels/{rule.channel_id}/behaviorRule/1", present="xml", data=xml)
 
     async def get_holiday_enabled_state(self, holiday_index=0) -> bool:
         """Get holiday state."""

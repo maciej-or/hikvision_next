@@ -46,6 +46,16 @@ class EventInfo:
     disabled: bool = False
     notifications: list[str] = field(default_factory=list)
 
+@dataclass
+class BehaviorRuleInfo:
+    """Holds info of a behavior rule."""
+    
+    id: int
+    channel_id: int
+    name: str
+    event_type: str
+    rule_type: bool
+    enabled: bool
 
 @dataclass
 class CameraStreamInfo:
