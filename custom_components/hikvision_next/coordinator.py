@@ -77,6 +77,34 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         return data
 
+class BehaviorRulesCoordinator(DataUpdateCoordinator):
+    """Manage fetching behavior rules state."""
+
+    def __init__(self, hass: HomeAssistant, device) -> None:
+        """Initialize."""
+        self.device = device
+
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=DOMAIN,
+            update_interval=SCAN_INTERVAL_EVENTS,
+        )
+
+    async def _async_update_data(self):
+        """Update data via ISAPI."""
+        data = {}
+        try:
+            current_states = await self.device.get_behavior_rules()
+            for rule in current_states:
+                _id = ENTITY_ID_FORMAT.format(
+                    f"{slugify(self.device.device_info.serial_no.lower())}_{rule.channel_id}_{rule.id}_behavior_rule"
+                )
+                data[_id] = rule
+        except Exception as ex:  # pylint: disable=broad-except
+            self.device.handle_exception(ex, f"Cannot fetch state for behavior rules")
+
+        return data
 
 class SecondaryCoordinator(DataUpdateCoordinator):
     """Manage fetching events state from NVR."""
