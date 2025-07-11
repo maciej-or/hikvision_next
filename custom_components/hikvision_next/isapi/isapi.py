@@ -679,6 +679,8 @@ class ISAPIClient:
         detection_target = deep_get(alert, "DetectionRegionList.DetectionRegionEntry.detectionTarget")
         region_id = int(deep_get(alert, "DetectionRegionList.DetectionRegionEntry.regionID", 0))
 
+        target_type = alert.get("targetType")
+
         if not EVENTS[event_id]:
             raise ValueError(f"Unsupported event {event_id}")
 
@@ -690,6 +692,7 @@ class ISAPIClient:
             mac,
             region_id,
             detection_target,
+            target_type,
         )
 
     async def get_camera_image(
