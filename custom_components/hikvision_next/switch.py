@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from homeassistant.components.switch import ENTITY_ID_FORMAT, SwitchEntity
@@ -12,10 +13,11 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
 from . import HikvisionConfigEntry
-from .const import EVENTS_COORDINATOR, HOLIDAY_MODE, SECONDARY_COORDINATOR
-from .isapi import EventInfo, ISAPISetEventStateMutexError
+from .const import EVENTS_COORDINATOR, HOLIDAY_MODE, SECONDARY_COORDINATOR, BEHAVIOR_RULES_COORDINATOR
+from .isapi import BehaviorRuleInfo, EventInfo, ISAPISetEventStateMutexError
 from .isapi.const import EVENT_IO
 
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -27,6 +29,7 @@ async def async_setup_entry(
     device = entry.runtime_data
     events_coordinator = device.coordinators.get(EVENTS_COORDINATOR)
     secondary_coordinator = device.coordinators.get(SECONDARY_COORDINATOR)
+    behavior_rules_coordinator = device.coordinators.get(BEHAVIOR_RULES_COORDINATOR)
 
     entities = []
 
@@ -46,6 +49,11 @@ async def async_setup_entry(
     # Holiday mode switch
     if device.capabilities.support_holiday_mode:
         entities.append(HolidaySwitch(secondary_coordinator))
+
+    # Behavior rules switch
+    for rule in device.behavior_rules:
+        _LOGGER.debug("Adding behavior rule switch for %s", rule.id)
+        entities.append(BehaviorRuleSwitch(camera.id, rule, behavior_rules_coordinator))
 
     async_add_entities(entities)
 
@@ -91,6 +99,45 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
             await self.coordinator.device.set_event_enabled_state(self.device_id, self.event, False)
         except Exception:
             raise
+        finally:
+            await self.coordinator.async_request_refresh()
+
+class BehaviorRuleSwitch(CoordinatorEntity, SwitchEntity):
+    """Behavior rule switch."""
+
+    _attr_has_entity_name = True
+    _attr_icon = "mdi:eye-outline"
+
+    def __init__(self, device_id: int, rule: BehaviorRuleInfo, coordinator) -> None:
+        """Initialize."""
+        super().__init__(coordinator)
+        self.entity_id = ENTITY_ID_FORMAT.format(
+            f"{slugify(coordinator.device.device_info.serial_no.lower())}_{rule.channel_id}_{rule.id}_behavior_rule"
+        )
+        self._attr_unique_id = self.entity_id
+        self._attr_translation_key = rule.name
+        self._attr_device_info = coordinator.device.hass_device_info(device_id)
+        self.device_id = device_id
+        self.rule = rule
+        
+    @property
+    def is_on(self) -> bool | None:
+        return self.coordinator.data.get(self.unique_id).enabled
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn on."""
+        try:
+            await self.coordinator.device.set_behavior_rule_enabled(self.rule, True)
+        except Exception as ex:
+            raise ex
+        finally:
+            await self.coordinator.async_request_refresh()
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        try:
+            await self.coordinator.device.set_behavior_rule_enabled(self.rule, False)
+        except Exception as ex:
+            raise ex
         finally:
             await self.coordinator.async_request_refresh()
 

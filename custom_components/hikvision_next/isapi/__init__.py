@@ -9,6 +9,7 @@ from .models import (  # noqa: F401
     AnalogCamera,
     CameraStreamInfo,
     EventInfo,
+    BehaviorRuleInfo,
     IPCamera,
     StorageInfo,
 )

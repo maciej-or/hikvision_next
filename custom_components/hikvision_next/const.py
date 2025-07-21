@@ -14,6 +14,7 @@ CONF_ALARM_SERVER_HOST: Final = "alarm_server"
 ALARM_SERVER_PATH = "/api/hikvision"
 
 EVENTS_COORDINATOR: Final = "events"
+BEHAVIOR_RULES_COORDINATOR: Final = "behavior_rules"
 SECONDARY_COORDINATOR: Final = "secondary"
 HOLIDAY_MODE = "holiday_mode"
 
