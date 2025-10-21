@@ -93,6 +93,31 @@ def mock_isapi(respx_mock, request):
 
 
 @pytest.fixture
+def mock_overlay_config():
+    """Mock overlay configuration."""
+    return {
+        "camera_channel": 1,
+        "text": "Test Overlay",
+        "mode": "fixed",
+        "position_x": 100,
+        "position_y": 50,
+        "interval_seconds": 900,
+        "enabled": True,
+    }
+
+
+@pytest.fixture
+def mock_overlay_xml_response():
+    """Mock successful ISAPI overlay response."""
+    return """<?xml version="1.0" encoding="UTF-8"?>
+<ResponseStatus version="2.0" xmlns="http://www.hikvision.com/ver20/XMLSchema">
+<requestURL>/ISAPI/System/Video/inputs/channels/1/overlays/text</requestURL>
+<statusCode>1</statusCode>
+<statusString>OK</statusString>
+</ResponseStatus>"""
+
+
+@pytest.fixture
 def mock_isapi_device(respx_mock, request, mock_isapi):
     """Mock all device ISAPI requests."""
 

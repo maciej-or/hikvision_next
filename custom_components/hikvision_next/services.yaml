@@ -62,3 +62,128 @@ isapi_request:
       selector:
         text:
           multiline: true
+
+set_overlay:
+  name: Set text overlay
+  description: Set a text overlay on a camera with automatic periodic refresh. The overlay will update at the specified interval.
+  fields:
+    config_entry_id:
+      required: true
+      name: "Device"
+      description: "The Hikvision device (NVR or camera)."
+      selector:
+        config_entry:
+          integration: hikvision_next
+    camera_channel:
+      required: true
+      name: "Camera channel"
+      description: "The camera channel number (1-32)."
+      example: 1
+      selector:
+        number:
+          min: 1
+          max: 32
+    text:
+      required: true
+      name: "Text"
+      description: "The text to display (max 44 characters). For datetime mode, use strftime format codes like %Y-%m-%d %H:%M:%S"
+      example: "Front Door Camera"
+      selector:
+        text:
+          max_length: 44
+    mode:
+      required: false
+      name: "Mode"
+      description: "Text mode: 'fixed' for static text, 'datetime' for dynamically formatted timestamps."
+      default: "fixed"
+      selector:
+        select:
+          options:
+            - label: "Fixed text"
+              value: "fixed"
+            - label: "Dynamic datetime"
+              value: "datetime"
+    datetime_format:
+      required: false
+      name: "Datetime format"
+      description: "For datetime mode only: strftime format string. Example: %Y-%m-%d %H:%M:%S"
+      example: "%Y-%m-%d %H:%M:%S"
+      selector:
+        text:
+    position_x:
+      required: false
+      name: "X position"
+      description: "Horizontal position (0-1920 pixels)."
+      default: 16
+      selector:
+        number:
+          min: 0
+          max: 1920
+    position_y:
+      required: false
+      name: "Y position"
+      description: "Vertical position (0-1080 pixels)."
+      default: 570
+      selector:
+        number:
+          min: 0
+          max: 1080
+    interval_seconds:
+      required: false
+      name: "Update interval"
+      description: "How often to refresh the overlay (in seconds). Minimum 1 second."
+      default: 900
+      example: 60
+      selector:
+        number:
+          min: 1
+          unit_of_measurement: "seconds"
+    enabled:
+      required: false
+      name: "Enabled"
+      description: "Enable or disable the overlay."
+      default: true
+      selector:
+        boolean:
+
+stop_overlay:
+  name: Stop overlay updates
+  description: Stop periodic overlay updates for a camera. The current overlay text will remain visible until manually changed.
+  fields:
+    config_entry_id:
+      required: true
+      name: "Device"
+      description: "The Hikvision device (NVR or camera)."
+      selector:
+        config_entry:
+          integration: hikvision_next
+    camera_channel:
+      required: true
+      name: "Camera channel"
+      description: "The camera channel number (1-32)."
+      example: 1
+      selector:
+        number:
+          min: 1
+          max: 32
+
+enable_overlay:
+  name: Enable overlay updates
+  description: Re-enable overlay updates for a camera using previously stored configuration.
+  fields:
+    config_entry_id:
+      required: true
+      name: "Device"
+      description: "The Hikvision device (NVR or camera)."
+      selector:
+        config_entry:
+          integration: hikvision_next
+    camera_channel:
+      required: true
+      name: "Camera channel"
+      description: "The camera channel number (1-32)."
+      example: 1
+      selector:
+        number:
+          min: 1
+          max: 32

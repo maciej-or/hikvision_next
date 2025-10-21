@@ -22,6 +22,23 @@ ACTION_REBOOT = "reboot"
 ACTION_ISAPI_REQUEST = "isapi_request"
 ACTION_UPDATE_SNAPSHOT = "update_snapshot"
 
+# Overlay service constants
+ACTION_SET_OVERLAY = "set_overlay"
+ACTION_STOP_OVERLAY = "stop_overlay"
+ACTION_ENABLE_OVERLAY = "enable_overlay"
+
+ATTR_CAMERA_CHANNEL = "camera_channel"
+ATTR_TEXT = "text"
+ATTR_MODE = "mode"
+ATTR_DATETIME_FORMAT = "datetime_format"
+ATTR_POSITION_X = "position_x"
+ATTR_POSITION_Y = "position_y"
+ATTR_INTERVAL_SECONDS = "interval_seconds"
+ATTR_ENABLED = "enabled"
+
+MODE_FIXED = "fixed"
+MODE_DATETIME = "datetime"
+
 HIKVISION_EVENT = f"{DOMAIN}_event"
 
 EVENTS = {
