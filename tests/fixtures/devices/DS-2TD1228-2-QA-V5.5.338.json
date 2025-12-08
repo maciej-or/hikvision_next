@@ -1,0 +1,2073 @@
+{
+  "data": {
+    "ISAPI": {
+      "System/deviceInfo": {
+        "response": {
+          "DeviceInfo": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "deviceName": "XXXXX",
+            "manufacturer": null,
+            "deviceID": "xxxxxxxxxxx",
+            "deviceDescription": "IPCamera",
+            "deviceLocation": "hangzhou",
+            "systemContact": "Hikvision.China",
+            "model": "DS-2TD1228-2/QA",
+            "serialNumber": "DS-2TD1228-2/QAXXXXXXXXXXXXXXX",
+            "macAddress": "12:40:43:f8:fa:38",
+            "firmwareVersion": "V5.5.338",
+            "firmwareReleasedDate": "build 250819",
+            "encoderVersion": "V7.3",
+            "encoderReleasedDate": "build 250819",
+            "bootVersion": "V1.3.4",
+            "bootReleasedDate": "100316",
+            "hardwareVersion": "0x0",
+            "deviceType": "IPCamera",
+            "telecontrolID": "88",
+            "supportBeep": "false",
+            "supportVideoLoss": "false",
+            "bootTime": "2025-12-08T12:28:23+01:00",
+            "platformName": "G5",
+            "releaseRegion": "abroad",
+            "opticalFiberNumber": "0",
+            "languageType": "english",
+            "OEMCode": "1",
+            "deviceAssembleType": "endDevice",
+            "deviceCategory": "imagingDevice"
+          }
+        }
+      },
+      "System/capabilities": {
+        "response": {
+          "DeviceCap": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "isSupportDeviceInfo": "true",
+            "isSupportOnlineUpgradeTask": "true",
+            "SysCap": {
+              "isSupportDst": "true",
+              "NetworkCap": {
+                "isSupportWireless": "false",
+                "isSupportPPPoE": "true",
+                "isSupportBond": "false",
+                "isSupport802_1x": "true",
+                "isSupportNtp": "true",
+                "isSupportFtp": "true",
+                "isSupportUpnp": "true",
+                "isSupportDdns": "true",
+                "isSupportHttps": "true",
+                "SnmpCap": {
+                  "isSupport": "true"
+                },
+                "isSupportExtNetCfg": "true",
+                "isSupportIPFilter": "true",
+                "isSupportSSH": "true",
+                "isSupportEZVIZ": "true",
+                "isSupportTrafficMonitor": "false",
+                "isSupportEhome": "true",
+                "isSupportWirelessDial": "false",
+                "isSupportWirelessServer": "false",
+                "isWirelessMutexWithWirelessServer": "false",
+                "isSupportMACFilter": "true",
+                "isSupportIntegrate": "true",
+                "isSupportPlatformAccess": "true",
+                "isSupportWebSocket": "true",
+                "isSupportWebSocketS": "true",
+                "isSupportVideoImgDB": "false",
+                "isSupportEventDataOverWebSocket": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "isSupportGRIDServer": "false",
+                "isSupportGRIDInfo": "false",
+                "isSupportEZVIZUnbind": "false",
+                "isSupportModbusAccess": "true",
+                "isSupportModbusTestSubordinateStatus": "true",
+                "isSupportGetModbusAndRegisterMap": "true",
+                "isSupportDSTPProtocolsCap": "true",
+                "isSupportNetworkModuleUpgrade": "false",
+                "isSupportNetworkModuleVersionInfo": "false",
+                "isSupportDynamicHostName": "true",
+                "isSupportSouthernPowerGridServer": "false"
+              },
+              "IOCap": {
+                "IOInputPortNums": "1",
+                "IOOutputPortNums": "1",
+                "isSupportStrobeLamp": "false",
+                "isSupportWebDisplayAlarmStatus": "true"
+              },
+              "SerialCap": {
+                "rs485PortNums": "1",
+                "supportRS232Config": "true",
+                "rs422PortNums": "0",
+                "rs232PortNums": "1",
+                "isSupportAuthenticationService": "false"
+              },
+              "VideoCap": {
+                "videoInputPortNums": "0",
+                "videoOutputPortNums": "0",
+                "isSupportHeatmap": "false",
+                "isSupportCounting": "false",
+                "isSupportMotionDetection": "true",
+                "isSupportTamperDetection": "true",
+                "isSupportPicture": "true",
+                "isSupportPrivacyMask": "true",
+                "OSDLanguage": {
+                  "@opt": "GBK,EUC-KR",
+                  "#text": "GBK"
+                },
+                "isSupportMenuStatus": "false",
+                "pictureChannelList": [
+                  {
+                    "channelID": "1"
+                  },
+                  {
+                    "channelID": "2"
+                  }
+                ]
+              },
+              "AudioCap": {
+                "audioInputNums": "1",
+                "audioOutputNums": "1"
+              },
+              "isSupportCustomAlarmHTTPParams": "true",
+              "isSupportTestCustomAlarmHTTP": "true",
+              "isSupportMetadata": "true",
+              "isSupportSubscribeEvent": "true",
+              "isSupportDiagnosedData": "true",
+              "isSupportGettingWorkingStatus": "true",
+              "isSupportDiagnosedDataParameter": "true",
+              "isSupportTimeCap": "true",
+              "isSupportThermalStreamData": "true"
+            },
+            "voicetalkNums": "1",
+            "isSupportSnapshot": "true",
+            "SecurityCap": {
+              "supportUserNums": "32",
+              "userBondIpNums": "0",
+              "userBondMacNums": "0",
+              "isSupCertificate": "true",
+              "issupIllegalLoginLock": "true",
+              "isSupportOnlineUser": "true",
+              "isSupportAnonymous": "false",
+              "isSupportStreamEncryption": "false",
+              "securityVersion": {
+                "@opt": "1",
+                "#text": "1"
+              },
+              "keyIterateNum": "100",
+              "isSupportUserCheck": "true",
+              "isSupportSecurityQuestionConfig": "false",
+              "SecurityLimits": {
+                "LoginPasswordLenLimit": {
+                  "@min": "1",
+                  "@max": "16"
+                },
+                "SecurityAnswerLenLimit": {
+                  "@min": "1",
+                  "@max": "128"
+                }
+              },
+              "RSAKeyLength": {
+                "@opt": "1024,2048",
+                "@def": "2048",
+                "#text": "4096"
+              },
+              "isSupportONVIFUserManagement": "true",
+              "WebCertificateCap": {
+                "CertificateType": {
+                  "@opt": "digest,digest/basic",
+                  "#text": "digest/basic"
+                },
+                "SecurityAlgorithm": {
+                  "algorithmType": {
+                    "@opt": "MD5,SHA256,MD5/SHA256",
+                    "#text": "MD5"
+                  }
+                }
+              },
+              "isSupportConfigFileImport": "true",
+              "isSupportConfigFileExport": "true",
+              "cfgFileSecretKeyLenLimit": {
+                "@min": "1",
+                "@max": "16",
+                "#text": "16"
+              },
+              "isIrreversible": "true",
+              "salt": "xxxxxxxxxxxxxxxxxxxxxxxxx",
+              "isSupportSIPCertificatesManagement": "false",
+              "isSupportRTSPCertificate": "true",
+              "isSupportGB35114Certificate": "false",
+              "maxIllegalLoginTimes": {
+                "@min": "3",
+                "@max": "20",
+                "@def": "5",
+                "#text": "5"
+              },
+              "maxIllegalLoginLockTime": {
+                "@min": "1",
+                "@max": "120",
+                "@def": "30",
+                "#text": "30"
+              },
+              "SecurityAdvanced": {
+                "noOperationEnabled": "true",
+                "noOperationTime": {
+                  "@min": "1",
+                  "@max": "60",
+                  "@def": "10",
+                  "#text": "10"
+                }
+              },
+              "LoginLinkNum": {
+                "maxLinkNum": {
+                  "@min": "1",
+                  "@max": "128",
+                  "@def": "50",
+                  "#text": "50"
+                }
+              },
+              "isSupportDeviceCertificatesManagement": "true",
+              "isSupportDeviceSelfSignCertExport": "true",
+              "isSupportCCClientCertificate": "true",
+              "isSupportCertificateCustomID": "true",
+              "isSupportEncryptCertificate": "true"
+            },
+            "EventCap": {
+              "isSupportHDFull": "true",
+              "isSupportHDError": "true",
+              "isSupportNicBroken": "true",
+              "isSupportIpConflict": "true",
+              "isSupportIllAccess": "true",
+              "isSupportViException": "false",
+              "isSupportViMismatch": "false",
+              "isSupportRecordException": "false",
+              "isSupportTriggerFocus": "false",
+              "isSupportMotionDetection": "true",
+              "isSupportVideoLoss": "false",
+              "isSupportTamperDetection": "true",
+              "isSupportFireDetection": "false",
+              "isSupportPersonDensityDetection": "false",
+              "isSupportFaceThermometry": "false",
+              "isSupportVoltageInstable": "false",
+              "isSupportCertificateRevocation": [
+                "true",
+                "true"
+              ],
+              "isSupportPTLocking": "false",
+              "isSupportLowCoolerLifeEvent": "false",
+              "isSupportGreyScaleAlarm": "false",
+              "isSupportWasteGasDetection": "false",
+              "RegionScheduleCap": {
+                "isSupportPersonDensityDetection": "false"
+              },
+              "isSupportSmokingDetectAlarm": "false",
+              "isSupportThermalCalibrationFileException": "true",
+              "isSupportTemperatureIntervalMeasurement": "true",
+              "isSupportThermalVehicleDetection": "false",
+              "isSupportObstacleAvoidanceAlarm": "false",
+              "isSupportMixedTargetDetection": "false",
+              "isSupportInsulatorDetection": "false"
+            },
+            "RacmCap": {
+              "nasNums": "8",
+              "pictureSearchType": {
+                "@opt": "CMR,MOTION,ALARM,scenechangedetection,fireDetection,smokeAndFireDetection,smokeDetection,thermometryEarlyWarning,thermometryAlarm,thermometryDiffAlarm,HEOP,temperatureIntervalMeasurement"
+              },
+              "recordSearchType": {
+                "@opt": "CMR,MOTION,ALARM,EDR,ALARMANDMOTION,AllEvent,AudioDetection,scenechangedetection,thermometryEarlyWarning,thermometryAlarm,thermometryDiffAlarm,temperatureIntervalMeasurement"
+              },
+              "SecurityLog": {
+                "isSupportSecurityLog": "true",
+                "isSupportLogServer": "true",
+                "isSupportLogServerTest": "true",
+                "SecurityLogTypeList": {
+                  "SecurityLogType": [
+                    {
+                      "primaryType": "All",
+                      "secondaryType": {
+                        "@opt": "all"
+                      }
+                    },
+                    {
+                      "primaryType": "Operation",
+                      "secondaryType": {
+                        "@opt": "all,alarmSmsSend,callOnline,devicePowerOff,devicePowerOn,deviceRecycle,localAddIpc,localAddNas,localUserManagement,localCfgSecurity,localCfgNetwork,localCfgTime,localCfgPara,localCtrlPtz,localDelIpc,localDelNas,localDial,localDialParaSet,localDialScheduleSet,localDownloadCfgFile,localDownloadCountingFile,localDownloadHeatMapFile,localDownloadPicFile,localDownloadRecFile,localExportBlackWhiteListFile,localExportIpcCfg,localFormatDisk,localHdTest,localImportBlackWhiteListFile,localImportIpcCfg,localIpcUpgrade,localLock,localLockFile,localLogOut,localLogin,localManulAlarm,localPin,localPlayByFile,localPlayByTime,localResetPasswd,localSetIpc,localSetNas,localSetSIPServer,localSetSnmp,localSmsRead,localSmsSearch,localSmsSend,localSpareOperate,localStartPicRec,localStartRec,localStopPicRec,localStopRec,localTagOperation,localUnlock,localUnlockFile,localUpdate,localUploadCfgFile,localWhitelistSet,platOper,remoteAddIpc,remoteAddNas,remoteArm,remotecfgauditpolicy,remoteUserManagement,remoteCfgSecurity,remoteCfgNetwork,remoteCfgTime,remoteCfgPara,remoteCreateCloudStoragePool,remoteCtrlPtz,remoteDelHdisk,remoteDelIpc,remoteDelNas,remoteDeleteCloudStoragePool,remoteDeletePic,remoteDeleteRecord,remoteDialConnect,remoteDialDisconn,remoteDialParaSet,remoteDialScheduleSet,remoteDisArm,remoteDisableCloudStorage,remoteDownloadCfgFile,remoteDownloadRecFile,remoteEnableCloudStorage,remoteExportBlackWhiteListFile,remoteExportIpcCfg,remoteFormatHd,remoteGetParaSecurity,remoteGetParaNetwork,remoteGetPara,remoteGetStatus,remoteImportBlackWhiteListFile,VcaLibRestore,remoteImportIpcCfg,remoteLoadHdisk,remoteLockFile,remoteLogin,remoteLogout,remoteManulAlarm,remoteModCloudStorageParam,remoteModCloudStorageVolume,remotePicBackUp,remotePin,remotePlayByFile,remotePlayByTime,remotePowerOff,remotePowerRecycle,remoteSetIpc,remoteSetNas,remoteSetSIPServer,remoteSetSnmp,remoteSmsRead,remoteSmsSearch,remoteSmsSend,remoteSpareOperate,remoteStartPicRec,remoteStartRec,remoteStartTransChan,remoteStopPicRec,remoteStopRec,remoteStopTransChan,remoteTagOperation,remoteUnloadHdisk,remoteUnlockFile,remoteUpgrade,remoteUploadCfgFile,remoteWhitelistSet,remotelIpcUpgrade,smsControl,smsRecv,startVoiceTalk,stopAbnormal,stopVoiceTalk,localSetDeviceActive,localParamSimpleDefault,localParamFactoryDefault,remoteSetDeviceActive,remoteParamSimpleDefault,remoteParamFactoryDefault,localWPSLink,remoteWPSLink,localResetLoginPassWord,remoteResetLoginPassWord,localfaceBaseCreate,localfaceBaseModify,localfaceBaseDelete,localfaceDataAppend,localfaceDataEdit,localfaceDataDelete,localVcaAnalysisConfig,remotefaceBaseCreate,remotefaceBaseModify,remotefaceBaseDelete,remotefaceDataAppend,remotefaceDataEdit,remotefaceDataDelete,remoteVcaAnalysisConfig,localClusterNetworkConfig,localClusterAddDevice,localClusterDelDevice,remoteClusterNetworkConfig,remoteClusterAddDevice,remoteClusterDelDevice,localSetPoeWorkMode,remoteSetPoeWorkMode,localClusterModeConfig,remoteClusterModeConfig,localIOTCfgFileInput,localIOTCfgFileOutput,localIOTAdd,localIOTDelete,localIOTSet,remoteIOTCfgFileInput,remoteIOTCfgFileOutput,remoteIOTAdd,remoteIOTDelete,remoteIOTSet,localCheckTime,remoteCheckTime,remoteFaceContrastTask,unlockSession,terminateHttp,terminateHttps,terminateSSH,selfTest"
+                      }
+                    },
+                    {
+                      "primaryType": "Event",
+                      "secondaryType": {
+                        "@opt": "all,anrRecordException,dialException,hdError,hdFull,illlegealAccess,ipConflict,ipcDisconnect,ipcIpConfilict,ipcmCrash,netBroken,poePowerException,recordError,recordOverFLow,spareException,startIpcMasException,uploadDataCsException,viAndResMismatch,videoException,videoFormatMismatch,videoLost,syncIPCPasswd,ezvizOffline,SDCardAbnormal,SDCardDamage,plateAbnormal,abnormalPort,POC,vcaCameraAngleAnomaly,dataDiskError,intelligentSystemRunningError,facesnapResolutionOverflow,SMDResolutionOverflow,clusterConfigFailed,clusterStorFullException,clusterOfflineNodeException,clusterRecordCycleException,clusterIPCTransferException,vcaSenceException,ClusterDeviceOffline,clusterDisasterToleranceExcept,clusterVersionException,getSubStreamFailure,locked,hddSHMDetectException,safetyHelmetException,faceModelException,validateCert,establishSecSession,replayAttacks,ntpCheckTime,lowAuditLogStorage,httpConnect,httpsConnect,sshConnect,httpDisconnect,httpsDisconnect,sshDisconnect"
+                      }
+                    },
+                    {
+                      "primaryType": "Other",
+                      "secondaryType": {
+                        "@opt": "all"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "PTZCtrlCap": {
+              "isSupportPatrols": "false",
+              "isSupportCombinedPath": "false"
+            },
+            "SmartCap": {
+              "isSupportROI": "true",
+              "isSupportFaceDetect": "false",
+              "isSupportIntelliTrace": "false",
+              "isSupportFieldDetection": "false",
+              "isSupportDefocusDetection": "false",
+              "isSupportAudioDetection": "true",
+              "isSupportSceneChangeDetection": "true",
+              "isSupportLineDetection": "false",
+              "isSupportRegionEntrance": "false",
+              "isSupportRegionExiting": "false",
+              "isSupportLoitering": "false",
+              "isSupportGroup": "false",
+              "isSupportRapidMove": "false",
+              "isSupportParking": "false",
+              "isSupportUnattendedBaggage": "false",
+              "isSupportAttendedBaggage": "false",
+              "isSupportShipsDetection": "false",
+              "isSupportNobodyDetection": "false",
+              "isSupportNobodyShieldMask": "false"
+            },
+            "TestCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+              "isSupportFTPTest": "true",
+              "isSupportPingTest": "true",
+              "isSupportNTPTest": "true",
+              "isSupportNASTest": "true",
+              "isSupportEmailTest": "true"
+            },
+            "isSupportRealtimeTempHumi": "true",
+            "isSupportGIS": "false",
+            "isSupportCompass": "false",
+            "isSupportStreamDualVCA": "true",
+            "DualVCA": {
+              "isSupportdualVCAList": "true",
+              "enabled": {
+                "@opt": "ture,false",
+                "@def": "true",
+                "#text": "true"
+              },
+              "overlapRangeType": {
+                "@opt": "ruleRegion,fullScreen",
+                "@def": "ruleRegion",
+                "#text": "fullScreen"
+              }
+            },
+            "ImageMiscCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+              "isSupportDPC": "true"
+            },
+            "isSupportRtspOverHTTPS": "true",
+            "ThermalCap": {
+              "isSupportThermometry": "true",
+              "isSupportRealtimeThermometry": "true",
+              "isSupportThermIntell": "true",
+              "isSupportThermometrySchedule": "true",
+              "isSupportPower": "false",
+              "isSupportRealtimeTempHumi": "true",
+              "isSupportThermometryMode": "true",
+              "isSupportThermalPip": "true",
+              "isSupportThermalIntelRuleDisplay": "true",
+              "AlgVersionInfo": {
+                "thermometryAlgName": {
+                  "@min": "1",
+                  "@max": "128"
+                }
+              },
+              "isSupportThermalStreamParam": "true",
+              "isSupportClickToThermometry": "true",
+              "isSupportThermometryHistorySearch": "false",
+              "isSupportThermometryShieldMask": "true",
+              "isSupportTemperatureCorrection": "false",
+              "isSupportBurningPrevention": "false",
+              "isSupportJpegPicWithAppendData": "true",
+              "isSupportRealTimethermometryForHTTP": "true",
+              "isSupportTemperatureIntervalMeasurement": "true",
+              "isSupportThermalDataLinkInfo": "true",
+              "isSupportWebDisplayPixelToPixelParam": "true",
+              "isSupportExportThermalCalibrationFile": "true"
+            },
+            "isSupportCurrentLock": "false",
+            "isSupportPlayback": "true",
+            "isSupportChannelEventCap": "true",
+            "isSupportChannelEventListCap": "true",
+            "OpenPlatformCap": {
+              "isSupportOpenPlatform": "false"
+            },
+            "IOTCap": {
+              "@version": "2.0",
+              "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+              "supportChannelNum": {
+                "@opt": "2",
+                "#text": "2"
+              },
+              "startChannelNo": "1",
+              "isSupportlinkageChannelsSearch": "false"
+            },
+            "isSupportImageCap": "true",
+            "isSupportCalibrationFile": "true",
+            "isSupportDisplayTrajectory": "true",
+            "Maximumsuperpositiontime": {
+              "@opt": "5,10,20,30",
+              "#text": "10"
+            },
+            "isSupportUnitConfig": "true",
+            "isSupportActiveMulticast": "true",
+            "isSupportDiscoveryMode": "true",
+            "isSupportPictureServer": "true",
+            "isSupportDevStatus": "true",
+            "isSupportSnapshotAsync": "true",
+            "isSupportRemoveStorage": "false",
+            "isSupportPTModulePowerCfg": "false",
+            "isSupportDelayedReboot": "false",
+            "isSupportHardwareReboot": "false",
+            "isSupportAutoMaintenance": "true",
+            "isSupportDiagnosisDataCollectionParams": "true",
+            "isSupportISUPHttpPassthrough": "true",
+            "isSupportKeyFunctionList": "false",
+            "isSupportKeyValueList": "false",
+            "isSupportMenuFunctionList": "false",
+            "isSupportImageVignettingOptimizeParams": "false",
+            "isSupportDisplayThermometryFirePrevention": "false",
+            "isSupportChildmanage": "true",
+            "isSupportGetClientAccessCapabilities": "true",
+            "isSupportSupplementAndwhiteAlarmConflictTips": "false",
+            "isSupportFullScreenPosOverlayCap": "true"
+          }
+        }
+      },
+      "System/IO/inputs/1/status": {
+        "response": {
+          "IOPortStatus": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "ioPortID": "1",
+            "ioPortType": "input",
+            "ioState": "inactive"
+          }
+        }
+      },
+      "System/IO/outputs/1/status": {
+        "response": {
+          "IOPortStatus": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "ioPortID": "1",
+            "ioPortType": "output",
+            "ioState": "inactive"
+          }
+        }
+      },
+      "System/Holidays": {
+        "status_code": 403
+      },
+      "System/Video/inputs/channels": {
+        "response": {
+          "VideoInputChannelList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "VideoInputChannel": [
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "1",
+                "inputPort": "1",
+                "name": "Camera 01",
+                "videoFormat": "PAL"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "2",
+                "inputPort": "2",
+                "name": "Camera 02",
+                "videoFormat": "PAL"
+              }
+            ]
+          }
+        }
+      },
+      "ContentMgmt/InputProxy/channels": {
+        "status_code": 403
+      },
+      "ContentMgmt/Storage": {
+        "response": {
+          "storage": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "hddList": {
+              "@version": "1.0",
+              "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+              "@size": "8",
+              "hdd": {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "1",
+                "hddName": "hdde",
+                "hddPath": null,
+                "hddType": "SATA",
+                "status": "ok",
+                "capacity": "244480",
+                "freeSpace": "92672",
+                "property": "RW",
+                "formatType": {
+                  "@opt": "EXT4",
+                  "#text": "EXT4"
+                },
+                "Encryption": {
+                  "passwordLen": {
+                    "@min": "6",
+                    "@max": "63"
+                  },
+                  "encryptionStatus": {
+                    "@opt": "unencrypted,encrypted,verfyFailed",
+                    "#text": "encrypted"
+                  },
+                  "encryptFormatType": {
+                    "@opt": "FAT32,EXT4",
+                    "#text": "EXT4"
+                  }
+                }
+              }
+            },
+            "nasList": {
+              "@version": "2.0",
+              "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+              "supportMountType": {
+                "@opt": "NFS,SMB/CIFS"
+              },
+              "authentication": {
+                "@opt": "SMB/CIFS"
+              }
+            },
+            "workMode": "quota",
+            "posInfoStoragingEnabled": "true"
+          }
+        }
+      },
+      "Security/adminAccesses": {
+        "response": {
+          "AdminAccessProtocolList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "AdminAccessProtocol": [
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "1",
+                "enabled": "true",
+                "protocol": "HTTP",
+                "portNo": "80"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "2",
+                "enabled": "true",
+                "protocol": "HTTPS",
+                "redirectToHttps": "true",
+                "portNo": "443",
+                "TLS1_1Enable": "false",
+                "TLS1_2Enable": "true"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "3",
+                "enabled": "true",
+                "protocol": "DEV_MANAGE",
+                "portNo": "8000"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "4",
+                "enabled": "true",
+                "protocol": "RTSP",
+                "portNo": "554"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "5",
+                "enabled": "true",
+                "protocol": "WebSocket",
+                "portNo": "7681"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "6",
+                "enabled": "true",
+                "protocol": "WebSocketS",
+                "portNo": "7682"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "8",
+                "enabled": "true",
+                "protocol": "SRTP",
+                "portNo": "322"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "9",
+                "enabled": "true",
+                "protocol": "modbusTCP",
+                "portNo": "502"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "10",
+                "enabled": "true",
+                "protocol": "Bonjour"
+              }
+            ]
+          }
+        }
+      },
+      "Event/triggers": {
+        "response": {
+          "EventNotification": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "EventTriggerList": {
+              "@version": "2.0",
+              "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+              "EventTrigger": [
+                {
+                  "id": [
+                    "IO-1",
+                    "io-1"
+                  ],
+                  "eventType": [
+                    "IO",
+                    "io-1"
+                  ],
+                  "eventDescription": [
+                    "IO Event trigger Information",
+                    "exception Information"
+                  ],
+                  "inputIOPortID": "1",
+                  "EventTriggerNotificationList": null
+                },
+                {
+                  "id": [
+                    "VMD-1",
+                    "vmd-1"
+                  ],
+                  "eventType": [
+                    "VMD",
+                    "vmd-1"
+                  ],
+                  "eventDescription": [
+                    "VMD Event trigger Information",
+                    "exception Information"
+                  ],
+                  "EventTriggerNotificationList": {
+                    "EventTriggerNotification": [
+                      {
+                        "id": "record-1",
+                        "notificationMethod": "record",
+                        "notificationRecurrence": "beginning",
+                        "videoInputID": "1"
+                      },
+                      {
+                        "id": "beep",
+                        "notificationMethod": "beep",
+                        "notificationRecurrence": "beginning"
+                      },
+                      {
+                        "id": "center",
+                        "notificationMethod": "center",
+                        "notificationRecurrence": "beginning"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": [
+                    "tamper-1",
+                    "tamper-1"
+                  ],
+                  "eventType": [
+                    "tamperdetection",
+                    "tamper-1"
+                  ],
+                  "eventDescription": [
+                    "shelteralarm Event trigger Information",
+                    "exception Information"
+                  ],
+                  "EventTriggerNotificationList": null
+                },
+                {
+                  "id": "diskfull",
+                  "eventType": "diskfull",
+                  "eventDescription": "exception Information",
+                  "EventTriggerNotificationList": null
+                },
+                {
+                  "id": "diskerror",
+                  "eventType": "diskerror",
+                  "eventDescription": "exception Information",
+                  "EventTriggerNotificationList": {
+                    "EventTriggerNotification": {
+                      "id": "beep",
+                      "notificationMethod": "beep",
+                      "notificationRecurrence": "beginning"
+                    }
+                  }
+                },
+                {
+                  "id": "nicbroken",
+                  "eventType": "nicbroken",
+                  "eventDescription": "exception Information",
+                  "EventTriggerNotificationList": null
+                },
+                {
+                  "id": "ipconflict",
+                  "eventType": "ipconflict",
+                  "eventDescription": "exception Information",
+                  "EventTriggerNotificationList": null
+                },
+                {
+                  "id": "illaccess",
+                  "eventType": "illaccess",
+                  "eventDescription": "exception Information",
+                  "EventTriggerNotificationList": null
+                },
+                {
+                  "id": "badvideo",
+                  "eventType": "badvideo",
+                  "eventDescription": "exception Information",
+                  "EventTriggerNotificationList": null
+                },
+                {
+                  "id": [
+                    "audioexception-1",
+                    "audioexception-1"
+                  ],
+                  "eventType": [
+                    "audioexception",
+                    "audioexception-1"
+                  ],
+                  "eventDescription": [
+                    "audioexception Event trigger Information",
+                    "exception Information"
+                  ],
+                  "EventTriggerNotificationList": null
+                },
+                {
+                  "id": [
+                    "thermometry-2",
+                    "thermometry-2"
+                  ],
+                  "eventType": [
+                    "thermometry",
+                    "thermometry-2"
+                  ],
+                  "eventDescription": [
+                    "thermometry Event trigger Information",
+                    "exception Information"
+                  ],
+                  "videoInputChannelID": "2",
+                  "dynVideoInputChannelID": "2",
+                  "EventTriggerNotificationList": {
+                    "EventTriggerNotification": {
+                      "id": "center",
+                      "notificationMethod": "center",
+                      "notificationRecurrence": "beginning"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "Event/channels/capabilities": {
+        "response": {
+          "ChannelEventCapList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "ChannelEventCap": [
+              {
+                "eventType": {
+                  "@opt": "VMD,motionDetection,shelteralarm,tamperDetection,ROI,audioexception,audioDetection,scenechangedetection,sceneChangeDetection,temperature,temperatureDetection,IO,diskfull,diskerror,nicbroken,ipconflict,illaccess,thermometry"
+                },
+                "shieldEventType": {
+                  "@opt": "behavior, faceSnap, humanRecognition"
+                },
+                "channelID": "1",
+                "id": "1"
+              },
+              {
+                "eventType": {
+                  "@opt": "VMD,motionDetection,shelteralarm,tamperDetection,ROI,fielddetection,fieldDetection,scenechangedetection,sceneChangeDetection,linedetection,lineDetection,regionEntrance,regionExiting,temperature,temperatureDetection,IO,diskfull,diskerror,nicbroken,ipconflict,illaccess,thermometry,temperatureIntervalMeasurement"
+                },
+                "shieldEventType": {
+                  "@opt": "behavior, faceSnap, humanRecognition"
+                },
+                "channelID": "2",
+                "id": "2"
+              }
+            ]
+          }
+        }
+      },
+      "Event/triggers/scenechangedetection-1": {
+        "response": {
+          "EventTrigger": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": [
+              "scenechangedetection-1",
+              "scenechangedetection-1"
+            ],
+            "eventType": [
+              "scenechangedetection",
+              "scenechangedetection-1"
+            ],
+            "eventDescription": [
+              "scenechangedetection Event trigger Information",
+              "exception Information"
+            ],
+            "EventTriggerNotificationList": null
+          }
+        }
+      },
+      "Event/notification/httpHosts": {
+        "response": {
+          "HttpHostNotificationList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "HttpHostNotification": [
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "1",
+                "url": "/api/hikvision",
+                "protocolType": "HTTP",
+                "parameterFormatType": "XML",
+                "addressingFormatType": "ipaddress",
+                "ipAddress": "1.0.0.101",
+                "portNo": "8123",
+                "userName": null,
+                "httpAuthenticationMethod": "none"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "2",
+                "url": "/",
+                "protocolType": "HTTP",
+                "parameterFormatType": "XML",
+                "addressingFormatType": "ipaddress",
+                "ipAddress": "0.0.0.0",
+                "portNo": "80",
+                "userName": null,
+                "httpAuthenticationMethod": "none"
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "3",
+                "url": "/",
+                "protocolType": "HTTP",
+                "parameterFormatType": "XML",
+                "addressingFormatType": "ipaddress",
+                "ipAddress": "0.0.0.0",
+                "portNo": "80",
+                "userName": null,
+                "httpAuthenticationMethod": "none"
+              }
+            ]
+          }
+        }
+      },
+      "Streaming/channels": {
+        "response": {
+          "StreamingChannelList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "StreamingChannel": [
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "101",
+                "channelName": "Camera 01",
+                "enabled": "true",
+                "Transport": {
+                  "maxPacketSize": "1000",
+                  "ControlProtocolList": {
+                    "ControlProtocol": [
+                      {
+                        "streamingTransport": "RTSP"
+                      },
+                      {
+                        "streamingTransport": "HTTP"
+                      },
+                      {
+                        "streamingTransport": "SHTTP"
+                      }
+                    ]
+                  },
+                  "Unicast": {
+                    "enabled": "true",
+                    "rtpTransportType": "RTP/TCP"
+                  },
+                  "Multicast": {
+                    "enabled": "true",
+                    "destIPAddress": "239.0.0.1",
+                    "videoDestPortNo": "8860",
+                    "audioDestPortNo": "8862"
+                  },
+                  "Security": {
+                    "enabled": "true",
+                    "certificateType": "digest",
+                    "SecurityAlgorithm": {
+                      "algorithmType": "MD5"
+                    }
+                  },
+                  "SRTPMulticast": {
+                    "SRTPVideoDestPortNo": "18860",
+                    "SRTPAudioDestPortNo": "18862"
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "1",
+                  "videoCodecType": "H.265",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "1920",
+                  "videoResolutionHeight": "1080",
+                  "videoQualityControlType": "VBR",
+                  "constantBitRate": "3072",
+                  "fixedQuality": "60",
+                  "vbrUpperCap": "3072",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "2500",
+                  "keyFrameInterval": "2000",
+                  "snapShotImageType": "JPEG",
+                  "GovLength": "50",
+                  "SVC": {
+                    "enabled": "false"
+                  },
+                  "PacketType": [
+                    "PS",
+                    "RTP"
+                  ],
+                  "smoothing": "50",
+                  "IntelligentInfoDisplayMethod": "non-player"
+                },
+                "Audio": {
+                  "enabled": "true",
+                  "audioInputChannelID": "1",
+                  "audioCompressionType": "G.711ulaw"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "102",
+                "channelName": "Camera 01",
+                "enabled": "true",
+                "Transport": {
+                  "maxPacketSize": "1000",
+                  "ControlProtocolList": {
+                    "ControlProtocol": [
+                      {
+                        "streamingTransport": "RTSP"
+                      },
+                      {
+                        "streamingTransport": "HTTP"
+                      },
+                      {
+                        "streamingTransport": "SHTTP"
+                      }
+                    ]
+                  },
+                  "Unicast": {
+                    "enabled": "true",
+                    "rtpTransportType": "RTP/TCP"
+                  },
+                  "Multicast": {
+                    "enabled": "true",
+                    "destIPAddress": "239.0.0.1",
+                    "videoDestPortNo": "8866",
+                    "audioDestPortNo": "8868"
+                  },
+                  "Security": {
+                    "enabled": "true",
+                    "certificateType": "digest",
+                    "SecurityAlgorithm": {
+                      "algorithmType": "MD5"
+                    }
+                  },
+                  "SRTPMulticast": {
+                    "SRTPVideoDestPortNo": "18866",
+                    "SRTPAudioDestPortNo": "18868"
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "1",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "704",
+                  "videoResolutionHeight": "576",
+                  "videoQualityControlType": "VBR",
+                  "constantBitRate": "1024",
+                  "fixedQuality": "60",
+                  "vbrUpperCap": "1024",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "2500",
+                  "keyFrameInterval": "2000",
+                  "snapShotImageType": "JPEG",
+                  "H264Profile": "Main",
+                  "GovLength": "50",
+                  "SVC": {
+                    "enabled": "false"
+                  },
+                  "PacketType": [
+                    "PS",
+                    "RTP"
+                  ],
+                  "smoothing": "50",
+                  "IntelligentInfoDisplayMethod": "non-player"
+                },
+                "Audio": {
+                  "enabled": "true",
+                  "audioInputChannelID": "1",
+                  "audioCompressionType": "G.711ulaw"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "201",
+                "channelName": "Camera 02",
+                "enabled": "true",
+                "Transport": {
+                  "maxPacketSize": "1000",
+                  "ControlProtocolList": {
+                    "ControlProtocol": [
+                      {
+                        "streamingTransport": "RTSP"
+                      },
+                      {
+                        "streamingTransport": "HTTP"
+                      },
+                      {
+                        "streamingTransport": "SHTTP"
+                      }
+                    ]
+                  },
+                  "Unicast": {
+                    "enabled": "true",
+                    "rtpTransportType": "RTP/TCP"
+                  },
+                  "Multicast": {
+                    "enabled": "true",
+                    "destIPAddress": "239.0.0.1",
+                    "videoDestPortNo": "8878",
+                    "audioDestPortNo": "8880"
+                  },
+                  "Security": {
+                    "enabled": "true",
+                    "certificateType": "digest",
+                    "SecurityAlgorithm": {
+                      "algorithmType": "MD5"
+                    }
+                  },
+                  "SRTPMulticast": {
+                    "SRTPVideoDestPortNo": "18878",
+                    "SRTPAudioDestPortNo": "18880"
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "2",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "640",
+                  "videoResolutionHeight": "512",
+                  "videoQualityControlType": "CBR",
+                  "constantBitRate": "2048",
+                  "fixedQuality": "60",
+                  "maxFrameRate": "2500",
+                  "keyFrameInterval": "2000",
+                  "snapShotImageType": "JPEG",
+                  "H264Profile": "High",
+                  "GovLength": "50",
+                  "SVC": {
+                    "enabled": "false"
+                  },
+                  "PacketType": [
+                    "PS",
+                    "RTP"
+                  ],
+                  "smoothing": "50",
+                  "IntelligentInfoDisplayMethod": "non-player"
+                },
+                "Audio": {
+                  "enabled": "false",
+                  "audioInputChannelID": "1",
+                  "audioCompressionType": "G.711ulaw"
+                }
+              },
+              {
+                "@version": "2.0",
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "id": "202",
+                "channelName": "Camera 02",
+                "enabled": "true",
+                "Transport": {
+                  "maxPacketSize": "1000",
+                  "ControlProtocolList": {
+                    "ControlProtocol": [
+                      {
+                        "streamingTransport": "RTSP"
+                      },
+                      {
+                        "streamingTransport": "HTTP"
+                      },
+                      {
+                        "streamingTransport": "SHTTP"
+                      }
+                    ]
+                  },
+                  "Unicast": {
+                    "enabled": "true",
+                    "rtpTransportType": "RTP/TCP"
+                  },
+                  "Multicast": {
+                    "enabled": "true",
+                    "destIPAddress": "239.0.0.1",
+                    "videoDestPortNo": "8884",
+                    "audioDestPortNo": "8886"
+                  },
+                  "Security": {
+                    "enabled": "true",
+                    "certificateType": "digest",
+                    "SecurityAlgorithm": {
+                      "algorithmType": "MD5"
+                    }
+                  },
+                  "SRTPMulticast": {
+                    "SRTPVideoDestPortNo": "18884",
+                    "SRTPAudioDestPortNo": "18886"
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "2",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "320",
+                  "videoResolutionHeight": "240",
+                  "videoQualityControlType": "CBR",
+                  "constantBitRate": "1024",
+                  "fixedQuality": "60",
+                  "maxFrameRate": "2500",
+                  "keyFrameInterval": "2000",
+                  "snapShotImageType": "JPEG",
+                  "H264Profile": "Main",
+                  "GovLength": "50",
+                  "SVC": {
+                    "enabled": "false"
+                  },
+                  "PacketType": [
+                    "PS",
+                    "RTP"
+                  ],
+                  "smoothing": "50",
+                  "IntelligentInfoDisplayMethod": "non-player"
+                },
+                "Audio": {
+                  "enabled": "false",
+                  "audioInputChannelID": "1",
+                  "audioCompressionType": "G.711ulaw"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "Streaming/channels/101": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": "101",
+            "channelName": "Camera 01",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "239.0.0.1",
+                "videoDestPortNo": "8860",
+                "audioDestPortNo": "8862"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18860",
+                "SRTPAudioDestPortNo": "18862"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "H.265",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "1920",
+              "videoResolutionHeight": "1080",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "3072",
+              "fixedQuality": "60",
+              "vbrUpperCap": "3072",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "false"
+              },
+              "PacketType": [
+                "PS",
+                "RTP"
+              ],
+              "smoothing": "50",
+              "IntelligentInfoDisplayMethod": "non-player"
+            },
+            "Audio": {
+              "enabled": "true",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/102": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": "102",
+            "channelName": "Camera 01",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "239.0.0.1",
+                "videoDestPortNo": "8866",
+                "audioDestPortNo": "8868"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18866",
+                "SRTPAudioDestPortNo": "18868"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "704",
+              "videoResolutionHeight": "576",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "1024",
+              "fixedQuality": "60",
+              "vbrUpperCap": "1024",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "H264Profile": "Main",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "false"
+              },
+              "PacketType": [
+                "PS",
+                "RTP"
+              ],
+              "smoothing": "50",
+              "IntelligentInfoDisplayMethod": "non-player"
+            },
+            "Audio": {
+              "enabled": "true",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/103": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": "103",
+            "channelName": "Camera 01",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "239.0.0.1",
+                "videoDestPortNo": "8860",
+                "audioDestPortNo": "8862"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18860",
+                "SRTPAudioDestPortNo": "18862"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "H.265",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "1920",
+              "videoResolutionHeight": "1080",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "3072",
+              "fixedQuality": "60",
+              "vbrUpperCap": "3072",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "false"
+              },
+              "PacketType": [
+                "PS",
+                "RTP"
+              ],
+              "smoothing": "50",
+              "IntelligentInfoDisplayMethod": "non-player"
+            },
+            "Audio": {
+              "enabled": "true",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/104": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": "104",
+            "channelName": "Camera 01",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "239.0.0.1",
+                "videoDestPortNo": "8860",
+                "audioDestPortNo": "8862"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18860",
+                "SRTPAudioDestPortNo": "18862"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "H.265",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "1920",
+              "videoResolutionHeight": "1080",
+              "videoQualityControlType": "VBR",
+              "constantBitRate": "3072",
+              "fixedQuality": "60",
+              "vbrUpperCap": "3072",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "false"
+              },
+              "PacketType": [
+                "PS",
+                "RTP"
+              ],
+              "smoothing": "50",
+              "IntelligentInfoDisplayMethod": "non-player"
+            },
+            "Audio": {
+              "enabled": "true",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/201": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": "201",
+            "channelName": "Camera 02",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "239.0.0.1",
+                "videoDestPortNo": "8878",
+                "audioDestPortNo": "8880"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18878",
+                "SRTPAudioDestPortNo": "18880"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "2",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "640",
+              "videoResolutionHeight": "512",
+              "videoQualityControlType": "CBR",
+              "constantBitRate": "2048",
+              "fixedQuality": "60",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "H264Profile": "High",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "false"
+              },
+              "PacketType": [
+                "PS",
+                "RTP"
+              ],
+              "smoothing": "50",
+              "IntelligentInfoDisplayMethod": "non-player"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/202": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": "202",
+            "channelName": "Camera 02",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "239.0.0.1",
+                "videoDestPortNo": "8884",
+                "audioDestPortNo": "8886"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18884",
+                "SRTPAudioDestPortNo": "18886"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "2",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "320",
+              "videoResolutionHeight": "240",
+              "videoQualityControlType": "CBR",
+              "constantBitRate": "1024",
+              "fixedQuality": "60",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "H264Profile": "Main",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "false"
+              },
+              "PacketType": [
+                "PS",
+                "RTP"
+              ],
+              "smoothing": "50",
+              "IntelligentInfoDisplayMethod": "non-player"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/203": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": "203",
+            "channelName": "Camera 02",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "239.0.0.1",
+                "videoDestPortNo": "8878",
+                "audioDestPortNo": "8880"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18878",
+                "SRTPAudioDestPortNo": "18880"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "2",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "640",
+              "videoResolutionHeight": "512",
+              "videoQualityControlType": "CBR",
+              "constantBitRate": "2048",
+              "fixedQuality": "60",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "H264Profile": "High",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "false"
+              },
+              "PacketType": [
+                "PS",
+                "RTP"
+              ],
+              "smoothing": "50",
+              "IntelligentInfoDisplayMethod": "non-player"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/204": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": "204",
+            "channelName": "Camera 02",
+            "enabled": "true",
+            "Transport": {
+              "maxPacketSize": "1000",
+              "ControlProtocolList": {
+                "ControlProtocol": [
+                  {
+                    "streamingTransport": "RTSP"
+                  },
+                  {
+                    "streamingTransport": "HTTP"
+                  },
+                  {
+                    "streamingTransport": "SHTTP"
+                  }
+                ]
+              },
+              "Unicast": {
+                "enabled": "true",
+                "rtpTransportType": "RTP/TCP"
+              },
+              "Multicast": {
+                "enabled": "true",
+                "destIPAddress": "239.0.0.1",
+                "videoDestPortNo": "8878",
+                "audioDestPortNo": "8880"
+              },
+              "Security": {
+                "enabled": "true",
+                "certificateType": "digest",
+                "SecurityAlgorithm": {
+                  "algorithmType": "MD5"
+                }
+              },
+              "SRTPMulticast": {
+                "SRTPVideoDestPortNo": "18878",
+                "SRTPAudioDestPortNo": "18880"
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "2",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "640",
+              "videoResolutionHeight": "512",
+              "videoQualityControlType": "CBR",
+              "constantBitRate": "2048",
+              "fixedQuality": "60",
+              "maxFrameRate": "2500",
+              "keyFrameInterval": "2000",
+              "snapShotImageType": "JPEG",
+              "H264Profile": "High",
+              "GovLength": "50",
+              "SVC": {
+                "enabled": "false"
+              },
+              "PacketType": [
+                "PS",
+                "RTP"
+              ],
+              "smoothing": "50",
+              "IntelligentInfoDisplayMethod": "non-player"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/2/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "enabled": "true",
+            "enableHighlight": "true",
+            "samplingInterval": "2",
+            "startTriggerTime": "500",
+            "endTriggerTime": "500",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "2.0",
+              "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+              "sensitivityLevel": "20",
+              "layout": {
+                "gridMap": "0000000000000000000000380000380000382000387cfff8fcfff8fcfff8fffff8fffff8fffff8fffff8fffff87ffff83ffff83ffff8"
+              }
+            }
+          }
+        }
+      },
+      "Event/triggers/VMD-1": {
+        "response": {
+          "EventTrigger": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": ["VMD-1", "VMD-1"],
+            "eventType": ["VMD", "VMD-1"],
+            "eventDescription": ["VMD Event trigger Information", "exception Information"],
+            "EventTriggerNotificationList": {
+              "EventTriggerNotification": [
+                {
+                  "id": "record-1",
+                  "notificationMethod": "record",
+                  "notificationRecurrence": "beginning",
+                  "videoInputID": "1"
+                },
+                {
+                  "id": "beep",
+                  "notificationMethod": "beep",
+                  "notificationRecurrence": "beginning"
+                },
+                {
+                  "id": "center",
+                  "notificationMethod": "center",
+                  "notificationRecurrence": "beginning"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "Event/triggers/VMD-2": {
+        "response": {
+          "EventTrigger": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": ["VMD-2", "VMD-2"],
+            "eventType": ["VMD", "VMD-2"],
+            "eventDescription": ["VMD Event trigger Information", "exception Information"],
+            "EventTriggerNotificationList": {
+              "EventTriggerNotification": [
+                {
+                  "id": "IO-1",
+                  "notificationMethod": "IO",
+                  "notificationRecurrence": "beginning",
+                  "outputIOPortID": "1"
+                },
+                {
+                  "id": "record-1",
+                  "notificationMethod": "record",
+                  "notificationRecurrence": "beginning",
+                  "videoInputID": "1"
+                },
+                {
+                  "id": "FTP",
+                  "notificationMethod": "FTP",
+                  "notificationRecurrence": "beginning"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "Event/triggers/scenechangedetection-2": {
+        "response": {
+          "EventTrigger": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": ["scenechangedetection-2", "scenechangedetection-2"],
+            "eventType": ["scenechangedetection", "scenechangedetection-2"],
+            "eventDescription": ["scenechangedetection Event trigger Information", "exception Information"],
+            "EventTriggerNotificationList": null
+          }
+        }
+      },
+      "Event/triggers/fielddetection-2": {
+        "status_code": 403
+      },
+      "Event/triggers/linedetection-2": {
+        "status_code": 403
+      },
+      "Event/triggers/regionentrance-2": {
+        "status_code": 403
+      },
+      "Event/triggers/regionexiting-2": {
+        "status_code": 403
+      },
+      "Event/triggers/IO-2": {
+        "status_code": 400
+      },
+      "Event/triggers/tamper-1": {
+        "response": {
+          "EventTrigger": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": ["tamper-1", "tamper-1"],
+            "eventType": ["tamperdetection", "tamper-1"],
+            "eventDescription": ["shelteralarm Event trigger Information", "exception Information"],
+            "EventTriggerNotificationList": null
+          }
+        }
+      },
+      "Event/triggers/tamper-2": {
+        "response": {
+          "EventTrigger": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": ["tamper-2", "tamper-2"],
+            "eventType": ["tamperdetection", "tamper-2"],
+            "eventDescription": ["shelteralarm Event trigger Information", "exception Information"],
+            "EventTriggerNotificationList": null
+          }
+        }
+      },
+      "Event/triggers/IO-1": {
+        "response": {
+          "EventTrigger": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": ["IO-1", "IO-1"],
+            "eventType": ["IO", "IO-1"],
+            "eventDescription": ["IO Event trigger Information", "exception Information"],
+            "inputIOPortID": "1",
+            "EventTriggerNotificationList": null
+          }
+        }
+      },
+      "Event/triggers/thermometry-1": {
+        "status_code": 403
+      },
+      "Thermal/channels/2/thermometry/basicParam": {
+        "response": {
+          "ThermometryBasicParam": {
+            "@version": "2.0",
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "id": "2",
+            "enabled": "false",
+            "streamOverlay": "true",
+            "pictureOverlay": "false",
+            "pictureOverlayHeatMap": "false",
+            "temperatureRange": "-20~150",
+            "temperatureUnit": "degreeCentigrade",
+            "emissivity": "0.96",
+            "distanceUnit": "centimeter",
+            "specialPointThermType": "centerPoint",
+            "distance": "100",
+            "reflectiveEnable": "false",
+            "alert": "45.0",
+            "alarm": "55.0",
+            "showTempStripEnable": "false",
+            "AlertOutputIOPortList": {
+              "OutputIOPort": {
+                "portID": "1",
+                "enabled": "false"
+              }
+            },
+            "AlarmOutputIOPortList": {
+              "OutputIOPort": {
+                "portID": "1",
+                "enabled": "false"
+              }
+            },
+            "alertFilteringTime": "0",
+            "alarmFilteringTime": "0",
+            "displayMaxTemperatureEnabled": "true",
+            "displayMinTemperatureEnabled": "false",
+            "displayAverageTemperatureEnabled": "false",
+            "thermometryInfoDisplayposition": "rules_around",
+            "emissivityMode": "customsettings",
+            "displayTemperatureInOpticalChannelEnabled": "false",
+            "calibrationFileVersion": "V1.0.0.0 build210610",
+            "alarmInterval": "3",
+            "rulesOverlayMode": "all",
+            "alarmMode": "alarm_alert",
+            "NormalRulesColor": {
+              "R": "0",
+              "G": "255",
+              "B": "0"
+            },
+            "toleranceTemperature": "3.0",
+            "SunReflectionBlur": {
+              "enabled": "false",
+              "sensitivity": "50",
+              "filterEnabled": "false",
+              "fireFilterEnabled": "true",
+              "fireFluctuationThreshold": "1",
+              "fireFluctuationPercentage": "25"
+            },
+            "displayRuleNameEnabled": "false",
+            "imgQuality": "best",
+            "pixelToPixelOverlay": "false",
+            "refreshPixelToPixeDataIntervalTime": "3",
+            "smokingFilter": {
+              "enabled": "false",
+              "sensitivity": "50",
+              "filterEnabled": "true",
+              "smokingDetectionThreshold": "1000",
+              "smokingAreaThreshold": "10"
+            },
+            "skyFilter": {
+              "enabled": "false",
+              "filterTemperature": "25.0"
+            }
+          }
+        }
+      }
+    }
+  }
+}
