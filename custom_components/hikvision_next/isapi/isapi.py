@@ -21,6 +21,7 @@ from .const import (
     EVENT_BASIC,
     EVENT_IO,
     EVENT_PIR,
+    EVENT_THERMAL,
     EVENTS,
     EVENTS_ALTERNATE_ID,
     GET,
