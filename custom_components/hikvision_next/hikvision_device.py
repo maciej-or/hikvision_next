@@ -159,6 +159,8 @@ class HikvisionDevice(ISAPIClient):
             self.entry.async_start_reauth(self.hass)
             error = "Unauthorized access"
         elif isinstance(ex, ISAPIForbiddenError):
+            if getattr(ex, "suppressed", False):
+                return
             error = "Forbidden access"
         elif isinstance(ex, (httpx.TimeoutException, httpx.ConnectTimeout)):
             error = "Timeout"

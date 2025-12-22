@@ -82,6 +82,7 @@ class ISAPIClient:
         self.storage: list[StorageInfo] = []
         self.protocols = ProtocolsInfo()
         self.pending_initialization = False
+        self._forbidden_cache: set[str] = set()
 
     async def get_device_info(self):
         """Get device info."""
@@ -490,7 +491,7 @@ class ISAPIClient:
 
         data = {"function": event_id, "channelID": int(channel_id)}
         url = "System/mutexFunction?format=json"
-        response = await self.request(POST, url, present="json", data=json.dumps(data))
+        response = await self.request(POST, url, present="json", data=json.dumps(data), use_forbidden_cache=False)
         if not response:
             return []
         response = json.loads(response)
@@ -520,14 +521,14 @@ class ISAPIClient:
             mutex_issues = await self.get_event_switch_mutex(event, channel_id)
 
         if not mutex_issues:
-            data = await self.request(GET, event.url)
+            data = await self.request(GET, event.url, use_forbidden_cache=False)
             node = self._get_event_state_node(event)
             new_state = bool_to_str(is_enabled)
             if new_state == data[node]["enabled"]:
                 return
             data[node]["enabled"] = new_state
             xml = xmltodict.unparse(data)
-            await self.request(PUT, event.url, present="xml", data=xml)
+            await self.request(PUT, event.url, present="xml", data=xml, use_forbidden_cache=False)
         else:
             raise ISAPISetEventStateMutexError(event, mutex_issues)
 
@@ -548,7 +549,7 @@ class ISAPIClient:
             data["IOPortData"] = {"outputState": "low"}
 
         xml = xmltodict.unparse(data)
-        await self.request(PUT, f"System/IO/outputs/{port_no}/trigger", present="xml", data=xml)
+        await self.request(PUT, f"System/IO/outputs/{port_no}/trigger", present="xml", data=xml, use_forbidden_cache=False)
 
     async def get_holiday_enabled_state(self, holiday_index=0) -> bool:
         """Get holiday state."""
@@ -560,7 +561,7 @@ class ISAPIClient:
     async def set_holiday_enabled_state(self, is_enabled: bool, holiday_index=0) -> None:
         """Enable or disable holiday, by enable set time span to year starting from today."""
 
-        data = await self.request(GET, "System/Holidays")
+        data = await self.request(GET, "System/Holidays", use_forbidden_cache=False)
         holiday = data["HolidayList"]["holiday"][holiday_index]
         new_state = bool_to_str(is_enabled)
         if new_state == holiday["enabled"]["#text"]:
@@ -576,7 +577,7 @@ class ISAPIClient:
             holiday.pop("holidayWeek", None)
             holiday.pop("holidayMonth", None)
         xml = xmltodict.unparse(data)
-        await self.request(PUT, "System/Holidays", present="xml", data=xml)
+        await self.request(PUT, "System/Holidays", present="xml", data=xml, use_forbidden_cache=False)
 
     def _get_event_notification_host(self, data: Node) -> Node:
         hosts = deep_get(data, "HttpHostNotificationList.HttpHostNotification", [])
@@ -603,7 +604,7 @@ class ISAPIClient:
         """Set event notifications listener server."""
 
         address = urlparse(base_url)
-        data = await self.request(GET, "Event/notification/httpHosts")
+        data = await self.request(GET, "Event/notification/httpHosts", use_forbidden_cache=False)
         if not data:
             return
         host = self._get_event_notification_host(data)
@@ -644,11 +645,11 @@ class ISAPIClient:
         host["httpAuthenticationMethod"] = "none"
 
         xml = xmltodict.unparse(data)
-        await self.request(PUT, "Event/notification/httpHosts", present="xml", data=xml)
+        await self.request(PUT, "Event/notification/httpHosts", present="xml", data=xml, use_forbidden_cache=False)
 
     async def reboot(self):
         """Reboot device."""
-        await self.request(PUT, "System/reboot", present="xml")
+        await self.request(PUT, "System/reboot", present="xml", use_forbidden_cache=False)
 
     @staticmethod
     def parse_event_notification(xml: str) -> AlertInfo:
@@ -772,9 +773,14 @@ class ISAPIClient:
         url: str,
         present: str = "dict",
         data: str = None,
+        *,
+        use_forbidden_cache: bool = True,
     ) -> Any:
         """Send ISAPI request and log response, returns {} if request fails."""
         full_url = self.get_isapi_url(url)
+        cache_key = f"{method} {full_url}"
+        if use_forbidden_cache and not self.pending_initialization and cache_key in self._forbidden_cache:
+            raise ISAPIForbiddenError(url=full_url, method=method, suppressed=True)
         try:
             if not self._auth_method:
                 await self._detect_auth_method()
@@ -787,6 +793,7 @@ class ISAPIClient:
                 timeout=self.timeout,
             )
             response.raise_for_status()
+            self._forbidden_cache.discard(cache_key)
             result = parse_isapi_response(response, present)
             _LOGGER.debug("--- [%s] %s", method, full_url)
             if data:
@@ -797,6 +804,7 @@ class ISAPIClient:
             if ex.response.status_code == HTTPStatus.UNAUTHORIZED:
                 raise ISAPIUnauthorizedError(ex) from ex
             if ex.response.status_code == HTTPStatus.FORBIDDEN and not self.pending_initialization:
+                self._forbidden_cache.add(cache_key)
                 raise ISAPIForbiddenError(ex) from ex
             if self.pending_initialization:
                 # supress http errors during initialization
@@ -848,8 +856,22 @@ class ISAPIUnauthorizedError(Exception):
 class ISAPIForbiddenError(Exception):
     """HTTP Error 403."""
 
-    def __init__(self, ex: HTTPStatusError, *args) -> None:
+    def __init__(
+        self,
+        ex: HTTPStatusError | None = None,
+        *args,
+        url: str | None = None,
+        method: str = GET,
+        suppressed: bool = False,
+    ) -> None:
         """Initialize exception."""
-        self.message = f"Forbidden request {ex.request.url}, check user permissions."
-        self.response = ex.response
-        _LOGGER.warning(self.message)
+        self.suppressed = suppressed
+        if ex:
+            self.url = str(ex.request.url)
+            self.response = ex.response
+        else:
+            self.url = url or ""
+            request = httpx.Request(method, self.url) if self.url else None
+            self.response = httpx.Response(HTTPStatus.FORBIDDEN, request=request)
+        self.message = f"Forbidden request {self.url}, check user permissions."
+        super().__init__(self.message)
