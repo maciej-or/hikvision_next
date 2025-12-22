@@ -181,7 +181,7 @@ class ISAPIClient:
                     serial_no = source.get("serialNumber")
                     if not serial_no or self.get_camera_by_serial_no(serial_no):
                         # serial no is not always recognized correcly by NVR
-                        serial_no = f"{self.device_info.serial_no}_{source.get("proxyProtocol")}_{camera_id}"
+                        serial_no = f"{self.device_info.serial_no}_{source.get('proxyProtocol')}_{camera_id}"
 
                     self.cameras.append(
                         IPCamera(
@@ -247,10 +247,47 @@ class ISAPIClient:
             event_type = event_trigger.get("eventType")
             if not event_type:
                 return None
-            event_id = event_type.lower()
-            # Translate to alternate IDs
-            if event_id in EVENTS_ALTERNATE_ID:
-                event_id = EVENTS_ALTERNATE_ID[event_id]
+
+            raw_event_types = event_type if isinstance(event_type, list) else [event_type]
+            event_types: list[str] = []
+            for raw_event_type in raw_event_types:
+                if isinstance(raw_event_type, dict):
+                    raw_event_type = raw_event_type.get("#text")
+                if raw_event_type:
+                    event_types.append(str(raw_event_type))
+
+            if not event_types:
+                return None
+
+            event_id = None
+            for candidate in event_types:
+                if candidate in EVENTS_ALTERNATE_ID:
+                    normalized = EVENTS_ALTERNATE_ID[candidate]
+                else:
+                    normalized = candidate.lower()
+                    if normalized not in EVENTS and "-" in normalized:
+                        prefix = normalized.split("-", 1)[0]
+                        if prefix in EVENTS_ALTERNATE_ID:
+                            normalized = EVENTS_ALTERNATE_ID[prefix]
+                        elif prefix in EVENTS:
+                            normalized = prefix
+                    if normalized in EVENTS_ALTERNATE_ID:
+                        normalized = EVENTS_ALTERNATE_ID[normalized]
+
+                if normalized in EVENTS:
+                    event_id = normalized
+                    break
+
+            if event_id is None:
+                event_id = event_types[0].lower()
+                if event_id not in EVENTS and "-" in event_id:
+                    prefix = event_id.split("-", 1)[0]
+                    if prefix in EVENTS_ALTERNATE_ID:
+                        event_id = EVENTS_ALTERNATE_ID[prefix]
+                    elif prefix in EVENTS:
+                        event_id = prefix
+                if event_id in EVENTS_ALTERNATE_ID:
+                    event_id = EVENTS_ALTERNATE_ID[event_id]
 
             if event_id == EVENT_PIR:
                 is_supported = str_to_bool(deep_get(system_capabilities, "WLAlarmCap.isSupportPIR", False))
