@@ -54,6 +54,12 @@
       },
       "io": {
         "name": "Alarm Input {io_port_id}"
+      },
+      "pir": {
+        "name": "PIR"
+      },
+      "thermometry": {
+        "name": "Thermometry"
       }
     },
     "switch": {
@@ -89,6 +95,12 @@
       },
       "io": {
         "name": "Alarm Input {io_port_id}"
+      },
+      "pir": {
+        "name": "PIR Detection"
+      },
+      "thermometry": {
+        "name": "Thermometry Detection"
       }
     },
     "camera": {

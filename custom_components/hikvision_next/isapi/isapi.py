@@ -308,6 +308,15 @@ class ISAPIClient:
                 if not channel_id:
                     channel_id = int(event_trigger.get("dynVideoInputChannelID", 0))
                     is_proxy = channel_id > 0
+                # Fallback: Extract channel from event ID (e.g., "VMD-1" → 1)
+                # Some firmware versions don't include videoInputChannelID for all events
+                if not channel_id:
+                    event_id_raw = event_trigger.get("id")
+                    if isinstance(event_id_raw, list):
+                        event_id_raw = event_id_raw[0] if event_id_raw else None
+                    if event_id_raw and "-" in str(event_id_raw):
+                        with suppress(ValueError, IndexError):
+                            channel_id = int(str(event_id_raw).rsplit("-", 1)[1])
 
             url = self.get_event_url(event_id, channel_id, io_port, is_proxy)
 
@@ -332,6 +341,34 @@ class ISAPIClient:
         else:
             available_events = deep_get(event_triggers, "EventTriggerList.EventTrigger", [])
 
+        # Build mapping of eventType → original ID prefix for URL construction
+        # e.g., "vmd" → "VMD", "tamperdetection" → "tamper", "thermometry" → "thermometry"
+        # This is needed because ChannelEventCapList uses different names than Event/triggers IDs
+        event_url_prefix_map = {}
+        for event_trigger in available_events:
+            event_type = event_trigger.get("eventType")
+            if isinstance(event_type, list):
+                event_type = event_type[0] if event_type else None
+            if isinstance(event_type, dict):
+                event_type = event_type.get("#text")
+            event_id_raw = event_trigger.get("id")
+            if isinstance(event_id_raw, list):
+                event_id_raw = event_id_raw[0] if event_id_raw else None
+            if isinstance(event_id_raw, dict):
+                event_id_raw = event_id_raw.get("#text")
+            if event_type and event_id_raw:
+                event_type_key = str(event_type)
+                event_id_key = str(event_id_raw)
+                # Extract prefix (e.g., "VMD-1" → "VMD", "thermometry-2" → "thermometry")
+                prefix = event_id_key.rsplit("-", 1)[0] if "-" in event_id_key else event_id_key
+                event_type_lower = event_type_key.lower()
+                event_url_prefix_map[event_type_lower] = prefix
+                # Also map the translated event ID (e.g., "vmd" → "motiondetection")
+                # so that "motiondetection" from ChannelEventCapList can find "VMD" prefix
+                translated_id = EVENTS_ALTERNATE_ID.get(event_type_lower) or EVENTS_ALTERNATE_ID.get(event_type_key)
+                if translated_id and translated_id not in event_url_prefix_map:
+                    event_url_prefix_map[translated_id] = prefix
+
         for event_trigger in available_events:
             if event := create_event_info(event_trigger):
                 events.append(event)
@@ -346,23 +383,45 @@ class ISAPIClient:
                     events.append(event)
 
         # multichannel camera needs to fetch events for each channel
-        if self.capabilities.is_multi_channel:
+        if self.capabilities.is_multi_channel or not event_triggers:
             channels_capabilities = await self.request(GET, "Event/channels/capabilities")
             channel_events = deep_get(channels_capabilities, "ChannelEventCapList.ChannelEventCap", [])
             for event_cap in channel_events:
                 event_types = deep_get(event_cap, "eventType").get("@opt", "").split(",")
                 channel_id = int(event_cap.get("channelID"))
                 for event_type in event_types:
-                    event_id = event_type.lower()
+                    original_id = event_type.lower()
+                    event_id = original_id
                     if event_id in EVENTS_ALTERNATE_ID:
                         event_id = EVENTS_ALTERNATE_ID[event_id]
                     if event_id not in EVENTS:
                         continue
+                    if event_id == EVENT_IO:
+                        continue
                     if not [e for e in events if (e.id == event_id and e.channel_id == channel_id)]:
-                        event_trigger = await self.request(GET, f"Event/triggers/{event_id}-{channel_id}")
+                        # Use the original ID prefix from Event/triggers response if available
+                        # e.g., ChannelEventCapList has "motionDetection" but camera expects "VMD-1"
+                        # Try both the original_id and the translated event_id for lookup
+                        url_prefix = event_url_prefix_map.get(original_id) or event_url_prefix_map.get(event_id, original_id)
+                        event_trigger = await self.request(GET, f"Event/triggers/{url_prefix}-{channel_id}")
                         event_trigger = deep_get(event_trigger, "EventTrigger", {})
                         if event := create_event_info(event_trigger):
                             events.append(event)
+                        elif event_id in EVENTS:
+                            # Fallback: Create event from ChannelEventCapList even if Event/triggers fails
+                            # Some cameras report capabilities but return 403 for Event/triggers/{event}-{channel}
+                            # Yet they still send notifications for these events
+                            url = self.get_event_url(event_id, channel_id, 0, False)
+                            events.append(
+                                EventInfo(
+                                    channel_id=channel_id,
+                                    io_port_id=0,
+                                    id=event_id,
+                                    url=url,
+                                    is_proxy=False,
+                                    notifications=["center"],
+                                )
+                            )
 
         return events
 
@@ -389,6 +448,9 @@ class ISAPIClient:
         elif event_type == EVENT_PIR:
             # ISAPI/WLAlarm/PIR
             url = slug
+        elif event_type == EVENT_THERMAL:
+            # ISAPI/Thermal/channels/{channel_id}/thermometry/basicParam
+            url = f"Thermal/channels/{channel_id}/{slug}"
         else:
             url = f"Smart/{slug}/{channel_id}"
         return url
