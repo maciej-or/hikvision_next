@@ -46,7 +46,7 @@ def setup_services(hass: HomeAssistant) -> None:
         path = call.data["path"].strip("/")
         payload = call.data.get("payload")
         try:
-            response = await device.request(method, path, present="xml", data=payload)
+            response = await device.request(method, path, present="xml", data=payload, use_forbidden_cache=False)
         except (HTTPStatusError, ISAPIForbiddenError, ISAPIUnauthorizedError) as ex:
             if isinstance(ex.response.content, bytes):
                 response = ex.response.content.decode("utf-8")

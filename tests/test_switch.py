@@ -208,3 +208,39 @@ async def test_ipc_multichannel_event_switch(
     ]
     for entity_id in switch_entities:
         assert hass.states.get(entity_id)
+
+
+@pytest.mark.parametrize("init_integration", ["DS-2TD1228-2-QA-V5.5.338"], indirect=True)
+async def test_thermal_camera_event_type_as_list(
+    hass: HomeAssistant,
+    init_integration: MockConfigEntry,
+) -> None:
+    """Test thermal camera with eventType as list (firmware V5.5.338+).
+
+    Firmware V5.5.338 changed the Event/triggers response format:
+    - Old: "eventType": "VMD" (string)
+    - New: "eventType": ["VMD", "vmd-1"] (list)
+
+    This test verifies the fix in isapi.py handles this correctly.
+    """
+    device: HikvisionDevice = init_integration.runtime_data
+
+    # Verify device loaded successfully (2 channels: optical + thermal)
+    assert len(device.cameras) == 2
+
+    # Check that IO events were correctly parsed from list format
+    # device.events_info only contains IO events (EVENT_IO type)
+    io_events = [e for e in device.events_info if e.id == "io"]
+    assert len(io_events) > 0, "IO events should be parsed from list format"
+    assert any(e.io_port_id == 1 for e in io_events), "IO port 1 should exist"
+
+    # Check that VMD→motiondetection event was correctly parsed from list format
+    # Camera events are in supported_events, filtered by channel for camera.events_info
+    motion_events = [e for e in device.supported_events if e.id == "motiondetection"]
+    assert len(motion_events) > 0, "VMD event should be parsed as motiondetection from list format"
+
+    # Check that thermometry is now a separate event type (not mapped to motiondetection)
+    thermometry_events = [e for e in device.supported_events if e.id == "thermometry"]
+    assert len(thermometry_events) > 0, "Thermometry should be a separate event type"
+    assert thermometry_events[0].channel_id == 2, "Thermometry should be on channel 2 (thermal)"
+    assert thermometry_events[0].url == "Thermal/channels/2/thermometry/basicParam"

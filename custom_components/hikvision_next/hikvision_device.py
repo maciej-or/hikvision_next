@@ -119,7 +119,8 @@ class HikvisionDevice(ISAPIClient):
         camera_id: int | None = None,
     ) -> list[EventInfo]:
         """Get events info handled by integration (camera id:  NVR = None, camera > 0)."""
-        events = []
+        events: list[EventInfo] = []
+        events_by_unique_id: dict[str, EventInfo] = {}
 
         if camera_id is None:  # NVR
             integration_supported_events = [
@@ -137,9 +138,30 @@ class HikvisionDevice(ISAPIClient):
             unique_id = f"{slugify(self.device_info.serial_no.lower())}{device_id_param}{io_port_id_param}_{event.id}"
 
             if EVENTS.get(event.id):
-                event.unique_id = unique_id
-                event.disabled = "center" not in event.notifications  # Disable if not set Notify Surveillance Center
-                events.append(event)
+                notifications = list(event.notifications)
+                disabled = "center" not in notifications  # Disable if not set Notify Surveillance Center
+                event_info = EventInfo(
+                    id=event.id,
+                    channel_id=event.channel_id,
+                    io_port_id=event.io_port_id,
+                    unique_id=unique_id,
+                    url=event.url,
+                    is_proxy=event.is_proxy,
+                    disabled=disabled,
+                    notifications=notifications,
+                )
+
+                if existing := events_by_unique_id.get(unique_id):
+                    merged_notifications = list(dict.fromkeys([*existing.notifications, *event_info.notifications]))
+                    existing.notifications = merged_notifications
+                    existing.disabled = "center" not in merged_notifications
+                    if not existing.url and event_info.url:
+                        existing.url = event_info.url
+                    existing.is_proxy = existing.is_proxy or event_info.is_proxy
+                    continue
+
+                events_by_unique_id[unique_id] = event_info
+                events.append(event_info)
         return events
 
     def handle_exception(self, ex: Exception, details: str = ""):
@@ -159,6 +181,8 @@ class HikvisionDevice(ISAPIClient):
             self.entry.async_start_reauth(self.hass)
             error = "Unauthorized access"
         elif isinstance(ex, ISAPIForbiddenError):
+            if getattr(ex, "suppressed", False):
+                return
             error = "Forbidden access"
         elif isinstance(ex, (httpx.TimeoutException, httpx.ConnectTimeout)):
             error = "Timeout"

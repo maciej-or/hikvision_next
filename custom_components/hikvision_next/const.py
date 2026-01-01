@@ -68,5 +68,8 @@ EVENTS = {
     "anpr": {
         **ISAPI_EVENTS["anpr"],
         "device_class": BinarySensorDeviceClass.MOTION,
+    "thermometry": {
+        **ISAPI_EVENTS["thermometry"],
+        "device_class": BinarySensorDeviceClass.HEAT,
     },
 }

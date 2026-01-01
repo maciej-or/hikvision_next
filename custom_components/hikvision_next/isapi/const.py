@@ -12,6 +12,7 @@ EVENT_IO: Final = "io"
 EVENT_SMART: Final = "smart"
 EVENT_PIR: Final = "pir"
 EVENT_TRAFFIC: Final = "trafic"
+EVENT_THERMAL: Final = "thermal"
 EVENTS = {
     "motiondetection": {
         "type": EVENT_BASIC,
@@ -76,6 +77,12 @@ EVENTS = {
         "slug": "vehicleDetect",
         "direct_node": "VehicleDetectCfg",
     }
+    "thermometry": {
+        "type": EVENT_THERMAL,
+        "label": "Thermometry",
+        "slug": "thermometry/basicParam",
+        "direct_node": "ThermometryBasicParam",
+    },
 }
 
 STREAM_TYPE = {
@@ -88,7 +95,6 @@ STREAM_TYPE = {
 
 EVENTS_ALTERNATE_ID = {
     "vmd": "motiondetection",
-    "thermometry": "motiondetection",
     "shelteralarm": "tamperdetection",
     "VMDHumanVehicle": "motiondetection",
     "vehicledetection": "anpr"

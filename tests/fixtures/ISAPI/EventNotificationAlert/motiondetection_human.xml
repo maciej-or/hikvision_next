@@ -1,0 +1,15 @@
+<EventNotificationAlert version="1.0" xmlns="http://www.hikvision.com/ver20/XMLSchema">
+  <ipAddress>1.0.0.255</ipAddress>
+  <portNo>8123</portNo>
+  <protocol>HTTP</protocol>
+  <macAddress>a6:60:9e:f8:01:09</macAddress>
+  <dynChannelID>2</dynChannelID>
+  <channelID>2</channelID>
+  <dateTime>2025-07-11T06:56:42+02:00</dateTime>
+  <activePostCount>0</activePostCount>
+  <eventType>VMD</eventType>
+  <eventState>active</eventState>
+  <eventDescription>Motion alarm</eventDescription>
+  <channelName>Camera 02</channelName>
+  <targetType>human</targetType>
+</EventNotificationAlert>

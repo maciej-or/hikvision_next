@@ -57,6 +57,11 @@
       },
       "anpr": {
         "name": "License Plate"
+      "pir": {
+        "name": "PIR"
+      },
+      "thermometry": {
+        "name": "Thermometry"
       }
     },
     "switch": {
@@ -95,6 +100,11 @@
       },
       "anpr": {
         "name": "License Plate Recognition"
+      "pir": {
+        "name": "PIR Detection"
+      },
+      "thermometry": {
+        "name": "Thermometry Detection"
       }
     },
     "camera": {
