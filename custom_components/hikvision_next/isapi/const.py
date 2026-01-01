@@ -76,7 +76,7 @@ EVENTS = {
         "label": "License Plate Recognition",
         "slug": "vehicleDetect",
         "direct_node": "VehicleDetectCfg",
-    }
+    },
     "thermometry": {
         "type": EVENT_THERMAL,
         "label": "Thermometry",

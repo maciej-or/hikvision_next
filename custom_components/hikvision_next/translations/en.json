@@ -57,6 +57,7 @@
       },
       "anpr": {
         "name": "License Plate"
+      },
       "pir": {
         "name": "PIR"
       },
@@ -100,6 +101,7 @@
       },
       "anpr": {
         "name": "License Plate Recognition"
+      },
       "pir": {
         "name": "PIR Detection"
       },
