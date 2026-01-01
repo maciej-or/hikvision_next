@@ -46,9 +46,15 @@ class EventBinarySensor(BinarySensorEntity):
         """Initialize."""
         self.entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
         self._attr_unique_id = self.entity_id
-        self._attr_translation_key = event.id
-        if event.id == EVENT_IO:
-            self._attr_translation_placeholders = {"io_port_id": event.io_port_id}
         self._attr_device_class = EVENTS[event.id]["device_class"]
         self._attr_device_info = device.hass_device_info(device_id)
         self._attr_entity_registry_enabled_default = not event.disabled
+
+        # For multi-channel devices, add channel suffix to name for clarity
+        if device.capabilities.is_multi_channel and event.channel_id > 0:
+            base_label = EVENTS[event.id]["label"]
+            self._attr_name = f"{base_label} (Ch. {event.channel_id})"
+        else:
+            self._attr_translation_key = event.id
+            if event.id == EVENT_IO:
+                self._attr_translation_placeholders = {"io_port_id": event.io_port_id}
