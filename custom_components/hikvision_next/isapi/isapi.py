@@ -44,6 +44,15 @@ from .models import (
 )
 from .utils import bool_to_str, deep_get, parse_isapi_response, str_to_bool
 
+# Helper to sanitize channel IDs (e.g. converting "I-1" to 1)
+def clean_int(value):
+    """Sanitize and convert value to int, handling alphanumeric strings."""
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        # Extract digits from string (e.g. "I-1" -> "1")
+        return int("".join(filter(str.isdigit, str(value))))
+
 Node = dict[str, Any]
 
 _LOGGER = logging.getLogger(__name__)
@@ -205,16 +214,17 @@ class ISAPIClient:
                 )
 
                 for analog_camera in analog_cameras:
-                    camera_id = analog_camera.get("id")
+                    camera_id = clean_int(analog_camera.get("id"))
                     device_serial_no = f"{self.device_info.serial_no}-VI{camera_id}"
+                    input_port = clean_int(analog_camera.get("inputPort"))
 
                     self.cameras.append(
                         AnalogCamera(
-                            id=int(camera_id),
+                            id=camera_id,
                             name=analog_camera.get("name"),
                             model=analog_camera.get("resDesc"),
                             serial_no=device_serial_no,
-                            input_port=int(analog_camera.get("inputPort")),
+                            input_port=input_port,
                             connection_type=CONNECTION_TYPE_DIRECT,
                             streams=await self.get_camera_streams(camera_id),
                         )
@@ -260,14 +270,14 @@ class ISAPIClient:
             is_proxy = False
 
             if event_id == EVENT_IO:
-                io_port = int(event_trigger.get("inputIOPortID", 0))
+                io_port = clean_int(event_trigger.get("inputIOPortID", 0))
                 if not io_port:
-                    io_port = int(event_trigger.get("dynInputIOPortID", 0))
+                    io_port = clean_int(event_trigger.get("dynInputIOPortID", 0))
                     is_proxy = io_port > 0
             else:
-                channel_id = int(event_trigger.get("videoInputChannelID", 0))
+                channel_id = clean_int(event_trigger.get("videoInputChannelID", 0))
                 if not channel_id:
-                    channel_id = int(event_trigger.get("dynVideoInputChannelID", 0))
+                    channel_id = clean_int(event_trigger.get("dynVideoInputChannelID", 0))
                     is_proxy = channel_id > 0
 
             url = self.get_event_url(event_id, channel_id, io_port, is_proxy)
@@ -312,7 +322,7 @@ class ISAPIClient:
             channel_events = deep_get(channels_capabilities, "ChannelEventCapList.ChannelEventCap", [])
             for event_cap in channel_events:
                 event_types = deep_get(event_cap, "eventType").get("@opt", "").split(",")
-                channel_id = int(event_cap.get("channelID"))
+                channel_id = clean_int(event_cap.get("channelID"))
                 for event_type in event_types:
                     event_id = event_type.lower()
                     if event_id in EVENTS_ALTERNATE_ID:
