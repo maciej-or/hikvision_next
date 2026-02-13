@@ -21,6 +21,7 @@ from .const import (
     EVENT_BASIC,
     EVENT_IO,
     EVENT_PIR,
+    EVENT_TRAFFIC,
     EVENT_THERMAL,
     EVENTS,
     EVENTS_ALTERNATE_ID,
@@ -124,6 +125,9 @@ class ISAPIClient:
         self.capabilities.input_ports = int(deep_get(capabilities, "SysCap.IOCap.IOInputPortNums", 0))
         self.capabilities.output_ports = int(deep_get(capabilities, "SysCap.IOCap.IOOutputPortNums", 0))
         self.capabilities.support_alarm_server = bool(await self.get_alarm_server())
+
+        itc_capability = (await self.request(GET, "ITC/capability")).get("ITCCap", {})
+        self.capabilities.support_anpr = str_to_bool(deep_get(itc_capability, "isSupportVehicleDetection", "false"))
 
         # Set if NVR based on whether more than 1 supported IP or analog cameras
         # Single IP camera will show 0 supported devices in total
@@ -383,6 +387,13 @@ class ISAPIClient:
             if event := create_event_info(event_trigger):
                 events.append(event)
 
+        if self.capabilities.support_anpr and not self.device_info.is_nvr:
+            # TODO: add support for NVR
+            event_trigger = await self.request(GET, "Event/triggers/vehicledetection-1")
+            event_trigger = deep_get(event_trigger, "EventTrigger", {})
+            if event := create_event_info(event_trigger):
+                events.append(event)
+
         # some devices do not have scenechangedetection in Event/triggers
         if not [e for e in events if e.id == "scenechangedetection"]:
             is_supported = str_to_bool(deep_get(system_capabilities, "SmartCap.isSupportSceneChangeDetection", False))
@@ -458,6 +469,9 @@ class ISAPIClient:
         elif event_type == EVENT_PIR:
             # ISAPI/WLAlarm/PIR
             url = slug
+        elif event_type == EVENT_TRAFFIC:
+            # /ISAPI/Traffic/channels/1/vehicleDetect
+            url = f"Traffic/channels/{channel_id}/{slug}"
         elif event_type == EVENT_THERMAL:
             # ISAPI/Thermal/channels/{channel_id}/thermometry/basicParam
             url = f"Thermal/channels/{channel_id}/{slug}"
@@ -790,9 +804,11 @@ class ISAPIClient:
         detection_target = deep_get(alert, "DetectionRegionList.DetectionRegionEntry.detectionTarget")
         region_id = int(deep_get(alert, "DetectionRegionList.DetectionRegionEntry.regionID", 0))
 
-        target_type = alert.get("targetType")
+        anpr_license_plate = deep_get(alert, "ANPR.licensePlate")
+        anpr_confidence_level = deep_get(alert, "ANPR.confidenceLevel", 0)
+        anpr_direction = deep_get(alert, "ANPR.direction", "unknown")
 
-        if not EVENTS[event_id]:
+        if not EVENTS.get(event_id):
             raise ValueError(f"Unsupported event {event_id}")
 
         return AlertInfo(
@@ -803,7 +819,9 @@ class ISAPIClient:
             mac,
             region_id,
             detection_target,
-            target_type,
+            anpr_license_plate,
+            anpr_direction,
+            anpr_confidence_level
         )
 
     async def get_camera_image(

@@ -4148,6 +4148,16 @@
             "enabled": "false"
           }
         }
+      },
+      "ITC/capability": {
+        "response": {
+          "ITCCap": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "isSupportITC": "false",
+            "isSupportVehicleDetection": "false"
+          }
+        }
       }
     }
   }

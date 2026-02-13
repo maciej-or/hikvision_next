@@ -1935,6 +1935,9 @@
             ]
           }
         }
+      },
+      "ITC/capability": {
+        "status_code": 403
       }
     }
   }

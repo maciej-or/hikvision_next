@@ -23,7 +23,9 @@ class AlertInfo:
     mac: str = ""
     region_id: int = 0
     detection_target: str = field(default=None)
-    target_type: str = field(default=None)
+    anpr_license_plate: str = field(default=None)
+    anpr_direction: str = field(default=None)
+    anpr_confidence_level: int = 0
 
 
 @dataclass
@@ -103,6 +105,7 @@ class CapabilitiesInfo:
     support_holiday_mode: bool = False
     support_alarm_server: bool = False
     support_channel_zero: bool = False
+    support_anpr: bool = False
     support_event_mutex_checking: bool = False
     input_ports: int = 0
     output_ports: int = 0

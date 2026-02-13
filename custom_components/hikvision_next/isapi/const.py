@@ -11,6 +11,7 @@ EVENT_BASIC: Final = "basic"
 EVENT_IO: Final = "io"
 EVENT_SMART: Final = "smart"
 EVENT_PIR: Final = "pir"
+EVENT_TRAFFIC: Final = "trafic"
 EVENT_THERMAL: Final = "thermal"
 EVENTS = {
     "motiondetection": {
@@ -70,6 +71,12 @@ EVENTS = {
         "slug": "WLAlarm/PIR",
         "direct_node": "PIRAlarm",
     },
+    "anpr": {
+        "type": EVENT_TRAFFIC,
+        "label": "License Plate Recognition",
+        "slug": "vehicleDetect",
+        "direct_node": "VehicleDetectCfg",
+    },
     "thermometry": {
         "type": EVENT_THERMAL,
         "label": "Thermometry",
@@ -90,6 +97,7 @@ EVENTS_ALTERNATE_ID = {
     "vmd": "motiondetection",
     "shelteralarm": "tamperdetection",
     "VMDHumanVehicle": "motiondetection",
+    "vehicledetection": "anpr"
 }
 
 MUTEX_ALTERNATE_ID = {"motiondetection": "VMDHumanVehicle"}

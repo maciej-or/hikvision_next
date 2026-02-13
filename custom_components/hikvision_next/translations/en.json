@@ -55,6 +55,9 @@
       "io": {
         "name": "Alarm Input {io_port_id}"
       },
+      "anpr": {
+        "name": "License Plate"
+      },
       "pir": {
         "name": "PIR"
       },
@@ -95,6 +98,9 @@
       },
       "io": {
         "name": "Alarm Input {io_port_id}"
+      },
+      "anpr": {
+        "name": "License Plate Recognition"
       },
       "pir": {
         "name": "PIR Detection"

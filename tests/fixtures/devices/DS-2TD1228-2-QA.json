@@ -1730,26 +1730,8 @@
           }
         }
       },
-      "Event/triggers/VMD-2": {
-        "response": {
-          "EventTrigger": {
-            "@version": "2.0",
-            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
-            "id": "VMD-2",
-            "eventType": "VMD",
-            "eventDescription": "VMD Event trigger Information",
-            "videoInputChannelID": "2",
-            "EventTriggerNotificationList": {
-              "EventTriggerNotification": [
-                {
-                  "id": "center",
-                  "notificationMethod": "center",
-                  "notificationRecurrence": "beginning"
-                }
-              ]
-            }
-          }
-        }
+      "ITC/capability": {
+        "status_code": 403
       }
     }
   }

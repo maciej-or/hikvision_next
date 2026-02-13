@@ -210,6 +210,11 @@ class EventNotificationsView(HomeAssistantView):
         if alert.target_type:
             message["target_type"] = alert.target_type
 
+        if alert.event_id == 'anpr':
+            message["anpr_license_plate"] = alert.anpr_license_plate
+            message["anpr_direction"] = alert.anpr_direction
+            message["anpr_confidence_level"] = int(alert.anpr_confidence_level)
+
         self.hass.bus.fire(
             HIKVISION_EVENT,
             message,
