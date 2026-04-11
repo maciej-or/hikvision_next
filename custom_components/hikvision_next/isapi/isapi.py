@@ -41,6 +41,7 @@ from .models import (
     MutexIssue,
     ProtocolsInfo,
     StorageInfo,
+    SupplementLightInfo,
 )
 from .utils import bool_to_str, deep_get, parse_isapi_response, str_to_bool
 
@@ -127,6 +128,12 @@ class ISAPIClient:
 
         with suppress(Exception):
             self.storage = await self.get_storage_devices()
+
+        for camera in self.cameras:
+            with suppress(Exception):
+                light_data = await self.request(GET, f"Image/channels/{camera.id}/supplementLight")
+                if light_data.get("SupplementLight"):
+                    self.capabilities.supplement_light_channels.append(camera.id)
 
     async def get_cameras(self):
         """Get camera objects for all connected cameras."""
@@ -548,6 +555,33 @@ class ISAPIClient:
 
         xml = xmltodict.unparse(data)
         await self.request(PUT, f"System/IO/outputs/{port_no}/trigger", present="xml", data=xml)
+
+    async def get_supplement_light_state(self, channel_id: int) -> SupplementLightInfo:
+        """Get white supplement light state."""
+        data = await self.request(GET, f"Image/channels/{channel_id}/supplementLight")
+        light = data.get("SupplementLight", {})
+        return SupplementLightInfo(
+            mode=light.get("supplementLightMode", "close"),
+            brightness=int(light.get("whiteLightBrightness", 0)),
+        )
+
+    async def set_supplement_light_state(self, channel_id: int, is_on: bool, brightness: int = 100) -> None:
+        """Set white supplement light state."""
+        if is_on:
+            data = {
+                "SupplementLight": {
+                    "supplementLightMode": "colorVuWhiteLight",
+                    "whiteLightBrightness": str(brightness),
+                }
+            }
+        else:
+            data = {
+                "SupplementLight": {
+                    "supplementLightMode": "close",
+                }
+            }
+        xml = xmltodict.unparse(data)
+        await self.request(PUT, f"Image/channels/{channel_id}/supplementLight", present="xml", data=xml)
 
     async def get_holiday_enabled_state(self, holiday_index=0) -> bool:
         """Get holiday state."""

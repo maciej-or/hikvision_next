@@ -93,6 +93,14 @@ class ISAPIDeviceInfo:
 
 
 @dataclass
+class SupplementLightInfo:
+    """Holds white supplement light state."""
+
+    mode: str  # e.g. "colorVuWhiteLight", "close", "auto", "infrared"
+    brightness: int  # 0-100
+
+
+@dataclass
 class CapabilitiesInfo:
     """Holds info of an NVR/DVR or single IP Camera."""
 
@@ -105,6 +113,7 @@ class CapabilitiesInfo:
     support_event_mutex_checking: bool = False
     input_ports: int = 0
     output_ports: int = 0
+    supplement_light_channels: list = field(default_factory=list)  # camera IDs that support white supplement light
 
 
 @dataclass
