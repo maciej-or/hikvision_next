@@ -114,6 +114,7 @@ class CapabilitiesInfo:
     input_ports: int = 0
     output_ports: int = 0
     supplement_light_channels: list = field(default_factory=list)  # camera IDs that support white supplement light
+    day_night_filter_channels: list = field(default_factory=list)  # camera IDs that support day/night filter setting
 
 
 @dataclass

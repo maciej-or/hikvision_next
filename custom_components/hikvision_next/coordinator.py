@@ -72,6 +72,13 @@ class EventsCoordinator(DataUpdateCoordinator):
             except Exception as ex:  # pylint: disable=broad-except
                 self.device.handle_exception(ex, f"Cannot fetch supplement light state for channel {channel_id}")
 
+        # Get day/night filter state
+        for channel_id in self.device.capabilities.day_night_filter_channels:
+            try:
+                data[f"day_night_filter_{channel_id}"] = await self.device.get_day_night_filter_type(channel_id)
+            except Exception as ex:  # pylint: disable=broad-except
+                self.device.handle_exception(ex, f"Cannot fetch day/night filter for channel {channel_id}")
+
         # Refresh HDD data
         try:
             self.device.storage = await self.device.get_storage_devices()

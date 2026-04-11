@@ -134,6 +134,10 @@ class ISAPIClient:
                 light_data = await self.request(GET, f"Image/channels/{camera.id}/supplementLight")
                 if light_data.get("SupplementLight"):
                     self.capabilities.supplement_light_channels.append(camera.id)
+            with suppress(Exception):
+                image_data = await self.request(GET, f"Image/channels/{camera.id}")
+                if deep_get(image_data, "ImageChannel.dayNightFilterType"):
+                    self.capabilities.day_night_filter_channels.append(camera.id)
 
     async def get_cameras(self):
         """Get camera objects for all connected cameras."""
@@ -582,6 +586,17 @@ class ISAPIClient:
             }
         xml = xmltodict.unparse(data)
         await self.request(PUT, f"Image/channels/{channel_id}/supplementLight", present="xml", data=xml)
+
+    async def get_day_night_filter_type(self, channel_id: int) -> str:
+        """Get day/night filter type for an image channel."""
+        data = await self.request(GET, f"Image/channels/{channel_id}")
+        return deep_get(data, "ImageChannel.dayNightFilterType", "auto")
+
+    async def set_day_night_filter_type(self, channel_id: int, filter_type: str) -> None:
+        """Set day/night filter type for an image channel."""
+        data = {"ImageChannel": {"dayNightFilterType": filter_type}}
+        xml = xmltodict.unparse(data)
+        await self.request(PUT, f"Image/channels/{channel_id}", present="xml", data=xml)
 
     async def get_holiday_enabled_state(self, holiday_index=0) -> bool:
         """Get holiday state."""
