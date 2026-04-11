@@ -65,6 +65,13 @@ class EventsCoordinator(DataUpdateCoordinator):
             except Exception as ex:  # pylint: disable=broad-except
                 self.device.handle_exception(ex, f"Cannot fetch state for alarm output {i}")
 
+        # Get supplement light state
+        for channel_id in self.device.capabilities.supplement_light_channels:
+            try:
+                data[f"supplement_light_{channel_id}"] = await self.device.get_supplement_light_state(channel_id)
+            except Exception as ex:  # pylint: disable=broad-except
+                self.device.handle_exception(ex, f"Cannot fetch supplement light state for channel {channel_id}")
+
         # Refresh HDD data
         try:
             self.device.storage = await self.device.get_storage_devices()

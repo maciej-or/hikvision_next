@@ -123,6 +123,11 @@
       "snapshot": {
         "name": "{camera} Snapshot"
       }
+    },
+    "light": {
+      "supplement_light": {
+        "name": "White Supplement Light"
+      }
     }
   }
 }
