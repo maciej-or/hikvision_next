@@ -146,6 +146,23 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             version=3,
         )
 
+    # 3 -> 4: Fix invalid entity IDs that contain uppercase letters or hyphens
+    if config_entry.version == 3:
+        entity_registry = er.async_get(hass)
+        entries = er.async_entries_for_config_entry(entity_registry, config_entry.entry_id)
+        for entity_entry in entries:
+            domain, local = entity_entry.entity_id.split(".", 1)
+            slugified = slugify(local)
+            if slugified != local:
+                new_entity_id = f"{domain}.{slugified}"
+                if entity_registry.async_get(new_entity_id) is None:
+                    entity_registry.async_update_entity(entity_entry.entity_id, new_entity_id=new_entity_id)
+
+        hass.config_entries.async_update_entry(
+            config_entry,
+            version=4,
+        )
+
     _LOGGER.debug(
         "Migration to version %s.%s successful",
         config_entry.version,
