@@ -15,6 +15,9 @@ import httpx
 from httpx import HTTPStatusError
 import xmltodict
 
+from homeassistant.const import (
+    STATE_ON, STATE_OFF
+)
 from .const import (
     CONNECTION_TYPE_DIRECT,
     CONNECTION_TYPE_PROXIED,
@@ -324,6 +327,32 @@ class ISAPIClient:
                         event_trigger = deep_get(event_trigger, "EventTrigger", {})
                         if event := create_event_info(event_trigger):
                             events.append(event)
+
+        if self.device_info.device_type == "ACS":
+            events.append(EventInfo(
+                channel_id=None,
+                io_port_id=0,
+                id="door",
+                url="",
+                is_proxy=False,
+                notifications=["center"]
+            ))
+            events.append(EventInfo(
+                channel_id=None,
+                io_port_id=0,
+                id="lock",
+                url="",
+                is_proxy=False,
+                notifications=["center"]
+            ))
+            events.append(EventInfo(
+                channel_id=None,
+                io_port_id=0,
+                id="face",
+                url="",
+                is_proxy=False,
+                notifications=["center"]
+            ))
 
         return events
 
@@ -650,14 +679,17 @@ class ISAPIClient:
         await self.request(PUT, "System/reboot", present="xml")
 
     @staticmethod
-    def parse_event_notification(xml: str) -> AlertInfo:
+    def parse_event_notification(xml: str | dict) -> AlertInfo:
         """Parse incoming EventNotificationAlert XML message."""
 
-        # Fix for some cameras sending non html encoded data
-        xml = xml.replace("&", "&amp;")
+        if isinstance(xml, dict):
+            alert = xml
+        else:
+            # Fix for some cameras sending non html encoded data
+            xml = xml.replace("&", "&amp;")
 
-        data = xmltodict.parse(xml)
-        alert = data["EventNotificationAlert"]
+            data = xmltodict.parse(xml)
+            alert = data["EventNotificationAlert"]
 
         event_id = alert.get("eventType")
         if not event_id or event_id == "duration":
@@ -665,32 +697,76 @@ class ISAPIClient:
             event_id = alert["DurationList"]["Duration"]["relationEvent"]
         event_id = event_id.lower()
 
-        # handle alternate event type
-        if EVENTS_ALTERNATE_ID.get(event_id):
-            event_id = EVENTS_ALTERNATE_ID[event_id]
+        if event_id == "accesscontrollerevent":
+            print("\033[32m", alert.get("AccessControllerEvent"), "\033[0m")
 
-        channel_id = int(alert.get("channelID", alert.get("dynChannelID", 0)))
-        io_port_id = int(alert.get("inputIOPortID", 0))
-        # <EventNotificationAlert version="1.0"
-        device_serial = deep_get(alert, "Extensions.serialNumber.#text")
-        # <EventNotificationAlert version="2.0"
-        mac = alert.get("macAddress")
+            alert = alert.get("AccessControllerEvent")
+            if alert.get("majorEventType") == 5:
+                if alert.get("subEventType") in (0x15, 0x16, 0x13, 0x14):
+                    return AlertInfo(
+                        0,
+                        0,
+                        "lock",
+                        None,
+                        alert.get("macAddress"),
+                        None,
+                        None,
+                        STATE_ON if alert.get("subEventType") in (0x15, 0x13) else STATE_OFF
+                    )
+                elif alert.get("subEventType") in (0x19, 0x1a):
+                    # MINOR_DOOR_OPEN_NORMAL = 0x19
+                    # MINOR_DOOR_CLOSE_NORMAL = 0x1a
+                    return AlertInfo(
+                        0,
+                        0,
+                        "door",
+                        None,
+                        alert.get("macAddress"),
+                        None,
+                        None,
+                        STATE_ON if alert.get("subEventType") == 0x19 else STATE_OFF
+                    )
+                elif alert.get("subEventType") == 0x4b:
+                    # MINOR_FACE_VERIFY_PASS 人脸认证通过
+                    return AlertInfo(
+                        0,
+                        0,
+                        "face",
+                        None,
+                        alert.get("macAddress"),
+                        None,
+                        None,
+                        alert.get("employeeNoString")+": "+alert.get("name")
+                    )
 
-        detection_target = deep_get(alert, "DetectionRegionList.DetectionRegionEntry.detectionTarget")
-        region_id = int(deep_get(alert, "DetectionRegionList.DetectionRegionEntry.regionID", 0))
+            return None
+        else:
+            # handle alternate event type
+            if EVENTS_ALTERNATE_ID.get(event_id):
+                event_id = EVENTS_ALTERNATE_ID[event_id]
 
-        if not EVENTS[event_id]:
-            raise ValueError(f"Unsupported event {event_id}")
+            channel_id = int(alert.get("channelID", alert.get("dynChannelID", 0)))
+            io_port_id = int(alert.get("inputIOPortID", 0))
+            # <EventNotificationAlert version="1.0"
+            device_serial = deep_get(alert, "Extensions.serialNumber.#text")
+            # <EventNotificationAlert version="2.0"
+            mac = alert.get("macAddress")
 
-        return AlertInfo(
-            channel_id,
-            io_port_id,
-            event_id,
-            device_serial,
-            mac,
-            region_id,
-            detection_target,
-        )
+            detection_target = deep_get(alert, "DetectionRegionList.DetectionRegionEntry.detectionTarget")
+            region_id = int(deep_get(alert, "DetectionRegionList.DetectionRegionEntry.regionID", 0))
+
+            if not EVENTS[event_id]:
+                raise ValueError(f"Unsupported event {event_id}")
+
+            return AlertInfo(
+                channel_id,
+                io_port_id,
+                event_id,
+                device_serial,
+                mac,
+                region_id,
+                detection_target,
+            )
 
     async def get_camera_image(
         self,

@@ -31,7 +31,8 @@ async def async_setup_entry(
 
     # General Events
     for event in device.events_info:
-        entities.append(EventBinarySensor(device, 0, event))
+        if "device_class" in EVENTS[event.id]:
+            entities.append(EventBinarySensor(device, 0, event))
 
     async_add_entities(entities)
 

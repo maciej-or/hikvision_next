@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-
+from homeassistant.const import STATE_ON
 
 @dataclass
 class AlarmServer:
@@ -23,6 +23,7 @@ class AlertInfo:
     mac: str = ""
     region_id: int = 0
     detection_target: str = field(default=None)
+    state: str = STATE_ON
 
 
 @dataclass

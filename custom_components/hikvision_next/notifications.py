@@ -19,8 +19,10 @@ from homeassistant.util import slugify
 
 from .const import ALARM_SERVER_PATH, DOMAIN, HIKVISION_EVENT
 from .hikvision_device import HikvisionDevice
-from .isapi import AlertInfo, IPCamera, ISAPIClient
+from .isapi import AlertInfo, EventInfo, IPCamera, ISAPIClient
 from .isapi.const import EVENT_IO
+
+import json
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,6 +34,7 @@ CONTENT_TYPE_XML = (
 )
 CONTENT_TYPE_TEXT_HTML = "text/html"
 CONTENT_TYPE_IMAGE = "image/jpeg"
+CONTENT_TYPE_JSON = "application/json"
 
 
 class EventNotificationsView(HomeAssistantView):
@@ -49,14 +52,16 @@ class EventNotificationsView(HomeAssistantView):
         """Accept the POST request from NVR or IP Camera."""
 
         try:
-            _LOGGER.debug("--- Incoming event notification ---")
-            _LOGGER.debug("Source: %s", request.remote)
+            # _LOGGER.debug("--- Incoming event notification ---")
+            # _LOGGER.debug("Source: %s", request.remote)
+            alert = None
             xml = await self.parse_event_request(request)
-            _LOGGER.debug("alert info: %s", xml)
             alert = ISAPIClient.parse_event_notification(xml)
-            self.device = self.get_isapi_device(request.remote, alert)
-            self.update_alert_channel(alert)
-            self.trigger_sensor(alert)
+
+            if alert:
+                self.device = self.get_isapi_device(request.remote, alert)
+                self.update_alert_channel(alert)
+                self.trigger_sensor(alert)
         except Exception as ex:  # pylint: disable=broad-except
             _LOGGER.warning("Cannot process incoming event %s", ex)
 
@@ -120,7 +125,7 @@ class EventNotificationsView(HomeAssistantView):
 
         content_type_header = request.headers.get(CONTENT_TYPE).strip()
 
-        _LOGGER.debug("request headers: %s", request.headers)
+        # _LOGGER.debug("request headers: %s", request.headers)
         xml = None
         if content_type_header in CONTENT_TYPE_XML:
             xml = data.decode("utf-8")
@@ -132,10 +137,11 @@ class EventNotificationsView(HomeAssistantView):
                 for key, value in part.headers.items():
                     assert isinstance(key, bytes)
                     headers[key.decode("ascii")] = value.decode("ascii")
-                _LOGGER.debug("part headers: %s", headers)
                 if headers.get(CONTENT_TYPE) in CONTENT_TYPE_XML:
                     xml = part.text
-                if headers.get(CONTENT_TYPE) == CONTENT_TYPE_IMAGE:
+                elif headers.get(CONTENT_TYPE) in CONTENT_TYPE_JSON:
+                    xml = json.loads(part.text)
+                elif headers.get(CONTENT_TYPE) == CONTENT_TYPE_IMAGE:
                     _LOGGER.debug("image found")
                     # Use camera.snapshot service instead
                     # from datetime import datetime
@@ -145,7 +151,8 @@ class EventNotificationsView(HomeAssistantView):
                     # async with aiofiles.open(filename, "wb") as image_file:
                     #     await image_file.write(part.content)
                     #     await image_file.flush()
-
+                else:
+                    _LOGGER.debug("part headers: %s", headers)
         if not xml:
             raise ValueError(f"Unexpected event Content-Type {content_type_header}")
         return xml
@@ -176,15 +183,18 @@ class EventNotificationsView(HomeAssistantView):
         device_id_param = f"_{alert.channel_id}" if alert.channel_id != 0 and alert.event_id != EVENT_IO else ""
         io_port_id_param = f"_{alert.io_port_id}" if alert.io_port_id != 0 else ""
         unique_id = f"binary_sensor.{slugify(serial_no)}{device_id_param}{io_port_id_param}_{alert.event_id}"
-
-        _LOGGER.debug("UNIQUE_ID: %s", unique_id)
+        sensor_unique_id = f"sensor.{slugify(serial_no)}{device_id_param}{io_port_id_param}_{alert.event_id}"
 
         entity_registry = async_get(self.hass)
         entity_id = entity_registry.async_get_entity_id(Platform.BINARY_SENSOR, DOMAIN, unique_id)
+        if not entity_id:
+            entity_id = entity_registry.async_get_entity_id(Platform.SENSOR, DOMAIN, sensor_unique_id)
         if entity_id:
+            _LOGGER.debug("Entity ID: %s", entity_id)
+
             entity = self.hass.states.get(entity_id)
             if entity:
-                self.hass.states.async_set(entity_id, STATE_ON, entity.attributes)
+                self.hass.states.async_set(entity_id, alert.state, entity.attributes)
                 self.fire_hass_event(alert)
             return
         raise ValueError(f"Entity not found {entity_id}")

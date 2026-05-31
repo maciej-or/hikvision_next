@@ -9,8 +9,9 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import HikvisionConfigEntry
-from .const import CONF_ALARM_SERVER_HOST, SECONDARY_COORDINATOR
-from .isapi import StorageInfo
+from .const import CONF_ALARM_SERVER_HOST, SECONDARY_COORDINATOR, EVENTS
+from .isapi import StorageInfo, EventInfo
+from .hikvision_device import HikvisionDevice
 
 NOTIFICATION_HOST_KEYS = [
     "protocol_type",
@@ -38,6 +39,11 @@ async def async_setup_entry(
         for item in list(device.storage):
             entities.append(StorageSensor(coordinator, item))
 
+        # General Events
+        for event in device.events_info:
+            if "device_class" not in EVENTS[event.id]:
+                entities.append(AlarmSensor(device, 0, event))
+
         async_add_entities(entities, True)
 
 
@@ -63,6 +69,29 @@ class AlarmServerSensor(CoordinatorEntity, SensorEntity):
         """Return the state of the sensor."""
         host = self.coordinator.data.get(CONF_ALARM_SERVER_HOST)
         return host.get(self.key)
+
+
+class AlarmSensor(SensorEntity):
+    """Alarm sensor."""
+
+    _attr_has_entity_name = True
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, device: HikvisionDevice, device_id: int, event: EventInfo) -> None:
+        """Initialize."""
+
+        self.entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
+        self._attr_unique_id = self.entity_id
+        self._attr_translation_key = event.id
+        self._attr_name = EVENTS[event.id].get("name", None)
+        self._attr_icon = EVENTS[event.id].get("icon", "mdi:human")
+        self._attr_device_info = device.hass_device_info(device_id)
+        self._attr_entity_registry_enabled_default = not event.disabled
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the state of the sensor."""
+        return "unavailable"
 
 
 class StorageSensor(CoordinatorEntity, SensorEntity):

@@ -65,4 +65,20 @@ EVENTS = {
         **ISAPI_EVENTS["pir"],
         "device_class": BinarySensorDeviceClass.MOTION,
     },
+    "door": {
+        **ISAPI_EVENTS["io"],
+        "mutex": True,
+        "device_class": BinarySensorDeviceClass.DOOR,
+    },
+    "lock": {
+        **ISAPI_EVENTS["io"],
+        "mutex": True,
+        "device_class": BinarySensorDeviceClass.LOCK,
+    },
+    "face": {
+        **ISAPI_EVENTS["io"],
+        "icon": "mdi:human",
+        "name": "Face",
+        "mutex": True
+    },
 }
