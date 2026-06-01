@@ -95,6 +95,9 @@ class HikvisionDevice(ISAPIClient):
             # Always bind to a stable wrapper method.
             # The wrapper will dynamically resolve the current notification_ctx at runtime.
             # This solves the problem where notification_ctx may be created after EventSubscription.
+            # Subscription status coordinator (for the connectivity-style sensor)
+            self.subscribe_coordinator = SubscribeStatusCoordinator(self.hass, self)
+
             self.event_subscription = EventSubscription(
                 self,
                 on_event=self._dispatch_subscribed_event
@@ -111,8 +114,6 @@ class HikvisionDevice(ISAPIClient):
         for coordinator in self.coordinators.values():
             await coordinator.async_config_entry_first_refresh()
 
-        # Subscription status coordinator (for the connectivity-style sensor)
-        self.subscribe_coordinator = SubscribeStatusCoordinator(self.hass, self)
 
     def hass_device_info(self, camera_id: int = 0) -> DeviceInfo:
         """Return Home Assistant entity device information."""

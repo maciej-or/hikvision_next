@@ -87,8 +87,4 @@ EVENTS = {
         "name": "Face",
         "mutex": True
     },
-    "subscribe": {
-        "type": "subscribe",
-        "device_class": BinarySensorDeviceClass.CONNECTIVITY,
-    }
 }
