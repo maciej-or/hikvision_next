@@ -15,6 +15,7 @@ from . import HikvisionConfigEntry
 from .const import EVENTS_COORDINATOR, HOLIDAY_MODE, SECONDARY_COORDINATOR
 from .isapi import EventInfo, ISAPISetEventStateMutexError
 from .isapi.const import EVENT_IO
+from .const import EVENTS
 
 
 async def async_setup_entry(
@@ -37,6 +38,8 @@ async def async_setup_entry(
 
     # Device supported events
     for event in device.events_info:
+        if not event.url:
+            continue
         entities.append(EventSwitch(0, event, events_coordinator))
 
     # Output port switch
@@ -66,6 +69,7 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
         if event.id == EVENT_IO:
             self._attr_translation_placeholders = {"io_port_id": event.io_port_id}
         self._attr_entity_registry_enabled_default = not event.disabled
+        self._attr_icon = EVENTS[event.id].get("icon")
         self.device_id = device_id
         self.event = event
 

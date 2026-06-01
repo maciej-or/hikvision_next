@@ -19,7 +19,7 @@ from homeassistant.util import slugify
 
 from .const import ALARM_SERVER_PATH, DOMAIN, HIKVISION_EVENT
 from .hikvision_device import HikvisionDevice
-from .isapi import AlertInfo, EventInfo, IPCamera, ISAPIClient
+from .isapi import AlertInfo, IPCamera, ISAPIClient
 from .isapi.const import EVENT_IO
 
 import json
@@ -48,6 +48,16 @@ class EventNotificationsView(HomeAssistantView):
         self.device: HikvisionDevice
         self.hass = hass
 
+    async def handle_subscribed_event(self, raw_event: str | dict) -> None:
+        try:
+            alert = ISAPIClient.parse_event_notification(raw_event)
+            if alert:
+                self.device = self.get_isapi_device(None, alert)
+                self.update_alert_channel(alert)
+                self.trigger_sensor(alert)
+        except Exception as ex:  # pylint: disable=broad-except
+            _LOGGER.warning("Error processing subscribed event", exc_info=ex)
+
     async def post(self, request: web.Request):
         """Accept the POST request from NVR or IP Camera."""
 
@@ -58,12 +68,21 @@ class EventNotificationsView(HomeAssistantView):
             xml = await self.parse_event_request(request)
             alert = ISAPIClient.parse_event_notification(xml)
 
+            # remote = [request.remote]
+            # if isinstance(xml, dict):
+            #     if 'macAddress' in xml:
+            #         remote.append(xml.get('macAddress'))
+            #     if 'ipAddress' in xml:
+            #         remote.append(xml.get('ipAddress'))
+            #     if 'ipv6Address' in xml:
+            #         remote.append(xml.get('ipv6Address'))
+
             if alert:
                 self.device = self.get_isapi_device(request.remote, alert)
                 self.update_alert_channel(alert)
                 self.trigger_sensor(alert)
         except Exception as ex:  # pylint: disable=broad-except
-            _LOGGER.warning("Cannot process incoming event %s", ex)
+            _LOGGER.warning("Cannot process event %s", ex)
 
         response = web.Response(status=HTTPStatus.OK, content_type=CONTENT_TYPE_TEXT_PLAIN)
         return response
@@ -81,10 +100,10 @@ class EventNotificationsView(HomeAssistantView):
                 if item.disabled_by:
                     continue
 
-                item_mac_address = item.runtime_data.device_info.mac_address
+                item_mac_address = item.runtime_data.device_info.mac_address.lower()
                 instance_identifiers.append(item_mac_address)
 
-                if item_mac_address == alert.mac:
+                if alert.mac is not None and item_mac_address == alert.mac.lower():
                     entry = item
                     break
 
@@ -137,6 +156,13 @@ class EventNotificationsView(HomeAssistantView):
                 for key, value in part.headers.items():
                     assert isinstance(key, bytes)
                     headers[key.decode("ascii")] = value.decode("ascii")
+
+                if headers.get(CONTENT_TYPE) is None:
+                    try:
+                        xml = json.loads(part.text)
+                    except json.decoder.JSONDecodeError:
+                        pass
+                    continue
                 if headers.get(CONTENT_TYPE) in CONTENT_TYPE_XML:
                     xml = part.text
                 elif headers.get(CONTENT_TYPE) in CONTENT_TYPE_JSON:

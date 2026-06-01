@@ -20,6 +20,7 @@ from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VE
 from . import HikvisionConfigEntry
 from .const import (
     CONF_ALARM_SERVER_HOST,
+    CONF_USE_HTTP_NOTIFY,
     CONF_SET_ALARM_SERVER,
     DOMAIN,
     RTSP_PORT_FORCED,
@@ -44,7 +45,8 @@ class HikvisionConfigFlow(ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_VERIFY_SSL, default=True): bool,
                 vol.Required(CONF_USERNAME): str,
                 vol.Required(CONF_PASSWORD): str,
-                vol.Required(CONF_SET_ALARM_SERVER, default=True): bool,
+                vol.Required(CONF_USE_HTTP_NOTIFY, default=True): bool,
+                vol.Required(CONF_SET_ALARM_SERVER, default=False): bool,
                 vol.Required(CONF_ALARM_SERVER_HOST): str,
                 vol.Optional(RTSP_PORT_FORCED): vol.And(int, vol.Range(min=1)),
             }

@@ -14,6 +14,7 @@
           "username": "Username",
           "verify_ssl": "Verify SSL certificate (uncheck for self-signed certificate)",
           "rtsp_port_forced": "Force RTSP port (Optional)",
+          "use_http_notify": "Use Long-lived connection notify",
           "set_alarm_server": "Set notifications host using following address:",
           "alarm_server": "Home Assistant address accessible by Hikvison device"
         }
@@ -54,6 +55,9 @@
       },
       "io": {
         "name": "Alarm Input {io_port_id}"
+      },
+      "anpr": {
+        "name": "License Plate"
       }
     },
     "switch": {
@@ -89,6 +93,9 @@
       },
       "io": {
         "name": "Alarm Input {io_port_id}"
+      },
+      "anpr": {
+        "name": "License Plate Recognition"
       }
     },
     "camera": {

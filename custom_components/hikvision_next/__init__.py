@@ -63,15 +63,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) ->
 
     entry.runtime_data = device
 
+    # Create the shared notification_ctx *before* init_coordinators(),
+    # because EventSubscription may need to bind its handler to it immediately.
+    if DOMAIN not in hass.data:
+        hass.data[DOMAIN] = {}
+
+    if "notification_ctx" not in hass.data[DOMAIN]:
+        ctx = EventNotificationsView(hass)
+        hass.data[DOMAIN]["notification_ctx"] = ctx
+        hass.http.register_view(ctx)
+
+    # Assign the shared context to this device early
+    device.notification_ctx = hass.data[DOMAIN]["notification_ctx"]
+
     await device.init_coordinators()
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     device.pending_initialization = False
-
-    # Only initialise view once if multiple instances of integration
-    if get_first_instance_unique_id(hass) == entry.unique_id:
-        hass.http.register_view(EventNotificationsView(hass))
 
     refresh_disabled_entities_in_registry(hass, device)
 
@@ -103,6 +112,16 @@ async def async_unload_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) -
     if device.control_alarm_server_host:
         with suppress(Exception):
             await device.set_alarm_server("http://0.0.0.0:80", "/")
+
+    # Stop any long-lived event subscriptions (e.g. ANPR via subscribeEvent)
+    if device.event_subscription:
+        with suppress(Exception):
+            await device.event_subscription.stop()
+
+    # Close the separate ext session used for session-login auth if it exists
+    if getattr(device, "_ext_session", None):
+        with suppress(Exception):
+            await device._ext_session.aclose()
 
     return unload_ok
 

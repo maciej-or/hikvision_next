@@ -49,7 +49,7 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         # Get NVR event status
         for event in self.device.events_info:
-            if event.disabled:
+            if event.disabled or not event.url:
                 continue
             try:
                 _id = ENTITY_ID_FORMAT.format(event.unique_id)
@@ -67,7 +67,8 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         # Refresh HDD data
         try:
-            self.device.storage = await self.device.get_storage_devices()
+            if self.device.capabilities.support_storage:
+                self.device.storage = await self.device.get_storage_devices()
         except Exception as ex:  # pylint: disable=broad-except
             self.device.handle_exception(ex, "Cannot fetch storage state")
 
@@ -113,3 +114,37 @@ class SecondaryCoordinator(DataUpdateCoordinator):
         except Exception as ex:  # pylint: disable=broad-except
             self.device.handle_exception(ex, f"Cannot fetch state for {CONF_ALARM_SERVER_HOST}")
         return data
+
+
+class SubscribeStatusCoordinator(DataUpdateCoordinator):
+    """Coordinator for long-lived subscribeEvent connection health (event-driven)."""
+
+    def __init__(self, hass: HomeAssistant, device) -> None:
+        self.device = device
+        self._connected = False
+        self._reason: str | None = None
+
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=f"{DOMAIN}_subscribe_{device.device_info.serial_no}",
+            update_interval=None,  # purely event driven
+        )
+
+    @property
+    def connected(self) -> bool:
+        return self._connected
+
+    @property
+    def reason(self) -> str | None:
+        return self._reason
+
+    async def async_set_connected(self, connected: bool, reason: str | None = None):
+        """Called by EventSubscription when connection state changes."""
+        if self._connected != connected or self._reason != reason:
+            self._connected = connected
+            self._reason = reason
+            self.async_set_updated_data({
+                "connected": connected,
+                "reason": reason,
+            })

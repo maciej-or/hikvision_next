@@ -9,6 +9,7 @@ from .isapi.const import EVENTS as ISAPI_EVENTS
 DOMAIN: Final = "hikvision_next"
 
 RTSP_PORT_FORCED: Final = "rtsp_port_forced"
+CONF_USE_HTTP_NOTIFY: Final = "use_http_notify"
 CONF_SET_ALARM_SERVER: Final = "set_alarm_server"
 CONF_ALARM_SERVER_HOST: Final = "alarm_server"
 ALARM_SERVER_PATH = "/api/hikvision"
@@ -65,6 +66,10 @@ EVENTS = {
         **ISAPI_EVENTS["pir"],
         "device_class": BinarySensorDeviceClass.MOTION,
     },
+    "anpr": {
+        **ISAPI_EVENTS["anpr"],
+        "device_class": BinarySensorDeviceClass.MOTION,
+    },
     "door": {
         **ISAPI_EVENTS["io"],
         "mutex": True,
@@ -73,6 +78,7 @@ EVENTS = {
     "lock": {
         **ISAPI_EVENTS["io"],
         "mutex": True,
+        "icon": "mdi:lock",
         "device_class": BinarySensorDeviceClass.LOCK,
     },
     "face": {
@@ -81,4 +87,8 @@ EVENTS = {
         "name": "Face",
         "mutex": True
     },
+    "subscribe": {
+        "type": "subscribe",
+        "device_class": BinarySensorDeviceClass.CONNECTIVITY,
+    }
 }

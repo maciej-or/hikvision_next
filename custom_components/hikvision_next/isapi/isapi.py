@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import traceback
 from contextlib import suppress
 import datetime
 from http import HTTPStatus
@@ -14,6 +15,7 @@ from urllib.parse import quote, urljoin, urlparse
 import httpx
 from httpx import HTTPStatusError
 import xmltodict
+import time
 
 from homeassistant.const import (
     STATE_ON, STATE_OFF
@@ -24,6 +26,7 @@ from .const import (
     EVENT_BASIC,
     EVENT_IO,
     EVENT_PIR,
+    EVENT_TRAFFIC,
     EVENTS,
     EVENTS_ALTERNATE_ID,
     GET,
@@ -31,6 +34,7 @@ from .const import (
     POST,
     PUT,
     STREAM_TYPE,
+    SUBSCRIBE_ENDPOINT,
 )
 from .models import (
     AlarmServer,
@@ -46,6 +50,8 @@ from .models import (
     StorageInfo,
 )
 from .utils import bool_to_str, deep_get, parse_isapi_response, str_to_bool
+import hashlib
+
 
 Node = dict[str, Any]
 
@@ -56,13 +62,13 @@ class ISAPIClient:
     """Hikvision ISAPI client."""
 
     def __init__(
-        self,
-        host: str,
-        username: str,
-        password: str,
-        verify_ssl: bool = True,
-        rtsp_port_forced: int = None,
-        session: httpx.AsyncClient = None,
+            self,
+            host: str,
+            username: str,
+            password: str,
+            verify_ssl: bool = True,
+            rtsp_port_forced: int = None,
+            session: httpx.AsyncClient = None,
     ) -> None:
         """Initialize."""
 
@@ -73,6 +79,8 @@ class ISAPIClient:
         self.timeout = 20
         self.isapi_prefix = "ISAPI"
         self._session = session
+        self._ext_session = None
+        self._isLogin: bool = False
         self._auth_method: httpx._auth.Auth = None
 
         self.rtsp_port_forced = rtsp_port_forced
@@ -117,6 +125,11 @@ class ISAPIClient:
         self.capabilities.output_ports = int(deep_get(capabilities, "SysCap.IOCap.IOOutputPortNums", 0))
         self.capabilities.support_alarm_server = bool(await self.get_alarm_server())
 
+        self.capabilities.support_storage = str_to_bool(deep_get(capabilities, "SysCap.isSupportStorageExtraInfo", "false"))
+
+        itc_capability = deep_get(capabilities, "ITCCap", {})
+        self.capabilities.support_anpr = str_to_bool(deep_get(itc_capability, "isSupportVehicleDetection", "false"))
+
         # Set if NVR based on whether more than 1 supported IP or analog cameras
         # Single IP camera will show 0 supported devices in total
         if self.capabilities.analog_cameras_inputs + self.capabilities.digital_cameras_inputs > 1:
@@ -129,7 +142,8 @@ class ISAPIClient:
         await self.get_protocols()
 
         with suppress(Exception):
-            self.storage = await self.get_storage_devices()
+            if self.capabilities.support_storage:
+                self.storage = await self.get_storage_devices()
 
     async def get_cameras(self):
         """Get camera objects for all connected cameras."""
@@ -288,17 +302,18 @@ class ISAPIClient:
 
         events = []
 
-        # Get events from Event/triggers
-        event_triggers = await self.request(GET, "Event/triggers")
-        event_notification = event_triggers.get("EventNotification")
-        if event_notification:
-            available_events = deep_get(event_notification, "EventTriggerList.EventTrigger", [])
-        else:
-            available_events = deep_get(event_triggers, "EventTriggerList.EventTrigger", [])
+        if self.device_info.is_nvr:
+            # Get events from Event/triggers
+            event_triggers = await self.request(GET, "Event/triggers")
+            event_notification = event_triggers.get("EventNotification")
+            if event_notification:
+                available_events = deep_get(event_notification, "EventTriggerList.EventTrigger", [])
+            else:
+                available_events = deep_get(event_triggers, "EventTriggerList.EventTrigger", [])
 
-        for event_trigger in available_events:
-            if event := create_event_info(event_trigger):
-                events.append(event)
+            for event_trigger in available_events:
+                if event := create_event_info(event_trigger):
+                    events.append(event)
 
         # some devices do not have scenechangedetection in Event/triggers
         if not [e for e in events if e.id == "scenechangedetection"]:
@@ -328,33 +343,132 @@ class ISAPIClient:
                         if event := create_event_info(event_trigger):
                             events.append(event)
 
-        if self.device_info.device_type == "ACS":
+        # if self.capabilities.support_anpr and not self.device_info.is_nvr:
+        #     # TODO: add support for NVR
+        #     event_trigger = await self.request(GET, "Event/triggers/vehicledetection-1")
+        #     event_trigger = deep_get(event_trigger, "EventTrigger", {})
+        #     if event := create_event_info(event_trigger):
+        #         events.append(event)
+
+        # Fetch the dedicated and more complete SubscribeEvent capability
+        # This is the correct source for building generic multi-event subscriptions.
+        subscribe_event_cap_raw = await self.request(GET, "Event/notification/subscribeEventCap")
+        subscribe_cap = subscribe_event_cap_raw.get("SubscribeEventCap", subscribe_event_cap_raw) or {}
+
+        cap_events = deep_get(subscribe_cap, "EventList.Event", [])
+
+        # Also fetch the original httpHosts/capabilities (still useful for some flags like ANPR)
+        # events_capabilities = await self.request(GET, "Event/notification/httpHosts/capabilities")
+        # anpr_events = deep_get(events_capabilities, "HttpHostNotificationCap.ANPR", [])
+
+        # Rich parsing using the proper SubscribeEventCap from the dedicated endpoint
+        self._parse_subscribe_event_cap(subscribe_cap, cap_events)
+
+        # Legacy simple flag
+        self.capabilities.support_subscribe_event = (
+            str_to_bool(deep_get(subscribe_cap, "isSupportSubscribeEvent", "false"))
+            or bool(cap_events)
+            or self.capabilities.subscribe_event_cap.supports_subscribe
+        )
+
+        # Use the parsed SubscribeEventCap data (more accurate and consistent)
+        cap_info = self.capabilities.subscribe_event_cap
+
+        if "AccessControllerEvent" in cap_info.supported_event_types:
             events.append(EventInfo(
-                channel_id=None,
-                io_port_id=0,
                 id="door",
-                url="",
-                is_proxy=False,
+                channel_id=0,
+                io_port_id=0,
                 notifications=["center"]
             ))
             events.append(EventInfo(
-                channel_id=None,
-                io_port_id=0,
                 id="lock",
-                url="",
-                is_proxy=False,
+                channel_id=0,
+                io_port_id=0,
+                url="AccessControl/RemoteControl/door/1",
                 notifications=["center"]
             ))
             events.append(EventInfo(
-                channel_id=None,
-                io_port_id=0,
                 id="face",
-                url="",
-                is_proxy=False,
+                channel_id=0,
+                io_port_id=0,
+                notifications=["center"]
+            ))
+
+        # ANPR: prefer the parsed supported_event_types, fallback to previous logic
+        if (
+            "ANPR" in cap_info.supported_event_types
+            or self.capabilities.support_anpr
+        ):
+            events.append(EventInfo(
+                id="anpr",
+                channel_id=0,
+                io_port_id=0,
                 notifications=["center"]
             ))
 
         return events
+
+    def _parse_subscribe_event_cap(self, subscribe_cap: dict, cap_events: list) -> None:
+        """Parse SubscribeEventCap (from /Event/notification/subscribeEventCap) into rich info."""
+        cap_info = self.capabilities.subscribe_event_cap
+
+        if not subscribe_cap:
+            return
+
+        cap_info.raw_caps = subscribe_cap
+        cap_info.supports_subscribe = True
+
+        # Formats
+        fmt = deep_get(subscribe_cap, "format", {})
+        if isinstance(fmt, dict):
+            cap_info.formats = fmt.get("@opt", "").split(",")
+        else:
+            cap_info.formats = [fmt] if fmt else ["xml"]
+
+        # Channel / Event modes
+        cap_info.channel_modes = deep_get(subscribe_cap, "channelMode", {}).get("@opt", "").split(",")
+        cap_info.event_modes = deep_get(subscribe_cap, "eventMode", {}).get("@opt", "").split(",")
+
+        # Global picture types
+        pic = deep_get(subscribe_cap, "pictureURLType", {})
+        if isinstance(pic, dict):
+            cap_info.picture_url_types = pic.get("@opt", "").split(",")
+            # cap_info.default_picture_url_type = pic.get("@def", "")
+            cap_info.default_picture_url_type = "cloudStorageURL" if "cloudStorageURL" in cap_info.picture_url_types else pic.get("@def", "")
+        else:
+            cap_info.picture_url_types = [pic] if pic else []
+
+        # Per-event information
+        if not isinstance(cap_events, list):
+            cap_events = [cap_events] if cap_events else []
+
+        supported_types = []
+        for evt in cap_events:
+            if not isinstance(evt, dict):
+                continue
+            etype = evt.get("type")
+            if not etype:
+                continue
+            supported_types.append(etype)
+
+            pic_info = evt.get("pictureURLType", {})
+            if isinstance(pic_info, dict):
+                allowed = pic_info.get("@opt", "").split(",")
+                cap_info.event_picture_types[etype] = [p for p in allowed if p]
+            else:
+                cap_info.event_picture_types[etype] = [pic_info] if pic_info else []
+
+        cap_info.supported_event_types = supported_types
+
+        # Heuristic: if device only returns specific events in EventList, it likely requires explicit list
+        if cap_info.event_modes and "list" in cap_info.event_modes and "all" not in cap_info.event_modes:
+            cap_info.requires_event_list = True
+        if cap_events:
+            cap_info.requires_event_list = True
+
+        # Note: Actual EventInfo registration for door/lock/face/anpr continues
+        # in the main body of get_supported_events after this call.
 
     def get_event_url(self, event_id: str, channel_id: int, io_port_id: int, is_proxy: bool) -> str | None:
         """Get event ISAPI URL."""
@@ -379,6 +493,9 @@ class ISAPIClient:
         elif event_type == EVENT_PIR:
             # ISAPI/WLAlarm/PIR
             url = slug
+        elif event_type == EVENT_TRAFFIC:
+            # /ISAPI/Traffic/channels/1/vehicleDetect
+            url = f"Traffic/channels/{channel_id}/{slug}"
         else:
             url = f"Smart/{slug}/{channel_id}"
         return url
@@ -500,6 +617,10 @@ class ISAPIClient:
         if not event.url:
             _LOGGER.warning("Cannot fetch event enabled state. Unknown event URL %s", event.id)
             return False
+
+        if event.id == "lock":
+            return None
+
         state = await self.request(GET, event.url)
         node = self._get_event_state_node(event)
         return str_to_bool(state[node].get("enabled", "false")) if state.get(node) else False
@@ -542,6 +663,20 @@ class ISAPIClient:
         if not event.url:
             _LOGGER.warning("Cannot set event enabled state. Unknown event URL %s", event.id)
             return False
+
+        if event.id == "lock":
+            data = {
+                "RemoteControlDoor": {
+                    '@xmlns': 'http://www.isapi.org/ver20/XMLSchema',
+                    '@version': '2.0',
+                    "cmd": "open" if is_enabled else "close"
+                }
+            }
+            xml = xmltodict.unparse(data)
+            _LOGGER.info(f"Set lock state {event.url} -> {data['RemoteControlDoor']['cmd']}")
+            await self.ext_request(PUT, event.url, present="xml", data=xml)
+            return None
+
         # Validate that this event switch is not mutually exclusive with another enabled one
         mutex_issues = []
         if channel_id != 0 and is_enabled and self.capabilities.support_event_mutex_checking:
@@ -609,7 +744,7 @@ class ISAPIClient:
     def _get_event_notification_host(self, data: Node) -> Node:
         hosts = deep_get(data, "HttpHostNotificationList.HttpHostNotification", [])
         if hosts:
-            return hosts[0]
+            return hosts
 
     async def get_alarm_server(self) -> AlarmServer | None:
         """Get event notifications listener server URL."""
@@ -617,15 +752,18 @@ class ISAPIClient:
         data = await self.request(GET, "Event/notification/httpHosts")
         if not data:
             return None
-        host = self._get_event_notification_host(data)
+        hosts = self._get_event_notification_host(data)
+        for host in hosts:
+            if host.get("protocolType", "").lower() != "http":
+                continue
 
-        return AlarmServer(
-            ip_address=host.get("ipAddress"),
-            port_no=int(host.get("portNo")),
-            url=host.get("url"),
-            protocol_type=host.get("protocolType"),
-            host_name=host.get("hostName"),
-        )
+            return AlarmServer(
+                ip_address=host.get("ipAddress"),
+                port_no=int(host.get("portNo")),
+                url=host.get("url"),
+                protocol_type=host.get("protocolType"),
+                host_name=host.get("hostName"),
+            )
 
     async def set_alarm_server(self, base_url: str, path: str) -> None:
         """Set event notifications listener server."""
@@ -634,44 +772,50 @@ class ISAPIClient:
         data = await self.request(GET, "Event/notification/httpHosts")
         if not data:
             return
-        host = self._get_event_notification_host(data)
+        hosts = self._get_event_notification_host(data)
 
-        old_address = ""
-        if host.get("addressingFormatType") == "ipaddress":
-            old_address = host.get("ipAddress")
-        else:
-            old_address = host.get("hostname")
+        for host in hosts:
+            old_address = ""
+            if host.get("addressingFormatType") == "ipaddress":
+                old_address = host.get("ipAddress")
+            else:
+                old_address = host.get("hostname")
 
-        if (
-            host["protocolType"] == address.scheme.upper()
-            and old_address == address.hostname
-            and host.get("portNo") == str(address.port)
-            and host["url"] == path
-        ):
-            return
-        host["url"] = path
-        host["protocolType"] = address.scheme.upper()
-        host["parameterFormatType"] = "XML"
+            if (
+                    host["protocolType"] == address.scheme.upper()
+                    and old_address == address.hostname
+                    and host.get("portNo") == str(address.port)
+                    and host["url"] == path
+            ):
+                return
 
-        try:
-            ipaddress.ip_address(address.hostname)
+            if host["protocolType"].upper() not in ("HTTP", "HTTPS"):
+                continue
 
-            # if address.hostname is an ip
-            host["addressingFormatType"] = "ipaddress"
-            host["ipAddress"] = address.hostname
-            host["hostName"] = None
-            del host["hostName"]
-        except ValueError:
-            # if address.hostname is a domain
-            host["addressingFormatType"] = "hostname"
-            host["ipAddress"] = None
-            del host["ipAddress"]
-            host["hostName"] = address.hostname
+            host["url"] = path
+            host["protocolType"] = address.scheme.upper()
+            host["parameterFormatType"] = "XML"
 
-        host["portNo"] = address.port or (443 if address.scheme == "https" else 80)
-        host["httpAuthenticationMethod"] = "none"
+            try:
+                ipaddress.ip_address(address.hostname)
+
+                # if address.hostname is an ip
+                host["addressingFormatType"] = "ipaddress"
+                host["ipAddress"] = address.hostname
+                host["hostName"] = None
+                del host["hostName"]
+            except ValueError:
+                # if address.hostname is a domain
+                host["addressingFormatType"] = "hostname"
+                host["ipAddress"] = None
+                del host["ipAddress"]
+                host["hostName"] = address.hostname
+
+            host["portNo"] = address.port or (443 if address.scheme == "https" else 80)
+            host["httpAuthenticationMethod"] = "none"
 
         xml = xmltodict.unparse(data)
+
         await self.request(PUT, "Event/notification/httpHosts", present="xml", data=xml)
 
     async def reboot(self):
@@ -679,30 +823,46 @@ class ISAPIClient:
         await self.request(PUT, "System/reboot", present="xml")
 
     @staticmethod
-    def parse_event_notification(xml: str | dict) -> AlertInfo:
-        """Parse incoming EventNotificationAlert XML message."""
+    def parse_event_notification(xml: str | dict) -> AlertInfo | None:
+        """Parse incoming EventNotificationAlert XML message.
 
+        This method is now more defensive because subscribeEvent streams
+        (especially heartbeats) can sometimes deliver partial or concatenated data.
+        """
         if isinstance(xml, dict):
             alert = xml
         else:
-            # Fix for some cameras sending non html encoded data
-            xml = xml.replace("&", "&amp;")
-
-            data = xmltodict.parse(xml)
-            alert = data["EventNotificationAlert"]
+            try:
+                # Fix for some cameras sending non html encoded data
+                xml = xml.replace("&", "&amp;")
+                data = xmltodict.parse(xml)
+                alert = data.get("EventNotificationAlert")
+                if alert is None:
+                    return None
+            except Exception as e:
+                # Gracefully ignore malformed / heartbeat / junk data from streams
+                # (very common with heartBeat events over subscribeEvent)
+                _LOGGER.warning("Failed to decode EventNotificationAlert", exc_info=e)
+                return None
 
         event_id = alert.get("eventType")
         if not event_id or event_id == "duration":
             # <EventNotificationAlert version="2.0"
-            event_id = alert["DurationList"]["Duration"]["relationEvent"]
-        event_id = event_id.lower()
+            try:
+                event_id = alert["DurationList"]["Duration"]["relationEvent"]
+            except Exception:
+                return None
+
+        event_id = str(event_id).lower()
+
+        # Handle both "heartbeat" and "heartBeat" (device sends camelCase)
+        if event_id in ("heartbeat", "heartbeat"):
+            return None
 
         if event_id == "accesscontrollerevent":
-            print("\033[32m", alert.get("AccessControllerEvent"), "\033[0m")
-
-            alert = alert.get("AccessControllerEvent")
-            if alert.get("majorEventType") == 5:
-                if alert.get("subEventType") in (0x15, 0x16, 0x13, 0x14):
+            ace = alert.get("AccessControllerEvent")
+            if ace.get("majorEventType") == 5:
+                if ace.get("subEventType") in (0x15, 0x16, 0x13, 0x14):
                     return AlertInfo(
                         0,
                         0,
@@ -711,9 +871,9 @@ class ISAPIClient:
                         alert.get("macAddress"),
                         None,
                         None,
-                        STATE_ON if alert.get("subEventType") in (0x15, 0x13) else STATE_OFF
+                        STATE_ON if ace.get("subEventType") in (0x15, 0x13) else STATE_OFF
                     )
-                elif alert.get("subEventType") in (0x19, 0x1a):
+                elif ace.get("subEventType") in (0x19, 0x1a):
                     # MINOR_DOOR_OPEN_NORMAL = 0x19
                     # MINOR_DOOR_CLOSE_NORMAL = 0x1a
                     return AlertInfo(
@@ -724,9 +884,9 @@ class ISAPIClient:
                         alert.get("macAddress"),
                         None,
                         None,
-                        STATE_ON if alert.get("subEventType") == 0x19 else STATE_OFF
+                        STATE_ON if ace.get("subEventType") == 0x19 else STATE_OFF
                     )
-                elif alert.get("subEventType") == 0x4b:
+                elif ace.get("subEventType") == 0x4b:
                     # MINOR_FACE_VERIFY_PASS 人脸认证通过
                     return AlertInfo(
                         0,
@@ -736,7 +896,7 @@ class ISAPIClient:
                         alert.get("macAddress"),
                         None,
                         None,
-                        alert.get("employeeNoString")+": "+alert.get("name")
+                        ace.get("employeeNoString") + ": " + ace.get("name")
                     )
 
             return None
@@ -755,7 +915,7 @@ class ISAPIClient:
             detection_target = deep_get(alert, "DetectionRegionList.DetectionRegionEntry.detectionTarget")
             region_id = int(deep_get(alert, "DetectionRegionList.DetectionRegionEntry.regionID", 0))
 
-            if not EVENTS[event_id]:
+            if not EVENTS.get(event_id):
                 raise ValueError(f"Unsupported event {event_id}")
 
             return AlertInfo(
@@ -769,11 +929,11 @@ class ISAPIClient:
             )
 
     async def get_camera_image(
-        self,
-        stream: CameraStreamInfo,
-        width: int | None = None,
-        height: int | None = None,
-        attempt: int = 0,
+            self,
+            stream: CameraStreamInfo,
+            width: int | None = None,
+            height: int | None = None,
+            attempt: int = 0,
     ):
         """Get camera snapshot."""
         params = {}
@@ -795,7 +955,12 @@ class ISAPIClient:
 
         if data.startswith(b"<?xml "):
             error = xmltodict.parse(data)
-            status_code = int(deep_get(error, "ResponseStatus.statusCode"))
+            if error is None:
+                return None
+            if str_status_code := deep_get(error, "ResponseStatus.statusCode"):
+                status_code = int(str_status_code)
+            else:
+                return None
             if status_code == 6 and not stream.use_alternate_picture_url:
                 # handle 'Invalid XML Content' for some cameras, use alternate url for still image
                 stream.use_alternate_picture_url = True
@@ -829,24 +994,98 @@ class ISAPIClient:
             elif "Digest" in www_authenticate:
                 self._auth_method = httpx.DigestAuth(self.username, self.password)
 
-        if not self._auth_method:
+        if not self._auth_method and response.status_code != 200:
             _LOGGER.error("Authentication method not detected, %s", response.status_code)
+            self._session = None
             if response.headers:
                 _LOGGER.error("response.headers %s", response.headers)
+
+    async def _session_login(self):
+        if self._isLogin:
+            return
+        # Step 1: 获取登录能力（capabilities）
+        url = "Security/sessionLogin/capabilities"
+        params = {'username': self.username}
+
+        if not self._ext_session:
+            self._ext_session = httpx.AsyncClient(timeout=self.timeout, verify=self.verify_ssl)
+
+        resp = await self._ext_session.get(self.get_isapi_url(url), params=params)
+        resp.raise_for_status()
+
+        # 使用 xmltodict 解析 XML
+        data = xmltodict.parse(resp.text)
+
+        # 提取需要的信息
+        session_info = data.get('SessionLoginCap', {}) or data.get('sessionLoginCap', {})
+
+        salt = session_info.get('salt')
+        challenge = session_info.get('challenge')
+        iterations = int(session_info.get('iterations', 0))
+        session_id = session_info.get('sessionID')
+        session_id_version = session_info.get('sessionIDVersion')
+
+        if not all([salt, challenge, iterations, session_id, session_id_version]):
+            _LOGGER.error("❌ capabilities return data invalid")
+            raise HTTPStatusError("capabilities return data invalid")
+
+        try:
+            # 第一次哈希
+            hash_pwd = hashlib.sha256(f"{self.username}{salt}{self.password}".encode('utf-8')).hexdigest()
+
+            # 第二次哈希（加 challenge）
+            hash_pwd = hashlib.sha256(f"{hash_pwd}{challenge}".encode('utf-8')).hexdigest()
+
+            # 后续迭代
+            for _ in range(2, iterations):
+                hash_pwd = hashlib.sha256(hash_pwd.encode('utf-8')).hexdigest()
+
+            # Step 3: 提交登录
+            login_url = f"Security/sessionLogin?timeStamp={int(time.time() * 1000)}"
+
+            login_xml = f"""<SessionLogin>
+    <userName>{self.username}</userName>
+    <password>{hash_pwd}</password>
+    <sessionID>{session_id}</sessionID>
+    <sessionIDVersion>{session_id_version}</sessionIDVersion>
+</SessionLogin>"""
+
+            headers = {
+                'Content-Type': 'application/xml; charset=utf-8'
+            }
+
+            resp = await self._ext_session.post(self.get_isapi_url(login_url), content=login_xml, headers=headers)
+
+            # 解析返回结果
+            result = xmltodict.parse(resp.text)
+            status_value = result.get('SessionLogin', {}).get('statusValue')
+
+            if status_value == '200' or status_value == 200:
+                self._isLogin = True
+                _LOGGER.info("✅ 海康威视异步登录成功")
+                return True
+            else:
+                _LOGGER.error(f"❌ 登录失败，statusValue: {status_value}")
+                return False
+
+        except Exception as e:
+            _LOGGER.error(f"❌ 登录过程出错: {e}")
+            return False
 
     def get_isapi_url(self, relative_url: str) -> str:
         """Build full ISAPI URL."""
         return f"{self.host}/{self.isapi_prefix}/{relative_url}"
 
     async def request(
-        self,
-        method: str,
-        url: str,
-        present: str = "dict",
-        data: str = None,
+            self,
+            method: str,
+            url: str,
+            present: str = "dict",
+            data: str = None,
     ) -> Any:
         """Send ISAPI request and log response, returns {} if request fails."""
         full_url = self.get_isapi_url(url)
+        response = None
         try:
             if not self._auth_method:
                 await self._detect_auth_method()
@@ -858,6 +1097,9 @@ class ISAPIClient:
                 data=data,
                 timeout=self.timeout,
             )
+            if response.status_code == 401:
+                self._auth_method = None
+
             response.raise_for_status()
             result = parse_isapi_response(response, present)
             _LOGGER.debug("--- [%s] %s", method, full_url)
@@ -866,6 +1108,53 @@ class ISAPIClient:
             _LOGGER.debug("\n%s", result)
         except HTTPStatusError as ex:
             _LOGGER.info("--- [%s] %s\n%s", method, full_url, ex)
+            if response is not None and response.status_code not in (200, 404):
+                _LOGGER.info("--- [%s] %d Error: %s", method, response.status_code, response.text)
+            if ex.response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise ISAPIUnauthorizedError(ex) from ex
+            if ex.response.status_code == HTTPStatus.FORBIDDEN and not self.pending_initialization:
+                raise ISAPIForbiddenError(ex) from ex
+            if self.pending_initialization:
+                # supress http errors during initialization
+                return {}
+            raise
+        else:
+            return result
+
+    async def ext_request(
+            self,
+            method: str,
+            url: str,
+            present: str = "dict",
+            data: str = None,
+    ) -> Any:
+        """Send ISAPI request and log response, returns {} if request fails."""
+        full_url = self.get_isapi_url(url)
+        response = None
+        try:
+            if not self._isLogin:
+                await self._session_login()
+
+            response = await self._ext_session.request(
+                method,
+                full_url,
+                auth=self._auth_method,
+                data=data,
+                timeout=self.timeout,
+            )
+            if response.status_code == 401:
+                self._isLogin = False
+
+            response.raise_for_status()
+            result = parse_isapi_response(response, present)
+            _LOGGER.debug("--- [%s] %s", method, full_url)
+            if data:
+                _LOGGER.debug(">>> payload:\n%s", data)
+            _LOGGER.debug("\n%s", result)
+        except HTTPStatusError as ex:
+            _LOGGER.info("--- [%s] %s\n%s", method, full_url, ex)
+            if response is not None and response.status_code not in (200, 404):
+                _LOGGER.info("--- [%s] %d Error: %s", method, response.status_code, response.text)
             if ex.response.status_code == HTTPStatus.UNAUTHORIZED:
                 raise ISAPIUnauthorizedError(ex) from ex
             if ex.response.status_code == HTTPStatus.FORBIDDEN and not self.pending_initialization:
@@ -878,10 +1167,10 @@ class ISAPIClient:
             return result
 
     async def request_bytes(
-        self,
-        method: str,
-        full_url: str,
-        **data,
+            self,
+            method: str,
+            full_url: str,
+            **data,
     ) -> AsyncIterator[bytes]:
         """Send ISAPI request for binary data."""
 
@@ -894,6 +1183,156 @@ class ISAPIClient:
                     yield chunk
         except httpx.HTTPError as ex:
             _LOGGER.warning("Failed request [%s] %s | %s", method, full_url, ex)
+
+    async def subscribe_events(self, xml: str) -> httpx.Response:
+        """Send subscribeEvent request and return the streaming response.
+
+        The caller is responsible for reading the stream and closing the response.
+        This is used by EventSubscription for long-lived event push channels
+        (e.g. ANPR) that are not delivered via the normal alarm server callback.
+        """
+        full_url = self.get_isapi_url(SUBSCRIBE_ENDPOINT)
+
+        if not self._auth_method:
+            await self._detect_auth_method()
+
+        request = self._session.build_request(
+            "POST",
+            full_url,
+            content=xml,
+            headers={"Content-Type": "application/xml"},
+            timeout=300
+        )
+        response = await self._session.send(request, auth=self._auth_method, stream=True)
+
+        if response.status_code == 401:
+            self._isLogin = False
+            self._auth_method = None
+
+        if response.status_code not in (200, 404):
+            # Must consume the body first on streaming responses
+            body = await response.aread()
+            _LOGGER.warning("--- Error %d on subscribeEvent: %s", response.status_code, body)
+            # Re-raise after consuming
+            response.raise_for_status()
+        else:
+            response.raise_for_status()
+
+        content_type = response.headers.get("content-type", "")
+        _LOGGER.debug(
+            "--- [POST] subscribeEvent long-lived connection established, content-type=%s",
+            content_type,
+        )
+        return response
+
+    def build_subscribe_event_xml(
+        self,
+        event_types: list[str] | None = None,
+        channel_mode: str | None = None,
+        event_mode: str | None = None,
+        picture_url_type: str | None = None,
+        heartbeat: int = 5,
+        level: str = "high",
+    ) -> str:
+        """Build a device-compatible <SubscribeEvent> XML payload.
+
+        This makes EventSubscription a generic multi-event subscriber.
+        """
+        cap = self.capabilities.subscribe_event_cap
+
+        # Decide modes
+        ch_mode = channel_mode or ("all" if "all" in cap.channel_modes else "list")
+        ev_mode = event_mode or ("all" if "all" in cap.event_modes else "list")
+
+        # Decide picture type
+        if not picture_url_type:
+            if cap.default_picture_url_type:
+                picture_url_type = cap.default_picture_url_type
+            elif cap.picture_url_types:
+                picture_url_type = cap.picture_url_types[0]
+            else:
+                picture_url_type = "binary"
+
+        data = {
+            "SubscribeEvent": {
+                "heartbeat": heartbeat,
+                "channelMode": ch_mode,
+                "eventMode": ev_mode,
+            }
+        }
+
+        # Build EventList when required or when specific events are requested
+        need_event_list = (
+            cap.requires_event_list
+            or ev_mode == "list"
+            or (event_types and len(event_types) > 0)
+        )
+
+        if need_event_list:
+            data['SubscribeEvent']['EventList'] = {
+                'Event': []
+            }
+
+            targets = event_types or cap.supported_event_types or ["ANPR"]
+
+            for etype in targets:
+                sub_data = {
+                    "type": etype
+                }
+
+                # Per-event picture type if available
+                allowed = cap.event_picture_types.get(etype, cap.picture_url_types)
+                if allowed:
+                    chosen = picture_url_type if picture_url_type in allowed else allowed[0]
+                    sub_data['pictureURLType'] = chosen
+
+                try:
+                    raw_evtList = cap.raw_caps.get('EventList')
+                    if raw_evtList:
+                        raw_evtList = raw_evtList.get('Event')
+                        if not isinstance(raw_evtList, list):
+                            raw_evtList = [raw_evtList]
+                        for evt in raw_evtList:
+                            if evt.get('type') == etype:
+                                for ev_k, ev_v in evt.items():
+                                    if ev_k in ['type', 'pictureURLType']:
+                                        continue
+                                    if ev_k in ['minorEvent', 'minorAlarm', 'minorException', 'minorOperation']:
+                                        ev_v = ev_v.split(",")
+                                        if ev_k == 'minorEvent':
+                                            ev_v = [x for x in ev_v if x not in ('0x51','0x52', '0x813')]
+                                        if ev_k == 'minorOperation':
+                                            # Remove For 远程手动校时, NTP自动校时, 远程实时布防, 远程实时撤防
+                                            ev_v = [x for x in ev_v if x not in ('0x404', '0x405', '0x419', '0x41a')]
+                                        ev_v = ",".join(ev_v)
+                                    sub_data[ev_k] = ev_v
+                except Exception as e:
+                    traceback.print_exception(e)
+
+                data['SubscribeEvent']['EventList']['Event'].append(sub_data)
+
+        # Global picture preference
+        data['SubscribeEvent']['pictureURLType'] = picture_url_type
+        data['SubscribeEvent']['level'] = level
+        # data['SubscribeEvent']['SubscribeISAPIMessage'] = {
+        #     'EventTypeList': {
+        #         'eventType': 'all',
+        #         'uploadPicEnable': 'true'
+        #     },
+        #     'EventList': {
+        #         'Event': {
+        #             'eventType': 'all',
+        #             'uploadPicEnable': 'true'
+        #         }
+        #     }
+        # }
+        data['SubscribeEvent']['eventAck'] = 'false'
+        data['SubscribeEvent']['changedUploadSub'] = None
+
+        xml = xmltodict.unparse(data)
+
+        _LOGGER.info("SubscribeEvent XML -> %s", xml)
+        return xml
 
 
 class ISAPISetEventStateMutexError(Exception):

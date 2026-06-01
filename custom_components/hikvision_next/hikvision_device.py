@@ -16,6 +16,7 @@ from homeassistant.util import slugify
 from .const import (
     ALARM_SERVER_PATH,
     CONF_ALARM_SERVER_HOST,
+    CONF_USE_HTTP_NOTIFY,
     CONF_SET_ALARM_SERVER,
     DOMAIN,
     EVENTS,
@@ -23,9 +24,10 @@ from .const import (
     RTSP_PORT_FORCED,
     SECONDARY_COORDINATOR,
 )
-from .coordinator import EventsCoordinator, SecondaryCoordinator
+from .coordinator import EventsCoordinator, SecondaryCoordinator, SubscribeStatusCoordinator
 from .isapi import (
     EventInfo,
+    EventSubscription,
     IPCamera,
     ISAPIClient,
     ISAPIForbiddenError,
@@ -51,6 +53,7 @@ class HikvisionDevice(ISAPIClient):
         self.entry = entry
         self.hass = hass
         self.auth_token_expired = False
+        self.use_http_notify = config[CONF_USE_HTTP_NOTIFY]
         self.control_alarm_server_host = config[CONF_SET_ALARM_SERVER]
         self.alarm_server_host = config[CONF_ALARM_SERVER_HOST]
 
@@ -64,6 +67,8 @@ class HikvisionDevice(ISAPIClient):
         super().__init__(host, username, password, verify_ssl, rtsp_port_forced, session)
 
         self.events_info: list[EventInfo] = []
+        self.event_subscription: EventSubscription | None = None
+        self.subscribe_coordinator: SubscribeStatusCoordinator | None = None
 
     async def init_coordinators(self):
         """Initialize coordinators."""
@@ -86,9 +91,28 @@ class HikvisionDevice(ISAPIClient):
         if self.control_alarm_server_host and self.capabilities.support_alarm_server:
             await self.set_alarm_server(self.alarm_server_host, ALARM_SERVER_PATH)
 
+        if self.use_http_notify:
+            # Always bind to a stable wrapper method.
+            # The wrapper will dynamically resolve the current notification_ctx at runtime.
+            # This solves the problem where notification_ctx may be created after EventSubscription.
+            self.event_subscription = EventSubscription(
+                self,
+                on_event=self._dispatch_subscribed_event
+            )
+
+            # Use the new generic multi-event builder (respects SubscribeEventCap)
+            event_types = ["ANPR"] if self.capabilities.support_anpr else None
+            try:
+                await self.event_subscription.start(event_types=event_types)
+            except Exception as ex:
+                self.handle_exception(ex, "Failed to start event subscription (long-lived subscribeEvent)")
+
         # first data fetch
         for coordinator in self.coordinators.values():
             await coordinator.async_config_entry_first_refresh()
+
+        # Subscription status coordinator (for the connectivity-style sensor)
+        self.subscribe_coordinator = SubscribeStatusCoordinator(self.hass, self)
 
     def hass_device_info(self, camera_id: int = 0) -> DeviceInfo:
         """Return Home Assistant entity device information."""
@@ -166,3 +190,26 @@ class HikvisionDevice(ISAPIClient):
             error = "Connection error"
 
         _LOGGER.warning("%s | %s | %s | %s", error, self.host, details, ex)
+
+    async def _dispatch_subscribed_event(self, raw_event: str | dict) -> None:
+        """
+        Local handling for subscribe events.
+        """
+        if isinstance(raw_event, str) and '\n<SubscribeEventResponse>' in raw_event:
+            return
+
+        if raw_event is None:
+            await self.async_set_subscribe_connected(False, "stream error")
+            return
+
+        # Healthy event received → mark subscription as connected
+        await self.async_set_subscribe_connected(True)
+
+        if self.hass.data.get(DOMAIN) and self.hass.data[DOMAIN].get("notification_ctx"):
+            ctx = self.hass.data[DOMAIN]["notification_ctx"]
+            await ctx.handle_subscribed_event(raw_event)
+
+    async def async_set_subscribe_connected(self, connected: bool, reason: str | None = None):
+        """Update the subscribe status via its coordinator (按需更新)."""
+        if self.subscribe_coordinator:
+            await self.subscribe_coordinator.async_set_connected(connected, reason)
