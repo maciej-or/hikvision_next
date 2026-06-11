@@ -6,7 +6,7 @@ import logging
 import voluptuous as vol
 
 from homeassistant.components.camera import Camera
-from homeassistant.components.image import ImageEntity
+from homeassistant.components.image import ENTITY_ID_FORMAT, ImageEntity
 from homeassistant.const import ATTR_ENTITY_ID, CONF_FILENAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
@@ -63,7 +63,7 @@ class SnapshotFile(ImageEntity):
         ImageEntity.__init__(self, hass)
 
         self._attr_unique_id = slugify(f"{device.device_info.serial_no.lower()}_{stream_info.id}_snapshot")
-        self.entity_id = f"camera.{self.unique_id}"
+        self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
         self._attr_translation_key = "snapshot"
         self._attr_translation_placeholders = {"camera": camera.name}
 

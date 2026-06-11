@@ -41,6 +41,23 @@ async def test_sensor_value_outside_network(
         assert sensor.state == state
 
 
+@pytest.mark.parametrize("init_integration", ["DS-7608NXI-I2"], indirect=True)
+async def test_entity_id_is_valid(
+    hass: HomeAssistant,
+    init_integration: MockConfigEntry,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Test that entities do not set invalid entity IDs.
+
+    The fixture serial number contains uppercase letters, hyphens and slashes,
+    which must be slugified before being used in an entity ID.
+    """
+
+    messages = [record.getMessage() for record in caplog.get_records("setup") + caplog.records]
+    assert not any("sets an invalid entity ID" in message for message in messages)
+    assert not any("sets an entity ID with wrong domain" in message for message in messages)
+
+
 @pytest.mark.parametrize("init_integration", ["DS-2CD2146G2-ISU", "DS-7608NXI-I2"], indirect=True)
 async def test_scenechange_support(
     hass: HomeAssistant,
