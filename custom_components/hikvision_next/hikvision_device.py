@@ -603,7 +603,8 @@ class HikvisionDevice(ISAPIClient):
                 "macAddress": self.device_info.mac_address,
             })
             ctx = self.hass.data[DOMAIN]["notification_ctx"]
-            await ctx.handle_subscribed_event(raw_event)
+            ctx.device = self
+            await ctx.handle_subscribed_event(raw_event, device=self)
 
     def _cast_alarm_info(self, command: int, callback_alarm_info_p):
         '''Cast the alarm_info pointer received from the callback to the correct Python class, depending on the value of `command`'''
@@ -1553,7 +1554,8 @@ class HikvisionDevice(ISAPIClient):
 
         if self.hass.data.get(DOMAIN) and self.hass.data[DOMAIN].get("notification_ctx"):
             ctx = self.hass.data[DOMAIN]["notification_ctx"]
-            await ctx.handle_subscribed_event(raw_event)
+            ctx.device = self
+            await ctx.handle_subscribed_event(raw_event, device=self)
 
     async def async_set_subscribe_connected(self, connected: bool, reason: str | None = None):
         """Update the event/alarm channel connectivity status."""

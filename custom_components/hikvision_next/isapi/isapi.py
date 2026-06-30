@@ -1342,6 +1342,7 @@ class ISAPIClient:
         major = ISAPIClient._acs_event_int(ace.get("majorEventType"))
         minor = ISAPIClient._acs_event_int(ace.get("subEventType"))
         mac = alert.get("macAddress")
+        serial = alert.get("serial")
 
         if major == 5:
             if minor in (0x15, 0x16, 0x13, 0x14):
@@ -1349,7 +1350,7 @@ class ISAPIClient:
                     0,
                     0,
                     "lock",
-                    None,
+                    serial,
                     mac,
                     None,
                     None,
@@ -1360,7 +1361,7 @@ class ISAPIClient:
                     0,
                     0,
                     "door",
-                    None,
+                    serial,
                     mac,
                     None,
                     None,
@@ -1372,7 +1373,7 @@ class ISAPIClient:
                     0,
                     0,
                     "face",
-                    None,
+                    serial,
                     mac,
                     None,
                     None,
@@ -1390,7 +1391,7 @@ class ISAPIClient:
                     0,
                     0,
                     "lock",
-                    None,
+                    serial,
                     mac,
                     None,
                     None,
@@ -1452,7 +1453,7 @@ class ISAPIClient:
                 channel_id = channel_from_bitmap(alert.get("channels"))
             io_port_id = int(alert.get("inputIOPortID", 0))
             # <EventNotificationAlert version="1.0"
-            device_serial = deep_get(alert, "Extensions.serialNumber.#text")
+            device_serial = deep_get(alert, "Extensions.serialNumber.#text") or alert.get("serial")
             # <EventNotificationAlert version="2.0"
             mac = alert.get("macAddress")
 
