@@ -27,6 +27,9 @@ class AlertInfo:
     anpr_license_plate: str = field(default=None)
     anpr_direction: str = field(default=None)
     anpr_confidence_level: int = 0
+    face_person_name: str = field(default=None)
+    face_employee_no: str = field(default=None)
+    face_card_no: str = field(default=None)
 
 
 @dataclass
@@ -45,6 +48,8 @@ class EventInfo:
     channel_id: int
     io_port_id: int
     unique_id: str = None
+    anpr_plate_unique_id: str = None
+    anpr_image_unique_id: str = None
     url: str = None  # URL to fetch the event status (enabled/disabled)
     is_proxy: bool = False  # True if the event comes from device connected via NVR
     disabled: bool = False
@@ -111,6 +116,7 @@ class CapabilitiesInfo:
     output_ports: int = 0
     support_storage: bool = False
     support_anpr: bool = False
+    support_video_intercom: bool = False
     support_subscribe_event: bool = False  # whether device supports long-lived subscribeEvent connections
     subscribe_event_cap: "SubscribeEventCapInfo" = field(default_factory=lambda: SubscribeEventCapInfo())
 
@@ -150,6 +156,7 @@ class AnalogCamera:
     connection_type: str
     streams: list[CameraStreamInfo] = field(default_factory=list)
     events_info: list[EventInfo] = field(default_factory=list)
+    support_ptz: bool = False
 
 
 @dataclass

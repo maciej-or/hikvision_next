@@ -39,7 +39,7 @@ class EventsCoordinator(DataUpdateCoordinator):
         # Get camera event status
         for camera in self.device.cameras:
             for event in camera.events_info:
-                if event.disabled:
+                if event.disabled or not event.url:
                     continue
                 try:
                     _id = ENTITY_ID_FORMAT.format(event.unique_id)
@@ -116,10 +116,16 @@ class SecondaryCoordinator(DataUpdateCoordinator):
         return data
 
 
-class SubscribeStatusCoordinator(DataUpdateCoordinator):
-    """Coordinator for long-lived subscribeEvent connection health (event-driven)."""
+class ConnectionStatusCoordinator(DataUpdateCoordinator):
+    """Base coordinator for event-driven SDK/HTTP connection health."""
 
-    def __init__(self, hass: HomeAssistant, device) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        device,
+        *,
+        coordinator_name: str,
+    ) -> None:
         self.device = device
         self._connected = False
         self._reason: str | None = None
@@ -127,7 +133,7 @@ class SubscribeStatusCoordinator(DataUpdateCoordinator):
         super().__init__(
             hass,
             _LOGGER,
-            name=f"{DOMAIN}_subscribe_{device.device_info.serial_no}",
+            name=coordinator_name,
             update_interval=None,  # purely event driven
         )
 
@@ -140,7 +146,7 @@ class SubscribeStatusCoordinator(DataUpdateCoordinator):
         return self._reason
 
     async def async_set_connected(self, connected: bool, reason: str | None = None):
-        """Called by EventSubscription when connection state changes."""
+        """Update connection state and notify listeners."""
         if self._connected != connected or self._reason != reason:
             self._connected = connected
             self._reason = reason
@@ -148,3 +154,25 @@ class SubscribeStatusCoordinator(DataUpdateCoordinator):
                 "connected": connected,
                 "reason": reason,
             })
+
+
+class SubscribeStatusCoordinator(ConnectionStatusCoordinator):
+    """Coordinator for SDK alarm channel / subscribeEvent connection health."""
+
+    def __init__(self, hass: HomeAssistant, device) -> None:
+        super().__init__(
+            hass,
+            device,
+            coordinator_name=f"{DOMAIN}_subscribe_{device.device_info.serial_no}",
+        )
+
+
+class IntercomStatusCoordinator(ConnectionStatusCoordinator):
+    """Coordinator for VideoIntercomRemoteConfig session health."""
+
+    def __init__(self, hass: HomeAssistant, device) -> None:
+        super().__init__(
+            hass,
+            device,
+            coordinator_name=f"{DOMAIN}_intercom_{device.device_info.serial_no}",
+        )

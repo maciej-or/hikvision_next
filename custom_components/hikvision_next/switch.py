@@ -13,9 +13,19 @@ from homeassistant.util import slugify
 
 from . import HikvisionConfigEntry
 from .const import EVENTS_COORDINATOR, HOLIDAY_MODE, SECONDARY_COORDINATOR
-from .isapi import EventInfo, ISAPISetEventStateMutexError
+from .isapi import AnalogCamera, EventInfo, IPCamera, ISAPISetEventStateMutexError
 from .isapi.const import EVENT_IO
 from .const import EVENTS
+from .hikvision_device import HikvisionDevice
+
+PTZ_SWITCHES: dict[str, tuple[int, int, int, str]] = {
+    "ptz_up": (0, 60, 0, "mdi:arrow-up-bold"),
+    "ptz_down": (0, -60, 0, "mdi:arrow-down-bold"),
+    "ptz_left": (-60, 0, 0, "mdi:arrow-left-bold"),
+    "ptz_right": (60, 0, 0, "mdi:arrow-right-bold"),
+    "ptz_zoom_in": (0, 0, 60, "mdi:magnify-plus"),
+    "ptz_zoom_out": (0, 0, -60, "mdi:magnify-minus"),
+}
 
 
 async def async_setup_entry(
@@ -31,9 +41,11 @@ async def async_setup_entry(
 
     entities = []
 
-    # Camera supported events
+    # Camera supported events (skip subscribe-only events without an ISAPI toggle URL)
     for camera in device.cameras:
         for event in camera.events_info:
+            if not event.url:
+                continue
             entities.append(EventSwitch(camera.id, event, events_coordinator))
 
     # Device supported events
@@ -49,6 +61,23 @@ async def async_setup_entry(
     # Holiday mode switch
     if device.capabilities.support_holiday_mode:
         entities.append(HolidaySwitch(secondary_coordinator))
+
+    for camera in device.cameras:
+        if not camera.support_ptz:
+            continue
+        for action, (pan, tilt, zoom, icon) in PTZ_SWITCHES.items():
+            entities.append(
+                HikvisionPtzSwitch(
+                    device,
+                    camera,
+                    action,
+                    pan=pan,
+                    tilt=tilt,
+                    zoom=zoom,
+                    icon=icon,
+                )
+            )
+        entities.append(HikvisionPtzStopSwitch(device, camera))
 
     async_add_entities(entities)
 
@@ -168,3 +197,93 @@ class HolidaySwitch(CoordinatorEntity, SwitchEntity):
         """Turn off."""
         await self.coordinator.device.set_holiday_enabled_state(False)
         await self.coordinator.async_request_refresh()
+
+
+class HikvisionPtzSwitch(SwitchEntity):
+    """Continuous PTZ direction switch (turn on = move, turn off = stop)."""
+
+    _attr_has_entity_name = True
+    _attr_assumed_state = True
+
+    def __init__(
+        self,
+        device: HikvisionDevice,
+        camera: AnalogCamera | IPCamera,
+        action: str,
+        *,
+        pan: int,
+        tilt: int,
+        zoom: int,
+        icon: str,
+    ) -> None:
+        serial = device.device_info.serial_no.lower()
+        self._attr_unique_id = slugify(f"{serial}_{camera.id}_{action}")
+        self.entity_id = ENTITY_ID_FORMAT.format(self._attr_unique_id)
+        self._attr_translation_key = action
+        self._attr_translation_placeholders = {"camera": camera.name}
+        self._attr_icon = icon
+        self._attr_device_info = device.hass_device_info(camera.id)
+        self.device = device
+        self.camera = camera
+        self._action = action
+        self._pan = pan
+        self._tilt = tilt
+        self._zoom = zoom
+        self._is_active = False
+
+    @property
+    def is_on(self) -> bool:
+        return self._is_active
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Start moving in the configured direction."""
+        try:
+            await self.device.ptz_start(
+                self.camera,
+                action=self._action,
+                pan=self._pan,
+                tilt=self._tilt,
+                zoom=self._zoom,
+            )
+        except Exception as ex:
+            raise HomeAssistantError(str(ex)) from ex
+        self._is_active = True
+        self.async_write_ha_state()
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Stop PTZ movement."""
+        try:
+            await self.device.ptz_stop(self.camera, action=self._action)
+        except Exception as ex:
+            raise HomeAssistantError(str(ex)) from ex
+        self._is_active = False
+        self.async_write_ha_state()
+
+
+class HikvisionPtzStopSwitch(SwitchEntity):
+    """Tap-to-stop PTZ movement."""
+
+    _attr_has_entity_name = True
+    _attr_assumed_state = True
+    _attr_icon = "mdi:stop-circle-outline"
+
+    def __init__(self, device: HikvisionDevice, camera: AnalogCamera | IPCamera) -> None:
+        serial = device.device_info.serial_no.lower()
+        self._attr_unique_id = slugify(f"{serial}_{camera.id}_ptz_stop")
+        self.entity_id = ENTITY_ID_FORMAT.format(self._attr_unique_id)
+        self._attr_translation_key = "ptz_stop"
+        self._attr_translation_placeholders = {"camera": camera.name}
+        self._attr_device_info = device.hass_device_info(camera.id)
+        self.device = device
+        self.camera = camera
+
+    @property
+    def is_on(self) -> bool:
+        return False
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Stop PTZ movement."""
+        await self.device.ptz_stop(self.camera)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """No-op."""

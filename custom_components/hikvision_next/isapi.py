@@ -52,15 +52,7 @@ from .models import (
     ProtocolsInfo,
     StorageInfo,
 )
-from .utils import (
-    bool_to_str,
-    channel_from_bitmap,
-    deep_get,
-    input_proxy_cap_indicates_ptz,
-    parse_isapi_response,
-    ptz_channel_cap_indicates_support,
-    str_to_bool,
-)
+from .utils import bool_to_str, channel_from_bitmap, deep_get, parse_isapi_response, str_to_bool
 import hashlib
 
 if TYPE_CHECKING:
@@ -146,13 +138,6 @@ class ISAPIClient:
 
         itc_capability = deep_get(capabilities, "ITCCap", {})
         self.capabilities.support_anpr = str_to_bool(deep_get(itc_capability, "isSupportVehicleDetection", "false"))
-
-        from ..sdk.video_intercom import is_video_intercom_device
-
-        self.capabilities.support_video_intercom = is_video_intercom_device(
-            device_type=self.device_info.device_type,
-            model=self.device_info.model,
-        )
 
         # Set if NVR based on whether more than 1 supported IP or analog cameras
         # Single IP camera will show 0 supported devices in total
@@ -272,10 +257,28 @@ class ISAPIClient:
             return f"ContentMgmt/PTZCtrlProxy/channels/{camera.id}"
         return f"PTZCtrl/channels/{camera.id}"
 
-    async def _load_channel_descriptions(self) -> dict[int, str]:
-        """Load channelDescription values from video input channels."""
+    async def _channel_supports_ptz(self, camera: AnalogCamera) -> bool:
+        """Probe whether a channel exposes PTZ control endpoints."""
+        candidates = [self._ptz_control_base_url(camera)]
+        if isinstance(camera, IPCamera) and camera.connection_type == CONNECTION_TYPE_PROXIED:
+            candidates.append(f"PTZCtrl/channels/{camera.id}")
+        elif not self.device_info.is_nvr:
+            candidates.append(f"PTZCtrl/channels/{camera.id}")
+
+        for base_url in dict.fromkeys(candidates):
+            try:
+                await self.request(GET, f"{base_url}/capabilities", quiet=True)
+                return True
+            except Exception:
+                continue
+        return False
+
+    async def detect_ptz_support(self, system_capabilities: dict) -> None:
+        """Mark cameras that expose PTZ control."""
+        device_supports_ptz = bool(deep_get(system_capabilities, "PTZCtrlCap"))
+
         channel_descriptions: dict[int, str] = {}
-        try:
+        if self.device_info.is_nvr and self.capabilities.analog_cameras_inputs > 0:
             analog_cameras = deep_get(
                 (await self.request(GET, "System/Video/inputs/channels", quiet=True)),
                 "VideoInputChannelList.VideoInputChannel",
@@ -286,62 +289,19 @@ class ISAPIClient:
             for analog_camera in analog_cameras:
                 if analog_camera.get("id") is not None:
                     channel_descriptions[int(analog_camera["id"])] = analog_camera.get("channelDescription", "")
-        except Exception:
-            pass
-        return channel_descriptions
-
-    def _ptz_capabilities_indicate_support(
-        self,
-        response: dict,
-        *,
-        proxied: bool,
-    ) -> bool:
-        """Parse a PTZ capabilities response and decide if the channel supports PTZ."""
-        if not response:
-            return False
-        ptz_cap = deep_get(response, "PTZChannelCap")
-        return ptz_channel_cap_indicates_support(ptz_cap, proxied=proxied)
-
-    async def _input_proxy_channel_supports_ptz(self, camera: IPCamera) -> bool:
-        """Check InputProxy channel capabilities for proxied PTZ support."""
-        try:
-            response = await self.request(
-                GET,
-                f"ContentMgmt/InputProxy/channels/{camera.id}/capabilities",
-                quiet=True,
-            )
-            return input_proxy_cap_indicates_ptz(response)
-        except Exception:
-            return False
-
-    async def _channel_supports_ptz(self, camera: AnalogCamera) -> bool:
-        """Probe whether a channel exposes PTZ control endpoints."""
-        proxied = isinstance(camera, IPCamera) and camera.connection_type == CONNECTION_TYPE_PROXIED
-        candidates = [self._ptz_control_base_url(camera)]
-        if not proxied and not self.device_info.is_nvr:
-            candidates.append(f"PTZCtrl/channels/{camera.id}")
-
-        for base_url in dict.fromkeys(candidates):
-            try:
-                response = await self.request(GET, f"{base_url}/capabilities", quiet=True)
-                if self._ptz_capabilities_indicate_support(response, proxied=proxied):
-                    return True
-            except Exception:
-                continue
-
-        if proxied:
-            return await self._input_proxy_channel_supports_ptz(camera)
-        return False
-
-    async def detect_ptz_support(self, system_capabilities: dict) -> None:
-        """Mark cameras that expose PTZ control."""
-        channel_descriptions = await self._load_channel_descriptions()
 
         for camera in self.cameras:
             if self._channel_description_is_ptz(channel_descriptions.get(camera.id)):
                 camera.support_ptz = True
                 continue
             if await self._channel_supports_ptz(camera):
+                camera.support_ptz = True
+                continue
+            if (
+                not self.device_info.is_nvr
+                and device_supports_ptz
+                and len(self.cameras) == 1
+            ):
                 camera.support_ptz = True
 
     @staticmethod
@@ -776,8 +736,8 @@ class ISAPIClient:
                 notifications=["center"]
             ))
 
-        # ANPR: standalone devices use subscribeEventCap; NVR uses per-channel triggers.
-        if not self.device_info.is_nvr and (
+        # ANPR: prefer the parsed supported_event_types, fallback to previous logic
+        if (
             "ANPR" in cap_info.supported_event_types
             or self.capabilities.support_anpr
         ):
@@ -1054,7 +1014,7 @@ class ISAPIClient:
     async def get_event_enabled_state(self, event: EventInfo) -> bool:
         """Get event detection state."""
         if not event.url:
-            _LOGGER.debug("Cannot fetch event enabled state. Unknown event URL %s", event.id)
+            _LOGGER.warning("Cannot fetch event enabled state. Unknown event URL %s", event.id)
             return False
 
         if event.id == "lock":
@@ -1100,7 +1060,7 @@ class ISAPIClient:
     async def set_event_enabled_state(self, channel_id: int, event: EventInfo, is_enabled: bool) -> None:
         """Set event detection state."""
         if not event.url:
-            _LOGGER.debug("Cannot set event enabled state. Unknown event URL %s", event.id)
+            _LOGGER.warning("Cannot set event enabled state. Unknown event URL %s", event.id)
             return False
 
         if event.id == "lock":
@@ -1271,73 +1231,8 @@ class ISAPIClient:
         return int(value)
 
     @staticmethod
-    def _extract_anpr_metadata(alert: dict) -> tuple[str | None, str | None, int]:
-        """Extract license plate metadata from ANPR / vehicle-detection payloads."""
-        anpr_block = alert.get("ANPR") or alert.get("anpr") or {}
-        if not isinstance(anpr_block, dict):
-            anpr_block = {}
-
-        license_plate = (
-            anpr_block.get("licensePlate")
-            or anpr_block.get("plateNo")
-            or anpr_block.get("plateNumber")
-            or deep_get(alert, "vehicleMonitor.licensePlate")
-            or deep_get(alert, "VehicleInfo.licensePlate")
-            or deep_get(alert, "vehicleInfo.licensePlate")
-            or alert.get("licensePlate")
-            or alert.get("plateNo")
-            or alert.get("plateNumber")
-        )
-        if isinstance(license_plate, str):
-            license_plate = license_plate.strip() or None
-
-        direction = (
-            anpr_block.get("direction")
-            or anpr_block.get("vehicleDirection")
-            or anpr_block.get("carDirection")
-            or alert.get("direction")
-        )
-        if isinstance(direction, str):
-            direction = direction.strip() or None
-
-        confidence_raw = (
-            anpr_block.get("confidenceLevel")
-            or anpr_block.get("confidencelevel")
-            or anpr_block.get("confidence")
-            or alert.get("confidenceLevel")
-            or 0
-        )
-        try:
-            confidence = int(confidence_raw)
-        except (TypeError, ValueError):
-            confidence = 0
-
-        return license_plate, direction, confidence
-
-    @staticmethod
-    def _face_person_fields(ace: dict) -> tuple[str | None, str | None, str | None]:
-        """Extract person name, employee number, and card number from ACS payload."""
-        employee_raw = ace.get("employeeNoString")
-        if employee_raw is None:
-            employee_raw = ace.get("employeeNo")
-        employee = str(employee_raw).strip() if employee_raw not in (None, "") else None
-        name = str(ace.get("name") or "").strip() or None
-        card_no = str(ace.get("cardNo") or "").strip() or None
-        return name, employee, card_no
-
-    @staticmethod
-    def _face_display_state(name: str | None, employee: str | None) -> str:
-        if name:
-            return name
-        if employee:
-            return employee
-        return "unknown"
-
-    @staticmethod
     def _parse_access_controller_event(alert: dict) -> AlertInfo | None:
         """Parse ACS AccessControllerEvent payloads into AlertInfo."""
-        from ..sdk.acsalarminfo import ACS_FACE_VERIFY_PASS_MINORS
-
         ace = alert.get("AccessControllerEvent") or {}
         major = ISAPIClient._acs_event_int(ace.get("majorEventType"))
         minor = ISAPIClient._acs_event_int(ace.get("subEventType"))
@@ -1366,21 +1261,11 @@ class ISAPIClient:
                     None,
                     STATE_ON if minor == 0x19 else STATE_OFF,
                 )
-            if minor in ACS_FACE_VERIFY_PASS_MINORS:
-                name, employee, card_no = ISAPIClient._face_person_fields(ace)
-                return AlertInfo(
-                    0,
-                    0,
-                    "face",
-                    None,
-                    mac,
-                    None,
-                    None,
-                    ISAPIClient._face_display_state(name, employee),
-                    face_person_name=name,
-                    face_employee_no=employee,
-                    face_card_no=card_no,
-                )
+            if minor == 0x4b:
+                employee = ace.get("employeeNoString") or ""
+                name = ace.get("name") or ""
+                label = f"{employee}: {name}".strip(": ").strip()
+                return AlertInfo(0, 0, "face", None, mac, None, None, label or STATE_ON)
 
         if major == 3:
             lock_on = minor in (0x400, 0x402, 0x41d, 0x41e)
@@ -1466,14 +1351,6 @@ class ISAPIClient:
                 _LOGGER.info("Unsupported subscribed event id after normalization: %s", event_id)
                 return None
 
-            anpr_license_plate = None
-            anpr_direction = None
-            anpr_confidence_level = 0
-            if event_id == "anpr":
-                anpr_license_plate, anpr_direction, anpr_confidence_level = (
-                    ISAPIClient._extract_anpr_metadata(alert)
-                )
-
             return AlertInfo(
                 channel_id,
                 io_port_id,
@@ -1482,10 +1359,6 @@ class ISAPIClient:
                 mac,
                 region_id,
                 detection_target,
-                STATE_ON,
-                anpr_license_plate,
-                anpr_direction,
-                anpr_confidence_level,
             )
 
     async def get_camera_image(

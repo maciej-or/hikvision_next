@@ -5,11 +5,16 @@ from __future__ import annotations
 import asyncio
 from contextlib import suppress
 import logging
+import os
 import traceback
+
+from aiohasupervisor.models import LogLevel
 from homeassistant.util import slugify
 from homeassistant.components.binary_sensor import (
     ENTITY_ID_FORMAT as BINARY_SENSOR_ENTITY_ID_FORMAT,
 )
+from homeassistant.components.image import ENTITY_ID_FORMAT as IMAGE_ENTITY_ID_FORMAT
+from homeassistant.components.sensor import ENTITY_ID_FORMAT as SENSOR_ENTITY_ID_FORMAT
 from homeassistant.components.switch import ENTITY_ID_FORMAT as SWITCH_ENTITY_ID_FORMAT
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
@@ -17,12 +22,23 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.helpers.typing import ConfigType
+from homeassistant.util import slugify
 
-from .const import DOMAIN
+from .const import (
+    CONF_CONNECTION_SDK,
+    DOMAIN,
+    resolve_connection_type,
+)
 from .hikvision_device import HikvisionDevice
 from .isapi import ISAPIUnauthorizedError
 from .notifications import EventNotificationsView
 from .services import setup_services
+from .sdk.utils import (
+    loadSDK,
+    SDKConfig,
+    setupSDK,
+    shutdownSDK, SDKLogLevel
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -67,6 +83,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) ->
     # because EventSubscription may need to bind its handler to it immediately.
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
+
+    if resolve_connection_type(entry.data) == CONF_CONNECTION_SDK:
+        if "sdk" not in hass.data[DOMAIN]:
+            try:
+                sdk = loadSDK()
+                sdk_config: SDKConfig = {
+                    "log_level": SDKLogLevel.DEBUG,
+                    "log_dir": hass.config.config_dir,
+                }
+                setupSDK(sdk, sdk_config)
+                hass.data[DOMAIN]["sdk"] = sdk
+                hass.data[DOMAIN]["sdk_ref"] = []
+            except Exception as ex:
+                msg = f"Cannot initialize {DOMAIN} {device.host} SDK. Error: {ex}\n"
+                _LOGGER.error(msg + traceback.format_exc())
+                raise ConfigEntryNotReady(msg) from ex
+
+        hass.data[DOMAIN]["sdk_ref"].append(device)
+        device.sdk_subscription = hass.data[DOMAIN]["sdk"]
 
     if "notification_ctx" not in hass.data[DOMAIN]:
         ctx = EventNotificationsView(hass)
@@ -118,10 +153,47 @@ async def async_unload_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) -
         with suppress(Exception):
             await device.event_subscription.stop()
 
+    if device.sdk_subscription is not None:
+        with suppress(Exception):
+            await device._stop_video_intercom_remote_config()
+
+        if device.sdk_handle is not None:
+            device.sdk_subscription.NET_DVR_CloseAlarmChan_V30(device.sdk_handle)
+            _LOGGER.info("SDK Alarm Channel shutdown")
+            device.sdk_handle = None
+        if device.sdk_user is not None:
+            device.sdk_subscription.NET_DVR_Logout_V30(device.sdk_user)
+            device.sdk_user = None
+            _LOGGER.info("SDK User logout")
+
+        sdk_ref = hass.data.get(DOMAIN, {}).get("sdk_ref")
+        if sdk_ref is not None and device in sdk_ref:
+            sdk_ref.remove(device)
+            if len(sdk_ref) == 0:
+                shutdownSDK(device.sdk_subscription)
+                hass.data[DOMAIN].pop("sdk", None)
+                hass.data[DOMAIN].pop("sdk_ref", None)
+                hass.data[DOMAIN].pop("sdk_callback", None)
+                hass.data[DOMAIN].pop("sdk_callback_registered", None)
+        device.sdk_subscription = None
+
     # Close the separate ext session used for session-login auth if it exists
     if getattr(device, "_ext_session", None):
         with suppress(Exception):
             await device._ext_session.aclose()
+
+    face_snap_images = hass.data.get(DOMAIN, {}).get("face_snap_images")
+    if face_snap_images:
+        serial = device.device_info.serial_no.lower()
+        for camera in device.cameras:
+            face_snap_images.pop(slugify(f"{serial}_{camera.id}_face_snap"), None)
+
+    from .const import FACE_VERIFY_IMAGE_SUFFIX
+
+    face_verify_images = hass.data.get(DOMAIN, {}).get("face_verify_images")
+    if face_verify_images:
+        serial = device.device_info.serial_no.lower()
+        face_verify_images.pop(slugify(f"{serial}_{FACE_VERIFY_IMAGE_SUFFIX}"), None)
 
     return unload_ok
 
@@ -164,6 +236,17 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             version=3,
         )
 
+    # 3 -> 4: Replace use_http_notify with connection_type
+    if config_entry.version == 3:
+        data = dict(config_entry.data)
+        if CONF_CONNECTION_TYPE not in data:
+            if data.get(CONF_USE_HTTP_NOTIFY, True):
+                data[CONF_CONNECTION_TYPE] = CONF_CONNECTION_HTTP_NOTIFY
+            else:
+                data[CONF_CONNECTION_TYPE] = CONF_CONNECTION_HTTP_CALLBACK
+        data.pop(CONF_USE_HTTP_NOTIFY, None)
+        hass.config_entries.async_update_entry(config_entry, data=data, version=4)
+
     _LOGGER.debug(
         "Migration to version %s.%s successful",
         config_entry.version,
@@ -186,11 +269,37 @@ def refresh_disabled_entities_in_registry(hass: HomeAssistant, device: Hikvision
             entity_registry.async_update_entity(entity_id, disabled_by=disabled_by)
 
     entity_registry = er.async_get(hass)
+    def update_anpr_plate_entity(event):
+        if event.id != "anpr" or not event.anpr_plate_unique_id:
+            return
+        entity_id = SENSOR_ENTITY_ID_FORMAT.format(event.anpr_plate_unique_id)
+        entity = entity_registry.async_get(entity_id)
+        if not entity:
+            return
+        if entity.disabled != event.disabled:
+            disabled_by = er.RegistryEntryDisabler.INTEGRATION if event.disabled else None
+            entity_registry.async_update_entity(entity_id, disabled_by=disabled_by)
+
+    def update_anpr_image_entity(event):
+        if event.id != "anpr" or not event.anpr_image_unique_id:
+            return
+        entity_id = IMAGE_ENTITY_ID_FORMAT.format(event.anpr_image_unique_id)
+        entity = entity_registry.async_get(entity_id)
+        if not entity:
+            return
+        if entity.disabled != event.disabled:
+            disabled_by = er.RegistryEntryDisabler.INTEGRATION if event.disabled else None
+            entity_registry.async_update_entity(entity_id, disabled_by=disabled_by)
+
     for camera in device.cameras:
         for event in camera.events_info:
             update_entity(event, SWITCH_ENTITY_ID_FORMAT)
             update_entity(event, BINARY_SENSOR_ENTITY_ID_FORMAT)
+            update_anpr_plate_entity(event)
+            update_anpr_image_entity(event)
 
     for event in device.events_info:
         update_entity(event, SWITCH_ENTITY_ID_FORMAT)
         update_entity(event, BINARY_SENSOR_ENTITY_ID_FORMAT)
+        update_anpr_plate_entity(event)
+        update_anpr_image_entity(event)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from http import HTTPStatus
 import ipaddress
 import logging
@@ -17,7 +18,14 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_registry import async_get
 from homeassistant.util import slugify
 
-from .const import ALARM_SERVER_PATH, DOMAIN, HIKVISION_EVENT
+from .const import (
+    ALARM_SERVER_PATH,
+    ANPR_LICENSE_PLATE_SENSOR_SUFFIX,
+    DEVICE_LEVEL_EVENT_IDS,
+    DOMAIN,
+    HIKVISION_EVENT,
+    TEXT_SENSOR_EVENT_IDS,
+)
 from .hikvision_device import HikvisionDevice
 from .isapi import AlertInfo, IPCamera, ISAPIClient
 from .isapi.const import EVENT_IO
@@ -47,6 +55,124 @@ class EventNotificationsView(HomeAssistantView):
         self.name = DOMAIN
         self.device: HikvisionDevice
         self.hass = hass
+
+    async def update_face_verify_image(
+        self,
+        device: HikvisionDevice,
+        image_bytes: bytes,
+        *,
+        person_name: str | None = None,
+        employee_no: str | None = None,
+        card_no: str | None = None,
+        pic_len: int | None = None,
+    ) -> None:
+        """Update the ACS face verification image entity for a door station."""
+        from .const import FACE_VERIFY_IMAGE_SUFFIX
+
+        self.device = device
+        serial = device.device_info.serial_no.lower()
+        unique_id = slugify(f"{serial}_{FACE_VERIFY_IMAGE_SUFFIX}")
+        entity = self.hass.data.get(DOMAIN, {}).get("face_verify_images", {}).get(unique_id)
+        if entity is None:
+            _LOGGER.debug("No face verify image entity registered for %s", unique_id)
+            return
+
+        attributes: dict[str, int | str] = {}
+        if person_name:
+            attributes["name"] = person_name
+        if employee_no:
+            attributes["employee_no"] = employee_no
+        if card_no:
+            attributes["card_no"] = card_no
+        if pic_len is not None:
+            attributes["pic_data_len"] = pic_len
+        entity.update_from_snap(image_bytes, attributes or None)
+
+    async def update_face_snap_image(
+        self,
+        device: HikvisionDevice,
+        channel_id: int,
+        image_bytes: bytes,
+        *,
+        face_pic_id: int | None = None,
+        face_score: int | None = None,
+    ) -> None:
+        """Update the face snap image entity for a channel."""
+        self.device = device
+        channel_id = self._normalize_channel_id(device, channel_id)
+        serial = device.device_info.serial_no.lower()
+        unique_id = slugify(f"{serial}_{channel_id}_face_snap")
+        entity = self.hass.data.get(DOMAIN, {}).get("face_snap_images", {}).get(unique_id)
+        if entity is None:
+            _LOGGER.debug("No face snap image entity registered for %s", unique_id)
+            return
+
+        attributes: dict[str, int] = {}
+        if face_pic_id is not None:
+            attributes["face_pic_id"] = face_pic_id
+        if face_score is not None:
+            attributes["face_score"] = face_score
+        entity.update_from_snap(image_bytes, attributes or None)
+
+    async def update_anpr_snap_image(
+        self,
+        device: HikvisionDevice,
+        channel_id: int,
+        image_bytes: bytes,
+        *,
+        license_plate: str | None = None,
+        scene_len: int | None = None,
+        plate_len: int | None = None,
+    ) -> None:
+        """Update the ANPR snap image entity for a channel."""
+        self.device = device
+        alert = AlertInfo(channel_id=channel_id, io_port_id=0, event_id="anpr")
+        alert = self.update_alert_channel(alert)
+        entity = self._resolve_anpr_image_entity(alert)
+        if entity is None:
+            _LOGGER.debug(
+                "No ANPR snap image entity registered for %s channel %s",
+                device.device_info.serial_no,
+                alert.channel_id,
+            )
+            return
+
+        attributes: dict[str, int | str] = {}
+        if license_plate:
+            attributes["license_plate"] = license_plate
+        if scene_len is not None:
+            attributes["scene_image_len"] = scene_len
+        if plate_len is not None:
+            attributes["plate_image_len"] = plate_len
+        entity.update_from_snap(image_bytes, attributes or None)
+        _LOGGER.debug(
+            "ANPR image update: %s (%s bytes, plate=%s)",
+            entity.entity_id,
+            len(image_bytes),
+            license_plate,
+        )
+
+    def _normalize_channel_id(
+        self, device: HikvisionDevice, channel_id: int, event_id: str | None = None
+    ) -> int:
+        """Map SDK/NVR channel numbers to integration camera ids."""
+        if event_id in DEVICE_LEVEL_EVENT_IDS and not device.device_info.is_nvr:
+            return 0
+
+        if channel_id > 32:
+            try:
+                return [
+                    camera.id
+                    for camera in device.cameras
+                    if isinstance(camera, IPCamera) and camera.input_port == channel_id - 32
+                ][0]
+            except IndexError:
+                channel_id = channel_id - 32
+
+        if channel_id == 0 and not device.device_info.is_nvr and len(device.cameras) == 1:
+            return device.cameras[0].id
+
+        return channel_id
 
     async def handle_subscribed_event(self, raw_event: str | dict) -> None:
         try:
@@ -185,45 +311,203 @@ class EventNotificationsView(HomeAssistantView):
 
     def update_alert_channel(self, alert: AlertInfo) -> AlertInfo:
         """Fix channel id for NVR/DVR alert."""
+        alert.channel_id = self._normalize_channel_id(self.device, alert.channel_id, alert.event_id)
+        return alert
 
-        if alert.channel_id > 32:
-            # channel id above 32 is an IP camera
-            # On DVRs that support analog cameras 33 may not be
-            # camera 1 but camera 5 for example
-            try:
-                alert.channel_id = [
-                    camera.id
-                    for camera in self.device.cameras
-                    if isinstance(camera, IPCamera) and camera.input_port == alert.channel_id - 32
-                ][0]
-            except IndexError:
-                alert.channel_id = alert.channel_id - 32
+    def _event_scope_channel_id(self, alert: AlertInfo) -> int:
+        if alert.event_id in DEVICE_LEVEL_EVENT_IDS and not self.device.device_info.is_nvr:
+            return 0
+        return alert.channel_id
+
+    def _event_unique_id_parts(self, alert: AlertInfo) -> tuple[str, str, str]:
+        serial_no = slugify(self.device.device_info.serial_no.lower())
+        channel_id = self._event_scope_channel_id(alert)
+        device_id_param = f"_{channel_id}" if channel_id != 0 and alert.event_id != EVENT_IO else ""
+        io_port_id_param = f"_{alert.io_port_id}" if alert.io_port_id != 0 else ""
+        return serial_no, device_id_param, io_port_id_param
+
+    def _lookup_event_entity(self, alert: AlertInfo) -> tuple[str | None, str]:
+        serial_no, device_id_param, io_port_id_param = self._event_unique_id_parts(alert)
+        event_suffix = f"{serial_no}{device_id_param}{io_port_id_param}_{alert.event_id}"
+        binary_unique_id = f"binary_sensor.{event_suffix}"
+        sensor_unique_id = f"sensor.{event_suffix}"
+
+        entity_registry = async_get(self.hass)
+        entity_id = entity_registry.async_get_entity_id(Platform.BINARY_SENSOR, DOMAIN, binary_unique_id)
+        unique_id = binary_unique_id
+        if not entity_id:
+            entity_id = entity_registry.async_get_entity_id(Platform.SENSOR, DOMAIN, sensor_unique_id)
+            if entity_id:
+                unique_id = sensor_unique_id
+        elif alert.event_id in TEXT_SENSOR_EVENT_IDS:
+            sensor_entity_id = entity_registry.async_get_entity_id(
+                Platform.SENSOR, DOMAIN, sensor_unique_id
+            )
+            if sensor_entity_id:
+                entity_id = sensor_entity_id
+                unique_id = sensor_unique_id
+        if not entity_id:
+            unique_id = (
+                sensor_unique_id
+                if alert.event_id in TEXT_SENSOR_EVENT_IDS
+                else binary_unique_id
+            )
+        return entity_id, unique_id
+
+    def _lookup_anpr_plate_entity(self, alert: AlertInfo) -> tuple[str | None, str]:
+        serial_no, device_id_param, io_port_id_param = self._event_unique_id_parts(alert)
+        unique_id = f"{serial_no}{device_id_param}{io_port_id_param}_{ANPR_LICENSE_PLATE_SENSOR_SUFFIX}"
+        entity_registry = async_get(self.hass)
+        entity_id = entity_registry.async_get_entity_id(Platform.SENSOR, DOMAIN, unique_id)
+        return entity_id, unique_id
+
+    def _lookup_anpr_image_unique_id(self, alert: AlertInfo) -> str:
+        from .const import ANPR_IMAGE_SUFFIX
+
+        serial_no, device_id_param, io_port_id_param = self._event_unique_id_parts(alert)
+        return f"{serial_no}{device_id_param}{io_port_id_param}_{ANPR_IMAGE_SUFFIX}"
+
+    def _resolve_anpr_image_entity(self, alert: AlertInfo):
+        """Resolve the in-memory ANPR snap image entity for an alert."""
+        unique_id = slugify(self._lookup_anpr_image_unique_id(alert))
+        entity = self.hass.data.get(DOMAIN, {}).get("anpr_snap_images", {}).get(unique_id)
+        if entity is not None:
+            return entity
+
+        candidates = [alert]
+        if not self.device.device_info.is_nvr:
+            candidates.extend(
+                replace(alert, channel_id=camera.id) for camera in self.device.cameras
+            )
+        candidates.append(replace(alert, channel_id=0))
+
+        for candidate in candidates:
+            candidate = self.update_alert_channel(candidate)
+            unique_id = slugify(self._lookup_anpr_image_unique_id(candidate))
+            entity = self.hass.data.get(DOMAIN, {}).get("anpr_snap_images", {}).get(unique_id)
+            if entity is not None:
+                return entity
+        return None
+
+    def _resolve_anpr_entities(self, alert: AlertInfo) -> tuple[str | None, str | None, str]:
+        """Resolve ANPR binary/plate entities, including per-camera fallbacks."""
+        entity_id, unique_id = self._lookup_event_entity(alert)
+        plate_entity_id, _ = self._lookup_anpr_plate_entity(alert)
+
+        if entity_id and plate_entity_id:
+            return entity_id, plate_entity_id, unique_id
+
+        candidates = [alert]
+        if not self.device.device_info.is_nvr:
+            candidates.extend(
+                replace(alert, channel_id=camera.id) for camera in self.device.cameras
+            )
+
+        for candidate in candidates:
+            if not entity_id:
+                entity_id, unique_id = self._lookup_event_entity(candidate)
+            if not plate_entity_id:
+                plate_entity_id, _ = self._lookup_anpr_plate_entity(candidate)
+            if entity_id and plate_entity_id:
+                break
+
+        return entity_id, plate_entity_id, unique_id
+
+    def _face_sensor_attributes(self, alert: AlertInfo) -> dict[str, str]:
+        attrs: dict[str, str] = {}
+        if alert.face_person_name:
+            attrs["name"] = alert.face_person_name
+        if alert.face_employee_no:
+            attrs["employee_no"] = alert.face_employee_no
+        if alert.face_card_no:
+            attrs["card_no"] = alert.face_card_no
+        return attrs
 
     def trigger_sensor(self, alert: AlertInfo) -> None:
         """Determine entity and set binary sensor state."""
 
         _LOGGER.debug("Alert: %s", alert)
 
-        serial_no = self.device.device_info.serial_no.lower()
+        if alert.event_id == "anpr":
+            entity_id, plate_entity_id, unique_id = self._resolve_anpr_entities(alert)
+        else:
+            entity_id, unique_id = self._lookup_event_entity(alert)
+            plate_entity_id = None
+            if (
+                not entity_id
+                and alert.event_id not in DEVICE_LEVEL_EVENT_IDS
+                and alert.channel_id == 0
+                and not self.device.device_info.is_nvr
+                and len(self.device.cameras) == 1
+            ):
+                entity_id, unique_id = self._lookup_event_entity(
+                    replace(alert, channel_id=self.device.cameras[0].id)
+                )
 
-        device_id_param = f"_{alert.channel_id}" if alert.channel_id != 0 and alert.event_id != EVENT_IO else ""
-        io_port_id_param = f"_{alert.io_port_id}" if alert.io_port_id != 0 else ""
-        unique_id = f"binary_sensor.{slugify(serial_no)}{device_id_param}{io_port_id_param}_{alert.event_id}"
-        sensor_unique_id = f"sensor.{slugify(serial_no)}{device_id_param}{io_port_id_param}_{alert.event_id}"
+        if alert.event_id == "face":
+            person = alert.state or "unknown"
+            attrs = self._face_sensor_attributes(alert)
+            event_text = self.hass.data.get(DOMAIN, {}).get("event_text_sensors", {}).get(unique_id)
+            if event_text is not None:
+                event_text.set_person(person, attrs or None)
+                _LOGGER.info("Face recognition update: %s -> %s", event_text.entity_id, person)
+                self.fire_hass_event(alert)
+                return
+            if entity_id:
+                self.hass.states.async_set(entity_id, person, attrs or None)
+                _LOGGER.info("Face recognition update: %s -> %s", entity_id, person)
+                self.fire_hass_event(alert)
+                return
+            _LOGGER.debug("Face sensor not found for alert %s (unique_id: %s)", alert, unique_id)
+            return
 
-        entity_registry = async_get(self.hass)
-        entity_id = entity_registry.async_get_entity_id(Platform.BINARY_SENSOR, DOMAIN, unique_id)
-        if not entity_id:
-            entity_id = entity_registry.async_get_entity_id(Platform.SENSOR, DOMAIN, sensor_unique_id)
+        event_binary = self.hass.data.get(DOMAIN, {}).get("event_binary_sensors", {}).get(unique_id)
+        if event_binary is not None:
+            event_binary.set_active(alert.state == STATE_ON)
+            if alert.event_id != "anpr":
+                self.fire_hass_event(alert)
+                return
+
         if entity_id:
             _LOGGER.debug("Entity ID: %s", entity_id)
 
             entity = self.hass.states.get(entity_id)
             if entity:
-                self.hass.states.async_set(entity_id, alert.state, entity.attributes)
+                attributes = dict(entity.attributes)
+                if alert.anpr_license_plate:
+                    attributes["license_plate"] = alert.anpr_license_plate
+                if alert.anpr_direction:
+                    attributes["direction"] = alert.anpr_direction
+                if alert.anpr_confidence_level:
+                    attributes["confidence_level"] = alert.anpr_confidence_level
+                self.hass.states.async_set(entity_id, alert.state, attributes)
                 self.fire_hass_event(alert)
+
+        if plate_entity_id and alert.anpr_license_plate:
+            plate_attrs = {}
+            if alert.anpr_direction:
+                plate_attrs["direction"] = alert.anpr_direction
+            if alert.anpr_confidence_level:
+                plate_attrs["confidence_level"] = alert.anpr_confidence_level
+            _LOGGER.info(
+                "ANPR plate update: %s -> %s",
+                plate_entity_id,
+                alert.anpr_license_plate,
+            )
+            self.hass.states.async_set(
+                plate_entity_id,
+                alert.anpr_license_plate,
+                plate_attrs,
+            )
+        elif alert.event_id == "anpr" and alert.anpr_license_plate:
+            _LOGGER.warning(
+                "ANPR plate entity not found for %s (plate=%s)",
+                self.device.device_info.serial_no,
+                alert.anpr_license_plate,
+            )
+        if entity_id:
             return
-        raise ValueError(f"Entity not found {entity_id}")
+        _LOGGER.debug("Entity not found for alert %s (unique_id: %s)", alert, unique_id)
 
     def fire_hass_event(self, alert: AlertInfo):
         """Fire HASS event."""
@@ -240,6 +524,18 @@ class EventNotificationsView(HomeAssistantView):
         if alert.detection_target:
             message["detection_target"] = alert.detection_target
             message["region_id"] = alert.region_id
+        if alert.anpr_license_plate:
+            message["license_plate"] = alert.anpr_license_plate
+        if alert.anpr_direction:
+            message["direction"] = alert.anpr_direction
+        if alert.anpr_confidence_level:
+            message["confidence_level"] = alert.anpr_confidence_level
+        if alert.face_person_name:
+            message["name"] = alert.face_person_name
+        if alert.face_employee_no:
+            message["employee_no"] = alert.face_employee_no
+        if alert.face_card_no:
+            message["card_no"] = alert.face_card_no
 
         self.hass.bus.fire(
             HIKVISION_EVENT,
