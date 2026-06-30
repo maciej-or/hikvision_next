@@ -61,6 +61,33 @@ async def test_nvr_intrusion_detection_alert(
 
 
 @pytest.mark.parametrize("init_integration", ["DS-2CD2386G2-IU"], indirect=True)
+async def test_ipc_sdk_motion_detection_alert(
+    hass: HomeAssistant, init_integration: MockConfigEntry,
+) -> None:
+    """Test SDK COMM_ALARM_V30 motion event routed to the IPC motion sensor."""
+
+    entity_id = "binary_sensor.ds_2cd2386g2_iu00000000aawrj00000000_1_motiondetection"
+
+    assert (sensor := hass.states.get(entity_id))
+    assert sensor.state == STATE_OFF
+
+    view = EventNotificationsView(hass)
+    await view.handle_subscribed_event(
+        {
+            "eventType": "MotionDetection",
+            "channelID": 1,
+            "channels": [1] + [0] * 63,
+            "serial": init_integration.runtime_data.device_info.serial_no,
+            "ipAddress": init_integration.runtime_data.device_info.ip_address,
+            "macAddress": init_integration.runtime_data.device_info.mac_address,
+        }
+    )
+
+    assert (sensor := hass.states.get(entity_id))
+    assert sensor.state == STATE_ON
+
+
+@pytest.mark.parametrize("init_integration", ["DS-2CD2386G2-IU"], indirect=True)
 async def test_ipc_intrusion_detection_alert(
     hass: HomeAssistant, init_integration: MockConfigEntry,
 ) -> None:
@@ -234,3 +261,34 @@ async def test_nvr_and_cam_notification_alert(
     assert sensor_cam_2.state == STATE_OFF
     assert sensor_cam_3.state == STATE_ON
     assert sensor_nvr_1.state == STATE_ON
+
+
+async def test_update_face_snap_image(hass: HomeAssistant) -> None:
+    """Test face snap image entity receives SDK callback bytes."""
+    from unittest.mock import MagicMock, patch
+
+    from custom_components.hikvision_next.const import DOMAIN
+    from custom_components.hikvision_next.image import FaceSnapImage
+
+    device = MagicMock()
+    device.device_info.serial_no = "DS-TEST000000"
+    device.device_info.is_nvr = False
+    device.cameras = [MagicMock(id=1)]
+    device.hass_device_info.return_value = {}
+
+    camera = MagicMock()
+    camera.id = 1
+    camera.name = "Front Door"
+
+    entity = FaceSnapImage(hass, device, camera)
+    hass.data.setdefault(DOMAIN, {})["face_snap_images"] = {entity.unique_id: entity}
+
+    view = EventNotificationsView(hass)
+    jpeg = b"\xff\xd8\xff\xd9"
+    with patch.object(entity, "schedule_update_ha_state"):
+        await view.update_face_snap_image(device, 1, jpeg, face_pic_id=42, face_score=88)
+
+    assert entity.image() == jpeg
+    assert entity._attr_image_last_updated is not None
+    assert entity._attr_extra_state_attributes["face_pic_id"] == 42
+    assert entity._attr_extra_state_attributes["face_score"] == 88

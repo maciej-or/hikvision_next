@@ -972,6 +972,15 @@
           }
         }
       },
+      "PTZCtrl/channels/1/capabilities": {
+        "response": {
+          "PTZChannelCap": {
+            "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+            "@version": "2.0",
+            "id": "1"
+          }
+        }
+      },
       "Streaming/channels": {
         "response": {
           "StreamingChannelList": {

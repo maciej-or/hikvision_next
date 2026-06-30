@@ -3,11 +3,24 @@
 import respx
 import pytest
 from unittest.mock import patch
-from custom_components.hikvision_next.const import DOMAIN
+from custom_components.hikvision_next.const import (
+    CONF_ALARM_SERVER_HOST,
+    CONF_CONNECTION_HTTP_CALLBACK,
+    CONF_CONNECTION_TYPE,
+    CONF_SET_ALARM_SERVER,
+    DOMAIN,
+)
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.config_entries import SOURCE_USER, ConfigEntryState
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
-from tests.conftest import TEST_CONFIG, TEST_HOST, TEST_CONFIG_OUTSIDE_NETWORK, load_fixture, mock_endpoint
+from tests.conftest import (
+    TEST_CONFIG,
+    TEST_CONFIG_WITH_ALARM_SERVER,
+    TEST_HOST,
+    TEST_CONFIG_OUTSIDE_NETWORK,
+    load_fixture,
+    mock_endpoint,
+)
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -108,6 +121,40 @@ async def test_user_input_validation(hass, mock_isapi_device):
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["data"] == TEST_CONFIG
+
+
+@pytest.mark.parametrize("mock_isapi_device", ["DS-2CD2386G2-IU"], indirect=True)
+async def test_http_callback_two_step_config_flow(hass, mock_isapi_device):
+    """Test HTTP callback uses a second step for alarm server settings."""
+
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
+
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "user"
+
+    step1_input = {
+        **TEST_CONFIG,
+        CONF_CONNECTION_TYPE: CONF_CONNECTION_HTTP_CALLBACK,
+    }
+    step1_input.pop(CONF_SET_ALARM_SERVER, None)
+    step1_input.pop(CONF_ALARM_SERVER_HOST, None)
+
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=step1_input)
+
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "alarm_server"
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            CONF_SET_ALARM_SERVER: TEST_CONFIG_WITH_ALARM_SERVER[CONF_SET_ALARM_SERVER],
+            CONF_ALARM_SERVER_HOST: TEST_CONFIG_WITH_ALARM_SERVER[CONF_ALARM_SERVER_HOST],
+        },
+    )
+
+    assert result["type"] == FlowResultType.CREATE_ENTRY
+    assert result["data"] == TEST_CONFIG_WITH_ALARM_SERVER
+    assert result["title"] == "yard"
 
 
 @pytest.mark.parametrize("mock_isapi_device", [("DS-2CD2386G2-IU", TEST_CONFIG_OUTSIDE_NETWORK['host'])], indirect=True)

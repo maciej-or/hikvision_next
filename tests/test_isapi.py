@@ -3,8 +3,115 @@
 import respx
 import httpx
 from contextlib import suppress
-from custom_components.hikvision_next.isapi import StorageInfo
+from custom_components.hikvision_next.isapi import ISAPIClient, StorageInfo
+from custom_components.hikvision_next.isapi.utils import channel_from_bitmap
 from tests.conftest import mock_endpoint, load_fixture
+
+
+def test_channel_from_bitmap():
+    assert channel_from_bitmap([1, 0, 0]) == 1
+    assert channel_from_bitmap([0, 1, 0]) == 2
+    assert channel_from_bitmap([0, 0, 0]) == 0
+
+
+def test_parse_sdk_motion_detection_channel_bitmap():
+    alert = ISAPIClient.parse_event_notification(
+        {
+            "eventType": "MotionDetection",
+            "channels": [1] + [0] * 63,
+        }
+    )
+    assert alert is not None
+    assert alert.event_id == "motiondetection"
+    assert alert.channel_id == 1
+
+
+def test_parse_event_type_options_supports_opt_attribute():
+    options = ISAPIClient._parse_event_type_options(
+        {"opt": "motionDetection,VMD,fieldDetection,fielddetection"}
+    )
+    assert "motionDetection" in options
+    assert "VMD" in options
+
+
+def test_event_trigger_request_ids_prioritize_vmd():
+    client = ISAPIClient("http://1.0.0.1", "u", "p")
+    ids = client._event_trigger_request_ids("motiondetection", 5)
+    assert ids[0] == "VMD-5"
+    assert "motiondetection-5" in ids
+    assert "vmd-5" in ids
+    assert "motionDetection-5" in ids
+
+
+def test_normalize_event_id_maps_vmd_aliases():
+    assert ISAPIClient._normalize_event_id("VMD") == "motiondetection"
+    assert ISAPIClient._normalize_event_id("motionDetection") == "motiondetection"
+    assert ISAPIClient._normalize_event_id("thermometry") == "motiondetection"
+    assert ISAPIClient._normalize_event_id("unknownEvent") is None
+
+
+def test_normalize_event_id_maps_face_aliases():
+    assert ISAPIClient._normalize_event_id("faceSnap") == "facesnap"
+    assert ISAPIClient._normalize_event_id("faceCapture") == "facesnap"
+    assert ISAPIClient._normalize_event_id("faceContrast") == "facecontrast"
+    assert ISAPIClient._normalize_event_id("faceDetection") == "facedetection"
+
+
+def test_parse_face_snap_event_notification_is_ignored():
+    """Face snap events only drive the image entity, not binary sensors."""
+    assert ISAPIClient.parse_event_notification({"eventType": "faceSnap", "channelID": 2}) is None
+
+
+def test_parse_acs_lock_event_major_event():
+    alert = ISAPIClient.parse_event_notification(
+        {
+            "eventType": "AccessControllerEvent",
+            "AccessControllerEvent": {"majorEventType": 5, "subEventType": 0x15},
+        }
+    )
+    assert alert is not None
+    assert alert.event_id == "lock"
+    assert alert.channel_id == 0
+    assert alert.state == "on"
+
+
+def test_parse_acs_face_verify_pass_event():
+    alert = ISAPIClient.parse_event_notification(
+        {
+            "eventType": "AccessControllerEvent",
+            "AccessControllerEvent": {
+                "majorEventType": 5,
+                "subEventType": 0x4B,
+                "employeeNoString": "1001",
+                "name": "Zhang San",
+            },
+        }
+    )
+    assert alert is not None
+    assert alert.event_id == "face"
+    assert alert.state == "Zhang San"
+    assert alert.face_person_name == "Zhang San"
+    assert alert.face_employee_no == "1001"
+
+
+def test_parse_acs_remote_open_door_operation():
+    alert = ISAPIClient.parse_event_notification(
+        {
+            "eventType": "AccessControllerEvent",
+            "AccessControllerEvent": {"majorEventType": 3, "subEventType": 0x400},
+        }
+    )
+    assert alert is not None
+    assert alert.event_id == "lock"
+    assert alert.channel_id == 0
+    assert alert.state == "on"
+
+
+def test_parse_vmd_event_notification():
+    alert = ISAPIClient.parse_event_notification({"eventType": "VMD", "channelID": 5})
+    assert alert is not None
+    assert alert.event_id == "motiondetection"
+    assert alert.channel_id == 5
 
 
 @respx.mock
