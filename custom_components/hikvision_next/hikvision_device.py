@@ -107,6 +107,8 @@ from .sdk.video_intercom import (
     DOORBELL_PULSE_SECONDS,
     INTERCOM_RECONNECT_BASE_DELAY,
     INTERCOM_RECONNECT_MAX_DELAY,
+    SUBSCRIBE_ALARM_RECONNECT_BASE_DELAY,
+    SUBSCRIBE_ALARM_RECONNECT_MAX_DELAY,
     IntercomCallState,
     VideoCallEvent,
     VideoCallCmdType,
@@ -246,6 +248,8 @@ class HikvisionDevice(ISAPIClient):
         self._calling_off_unsub: Callable[[], None] | None = None
         self._intercom_reconnect_unsub: Callable[[], None] | None = None
         self._intercom_reconnect_attempts = 0
+        self._subscribe_reconnect_unsub: Callable[[], None] | None = None
+        self._subscribe_reconnect_attempts = 0
 
     async def init_coordinators(self):
         """Initialize coordinators."""
@@ -322,31 +326,7 @@ class HikvisionDevice(ISAPIClient):
                     raise SDKError(self.sdk_subscription, "Error while setting up event manager")
                 self.hass.data[DOMAIN]["sdk_callback_registered"] = True
 
-            alarm_param = NET_DVR_SETUPALARM_PARAM_V50()
-            alarm_param.dwSize = sizeof(NET_DVR_SETUPALARM_PARAM_V50)
-            alarm_param.byLevel = 2
-            alarm_param.byAlarmInfoType = 1
-            alarm_param.byFaceAlarmDetection = 1
-            alarm_param.byDeployType = 1
-            # bit0: license plate (IPC/ITS), bit3: face snap, bit4: face contrast (IPC)
-            alarm_param.bySupport = alarm_param.bySupport | 0x19
-            # bit3: subscribe to COMM_ALARM_RULE (VCA behavior detection)
-            alarm_param.byBrokenNetHttpV60 = alarm_param.byBrokenNetHttpV60 | 0x08
-            # This flips bit 1 to 0, telling the doorbell NOT to send the backlog.
-            alarm_param.bySupport = alarm_param.bySupport & ~0x02
-
-            _LOGGER.debug("Arming the device via SDK")
-            alarm_handle = self.sdk_subscription.NET_DVR_SetupAlarmChan_V50(
-                self.sdk_user, alarm_param, None, 0)
-            if alarm_handle < 0:
-                errno = self.sdk_subscription.NET_DVR_GetLastError()
-                _LOGGER.error(f"Error while listening to events, errno={errno}: {self.sdk_subscription.NET_DVR_GetErrorMsg(c_long(errno)).decode('utf-8')}")
-                await self.async_set_subscribe_connected(False, f"{errno}: {self.sdk_subscription.NET_DVR_GetErrorMsg(c_long(errno)).decode('utf-8')}")
-                # return
-                # raise SDKError(self.sdk_subscription, f"Error while listening to events")
-            else:
-                await self.async_set_subscribe_connected(True)
-                self.sdk_handle = alarm_handle
+            await self._setup_sdk_alarm_channel()
 
             if self.capabilities.support_video_intercom:
                 await self._start_video_intercom_remote_config()
@@ -824,6 +804,117 @@ class HikvisionDevice(ISAPIClient):
                 sw_version=camera_info.firmware if is_ip_camera else "Unknown",
                 via_device=(DOMAIN, self.device_info.serial_no) if self.device_info.is_nvr else None,
             )
+
+    def _sdk_alarm_error_message(self, errno: int) -> str:
+        return (
+            f"{errno}: "
+            f"{self.sdk_subscription.NET_DVR_GetErrorMsg(c_long(errno)).decode('utf-8')}"
+        )
+
+    def _build_sdk_alarm_param(self) -> NET_DVR_SETUPALARM_PARAM_V50:
+        alarm_param = NET_DVR_SETUPALARM_PARAM_V50()
+        alarm_param.dwSize = sizeof(NET_DVR_SETUPALARM_PARAM_V50)
+        alarm_param.byLevel = 2
+        alarm_param.byAlarmInfoType = 1
+        alarm_param.byFaceAlarmDetection = 1
+        alarm_param.byDeployType = 1
+        # bit0: license plate (IPC/ITS), bit3: face snap, bit4: face contrast (IPC)
+        alarm_param.bySupport = alarm_param.bySupport | 0x19
+        # bit3: subscribe to COMM_ALARM_RULE (VCA behavior detection)
+        alarm_param.byBrokenNetHttpV60 = alarm_param.byBrokenNetHttpV60 | 0x08
+        # This flips bit 1 to 0, telling the doorbell NOT to send the backlog.
+        alarm_param.bySupport = alarm_param.bySupport & ~0x02
+        return alarm_param
+
+    def _teardown_sdk_alarm_channel(self) -> None:
+        """Close the SDK alarm channel handle if armed."""
+        if self.sdk_handle is None or self.sdk_subscription is None:
+            return
+        handle = self.sdk_handle
+        self.sdk_handle = None
+        self.sdk_subscription.NET_DVR_CloseAlarmChan_V30(handle)
+
+    async def _setup_sdk_alarm_channel(self) -> bool:
+        """Arm SDK alarm channel; returns True on success."""
+        if self.sdk_user is None or self.sdk_subscription is None:
+            return False
+
+        self._teardown_sdk_alarm_channel()
+
+        _LOGGER.debug("Arming the device via SDK")
+        alarm_param = self._build_sdk_alarm_param()
+        alarm_handle = self.sdk_subscription.NET_DVR_SetupAlarmChan_V50(
+            self.sdk_user,
+            alarm_param,
+            None,
+            0,
+        )
+        if alarm_handle < 0:
+            errno = self.sdk_subscription.NET_DVR_GetLastError()
+            reason = self._sdk_alarm_error_message(errno)
+            _LOGGER.error("Error while listening to events, %s", reason)
+            await self.async_set_subscribe_connected(False, reason)
+            return False
+
+        self.sdk_handle = alarm_handle
+        await self.async_set_subscribe_connected(True)
+        _LOGGER.info(
+            "SDK alarm channel armed for %s (handle=%s)",
+            self.device_info.serial_no,
+            alarm_handle,
+        )
+        return True
+
+    def _should_reconnect_subscribe(self) -> bool:
+        return (
+            self.connection_type == CONF_CONNECTION_SDK
+            and self.sdk_user is not None
+            and self.sdk_subscription is not None
+            and self.subscribe_coordinator is not None
+        )
+
+    def _cancel_subscribe_reconnect(self) -> None:
+        if self._subscribe_reconnect_unsub is not None:
+            self._subscribe_reconnect_unsub()
+            self._subscribe_reconnect_unsub = None
+
+    def _schedule_subscribe_reconnect(self, reason: str | None = None) -> None:
+        """Retry NET_DVR_SetupAlarmChan_V50 after a failed or dropped alarm channel."""
+        if not self._should_reconnect_subscribe():
+            return
+        if self._subscribe_reconnect_unsub is not None:
+            return
+
+        delay = min(
+            SUBSCRIBE_ALARM_RECONNECT_BASE_DELAY * (2 ** self._subscribe_reconnect_attempts),
+            SUBSCRIBE_ALARM_RECONNECT_MAX_DELAY,
+        )
+        self._subscribe_reconnect_attempts += 1
+        _LOGGER.info(
+            "Scheduling SDK alarm channel reconnect for %s in %ss (%s)",
+            self.device_info.serial_no,
+            delay,
+            reason or "disconnected",
+        )
+
+        def _run_reconnect(_now) -> None:
+            self._subscribe_reconnect_unsub = None
+            asyncio.run_coroutine_threadsafe(
+                self._reconnect_sdk_alarm_channel(),
+                self.hass.loop,
+            )
+
+        self._subscribe_reconnect_unsub = async_call_later(self.hass, delay, _run_reconnect)
+
+    async def _reconnect_sdk_alarm_channel(self) -> None:
+        """Restart the SDK alarm channel after SetupAlarmChan_V50 failure."""
+        if not self._should_reconnect_subscribe():
+            return
+        _LOGGER.info(
+            "Reconnecting SDK alarm channel for %s",
+            self.device_info.serial_no,
+        )
+        await self._setup_sdk_alarm_channel()
 
     def _should_reconnect_intercom(self) -> bool:
         return (
@@ -1468,6 +1559,11 @@ class HikvisionDevice(ISAPIClient):
         """Update the event/alarm channel connectivity status."""
         if self.subscribe_coordinator:
             await self.subscribe_coordinator.async_set_connected(connected, reason)
+        if connected:
+            self._cancel_subscribe_reconnect()
+            self._subscribe_reconnect_attempts = 0
+        elif reason != "stopped":
+            self._schedule_subscribe_reconnect(reason)
 
     async def async_set_intercom_connected(self, connected: bool, reason: str | None = None):
         """Update the video intercom RemoteConfig connectivity status."""

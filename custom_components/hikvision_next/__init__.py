@@ -154,6 +154,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) -
             await device.event_subscription.stop()
 
     if device.sdk_subscription is not None:
+        device._cancel_subscribe_reconnect()
         with suppress(Exception):
             await device._stop_video_intercom_remote_config()
 
