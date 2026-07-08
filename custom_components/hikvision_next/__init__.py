@@ -170,12 +170,12 @@ async def async_unload_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) -
         sdk_ref = hass.data.get(DOMAIN, {}).get("sdk_ref")
         if sdk_ref is not None and device in sdk_ref:
             sdk_ref.remove(device)
-            if len(sdk_ref) == 0:
-                shutdownSDK(device.sdk_subscription)
-                hass.data[DOMAIN].pop("sdk", None)
-                hass.data[DOMAIN].pop("sdk_ref", None)
-                hass.data[DOMAIN].pop("sdk_callback", None)
-                hass.data[DOMAIN].pop("sdk_callback_registered", None)
+            # if len(sdk_ref) == 0:
+            #     shutdownSDK(device.sdk_subscription)
+            #     hass.data[DOMAIN].pop("sdk", None)
+            #     hass.data[DOMAIN].pop("sdk_ref", None)
+            #     hass.data[DOMAIN].pop("sdk_callback", None)
+            #     hass.data[DOMAIN].pop("sdk_callback_registered", None)
         device.sdk_subscription = None
 
     # Close the separate ext session used for session-login auth if it exists
