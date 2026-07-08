@@ -58,6 +58,12 @@ Creates an automation that allows to display text overlay on a selected video st
 ### NVR device view
 ![NVR](/assets/nvr.jpg "NVR device view")
 
+### ACS device view
+![ACS](/assets/acs.png "ACS device view")
+
+### ANPR device view
+![ANPR](/assets/anpr.png "ANPR device view")
+
 The scope supported features depends on device model, setup and firmware version.
 
 ## Installation
