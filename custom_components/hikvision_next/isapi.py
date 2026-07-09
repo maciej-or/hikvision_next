@@ -1011,14 +1011,28 @@ class ISAPIClient:
 
         return slug[0].upper() + slug[1:]
 
+    async def remote_control_door(self, event: EventInfo, *, locked: bool) -> None:
+        """Remotely lock or unlock an ACS door via ISAPI RemoteControlDoor."""
+        if not event.url:
+            raise ValueError(f"Cannot control door lock without URL for {event.id}")
+
+        cmd = "close" if locked else "open"
+        data = {
+            "RemoteControlDoor": {
+                "@xmlns": "http://www.isapi.org/ver20/XMLSchema",
+                "@version": "2.0",
+                "cmd": cmd,
+            }
+        }
+        xml = xmltodict.unparse(data)
+        _LOGGER.info("Remote door control %s -> %s", event.url, cmd)
+        await self.ext_request(PUT, event.url, present="xml", data=xml)
+
     async def get_event_enabled_state(self, event: EventInfo) -> bool:
         """Get event detection state."""
         if not event.url:
             _LOGGER.warning("Cannot fetch event enabled state. Unknown event URL %s", event.id)
             return False
-
-        if event.id == "lock":
-            return None
 
         state = await self.request(GET, event.url)
         node = self._get_event_state_node(event)
@@ -1062,19 +1076,6 @@ class ISAPIClient:
         if not event.url:
             _LOGGER.warning("Cannot set event enabled state. Unknown event URL %s", event.id)
             return False
-
-        if event.id == "lock":
-            data = {
-                "RemoteControlDoor": {
-                    '@xmlns': 'http://www.isapi.org/ver20/XMLSchema',
-                    '@version': '2.0',
-                    "cmd": "open" if is_enabled else "close"
-                }
-            }
-            xml = xmltodict.unparse(data)
-            _LOGGER.info(f"Set lock state {event.url} -> {data['RemoteControlDoor']['cmd']}")
-            await self.ext_request(PUT, event.url, present="xml", data=xml)
-            return None
 
         # Validate that this event switch is not mutually exclusive with another enabled one
         mutex_issues = []

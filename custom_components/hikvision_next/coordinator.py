@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import slugify
 
-from .const import CONF_ALARM_SERVER_HOST, DOMAIN, HOLIDAY_MODE
+from .const import CONF_ALARM_SERVER_HOST, DOMAIN, HOLIDAY_MODE, LOCK_EVENT_IDS
 from .sdk.video_intercom import IntercomCallState
 
 SCAN_INTERVAL_EVENTS = timedelta(seconds=120)
@@ -40,7 +40,7 @@ class EventsCoordinator(DataUpdateCoordinator):
         # Get camera event status
         for camera in self.device.cameras:
             for event in camera.events_info:
-                if event.disabled or not event.url:
+                if event.disabled or not event.url or event.id in LOCK_EVENT_IDS:
                     continue
                 try:
                     _id = ENTITY_ID_FORMAT.format(event.unique_id)
@@ -50,7 +50,7 @@ class EventsCoordinator(DataUpdateCoordinator):
 
         # Get NVR event status
         for event in self.device.events_info:
-            if event.disabled or not event.url:
+            if event.disabled or not event.url or event.id in LOCK_EVENT_IDS:
                 continue
             try:
                 _id = ENTITY_ID_FORMAT.format(event.unique_id)

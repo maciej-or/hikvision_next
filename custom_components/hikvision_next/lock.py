@@ -82,13 +82,13 @@ class AcsLockEntity(LockEntity):
     async def async_lock(self, **kwargs: Any) -> None:
         """Lock the door (remote close)."""
         try:
-            await self.device.set_event_enabled_state(0, self.event, False)
+            await self.device.remote_control_door(self.event, locked=True)
         except Exception as ex:
             raise HomeAssistantError(str(ex)) from ex
 
     async def async_unlock(self, **kwargs: Any) -> None:
         """Unlock the door (remote open)."""
         try:
-            await self.device.set_event_enabled_state(0, self.event, True)
+            await self.device.remote_control_door(self.event, locked=False)
         except Exception as ex:
             raise HomeAssistantError(str(ex)) from ex

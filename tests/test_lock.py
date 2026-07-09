@@ -40,7 +40,7 @@ async def test_acs_lock_unlock_calls_remote_control(hass: HomeAssistant) -> None
     device = MagicMock()
     device.device_info.serial_no = "DS-K1T6QT"
     device.hass_device_info.return_value = {}
-    device.set_event_enabled_state = AsyncMock()
+    device.remote_control_door = AsyncMock()
 
     event = EventInfo(
         id="lock",
@@ -54,11 +54,11 @@ async def test_acs_lock_unlock_calls_remote_control(hass: HomeAssistant) -> None
     entity.platform = MagicMock()
 
     await entity.async_unlock()
-    device.set_event_enabled_state.assert_awaited_once_with(0, event, True)
+    device.remote_control_door.assert_awaited_once_with(event, locked=False)
 
-    device.set_event_enabled_state.reset_mock()
+    device.remote_control_door.reset_mock()
     await entity.async_lock()
-    device.set_event_enabled_state.assert_awaited_once_with(0, event, False)
+    device.remote_control_door.assert_awaited_once_with(event, locked=True)
 
 
 def test_lock_event_platform_unique_id():
