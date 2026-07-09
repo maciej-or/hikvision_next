@@ -21,6 +21,7 @@ import time
 from homeassistant.const import (
     STATE_ON, STATE_OFF
 )
+from ..door_control import DoorControlAction, ISAPI_REMOTE_CONTROL_DOOR_CMD
 from .const import (
     CONNECTION_TYPE_DIRECT,
     CONNECTION_TYPE_PROXIED,
@@ -1051,12 +1052,16 @@ class ISAPIClient:
 
         return slug[0].upper() + slug[1:]
 
-    async def remote_control_door(self, event: EventInfo, *, locked: bool) -> None:
-        """Remotely lock or unlock an ACS door via ISAPI RemoteControlDoor."""
+    async def remote_control_door(
+        self,
+        event: EventInfo,
+        action: DoorControlAction,
+    ) -> None:
+        """Remotely control an ACS door via ISAPI RemoteControlDoor."""
         if not event.url:
             raise ValueError(f"Cannot control door lock without URL for {event.id}")
 
-        cmd = "close" if locked else "open"
+        cmd = ISAPI_REMOTE_CONTROL_DOOR_CMD[action]
         data = {
             "RemoteControlDoor": {
                 "@xmlns": "http://www.isapi.org/ver20/XMLSchema",

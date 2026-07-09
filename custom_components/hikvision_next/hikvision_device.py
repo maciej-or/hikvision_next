@@ -73,6 +73,7 @@ from .sdk.hcnetsdk import NET_DVR_DEVICEINFO_V30, NET_DVR_SETUPALARM_PARAM_V50, 
     MAX_CHANNUM_V30, MAX_DISKNUM_V30, ALARMINFO_V30_ALARMTYPE_SEMAPHORE_ALARM, ALARMINFO_V30_ALARMTYPE_VIDEO_LOST, \
     ALARMINFO_V30_ALARMTYPE_TAMPERING_DETECTION, ALARMINFO_V30_ALARMTYPE_INTELLIGENT_SCENE_CHANGED
 from .sdk.hcnetsdk import ALARMINFO_V30_ALARMTYPE_MOTION_DETECTION, BOOL, COMM_ALARM_V30, COMM_ALARM_VIDEO_INTERCOM, COMM_UPLOAD_VIDEO_INTERCOM_EVENT, DWORD, LONG, NET_DVR_ALARMER, NET_DVR_ALARMINFO_V30, NET_DVR_VIDEO_INTERCOM_ALARM, NET_DVR_VIDEO_INTERCOM_EVENT, NET_DVR_ALARM_ISAPI_INFO, NET_DVR_ACS_ALARM_INFO, COMM_ISAPI_ALARM, COMM_ALARM_ACS, MessageCallbackAlarmInfoUnion
+from .door_control import DoorControlAction
 from .sdk.acs_door import door_index_from_event_url, sdk_remote_control_door
 from .sdk.acsalarminfo import AcsAlarmInfoMajor, AcsAlarmInfoMajorEvent
 from .sdk.hcnetsdk import (
@@ -1404,8 +1405,12 @@ class HikvisionDevice(ISAPIClient):
             message["alarm_type"] = alarm_type
         self.hass.bus.fire(HIKVISION_EVENT, message)
 
-    async def remote_control_door(self, event: EventInfo, *, locked: bool) -> None:
-        """Remotely lock or unlock an ACS door, preferring SDK when available."""
+    async def remote_control_door(
+        self,
+        event: EventInfo,
+        action: DoorControlAction,
+    ) -> None:
+        """Remotely control an ACS door, preferring SDK when available."""
         if (
             self.connection_type == CONF_CONNECTION_SDK
             and self.sdk_user is not None
@@ -1418,7 +1423,7 @@ class HikvisionDevice(ISAPIClient):
                     self.sdk_subscription,
                     self.sdk_user,
                     door_index,
-                    locked=locked,
+                    action,
                 )
                 return
             except SDKError as ex:
@@ -1428,7 +1433,7 @@ class HikvisionDevice(ISAPIClient):
                     door_index,
                     ex,
                 )
-        await super().remote_control_door(event, locked=locked)
+        await super().remote_control_door(event, action)
 
     async def intercom_answer(self) -> None:
         """Answer an incoming intercom call."""

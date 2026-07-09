@@ -6,6 +6,7 @@ import logging
 import re
 from ctypes import CDLL, byref, sizeof
 
+from ..door_control import DoorControlAction
 from .hcnetsdk import (
     GatewayCommand,
     LONG,
@@ -17,6 +18,13 @@ from .utils import SDKError
 _LOGGER = logging.getLogger(__name__)
 
 _DOOR_URL_RE = re.compile(r"/door/(\d+)", re.IGNORECASE)
+
+_SDK_GATEWAY_COMMAND: dict[DoorControlAction, GatewayCommand] = {
+    DoorControlAction.CLOSE: GatewayCommand.CLOSE,
+    DoorControlAction.OPEN: GatewayCommand.OPEN,
+    DoorControlAction.ALWAYS_OPEN: GatewayCommand.NORMALLY_OPEN,
+    DoorControlAction.RESTORE_NORMAL: GatewayCommand.RESTORE_NORMAL,
+}
 
 
 def door_index_from_event_url(url: str | None) -> int:
@@ -31,21 +39,17 @@ def sdk_remote_control_door(
     sdk: CDLL,
     user_id: LONG,
     door_index: int,
-    *,
-    locked: bool,
+    action: DoorControlAction,
 ) -> None:
-    """Lock or unlock an ACS door via NET_DVR_RemoteControl."""
+    """Control an ACS door via NET_DVR_RemoteControl."""
     gateway = NET_DVR_CONTROL_GATEWAY()
     gateway.dwSize = sizeof(NET_DVR_CONTROL_GATEWAY)
     gateway.dwGatewayIndex = door_index
-    gateway.byCommand = int(
-        GatewayCommand.CLOSE if locked else GatewayCommand.OPEN
-    )
+    gateway.byCommand = int(_SDK_GATEWAY_COMMAND[action])
     gateway.byLockType = 0
     gateway.wLockID = 0
     gateway.byControlType = 2
 
-    cmd = "close" if locked else "open"
     result = sdk.NET_DVR_RemoteControl(
         user_id,
         NET_DVR_REMOTECONTROL_GATEWAY,
@@ -55,6 +59,6 @@ def sdk_remote_control_door(
     if not result:
         raise SDKError(
             sdk,
-            f"NET_DVR_RemoteControl door {door_index} {cmd} failed",
+            f"NET_DVR_RemoteControl door {door_index} {action} failed",
         )
-    _LOGGER.info("SDK remote door control door=%s cmd=%s", door_index, cmd)
+    _LOGGER.info("SDK remote door control door=%s action=%s", door_index, action)

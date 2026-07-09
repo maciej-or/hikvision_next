@@ -7,6 +7,7 @@ import pytest
 from homeassistant.core import HomeAssistant
 
 from custom_components.hikvision_next.const import CONF_CONNECTION_SDK
+from custom_components.hikvision_next.door_control import DoorControlAction
 from custom_components.hikvision_next.hikvision_device import HikvisionDevice
 from custom_components.hikvision_next.isapi import EventInfo
 from custom_components.hikvision_next.isapi.isapi import ISAPIClient
@@ -37,7 +38,7 @@ def test_sdk_remote_control_door_sends_close_for_lock():
     sdk = MagicMock()
     sdk.NET_DVR_RemoteControl.side_effect = fake_remote_control
 
-    sdk_remote_control_door(sdk, 42, 1, locked=True)
+    sdk_remote_control_door(sdk, 42, 1, DoorControlAction.CLOSE)
 
     user_id, command, _, _ = captured[0]
     assert user_id == 42
@@ -47,7 +48,7 @@ def test_sdk_remote_control_door_sends_close_for_lock():
     assert gateway.byCommand == GatewayCommand.CLOSE
 
 
-def test_sdk_remote_control_door_sends_open_for_unlock():
+def test_sdk_remote_control_door_sends_always_open():
     captured: list = []
 
     def fake_remote_control(user_id, command, buffer, size):
@@ -57,11 +58,11 @@ def test_sdk_remote_control_door_sends_open_for_unlock():
     sdk = MagicMock()
     sdk.NET_DVR_RemoteControl.side_effect = fake_remote_control
 
-    sdk_remote_control_door(sdk, 42, 2, locked=False)
+    sdk_remote_control_door(sdk, 42, 2, DoorControlAction.ALWAYS_OPEN)
 
     gateway = cast(captured[0][2], POINTER(NET_DVR_CONTROL_GATEWAY)).contents
     assert gateway.dwGatewayIndex == 2
-    assert gateway.byCommand == GatewayCommand.OPEN
+    assert gateway.byCommand == GatewayCommand.NORMALLY_OPEN
 
 
 def _sdk_device(hass: HomeAssistant) -> HikvisionDevice:
@@ -98,7 +99,7 @@ async def test_remote_control_door_prefers_sdk(hass: HomeAssistant) -> None:
         "async_add_executor_job",
         new=AsyncMock(return_value=None),
     ) as mock_exec:
-        await device.remote_control_door(event, locked=True)
+        await device.remote_control_door(event, DoorControlAction.OPEN)
 
     mock_exec.assert_awaited_once()
     assert mock_exec.await_args.args[0] is sdk_remote_control_door
@@ -121,5 +122,5 @@ async def test_remote_control_door_falls_back_to_isapi(hass: HomeAssistant) -> N
         "remote_control_door",
         new=AsyncMock(),
     ) as isapi_mock:
-        await device.remote_control_door(event, locked=False)
-        isapi_mock.assert_awaited_once_with(event, locked=False)
+        await device.remote_control_door(event, DoorControlAction.OPEN)
+        isapi_mock.assert_awaited_once_with(event, DoorControlAction.OPEN)

@@ -93,7 +93,10 @@
     },
     "lock": {
       "lock": {
-        "name": "Door lock"
+        "name": "Door lock (momentary)"
+      },
+      "lock_always_open": {
+        "name": "Door lock (always open)"
       }
     },
     "switch": {

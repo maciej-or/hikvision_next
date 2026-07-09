@@ -507,14 +507,20 @@ class EventNotificationsView(HomeAssistantView):
                 )
 
         if alert.event_id == "lock":
+            from .lock import lock_group_key
+
             locked = alert.state == STATE_OFF
-            lock_entity = self.hass.data.get(DOMAIN, {}).get("event_lock_entities", {}).get(unique_id)
-            if lock_entity is not None:
-                lock_entity.set_locked(locked)
+            group_key = lock_group_key(unique_id)
+            lock_entities = self.hass.data.get(DOMAIN, {}).get("event_lock_groups", {}).get(
+                group_key, []
+            )
+            if lock_entities:
+                lock_entities[0].set_locked(locked)
                 _LOGGER.info(
-                    "ACS lock update: %s -> %s",
-                    lock_entity.entity_id,
+                    "ACS lock update: %s -> %s (%d entities)",
+                    group_key,
                     "locked" if locked else "unlocked",
+                    len(lock_entities),
                 )
                 self.fire_hass_event(alert)
                 return
