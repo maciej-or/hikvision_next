@@ -59,6 +59,7 @@ LOCK_EVENT_IDS: Final = frozenset({"lock"})
 ANPR_LICENSE_PLATE_SENSOR_SUFFIX: Final = "anpr_plate"
 ANPR_IMAGE_SUFFIX: Final = "anpr_snap"
 FACE_VERIFY_IMAGE_SUFFIX: Final = "face_verify"
+FACE_PERSON_PULSE_SECONDS: Final = 1.0
 
 EVENTS = {
     "motiondetection": {

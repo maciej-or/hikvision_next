@@ -115,6 +115,35 @@ def test_build_acs_access_controller_event_uses_employee_and_card():
     assert ace["doorNo"] == 2
 
 
+async def test_face_sensor_resets_to_unknown_after_pulse(hass: HomeAssistant) -> None:
+    """Face sensor pulses person name for 1s then returns to unknown."""
+    import asyncio
+
+    from custom_components.hikvision_next.const import FACE_PERSON_PULSE_SECONDS
+
+    device = MagicMock()
+    device.hass_device_info.return_value = {}
+
+    event_info = EventInfo(
+        id="face",
+        channel_id=0,
+        io_port_id=0,
+        unique_id="ds_k1t6qt_face",
+    )
+    entity = FacePersonSensor(device, 0, event_info)
+    entity.hass = hass
+    entity.platform = MagicMock()
+
+    entity.set_person("Zhang San", {"name": "Zhang San"})
+    assert entity._attr_native_value == "Zhang San"
+
+    await asyncio.sleep(FACE_PERSON_PULSE_SECONDS + 0.1)
+    await hass.async_block_till_done()
+
+    assert entity._attr_native_value == "unknown"
+    assert entity._attr_extra_state_attributes == {}
+
+
 async def test_trigger_face_sensor_updates_entity(hass: HomeAssistant) -> None:
     """Face events update the text sensor with person name and attributes."""
     device = MagicMock()
@@ -158,6 +187,7 @@ async def test_trigger_face_sensor_updates_entity(hass: HomeAssistant) -> None:
     assert entity._attr_extra_state_attributes["name"] == "Zhang San"
     assert entity._attr_extra_state_attributes["employee_no"] == "1001"
     assert entity._attr_extra_state_attributes["card_no"] == "12345678"
+    entity._cancel_face_reset()
 
 
 async def test_update_face_verify_image(hass: HomeAssistant) -> None:

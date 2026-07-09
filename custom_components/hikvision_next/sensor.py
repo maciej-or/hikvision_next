@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+from typing import Callable
+
 from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import HikvisionConfigEntry
@@ -14,6 +17,7 @@ from .const import (
     CONF_CONNECTION_HTTP_CALLBACK,
     DOMAIN,
     EVENTS,
+    FACE_PERSON_PULSE_SECONDS,
     SECONDARY_COORDINATOR,
     resolve_connection_type,
 )
@@ -138,6 +142,8 @@ class FacePersonSensor(SensorEntity):
         self._attr_translation_key = "face"
         self._attr_device_info = device.hass_device_info(device_id)
         self._attr_entity_registry_enabled_default = not event.disabled
+        self._attr_native_value = "unknown"
+        self._face_reset_unsub: Callable[[], None] | None = None
 
     async def async_added_to_hass(self) -> None:
         """Register for direct state updates from SDK/ISAPI event handlers."""
@@ -148,9 +154,34 @@ class FacePersonSensor(SensorEntity):
 
     async def async_will_remove_from_hass(self) -> None:
         """Unregister from direct state updates."""
+        self._cancel_face_reset()
         sensors = self.hass.data.get(DOMAIN, {}).get("event_text_sensors", {})
         sensors.pop(self.unique_id, None)
         await super().async_will_remove_from_hass()
+
+    def _cancel_face_reset(self) -> None:
+        if self._face_reset_unsub is not None:
+            self._face_reset_unsub()
+            self._face_reset_unsub = None
+
+    def _schedule_face_reset(self) -> None:
+        """Reset to unknown after a short pulse so automations can re-trigger."""
+        if self.hass is None:
+            return
+        self._cancel_face_reset()
+
+        def _reset_to_unknown(_now) -> None:
+            self._face_reset_unsub = None
+            self._attr_native_value = "unknown"
+            self._attr_extra_state_attributes = {}
+            if self.platform is not None:
+                self.schedule_update_ha_state()
+
+        self._face_reset_unsub = async_call_later(
+            self.hass,
+            FACE_PERSON_PULSE_SECONDS,
+            _reset_to_unknown,
+        )
 
     def set_person(self, person: str, attributes: dict | None = None) -> None:
         """Update the recognized person state."""
@@ -158,6 +189,7 @@ class FacePersonSensor(SensorEntity):
         self._attr_extra_state_attributes = attributes or {}
         if self.platform is not None:
             self.schedule_update_ha_state()
+        self._schedule_face_reset()
 
 
 class AnprLicensePlateSensor(SensorEntity):
