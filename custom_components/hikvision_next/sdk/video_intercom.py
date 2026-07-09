@@ -65,8 +65,7 @@ SUBSCRIBE_ALARM_RECONNECT_MAX_DELAY = 120.0
 INTERCOM_HANGUP_RELEASE_CMDS: tuple[VideoCallCmdType, ...] = (
     VideoCallCmdType.CANCEL_CALL,
     VideoCallCmdType.END_CALL,
-    VideoCallCmdType.REJECT_CALL,
-    VideoCallCmdType.CANCEL_CALL,
+    VideoCallCmdType.CLIENT_IN_CALL,
 )
 
 INTERCOM_RESPONSE_CMD_TYPES = frozenset(
