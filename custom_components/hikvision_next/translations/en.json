@@ -84,6 +84,9 @@
       "intercom_answer": {
         "name": "Answer intercom"
       },
+      "intercom_call": {
+        "name": "Call client"
+      },
       "intercom_reject": {
         "name": "Reject intercom"
       },

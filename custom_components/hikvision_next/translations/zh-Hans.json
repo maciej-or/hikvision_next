@@ -84,6 +84,9 @@
       "intercom_answer": {
         "name": "接听对讲"
       },
+      "intercom_call": {
+        "name": "呼叫客户端"
+      },
       "intercom_reject": {
         "name": "拒绝对讲"
       },

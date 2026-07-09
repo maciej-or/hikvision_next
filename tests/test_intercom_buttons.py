@@ -7,6 +7,7 @@ from homeassistant.core import HomeAssistant
 
 from custom_components.hikvision_next.button import (
     IntercomAnswerButton,
+    IntercomCallButton,
     IntercomHangupButton,
     IntercomRejectButton,
 )
@@ -20,10 +21,40 @@ def intercom_coordinator(hass: HomeAssistant) -> IntercomStatusCoordinator:
     device.device_info.serial_no = "DS-K1T6QT TEST"
     device.hass_device_info.return_value = {}
     device.intercom_answer = AsyncMock()
+    device.intercom_call = AsyncMock()
     device.intercom_reject = AsyncMock()
     device.intercom_hangup = AsyncMock()
     coordinator = IntercomStatusCoordinator(hass, device)
     return coordinator
+
+
+async def test_call_button_available_only_when_idle(
+    hass: HomeAssistant,
+    intercom_coordinator: IntercomStatusCoordinator,
+) -> None:
+    button = IntercomCallButton(intercom_coordinator, "ds_k1t6qt_test")
+    button.hass = hass
+
+    assert button.available is False
+
+    await intercom_coordinator.async_set_connected(True)
+    assert button.available is True
+
+    await intercom_coordinator.async_set_call_state(IntercomCallState.RINGING)
+    assert button.available is False
+
+
+async def test_call_button_presses_device_action(
+    hass: HomeAssistant,
+    intercom_coordinator: IntercomStatusCoordinator,
+) -> None:
+    button = IntercomCallButton(intercom_coordinator, "ds_k1t6qt_test")
+    button.hass = hass
+
+    await intercom_coordinator.async_set_connected(True)
+
+    await button.async_press()
+    intercom_coordinator.device.intercom_call.assert_awaited_once()
 
 
 async def test_answer_button_available_only_when_ringing(

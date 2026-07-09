@@ -102,6 +102,17 @@ intercom_answer:
         config_entry:
           integration: hikvision_next
 
+intercom_call:
+  name: Intercom call
+  description: Initiate an outgoing video intercom call to the client via SDK RemoteConfig.
+  fields:
+    config_entry_id:
+      required: true
+      name: Device
+      selector:
+        config_entry:
+          integration: hikvision_next
+
 intercom_reject:
   name: Intercom reject
   description: Reject an incoming video intercom call via SDK RemoteConfig.

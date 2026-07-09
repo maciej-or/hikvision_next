@@ -40,6 +40,7 @@ ACTION_UPDATE_SNAPSHOT = "update_snapshot"
 ACTION_PTZ_MOVE = "ptz_move"
 ACTION_PTZ_STOP = "ptz_stop"
 ACTION_INTERCOM_ANSWER = "intercom_answer"
+ACTION_INTERCOM_CALL = "intercom_call"
 ACTION_INTERCOM_REJECT = "intercom_reject"
 ACTION_INTERCOM_HANGUP = "intercom_hangup"
 

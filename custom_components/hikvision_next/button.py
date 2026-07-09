@@ -35,6 +35,7 @@ async def async_setup_entry(
     serial = slugify(device.device_info.serial_no.lower())
     async_add_entities(
         [
+            IntercomCallButton(coordinator, serial),
             IntercomAnswerButton(coordinator, serial),
             IntercomRejectButton(coordinator, serial),
             IntercomHangupButton(coordinator, serial),
@@ -68,6 +69,31 @@ class IntercomControlButton(CoordinatorEntity, ButtonEntity):
     @property
     def available(self) -> bool:
         return super().available and self.coordinator.connected
+
+
+class IntercomCallButton(IntercomControlButton):
+    """Initiate an outgoing video intercom call."""
+
+    def __init__(self, coordinator: IntercomStatusCoordinator, serial: str) -> None:
+        super().__init__(
+            coordinator,
+            serial,
+            translation_key="intercom_call",
+            icon="mdi:phone-outgoing",
+        )
+
+    @property
+    def available(self) -> bool:
+        return (
+            super().available
+            and self.coordinator.call_state == IntercomCallState.IDLE
+        )
+
+    async def async_press(self) -> None:
+        try:
+            await self.device.intercom_call()
+        except (ValueError, SDKError) as ex:
+            raise HomeAssistantError(str(ex)) from ex
 
 
 class IntercomAnswerButton(IntercomControlButton):
