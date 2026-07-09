@@ -1413,8 +1413,9 @@ class HikvisionDevice(ISAPIClient):
         await self._send_intercom_command(VideoCallCmdType.REJECT_CALL)
 
     async def intercom_hangup(self) -> None:
-        """End the active intercom call."""
+        """End the active intercom call and restart the RemoteConfig listener."""
         await self._send_intercom_command(VideoCallCmdType.END_CALL)
+        await self._reconnect_video_intercom_remote_config()
 
     async def _send_intercom_command(
         self,
@@ -1431,11 +1432,6 @@ class HikvisionDevice(ISAPIClient):
             self._video_intercom.send_call_command,
             cmd_type,
         )
-        if cmd_type == VideoCallCmdType.END_CALL:
-            await self.hass.async_add_executor_job(
-                self._video_intercom.send_call_command,
-                VideoCallCmdType.CANCEL_CALL,
-            )
 
         if apply_state:
             await self._apply_intercom_call_cmd(int(cmd_type), source="command")
