@@ -12,7 +12,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
 from . import HikvisionConfigEntry
-from .const import EVENTS_COORDINATOR, HOLIDAY_MODE, SECONDARY_COORDINATOR
+from .const import EVENTS_COORDINATOR, HOLIDAY_MODE, LOCK_EVENT_IDS, SECONDARY_COORDINATOR
 from .isapi import AnalogCamera, EventInfo, IPCamera, ISAPISetEventStateMutexError
 from .isapi.const import EVENT_IO
 from .const import EVENTS
@@ -50,7 +50,7 @@ async def async_setup_entry(
 
     # Device supported events
     for event in device.events_info:
-        if not event.url:
+        if not event.url or event.id in LOCK_EVENT_IDS:
             continue
         entities.append(EventSwitch(0, event, events_coordinator))
 

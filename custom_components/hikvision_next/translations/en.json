@@ -80,6 +80,11 @@
         "name": "Intercom connectivity"
       }
     },
+    "lock": {
+      "lock": {
+        "name": "Door lock"
+      }
+    },
     "switch": {
       "alarm_output": {
         "name": "Alarm Output {port_no}"

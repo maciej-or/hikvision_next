@@ -45,6 +45,7 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS = [
     Platform.BINARY_SENSOR,
     Platform.CAMERA,
+    Platform.LOCK,
     Platform.SENSOR,
     Platform.SWITCH,
     Platform.IMAGE,

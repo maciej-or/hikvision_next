@@ -80,6 +80,11 @@
         "name": "对讲连接状态"
       }
     },
+    "lock": {
+      "lock": {
+        "name": "门锁"
+      }
+    },
     "switch": {
       "alarm_output": {
         "name": "报警输出 {port_no}"

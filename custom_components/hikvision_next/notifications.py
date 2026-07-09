@@ -13,7 +13,7 @@ from aiohttp import web
 from requests_toolbelt.multipart import MultipartDecoder
 
 from homeassistant.components.http import HomeAssistantView
-from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN, STATE_ON, Platform
+from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN, STATE_OFF, STATE_ON, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_registry import async_get
 from homeassistant.util import slugify
@@ -24,6 +24,7 @@ from .const import (
     DEVICE_LEVEL_EVENT_IDS,
     DOMAIN,
     HIKVISION_EVENT,
+    LOCK_EVENT_IDS,
     TEXT_SENSOR_EVENT_IDS,
 )
 from .hikvision_device import HikvisionDevice
@@ -374,15 +375,30 @@ class EventNotificationsView(HomeAssistantView):
         io_port_id_param = f"_{alert.io_port_id}" if alert.io_port_id != 0 else ""
         return serial_no, device_id_param, io_port_id_param
 
+    def _event_platform_unique_id(self, alert: AlertInfo) -> str:
+        serial_no, device_id_param, io_port_id_param = self._event_unique_id_parts(alert)
+        event_suffix = f"{serial_no}{device_id_param}{io_port_id_param}_{alert.event_id}"
+        if alert.event_id in LOCK_EVENT_IDS:
+            return f"lock.{event_suffix}"
+        if alert.event_id in TEXT_SENSOR_EVENT_IDS:
+            return f"sensor.{event_suffix}"
+        return f"binary_sensor.{event_suffix}"
+
     def _lookup_event_entity(self, alert: AlertInfo) -> tuple[str | None, str]:
         serial_no, device_id_param, io_port_id_param = self._event_unique_id_parts(alert)
         event_suffix = f"{serial_no}{device_id_param}{io_port_id_param}_{alert.event_id}"
         binary_unique_id = f"binary_sensor.{event_suffix}"
         sensor_unique_id = f"sensor.{event_suffix}"
+        lock_unique_id = f"lock.{event_suffix}"
 
         entity_registry = async_get(self.hass)
+        unique_id = self._event_platform_unique_id(alert)
+
+        if alert.event_id in LOCK_EVENT_IDS:
+            entity_id = entity_registry.async_get_entity_id(Platform.LOCK, DOMAIN, lock_unique_id)
+            return entity_id, unique_id
+
         entity_id = entity_registry.async_get_entity_id(Platform.BINARY_SENSOR, DOMAIN, binary_unique_id)
-        unique_id = binary_unique_id
         if not entity_id:
             entity_id = entity_registry.async_get_entity_id(Platform.SENSOR, DOMAIN, sensor_unique_id)
             if entity_id:
@@ -394,12 +410,10 @@ class EventNotificationsView(HomeAssistantView):
             if sensor_entity_id:
                 entity_id = sensor_entity_id
                 unique_id = sensor_unique_id
-        if not entity_id:
-            unique_id = (
-                sensor_unique_id
-                if alert.event_id in TEXT_SENSOR_EVENT_IDS
-                else binary_unique_id
-            )
+        if not entity_id and alert.event_id in TEXT_SENSOR_EVENT_IDS:
+            unique_id = sensor_unique_id
+        elif not entity_id:
+            unique_id = binary_unique_id
         return entity_id, unique_id
 
     def _lookup_anpr_plate_entity(self, alert: AlertInfo) -> tuple[str | None, str]:
@@ -491,6 +505,28 @@ class EventNotificationsView(HomeAssistantView):
                 entity_id, unique_id = self._lookup_event_entity(
                     replace(alert, channel_id=self.device.cameras[0].id)
                 )
+
+        if alert.event_id == "lock":
+            locked = alert.state == STATE_OFF
+            lock_entity = self.hass.data.get(DOMAIN, {}).get("event_lock_entities", {}).get(unique_id)
+            if lock_entity is not None:
+                lock_entity.set_locked(locked)
+                _LOGGER.info(
+                    "ACS lock update: %s -> %s",
+                    lock_entity.entity_id,
+                    "locked" if locked else "unlocked",
+                )
+                self.fire_hass_event(alert)
+                return
+            if entity_id:
+                self.hass.states.async_set(
+                    entity_id,
+                    "locked" if locked else "unlocked",
+                )
+                self.fire_hass_event(alert)
+                return
+            _LOGGER.debug("Lock entity not found for alert %s (unique_id: %s)", alert, unique_id)
+            return
 
         if alert.event_id == "face":
             person = alert.state or "unknown"

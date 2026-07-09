@@ -13,7 +13,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
 from . import HikvisionConfigEntry
-from .const import DOMAIN, EVENTS, TEXT_SENSOR_EVENT_IDS
+from .const import DOMAIN, EVENTS, LOCK_EVENT_IDS, TEXT_SENSOR_EVENT_IDS
 from .coordinator import IntercomStatusCoordinator, SubscribeStatusCoordinator
 from .hikvision_device import HikvisionDevice
 from .isapi import EventInfo
@@ -46,7 +46,7 @@ async def async_setup_entry(
 
     # General Events
     for event in device.events_info:
-        if event.id in TEXT_SENSOR_EVENT_IDS:
+        if event.id in TEXT_SENSOR_EVENT_IDS or event.id in LOCK_EVENT_IDS:
             continue
         event_meta = EVENTS[event.id]
         if "device_class" in event_meta or "icon" in event_meta:

@@ -53,6 +53,9 @@ DEVICE_LEVEL_EVENT_IDS: Final = frozenset(
 # Events exposed as text sensors (not binary sensors).
 TEXT_SENSOR_EVENT_IDS: Final = frozenset({"face"})
 
+# Events exposed as lock entities (not binary sensors or switches).
+LOCK_EVENT_IDS: Final = frozenset({"lock"})
+
 ANPR_LICENSE_PLATE_SENSOR_SUFFIX: Final = "anpr_plate"
 ANPR_IMAGE_SUFFIX: Final = "anpr_snap"
 FACE_VERIFY_IMAGE_SUFFIX: Final = "face_verify"
@@ -111,7 +114,6 @@ EVENTS = {
         **ISAPI_EVENTS["io"],
         "mutex": True,
         "icon": "mdi:lock",
-        "device_class": BinarySensorDeviceClass.LOCK,
     },
     "face": {
         **ISAPI_EVENTS["io"],
