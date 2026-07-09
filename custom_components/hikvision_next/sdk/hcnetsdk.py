@@ -186,6 +186,7 @@ VIDEO_INTERCOM_EVENT_EVENTTYPE_DOOR_STATION_ISSUED_CARD_LOG = 6
 VIDEO_INTERCOM_EVENT_EVENTTYPE_MASK_DETECT_EVENT = 7
 VIDEO_INTERCOM_EVENT_EVENTTYPE_MAGNETIC_DOOR_STATUS = 8
 
+NET_DVR_REMOTECONTROL_GATEWAY = 16009
 NET_DVR_VIDEO_CALL_SIGNAL_PROCESS = 16032
 NET_DVR_GET_CALL_STATUS = 16034
 NET_DVR_SET_CALL_SIGNAL = 16036
@@ -664,13 +665,20 @@ class NET_DVR_VIDEO_INTERCOM_EVENT_INFO_UINON(Union):
         ("struSendCardInfo", NET_DVR_SEND_CARD_INFO),
     ]
 
+class GatewayCommand(IntEnum):
+    CLOSE = 0
+    OPEN = 1
+    NORMALLY_OPEN = 2
+    RESTORE_NORMAL = 3
+
+
 class NET_DVR_CONTROL_GATEWAY(Structure):
     _fields_ = [
         ("dwSize", DWORD),
         ("dwGatewayIndex", DWORD),
         ("byCommand", BYTE),
         ("byLockType", BYTE),
-        ("wLockID", SHORT),
+        ("wLockID", WORD),
         ("byControlSrc", BYTE * NAME_LEN),
         ("byControlType", BYTE),
         ("byRes3", BYTE * 3),
