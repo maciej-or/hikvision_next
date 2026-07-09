@@ -80,6 +80,17 @@
         "name": "Intercom connectivity"
       }
     },
+    "button": {
+      "intercom_answer": {
+        "name": "Answer intercom"
+      },
+      "intercom_reject": {
+        "name": "Reject intercom"
+      },
+      "intercom_hangup": {
+        "name": "Hang up intercom"
+      }
+    },
     "lock": {
       "lock": {
         "name": "Door lock"

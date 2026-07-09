@@ -11,6 +11,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import slugify
 
 from .const import CONF_ALARM_SERVER_HOST, DOMAIN, HOLIDAY_MODE
+from .sdk.video_intercom import IntercomCallState
 
 SCAN_INTERVAL_EVENTS = timedelta(seconds=120)
 SCAN_INTERVAL_HOLIDAYS = timedelta(minutes=60)
@@ -171,8 +172,35 @@ class IntercomStatusCoordinator(ConnectionStatusCoordinator):
     """Coordinator for VideoIntercomRemoteConfig session health."""
 
     def __init__(self, hass: HomeAssistant, device) -> None:
+        self._call_state = IntercomCallState.IDLE
         super().__init__(
             hass,
             device,
             coordinator_name=f"{DOMAIN}_intercom_{device.device_info.serial_no}",
         )
+
+    @property
+    def call_state(self) -> IntercomCallState:
+        return self._call_state
+
+    async def async_set_call_state(self, call_state: IntercomCallState) -> None:
+        """Update intercom call state and notify listeners."""
+        if self._call_state != call_state:
+            self._call_state = call_state
+            self.async_set_updated_data(self._snapshot())
+
+    def _snapshot(self) -> dict:
+        return {
+            "connected": self._connected,
+            "reason": self._reason,
+            "call_state": int(self._call_state),
+        }
+
+    async def async_set_connected(self, connected: bool, reason: str | None = None):
+        """Update connection state and notify listeners."""
+        if self._connected != connected or self._reason != reason:
+            self._connected = connected
+            self._reason = reason
+            if not connected:
+                self._call_state = IntercomCallState.IDLE
+            self.async_set_updated_data(self._snapshot())

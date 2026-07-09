@@ -1024,6 +1024,7 @@ class HikvisionDevice(ISAPIClient):
         await self.hass.async_add_executor_job(session.stop)
         self._video_intercom = None
         self._intercom_call_state = IntercomCallState.IDLE
+        await self.async_set_intercom_call_state(IntercomCallState.IDLE)
         self._cancel_doorbell_pulse()
         self._cancel_calling_timeout()
         await self._trigger_doorbell(False, source="stopped")
@@ -1068,6 +1069,7 @@ class HikvisionDevice(ISAPIClient):
             self._cancel_calling_timeout()
         await self._trigger_calling(calling_active, source=source, call_event=call_event)
         await self._trigger_intercom(in_call_active, source=source, call_event=call_event)
+        await self.async_set_intercom_call_state(new_state)
 
     async def _fetch_vehicle_control_list_entries(
         self, data_index: int
@@ -1211,6 +1213,7 @@ class HikvisionDevice(ISAPIClient):
             self.device_info.serial_no,
         )
         self._intercom_call_state = IntercomCallState.IDLE
+        await self.async_set_intercom_call_state(IntercomCallState.IDLE)
         await self._trigger_calling(False, source="timeout")
         await self._trigger_intercom(False, source="timeout")
 
@@ -1566,6 +1569,11 @@ class HikvisionDevice(ISAPIClient):
             self._subscribe_reconnect_attempts = 0
         elif reason != "stopped":
             self._schedule_subscribe_reconnect(reason)
+
+    async def async_set_intercom_call_state(self, call_state: IntercomCallState) -> None:
+        """Update the video intercom call state for UI controls."""
+        if self.intercom_coordinator:
+            await self.intercom_coordinator.async_set_call_state(call_state)
 
     async def async_set_intercom_connected(self, connected: bool, reason: str | None = None):
         """Update the video intercom RemoteConfig connectivity status."""

@@ -80,6 +80,17 @@
         "name": "对讲连接状态"
       }
     },
+    "button": {
+      "intercom_answer": {
+        "name": "接听对讲"
+      },
+      "intercom_reject": {
+        "name": "拒绝对讲"
+      },
+      "intercom_hangup": {
+        "name": "挂断对讲"
+      }
+    },
     "lock": {
       "lock": {
         "name": "门锁"
