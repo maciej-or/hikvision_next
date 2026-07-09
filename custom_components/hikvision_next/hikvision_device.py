@@ -1421,10 +1421,6 @@ class HikvisionDevice(ISAPIClient):
             )
             raise
 
-    async def intercom_call(self) -> None:
-        """Initiate an outgoing video intercom call to the client."""
-        await self._send_intercom_command(VideoCallCmdType.CALLING)
-
     async def intercom_reject(self) -> None:
         """Reject an incoming intercom call."""
         await self._send_intercom_command(VideoCallCmdType.REJECT_CALL)

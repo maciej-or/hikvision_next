@@ -13,7 +13,6 @@ from homeassistant.exceptions import HomeAssistantError
 
 from .const import (
     ACTION_INTERCOM_ANSWER,
-    ACTION_INTERCOM_CALL,
     ACTION_INTERCOM_HANGUP,
     ACTION_INTERCOM_REJECT,
     ACTION_ISAPI_REQUEST,
@@ -129,9 +128,6 @@ def setup_services(hass: HomeAssistant) -> None:
     async def handle_intercom_answer(call: ServiceCall) -> None:
         await _handle_intercom(call, ACTION_INTERCOM_ANSWER)
 
-    async def handle_intercom_call(call: ServiceCall) -> None:
-        await _handle_intercom(call, ACTION_INTERCOM_CALL)
-
     async def handle_intercom_reject(call: ServiceCall) -> None:
         await _handle_intercom(call, ACTION_INTERCOM_REJECT)
 
@@ -146,8 +142,6 @@ def setup_services(hass: HomeAssistant) -> None:
         try:
             if action == ACTION_INTERCOM_ANSWER:
                 await device.intercom_answer()
-            elif action == ACTION_INTERCOM_CALL:
-                await device.intercom_call()
             elif action == ACTION_INTERCOM_REJECT:
                 await device.intercom_reject()
             else:
@@ -159,12 +153,6 @@ def setup_services(hass: HomeAssistant) -> None:
         DOMAIN,
         ACTION_INTERCOM_ANSWER,
         handle_intercom_answer,
-        schema=ACTION_INTERCOM_SCHEMA,
-    )
-    hass.services.async_register(
-        DOMAIN,
-        ACTION_INTERCOM_CALL,
-        handle_intercom_call,
         schema=ACTION_INTERCOM_SCHEMA,
     )
     hass.services.async_register(
