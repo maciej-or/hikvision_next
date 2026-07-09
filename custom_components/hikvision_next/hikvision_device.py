@@ -1044,6 +1044,18 @@ class HikvisionDevice(ISAPIClient):
             event.room_number,
             event.dev_index,
         )
+        if event.cmd_type == VideoCallCmdType.END_CALL:
+            try:
+                await self._send_intercom_command(
+                    VideoCallCmdType.END_CALL,
+                    apply_state=False,
+                )
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.warning(
+                    "Failed to acknowledge remote END_CALL on %s",
+                    self.device_info.serial_no,
+                    exc_info=True,
+                )
         await self._apply_intercom_call_cmd(
             event.cmd_type,
             source="remote_config",
