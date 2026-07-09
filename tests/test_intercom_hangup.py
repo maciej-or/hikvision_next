@@ -1,4 +1,4 @@
-"""Tests for intercom hangup RemoteConfig restart."""
+"""Tests for intercom hangup call release."""
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -34,19 +34,20 @@ def intercom_device(hass: HomeAssistant) -> HikvisionDevice:
     device.sdk_user = 1
     device._video_intercom = MagicMock()
     device._send_intercom_command = AsyncMock()
-    device._reconnect_video_intercom_remote_config = AsyncMock()
     return device
 
 
-async def test_intercom_hangup_sends_end_call_then_reconnects(
+async def test_intercom_hangup_sends_end_call_then_reject(
     intercom_device: HikvisionDevice,
 ) -> None:
     await intercom_device.intercom_hangup()
 
-    intercom_device._send_intercom_command.assert_awaited_once_with(
-        VideoCallCmdType.END_CALL
+    assert intercom_device._send_intercom_command.await_count == 2
+    intercom_device._send_intercom_command.assert_any_await(VideoCallCmdType.END_CALL)
+    intercom_device._send_intercom_command.assert_any_await(
+        VideoCallCmdType.REJECT_CALL,
+        apply_state=False,
     )
-    intercom_device._reconnect_video_intercom_remote_config.assert_awaited_once()
 
 
 async def test_reconnect_video_intercom_tears_down_and_starts(

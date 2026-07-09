@@ -1413,9 +1413,14 @@ class HikvisionDevice(ISAPIClient):
         await self._send_intercom_command(VideoCallCmdType.REJECT_CALL)
 
     async def intercom_hangup(self) -> None:
-        """End the active intercom call and restart the RemoteConfig listener."""
+        """End the active intercom call and release the device session."""
         await self._send_intercom_command(VideoCallCmdType.END_CALL)
-        await self._reconnect_video_intercom_remote_config()
+        # Some door stations keep the client marked in-call after END_CALL;
+        # REJECT on the same session releases it for the next ring.
+        await self._send_intercom_command(
+            VideoCallCmdType.REJECT_CALL,
+            apply_state=False,
+        )
 
     async def _send_intercom_command(
         self,
