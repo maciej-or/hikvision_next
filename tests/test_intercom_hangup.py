@@ -8,6 +8,7 @@ from homeassistant.core import HomeAssistant
 from custom_components.hikvision_next.const import CONF_CONNECTION_SDK
 from custom_components.hikvision_next.hikvision_device import HikvisionDevice
 from custom_components.hikvision_next.sdk.hcnetsdk import VideoCallCmdType
+from custom_components.hikvision_next.sdk.video_intercom import INTERCOM_HANGUP_RELEASE_CMDS
 
 
 def _sdk_device(hass: HomeAssistant) -> HikvisionDevice:
@@ -34,20 +35,24 @@ def intercom_device(hass: HomeAssistant) -> HikvisionDevice:
     device.sdk_user = 1
     device._video_intercom = MagicMock()
     device._send_intercom_command = AsyncMock()
+    device._finalize_intercom_hangup = AsyncMock()
     return device
 
 
-async def test_intercom_hangup_sends_end_call_then_reject(
+async def test_intercom_hangup_sends_full_release_sequence(
     intercom_device: HikvisionDevice,
 ) -> None:
     await intercom_device.intercom_hangup()
 
-    assert intercom_device._send_intercom_command.await_count == 2
-    intercom_device._send_intercom_command.assert_any_await(VideoCallCmdType.END_CALL)
-    intercom_device._send_intercom_command.assert_any_await(
-        VideoCallCmdType.REJECT_CALL,
-        apply_state=False,
+    assert intercom_device._send_intercom_command.await_count == len(
+        INTERCOM_HANGUP_RELEASE_CMDS
     )
+    for cmd in INTERCOM_HANGUP_RELEASE_CMDS:
+        intercom_device._send_intercom_command.assert_any_await(
+            cmd,
+            apply_state=(cmd == VideoCallCmdType.END_CALL),
+        )
+    intercom_device._finalize_intercom_hangup.assert_awaited_once()
 
 
 async def test_reconnect_video_intercom_tears_down_and_starts(

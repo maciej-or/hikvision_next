@@ -61,6 +61,23 @@ INTERCOM_RECONNECT_MAX_DELAY = 120.0
 SUBSCRIBE_ALARM_RECONNECT_BASE_DELAY = 5.0
 SUBSCRIBE_ALARM_RECONNECT_MAX_DELAY = 120.0
 
+# Door stations may keep the client in-call until multiple release cmds are sent.
+INTERCOM_HANGUP_RELEASE_CMDS: tuple[VideoCallCmdType, ...] = (
+    VideoCallCmdType.CANCEL_CALL,
+    VideoCallCmdType.END_CALL,
+    VideoCallCmdType.REJECT_CALL,
+    VideoCallCmdType.CANCEL_CALL,
+)
+
+INTERCOM_RESPONSE_CMD_TYPES = frozenset(
+    {
+        VideoCallCmdType.CANCEL_CALL,
+        VideoCallCmdType.ANSWER_CALL,
+        VideoCallCmdType.REJECT_CALL,
+        VideoCallCmdType.END_CALL,
+    }
+)
+
 
 DOORBELL_ON_CMD_TYPES = frozenset(
     {
@@ -332,11 +349,7 @@ class VideoIntercomRemoteConfig:
         if call_target is not None:
             param = copy_video_call_param(call_target)
             param.dwCmdType = int(cmd_type)
-        elif self._last_call is not None and cmd_type in (
-            VideoCallCmdType.ANSWER_CALL,
-            VideoCallCmdType.REJECT_CALL,
-            VideoCallCmdType.END_CALL,
-        ):
+        elif self._last_call is not None and cmd_type in INTERCOM_RESPONSE_CMD_TYPES:
             param = copy_video_call_param(self._last_call)
             param.dwCmdType = int(cmd_type)
         else:

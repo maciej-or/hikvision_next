@@ -105,6 +105,7 @@ from .sdk.vehicle_control_list import (
 from .sdk.video_intercom import (
     DEFAULT_CALLING_RING_SECONDS,
     DOORBELL_PULSE_SECONDS,
+    INTERCOM_HANGUP_RELEASE_CMDS,
     INTERCOM_RECONNECT_BASE_DELAY,
     INTERCOM_RECONNECT_MAX_DELAY,
     SUBSCRIBE_ALARM_RECONNECT_BASE_DELAY,
@@ -1414,13 +1415,20 @@ class HikvisionDevice(ISAPIClient):
 
     async def intercom_hangup(self) -> None:
         """End the active intercom call and release the device session."""
-        await self._send_intercom_command(VideoCallCmdType.END_CALL)
-        # Some door stations keep the client marked in-call after END_CALL;
-        # REJECT on the same session releases it for the next ring.
-        await self._send_intercom_command(
-            VideoCallCmdType.REJECT_CALL,
-            apply_state=False,
-        )
+        for cmd in INTERCOM_HANGUP_RELEASE_CMDS:
+            await self._send_intercom_command(
+                cmd,
+                apply_state=(cmd == VideoCallCmdType.END_CALL),
+            )
+        await self._finalize_intercom_hangup()
+
+    async def _finalize_intercom_hangup(self) -> None:
+        """Ensure HA state is idle after a multi-command hangup release."""
+        self._cancel_calling_timeout()
+        self._intercom_call_state = IntercomCallState.IDLE
+        await self.async_set_intercom_call_state(IntercomCallState.IDLE)
+        await self._trigger_calling(False, source="hangup")
+        await self._trigger_intercom(False, source="hangup")
 
     async def _send_intercom_command(
         self,
