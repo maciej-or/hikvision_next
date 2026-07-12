@@ -8,6 +8,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
@@ -105,6 +106,7 @@ class EventBinarySensor(BinarySensorEntity):
 class HikvisionSubscribeSensor(CoordinatorEntity, BinarySensorEntity):
     """Binary sensor for SDK alarm channel / subscribeEvent connectivity."""
 
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_has_entity_name = True
     _attr_translation_key = "subscribe"
     _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
@@ -129,6 +131,7 @@ class HikvisionSubscribeSensor(CoordinatorEntity, BinarySensorEntity):
 class HikvisionIntercomConnectSensor(CoordinatorEntity, BinarySensorEntity):
     """Binary sensor for VideoIntercomRemoteConfig session connectivity."""
 
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_has_entity_name = True
     _attr_translation_key = "intercom_connectivity"
     _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
