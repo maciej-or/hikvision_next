@@ -11,6 +11,13 @@ EVENT_BASIC: Final = "basic"
 EVENT_IO: Final = "io"
 EVENT_SMART: Final = "smart"
 EVENT_PIR: Final = "pir"
+EVENT_TRAFFIC: Final = "trafic"
+
+SUBSCRIBE_ENDPOINT: Final = "Event/notification/subscribeEvent"
+
+# Face events are used for capability discovery and the face snap image entity only.
+FACE_SNAP_EVENT_IDS: Final = frozenset({"facesnap", "facecontrast", "facedetection"})
+
 EVENTS = {
     "motiondetection": {
         "type": EVENT_BASIC,
@@ -69,6 +76,27 @@ EVENTS = {
         "slug": "WLAlarm/PIR",
         "direct_node": "PIRAlarm",
     },
+    "anpr": {
+        "type": EVENT_TRAFFIC,
+        "label": "License Plate Recognition",
+        "slug": "vehicleDetect",
+        "direct_node": "VehicleDetectCfg",
+    },
+    "facesnap": {
+        "type": EVENT_BASIC,
+        "label": "Face Snap",
+        "slug": "faceSnap",
+    },
+    "facecontrast": {
+        "type": EVENT_BASIC,
+        "label": "Face Contrast",
+        "slug": "faceContrast",
+    },
+    "facedetection": {
+        "type": EVENT_BASIC,
+        "label": "Face Detection",
+        "slug": "faceDetection",
+    },
 }
 
 STREAM_TYPE = {
@@ -83,7 +111,33 @@ EVENTS_ALTERNATE_ID = {
     "vmd": "motiondetection",
     "thermometry": "motiondetection",
     "shelteralarm": "tamperdetection",
-    "VMDHumanVehicle": "motiondetection",
+    "vmdhumanvehicle": "motiondetection",
+    "vehicledetection": "anpr",
+    "anpr": "anpr",
+    "facesnap": "facesnap",
+    "facecapture": "facesnap",
+    "facecontrast": "facecontrast",
+    "facedetection": "facedetection",
+}
+
+# Event/triggers/{prefix}-{channel} path variants (order matters: NVR commonly uses VMD).
+EVENT_TRIGGER_PREFIXES: Final = {
+    "motiondetection": [
+        "VMD",
+        "motionDetection",
+        "motiondetection",
+        "vmd",
+        "thermometry",
+        "VMDHumanVehicle",
+    ],
+    "tamperdetection": ["tamperdetection", "Shelteralarm", "shelteralarm"],
+    "fielddetection": ["fielddetection", "fieldDetection"],
+    "linedetection": ["linedetection", "lineDetection"],
+    "regionentrance": ["regionentrance", "regionEntrance"],
+    "regionexiting": ["regionexiting", "regionExiting"],
+    "facesnap": ["faceSnap", "faceCapture", "facesnap"],
+    "facecontrast": ["faceContrast", "facecontrast"],
+    "facedetection": ["faceDetection", "facedetection"],
 }
 
 MUTEX_ALTERNATE_ID = {"motiondetection": "VMDHumanVehicle"}

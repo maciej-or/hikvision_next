@@ -14,7 +14,7 @@ from homeassistant.helpers.device_registry import DeviceEntry
 
 from . import HikvisionConfigEntry
 from .isapi import ISAPIForbiddenError, ISAPIUnauthorizedError
-from .isapi.const import GET, STREAM_TYPE
+from .isapi.const import GET
 
 
 def anonymise_mac(orignal: str):
@@ -87,19 +87,27 @@ async def _async_get_diagnostics(
         "ContentMgmt/Storage",
         "Security/adminAccesses",
         "Event/triggers",
-        "Event/channels/capabilities",
         "Event/triggers/scenechangedetection-1",
         "Event/notification/httpHosts",
         "Streaming/channels",
+        "ITC/capability"
     ]
+
+    if not device.device_info.is_nvr:
+        endpoints.extend(["Event/capabilities", "Smart/capabilities"])
+        if device.capabilities.is_multi_channel:
+            endpoints.append("Event/channels/capabilities")
+
+    for camera in device.cameras:
+        endpoints.append(f"Event/channels/{camera.id}/capabilities")
 
     for endpoint in endpoints:
         responses[endpoint] = await get_isapi_data(device, endpoint)
 
-    # channels
+    # Streaming channel details (only streams discovered during setup)
     for camera in device.cameras:
-        for stream_type_id in STREAM_TYPE:
-            endpoint = f"Streaming/channels/{camera.id}0{stream_type_id}"
+        for stream in camera.streams:
+            endpoint = f"Streaming/channels/{stream.id}"
             responses[endpoint] = await get_isapi_data(device, endpoint)
 
     # event states

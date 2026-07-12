@@ -14,6 +14,12 @@
           "username": "Username",
           "verify_ssl": "Verify SSL certificate (uncheck for self-signed certificate)",
           "rtsp_port_forced": "Force RTSP port (Optional)",
+          "connection_type": "Connection type"
+        }
+      },
+      "alarm_server": {
+        "description": "Configure how the Hikvision device sends event notifications to Home Assistant",
+        "data": {
           "set_alarm_server": "Set notifications host using following address:",
           "alarm_server": "Home Assistant address accessible by Hikvison device"
         }
@@ -54,6 +60,43 @@
       },
       "io": {
         "name": "Alarm Input {io_port_id}"
+      },
+      "anpr": {
+        "name": "License Plate"
+      },
+      "doorbell": {
+        "name": "Doorbell"
+      },
+      "calling": {
+        "name": "Calling"
+      },
+      "intercom": {
+        "name": "In call"
+      },
+      "subscribe": {
+        "name": "Connectivity"
+      },
+      "intercom_connectivity": {
+        "name": "Intercom connectivity"
+      }
+    },
+    "button": {
+      "intercom_answer": {
+        "name": "Answer intercom"
+      },
+      "intercom_reject": {
+        "name": "Reject intercom"
+      },
+      "intercom_hangup": {
+        "name": "Hang up intercom"
+      }
+    },
+    "lock": {
+      "lock": {
+        "name": "Door lock (momentary)"
+      },
+      "lock_always_open": {
+        "name": "Door lock (always open)"
       }
     },
     "switch": {
@@ -89,6 +132,30 @@
       },
       "io": {
         "name": "Alarm Input {io_port_id}"
+      },
+      "anpr": {
+        "name": "License Plate Recognition"
+      },
+      "ptz_up": {
+        "name": "{camera} PTZ Up"
+      },
+      "ptz_down": {
+        "name": "{camera} PTZ Down"
+      },
+      "ptz_left": {
+        "name": "{camera} PTZ Left"
+      },
+      "ptz_right": {
+        "name": "{camera} PTZ Right"
+      },
+      "ptz_zoom_in": {
+        "name": "{camera} PTZ Zoom In"
+      },
+      "ptz_zoom_out": {
+        "name": "{camera} PTZ Zoom Out"
+      },
+      "ptz_stop": {
+        "name": "{camera} PTZ Stop"
       }
     },
     "camera": {
@@ -106,6 +173,12 @@
       }
     },
     "sensor": {
+      "face": {
+        "name": "Face recognition"
+      },
+      "anpr_license_plate": {
+        "name": "License Plate"
+      },
       "notifications_host_protocol_type": {
         "name": "Notifications Host Protocol"
       },
@@ -122,6 +195,15 @@
     "image": {
       "snapshot": {
         "name": "{camera} Snapshot"
+      },
+      "face_snap": {
+        "name": "{camera} Face Snap"
+      },
+      "face_verify": {
+        "name": "Face verification"
+      },
+      "anpr_snap": {
+        "name": "{camera} ANPR Snap"
       }
     }
   }

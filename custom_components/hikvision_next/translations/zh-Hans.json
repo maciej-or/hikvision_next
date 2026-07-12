@@ -1,0 +1,210 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "设备已配置",
+      "reauth_successful": "重新认证成功",
+      "reconfigure_successful": "重新配置成功"
+    },
+    "step": {
+      "user": {
+        "description": "请输入 NVR 或 IP 摄像机的登录凭据",
+        "data": {
+          "host": "URL",
+          "password": "密码",
+          "username": "用户名",
+          "verify_ssl": "验证 SSL 证书（自签名证书请取消勾选）",
+          "rtsp_port_forced": "强制 RTSP 端口（可选）",
+          "connection_type": "连接类型"
+        }
+      },
+      "alarm_server": {
+        "description": "配置海康设备如何将事件通知发送到 Home Assistant",
+        "data": {
+          "set_alarm_server": "使用以下地址设置通知主机：",
+          "alarm_server": "海康设备可访问的 Home Assistant 地址"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "连接失败",
+      "invalid_auth": "认证无效",
+      "insufficient_permission": "访问被拒绝，请检查用户权限",
+      "unknown": "未知错误"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "motiondetection": {
+        "name": "移动侦测"
+      },
+      "tamperdetection": {
+        "name": "视频遮挡"
+      },
+      "videoloss": {
+        "name": "视频丢失"
+      },
+      "scenechangedetection": {
+        "name": "场景变更"
+      },
+      "fielddetection": {
+        "name": "区域入侵"
+      },
+      "linedetection": {
+        "name": "越界侦测"
+      },
+      "regionentrance": {
+        "name": "进入区域"
+      },
+      "regionexiting": {
+        "name": "离开区域"
+      },
+      "io": {
+        "name": "报警输入 {io_port_id}"
+      },
+      "anpr": {
+        "name": "车牌识别"
+      },
+      "doorbell": {
+        "name": "门铃"
+      },
+      "calling": {
+        "name": "呼叫中"
+      },
+      "intercom": {
+        "name": "通话中"
+      },
+      "subscribe": {
+        "name": "连接状态"
+      },
+      "intercom_connectivity": {
+        "name": "对讲连接状态"
+      }
+    },
+    "button": {
+      "intercom_answer": {
+        "name": "接听对讲"
+      },
+      "intercom_reject": {
+        "name": "拒绝对讲"
+      },
+      "intercom_hangup": {
+        "name": "挂断对讲"
+      }
+    },
+    "lock": {
+      "lock": {
+        "name": "门锁点动"
+      },
+      "lock_always_open": {
+        "name": "门锁常开"
+      }
+    },
+    "switch": {
+      "alarm_output": {
+        "name": "报警输出 {port_no}"
+      },
+      "holiday_mode": {
+        "name": "假日模式"
+      },
+      "motiondetection": {
+        "name": "移动侦测"
+      },
+      "tamperdetection": {
+        "name": "视频遮挡侦测"
+      },
+      "videoloss": {
+        "name": "视频丢失侦测"
+      },
+      "scenechangedetection": {
+        "name": "场景变更侦测"
+      },
+      "fielddetection": {
+        "name": "区域入侵侦测"
+      },
+      "linedetection": {
+        "name": "越界侦测"
+      },
+      "regionentrance": {
+        "name": "进入区域侦测"
+      },
+      "regionexiting": {
+        "name": "离开区域侦测"
+      },
+      "io": {
+        "name": "报警输入 {io_port_id}"
+      },
+      "anpr": {
+        "name": "车牌识别"
+      },
+      "ptz_up": {
+        "name": "{camera} 云台向上"
+      },
+      "ptz_down": {
+        "name": "{camera} 云台向下"
+      },
+      "ptz_left": {
+        "name": "{camera} 云台向左"
+      },
+      "ptz_right": {
+        "name": "{camera} 云台向右"
+      },
+      "ptz_zoom_in": {
+        "name": "{camera} 云台放大"
+      },
+      "ptz_zoom_out": {
+        "name": "{camera} 云台缩小"
+      },
+      "ptz_stop": {
+        "name": "{camera} 云台停止"
+      }
+    },
+    "camera": {
+      "stream1": {
+        "name": "主码流"
+      },
+      "stream2": {
+        "name": "子码流"
+      },
+      "stream3": {
+        "name": "主码流（事件）"
+      },
+      "stream4": {
+        "name": "转码流"
+      }
+    },
+    "sensor": {
+      "face": {
+        "name": "人脸识别"
+      },
+      "anpr_license_plate": {
+        "name": "车牌号"
+      },
+      "notifications_host_protocol_type": {
+        "name": "通知主机协议"
+      },
+      "notifications_host_address": {
+        "name": "通知主机地址"
+      },
+      "notifications_host_port_no": {
+        "name": "通知主机端口"
+      },
+      "notifications_host_path": {
+        "name": "通知主机路径"
+      }
+    },
+    "image": {
+      "snapshot": {
+        "name": "{camera} 快照"
+      },
+      "face_snap": {
+        "name": "{camera} 人脸抓拍"
+      },
+      "face_verify": {
+        "name": "人脸核验抓拍"
+      },
+      "anpr_snap": {
+        "name": "{camera} 车牌抓拍"
+      }
+    }
+  }
+}

@@ -29,6 +29,9 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 - Region Exiting
 - NVR Input Triggers
 - PIR
+- Face Recognize Result
+- Door Lock/Unlock
+- Lock/Unlock
 
 **NOTE**
 Events must be set to alert the surveillance center in Linkage Action for Home Assistant to be notified. Otherwise related binary sensors and switches will appear as disabled entities.
@@ -54,6 +57,12 @@ Creates an automation that allows to display text overlay on a selected video st
 
 ### NVR device view
 ![NVR](/assets/nvr.jpg "NVR device view")
+
+### ACS device view
+![ACS](/assets/acs.png "ACS device view")
+
+### ANPR device view
+![ANPR](/assets/anpr.png "ANPR device view")
 
 The scope supported features depends on device model, setup and firmware version.
 
@@ -158,3 +167,9 @@ Download logs from `Settings / System / Logs`
 - DS-2CD2T87G2P-LSU/SL
 - DS-2DE4425IW-DE (PTZ)
 - DS-2SE4C425MWG-E/26
+
+### Access Control
+
+- DS-K1T341M
+- DS-K1T680M
+- DS-K1T6QT-F72MW

@@ -1,0 +1,1438 @@
+from ctypes import CFUNCTYPE, Structure, POINTER, c_char_p, c_float, c_int, c_ushort, c_ulong, c_long, c_bool, c_char, \
+    c_byte, c_void_p, c_short, Union, sizeof, c_uint, c_uint16, c_ubyte, c_uint32, c_int32
+from enum import Enum, IntEnum
+import re
+
+BOOL = c_bool
+WORD = c_ushort
+DWORD = c_ulong if sizeof(c_ulong) == 4 else c_uint
+LONG = c_int32
+BYTE = c_byte
+SHORT = c_short
+char = c_char
+
+SERIALNO_LEN = 48
+NAME_LEN = 32
+MAX_NAMELEN = 32
+MACADDR_LEN = 6
+MAX_ANALOG_ALARM_OUT = 32
+MAX_IP_ALARM_OUT = 64
+MAX_ALARMOUT_V30 = MAX_ANALOG_ALARM_OUT + MAX_IP_ALARM_OUT
+MAX_ANALOG_CHANNUM = 32
+MAX_IP_CHANNUM = 32
+MAX_CHANNUM_V30 = MAX_ANALOG_CHANNUM + MAX_IP_CHANNUM
+MAX_DISKNUM_V30 = 33
+MAX_DEV_NUMBER_LEN = 32
+ACS_CARD_NO_LEN = 32
+NET_SDK_EMPLOYEE_NO_LEN = 32
+NET_SDK_UUID_LEN = 36
+NET_DEV_NAME_LEN = 64
+LOCK_NAME_LEN = 32
+MAX_NOTICE_NUMBER_LEN = 32
+MAX_FILE_PATH_LEN = 256
+MAX_LICENSE_LEN = 16
+MAX_CARDNO_LEN = 48
+MAX_ALARMOUT = 4
+MAX_CHANNUM = 16
+MAX_DISKNUM = 16
+MAX_HUMAN_BIRTHDATE_LEN = 10
+MAX_OPERATE_INDEX_LEN = 32
+
+NET_DVR_DEV_ADDRESS_MAX_LEN = 129
+NET_DVR_LOGIN_USERNAME_MAX_LEN = 64
+NET_DVR_LOGIN_PASSWD_MAX_LEN = 64
+
+COMM_ALARM_RULE = 0x1102
+COMM_ALARM_PDC = 0x1103
+COMM_UPLOAD_FACESNAP_RESULT = 0x1112
+COMM_ALARM_FACE_DETECTION = 0x4010
+COMM_SNAP_MATCH_ALARM = 0x2902
+COMM_FACESNAP_RAWDATA_ALARM = 0x6015
+COMM_ALARM_VQD_EX = 0x1116
+COMM_DIAGNOSIS_UPLOAD = 0x5100
+COMM_ALARM_VQD = 0x6000
+COMM_SCENECHANGE_DETECTION_UPLOAD = 0x1130
+COMM_CROSSLINE_ALARM = 0x1131
+COMM_ALARM_AUDIOEXCEPTION = 0x1150
+COMM_ALARM_DEFOCUS = 0x1151
+COMM_UPLOAD_HEATMAP_RESULT = 0x4008
+COMM_SWITCH_LAMP_ALARM = 0x6002
+COMM_ALARM_TFS = 0x1113
+COMM_ALARM_TPS_V41 = 0x1114
+COMM_ALARM_AID_V41 = 0x1115
+COMM_UPLOAD_PLATE_RESULT = 0x2800
+COMM_ITS_PLATE_RESULT = 0x3050
+COMM_ITS_TRAFFIC_COLLECT = 0x3051
+COMM_ITS_GATE_VEHICLE = 0x3052
+COMM_ITS_GATE_FACE = 0x3053
+COMM_ITS_GATE_COSTITEM = 0x3054
+COMM_ITS_GATE_HANDOVER = 0x3055
+COMM_ITS_PARK_VEHICLE = 0x3056
+COMM_ITS_BLACKLIST_ALARM = 0x3057
+COMM_VEHICLE_CONTROL_LIST_DSALARM = 0x3058
+COMM_VEHICLE_CONTROL_ALARM = 0x3059
+COMM_ITS_GATE_ALARMINFO = 0x3061
+COMM_FIRE_ALARM = 0x3060
+COMM_VEHICLE_RECOG_RESULT = 0x3062
+COMM_SIGNAL_LAMP_ABNORMAL = 0x3080
+COMM_ALARM_TPS_REAL_TIME = 0x3081
+COMM_ALARM_TPS_STATISTICS = 0x3082
+COMM_ITC_STATUS_DETECT_RESULT = 0x2810
+COMM_ITS_ROAD_EXCEPTION = 0x4500
+COMM_ITS_EXTERNAL_CONTROL_ALARM = 0x4520
+COMM_SENSOR_VALUE_UPLOAD = 0x1120
+COMM_SENSOR_ALARM = 0x1121
+COMM_SWITCH_ALARM = 0x1122
+COMM_ALARMHOST_EXCEPTION = 0x1123
+COMM_ALARMHOST_SAFETYCABINSTATE = 0x1125
+COMM_ALARMHOST_ALARMOUTSTATUS = 0x1126
+COMM_ALARMHOST_CID_ALARM = 0x1127
+COMM_ALARMHOST_EXTERNAL_DEVICE_ALARM = 0x1128
+COMM_ALARMHOST_DATA_UPLOAD = 0x1129
+COMM_ALARM_WIRELESS_INFO = 0x122b
+COMM_ALARM = 0x1100
+COMM_ALARM_V30 = 0x4000
+COMM_ALARM_V40 = 0x4007
+COMM_IPCCFG = 0x4001
+COMM_IPCCFG_V31 = 0x4002
+COMM_IPC_AUXALARM_RESULT = 0x2820
+COMM_ALARM_DEVICE = 0x4004
+COMM_ALARM_DEVICE_V40 = 0x4009
+COMM_ALARM_CVR = 0x4005
+COMM_TRADEINFO = 0x1500
+COMM_ALARM_HOT_SPARE = 0x4006
+COMM_ALARM_BUTTON_DOWN_EXCEPTION = 0x1152
+COMM_ALARM_ACS = 0x5002
+COMM_ALARM_LCD = 0x5011
+COMM_UPLOAD_VIDEO_INTERCOM_EVENT = 0x1132
+COMM_ALARM_VIDEO_INTERCOM = 0x1133
+COMM_ALARM_DEC_VCA = 0x5010
+COMM_ALARM_STORAGE_DETECTION = 0x4015
+COMM_CONFERENCE_CALL_ALARM = 0x5012
+COMM_INQUEST_ALARM = 0x6005
+COMM_PANORAMIC_LINKAGE_ALARM = 0x5213
+COMM_ISAPI_ALARM = 0x6009
+COMM_CLUSTER_ALARM = 0x6020
+COMM_FACE_THERMOMETRY_ALARM = 0x4994
+
+ALARMINFO_V30_ALARMTYPE_SEMAPHORE_ALARM = 0
+ALARMINFO_V30_ALARMTYPE_HARD_DISK_FULL = 1
+ALARMINFO_V30_ALARMTYPE_VIDEO_LOST = 2
+ALARMINFO_V30_ALARMTYPE_MOTION_DETECTION = 3
+ALARMINFO_V30_ALARMTYPE_HARD_DISK_UNFORMATTED = 4
+ALARMINFO_V30_ALARMTYPE_HARD_DISK_ERROR = 5
+ALARMINFO_V30_ALARMTYPE_TAMPERING_DETECTION = 6
+ALARMINFO_V30_ALARMTYPE_UNMATCHED_VIDEO_FORMAT = 7
+ALARMINFO_V30_ALARMTYPE_ILLEGAL_ACCESS = 8
+ALARMINFO_V30_ALARMTYPE_VIDEO_SIGNAL_IS_ABNORMAL = 9
+ALARMINFO_V30_ALARMTYPE_RECORDING_OR_CAPTURE_IS_ABNORMAL = 10
+ALARMINFO_V30_ALARMTYPE_INTELLIGENT_SCENE_CHANGED = 11
+ALARMINFO_V30_ALARMTYPE_RAID_IS_ABNORMAL = 12
+ALARMINFO_V30_ALARMTYPE_RECORDING_RESOLUTION_DOES_NOT_MATCH_WITH_WHICH_OF_FRONT_END_CAMERA = 13
+ALARMINFO_V30_ALARMTYPE_VCA = 15
+ALARMINFO_V30_ALARMTYPE_POE_POWER_SUPPLY_EXCEPTION = 16
+ALARMINFO_V30_ALARMTYPE_FLASHLIGHT_EXCEPTION = 17
+ALARMINFO_V30_ALARMTYPE_HDD_FULL_LOAD_EXCEPTION_ALARM = 18
+ALARMINFO_V30_ALARMTYPE_AUDIO_LOSS = 19
+ALARMINFO_V30_ALARMTYPE_PULSE_ALARM = 23
+ALARMINFO_V30_ALARMTYPE_FACE_PICTURE_LIBRARY_HDD_EXCEPTION = 24
+ALARMINFO_V30_ALARMTYPE_FACE_PICTURE_LIBRARY_CHANGE = 25
+ALARMINFO_V30_ALARMTYPE_PICTURE_OF_FACE_PICTURE_LIBRARY_CHANGE = 26
+ALARMINFO_V30_ALARMTYPE_POC_EXCEPTION = 27
+ALARMINFO_V30_ALARMTYPE_CAMERA_VIEW_ANGLE_EXCEPTION = 28
+
+ZOOM_IN = 11
+ZOOM_OUT = 12
+TILT_UP = 21
+TILT_DOWN = 22
+PAN_LEFT = 23
+PAN_RIGHT = 24
+
+VIDEO_INTERCOM_ALARM_ALARMTYPE_ZONE_ALARM = 1
+VIDEO_INTERCOM_ALARM_ALARMTYPE_TAMPERING_ALARM = 2
+VIDEO_INTERCOM_ALARM_ALARMTYPE_DURESS_ALARM = 3
+VIDEO_INTERCOM_ALARM_ALARMTYPE_PASSWORD_OPEN_DOOR_OVER_TIMES_ALARM = 4
+VIDEO_INTERCOM_ALARM_ALARMTYPE_DOOR_NOT_OPEN = 5
+VIDEO_INTERCOM_ALARM_ALARMTYPE_DOOR_NOT_CLOSED = 6
+VIDEO_INTERCOM_ALARM_ALARMTYPE_PANIC_ALARM = 7
+VIDEO_INTERCOM_ALARM_ALARMTYPE_INTERCOM_ALARM = 8
+VIDEO_INTERCOM_ALARM_ALARMTYPE_SMART_LOCK_DURESS_ALARM_FINGERPRINT = 9
+VIDEO_INTERCOM_ALARM_ALARMTYPE_SMART_LOCK_DURESS_ALARM_PASSWORD = 10
+VIDEO_INTERCOM_ALARM_ALARMTYPE_SMART_LOCK_TAMPERING_ALARM = 11
+VIDEO_INTERCOM_ALARM_ALARMTYPE_SMART_LOCK_LOCK_UP_ALARM = 12
+VIDEO_INTERCOM_ALARM_ALARMTYPE_SMART_LOCK_LOW_BATTERY_ALARM = 13
+VIDEO_INTERCOM_ALARM_ALARMTYPE_BLACKLIST_ALARM = 14
+VIDEO_INTERCOM_ALARM_ALARMTYPE_SMART_LOCK_DISCONNECTED = 15
+VIDEO_INTERCOM_ALARM_ALARMTYPE_ACCESS_CONTROL_MODULE_ANTI_TAMPERING_ALARM = 16
+VIDEO_INTERCOM_ALARM_ALARMTYPE_DOORBELL_RINGING = 17
+VIDEO_INTERCOM_ALARM_ALARMTYPE_DISMISS_INCOMING_CALL = 18
+VIDEO_INTERCOM_ALARM_ALARMTYPE_SOS_CANCELLED = 19
+VIDEO_INTERCOM_ALARM_ALARMTYPE_NO_MASK_ALARM = 20
+VIDEO_INTERCOM_ALARM_ALARMTYPE_FIRE_INPUT_ALARM = 21
+VIDEO_INTERCOM_ALARM_ALARMTYPE_FIRE_INPUT_RESTORED = 22
+VIDEO_INTERCOM_ALARM_ALARMTYPE_DOOR_OPEN_BY_EXTERNAL_FORCE = 23
+VIDEO_INTERCOM_ALARM_ALARMTYPE_TOILET_ALARM = 24
+VIDEO_INTERCOM_ALARM_ALARMTYPE_TOILET_ALARM_CANCELLED = 25
+VIDEO_INTERCOM_ALARM_ALARMTYPE_DRESSING_REMINDER = 26
+VIDEO_INTERCOM_ALARM_ALARMTYPE_FACE_TEMPERATURE_ALARM = 27
+VIDEO_INTERCOM_ALARM_ALARMTYPE_DRESSING_REMINDER_CANCELLED = 28
+
+VIDEO_INTERCOM_EVENT_EVENTTYPE_UNLOCK_LOG = 1
+VIDEO_INTERCOM_EVENT_EVENTTYPE_ANNOUNCEMENT_READING_RECEIPT = 2
+VIDEO_INTERCOM_EVENT_EVENTTYPE_AUTHENTICATION_LOG = 3
+VIDEO_INTERCOM_EVENT_EVENTTYPE_UPLOAD_PLATE_INFO = 4
+VIDEO_INTERCOM_EVENT_EVENTTYPE_ILLEGAL_CARD_SWIPING_EVENT = 5
+VIDEO_INTERCOM_EVENT_EVENTTYPE_DOOR_STATION_ISSUED_CARD_LOG = 6
+VIDEO_INTERCOM_EVENT_EVENTTYPE_MASK_DETECT_EVENT = 7
+VIDEO_INTERCOM_EVENT_EVENTTYPE_MAGNETIC_DOOR_STATUS = 8
+
+NET_DVR_REMOTECONTROL_GATEWAY = 16009
+NET_DVR_VIDEO_CALL_SIGNAL_PROCESS = 16032
+NET_DVR_GET_CALL_STATUS = 16034
+NET_DVR_SET_CALL_SIGNAL = 16036
+NET_DVR_GET_VIDEO_INTERCOM_ALARM_CFG = 16037
+
+NET_DVR_VEHICLE_CONTROL_LIST_START = 3123
+NET_DVR_GET_ALL_VEHICLE_CONTROL_LIST = 3124
+
+ENUM_VIDEO_INTERCOM_SEND_DATA = 10
+
+NET_SDK_CONFIG_STATUS_SUCCESS = 1000
+NET_SDK_CONFIG_STATUS_NEEDWAIT = 1001
+NET_SDK_CONFIG_STATUS_FINISH = 1002
+NET_SDK_CONFIG_STATUS_FAILED = 1003
+NET_SDK_CONFIG_STATUS_EXCEPTION = 1004
+
+NET_SDK_CALLBACK_TYPE_STATUS = 0
+NET_SDK_CALLBACK_TYPE_PROGRESS = 1
+NET_SDK_CALLBACK_TYPE_DATA = 2
+
+# NET_SDK_CALLBACK_TYPE_STATUS values (enum NET_SDK_CALLBACK_STATUS_NORMAL in HCNetSDK.h)
+NET_SDK_CALLBACK_STATUS_SUCCESS = 1000
+NET_SDK_CALLBACK_STATUS_PROCESSING = 1001
+NET_SDK_CALLBACK_STATUS_FAILED = 1002
+NET_SDK_CALLBACK_STATUS_EXCEPTION = 1003
+NET_SDK_CALLBACK_STATUS_LANGUAGE_MISMATCH = 1004
+NET_SDK_CALLBACK_STATUS_DEV_TYPE_MISMATCH = 1005
+NET_DVR_CALLBACK_STATUS_SEND_WAIT = 1006
+
+DEV_CLASS_VIDEO_INTERCOM = 401
+
+###########################################
+# Enums
+
+class VideoInterComEventType(IntEnum):
+    UNLOCK_LOG = 1
+    ANNOUNCEMENT_READING_RECEIPT = 2
+    AUTHENTICATION_LOG = 3
+    UPLOAD_PLATE_INFO = 4
+    ILLEGAL_CARD_SWIPING_EVENT = 5
+    DOOR_STATION_ISSUED_CARD_LOG = 6
+    MASK_DETECT_EVENT = 7
+    MAGNETIC_DOOR_STATUS = 8
+
+class VideoCallCmdType(IntEnum):
+    CALLING = 0
+    CANCEL_CALL = 1
+    ANSWER_CALL = 2
+    REJECT_CALL = 3
+    DOOR_STATION_TIMEOUT = 4
+    END_CALL = 5
+    DEVICE_IN_CALL = 6
+    CLIENT_IN_CALL = 7
+    INDOOR_STATION_RINGING = 8
+
+
+class VideoInterComAlarmType(IntEnum):
+    ZONE_ALARM = 1
+    TAMPERING_ALARM = 2
+    HIJACKING_ALARM = 3
+    MULTIPLE_PASSWORD_UNLOCK_FAILURE_ALARM = 4
+    DOOR_NOT_OPEN = 5
+    DOOR_NOT_CLOSED = 6
+    SOS = 7
+    INTERCOM = 8
+    SMART_LOCK_FINGERPRINT_ALARM = 9    # fingerprint alarm for smart lock hijacking
+    SMART_LOCK_PASSWORD_ALARM = 10      # password alarm for smart lock hijacking
+    SMART_LOCK_DOOR_PRYING_ALARM = 11   # door prying alarm for smart lock
+    SMART_LOCK_DOOR_LOCK_ALARM = 12     # door lock lock alarm for smart lock
+    SMART_LOCK_LOW_BATTERY_ALARM = 13   # low battery alarm for smart lock
+    BLACKLIST_ALARM = 14
+    SMART_LOCK_DISCONNECTED = 15
+    ACCESS_CONTROL_TAMPERING_ALARM = 16  # Access control security module tamper alarm
+    DOORBELL_RINGING = 17
+    DISMISS_INCOMING_CALL = 18
+    SOS_CANCELLED = 19
+    NO_MASK_ALARM = 20
+    FIRE_INPUT_ALARM = 21
+    FIRE_INPUT_RESTORED = 22
+    DOOR_OPEN_BY_EXTERNAL_FORCE = 23
+    TOILET_ALARM = 24
+    TOILET_ALARM_CANCELLED = 25
+    DRESSING_REMINDER = 26
+    FACE_TEMPERATURE_ALARM = 27
+    DRESSING_REMINDER_CANCELLED = 28
+
+class DeviceCapabilityType(Enum):
+    DEVICE_VIDEOPIC_ABILITY = 0x00e
+    DEVICE_NETAPP_ABILITY = 0x00d
+    DEVICE_ABILITY_INFO = 0x011
+
+
+class DeviceAbilityType(IntEnum):
+    IP_VIEW_DEV_ABILITY = 0x014
+
+class UnlockType(Enum):
+    PASSWORD = 1
+    HIJACKING = 2
+    CARD = 3
+    HOUSEHOLDER = 4
+    CENTER_PLATFORM = 5
+    BLUETOOTH = 6
+    QR_CODE = 7
+    FACE = 8
+    FINGERPRINT = 9
+
+
+###########################
+# Struct
+
+class LPNET_DVR_DEVICE_INFO(Structure):
+    _fields_ = [
+        ("sSerialNumber", BYTE * SERIALNO_LEN),
+        ("byAlarmInPortNum", BYTE),
+        ("byAlarmOutPortNum", BYTE),
+        ("byDiskNum", BYTE),
+        ("byDVRType", BYTE),
+        ("byChanNum", BYTE),
+        ("byStartChan", BYTE),
+        ("byAudioChanNum", BYTE),
+        ("byIPChanNum", BYTE),
+        ("byZeroChanNum", BYTE),
+        ("byMainProto", BYTE),
+        ("bySubProto", BYTE),
+        ("bySupport", BYTE),
+        ("bySupport1", BYTE),
+        ("bySupport2", BYTE),
+        ("wDevType", WORD),
+        ("bySupport3", BYTE),
+        ("byMultiStreamProto", BYTE),
+        ("byStartDChan", BYTE),
+        ("byStartDTalkChan", BYTE),
+        ("byHighDChanNum", BYTE),
+        ("bySupport4", BYTE),
+        ("byVoiceInChanNum", BYTE),
+        ("byStartVoiceInChanNo", BYTE),
+        ("bySupport5", BYTE),
+        ("bySupport6", BYTE),
+        ("byMirrorChanNum", BYTE),
+        ("wStartMirrorChanNo", WORD),
+        ("bySupport7", BYTE),
+        ("byRes2", BYTE)
+    ]
+
+
+cbLoginResult = CFUNCTYPE(c_void_p, LONG, DWORD,
+                          LPNET_DVR_DEVICE_INFO, c_void_p)
+
+
+class NET_DVR_USER_LOGIN_INFO(Structure):
+    _fields_ = [
+        ("sDeviceAddress", char * NET_DVR_DEV_ADDRESS_MAX_LEN),
+        ("byUseTransport", BYTE),
+        ("wPort", WORD),
+        ("sUserName", char * NET_DVR_LOGIN_USERNAME_MAX_LEN),
+        ("sPassword", char * NET_DVR_LOGIN_PASSWD_MAX_LEN),
+        ("fLoginResultCallBack", cbLoginResult),
+        ("pUser", c_void_p),
+        ("bUseAsynLogin", BOOL),
+        ("byProxyType", BYTE),
+        ("byUseUTCTime", BYTE),
+        ("byLoginMode", BYTE),
+        ("byHttps", BYTE),
+        ("iProxyID", LONG),
+        ("byRes2", BYTE * 120)
+    ]
+
+
+class NET_DVR_ALARMER(Structure):
+    _fields_ = [
+        ("byUserIDValid", BYTE),
+        ("bySerialValid", BYTE),
+        ("byVersionValid", BYTE),
+        ("byDeviceNameValid", BYTE),
+        ("byMacAddrValid", BYTE),
+        ("byLinkPortValid", BYTE),
+        ("byDeviceIPValid", BYTE),
+        ("bySocketIPValid", BYTE),
+        ("lUserID", LONG),
+        ("sSerialNumber", BYTE * SERIALNO_LEN),
+        ("dwDeviceVersion", DWORD),
+        ("sDeviceName", char * NAME_LEN),
+        ("byMacAddr", BYTE * MACADDR_LEN),
+        ("wLinkPort", WORD),
+        ("sDeviceIP", char * 128),
+        ("sSocketIP", char * 128),
+        ("byIpProtocol", BYTE),
+        ("byRes2", BYTE * 6)
+    ]
+
+    def serialNumber(self):
+        """Return the serial number as a string representation, removing the ending 0s"""
+        serial = "".join([str(number) for number in self.sSerialNumber[:]])
+        return re.sub(r"0*$", "", serial)
+
+    def deviceName(self):
+        return self.sDeviceName[:].decode('utf-8')
+
+    def deviceIP(self):
+        return self.sDeviceIP[:].decode('utf-8')
+
+
+class NET_DVR_DEVICEINFO_V30(Structure):
+    _fields_ = [
+        ("sSerialNumber", BYTE * SERIALNO_LEN),
+        ("byAlarmInPortNum", BYTE),
+        ("byAlarmOutPortNum", BYTE),
+        ("byDiskNum", BYTE),
+        ("byDVRType", BYTE),
+        ("byChanNum", BYTE),
+        ("byStartChan", BYTE),
+        ("byAudioChanNum", BYTE),
+        ("byIPChanNum", BYTE),
+        ("byZeroChanNum", BYTE),
+        ("byMainProto", BYTE),
+        ("bySubProto", BYTE),
+        ("bySupport", BYTE),
+        ("bySupport1", BYTE),
+        ("bySupport2", BYTE),
+        ("wDevType", WORD),
+        ("bySupport3", BYTE),
+        ("byMultiStreamProto", BYTE),
+        ("byStartDChan", BYTE),
+        ("byStartDTalkChan", BYTE),
+        ("byHighDChanNum", BYTE),
+        ("bySupport4", BYTE),
+        ("byLanguageType", BYTE),
+        ("byVoiceInChanNum", BYTE),
+        ("byStartVoiceInChanNo", BYTE),
+        ("byRes3", BYTE * 2),
+        ("byMirrorChanNum", BYTE),
+        ("wStartMirrorChanNo", WORD)
+    ]
+
+    def serialNumber(self):
+        """Return the serial number as a string representation, removing the ending 0s"""
+        serial = "".join([str(number) for number in self.sSerialNumber[:]])
+        return re.sub(r"0*$", "", serial)
+
+
+class NET_DVR_DEVICEINFO_V40(Structure):
+    _fields_ = [
+        ("struDeviceV30", NET_DVR_DEVICEINFO_V30),
+        ("bySupportLock", BYTE),
+        ("byRetryLoginTime", BYTE),
+        ("byPasswordLevel", BYTE),
+        ("byProxyType", BYTE),
+        ("dwSurplusLockTime", DWORD),
+        ("byCharEncodeType", BYTE),
+        ("bySupportDev5", BYTE),
+        ("byLoginMode", BYTE),
+        ("byRes2", BYTE * 253)
+    ]
+
+class NET_DVR_SETUPALARM_PARAM(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("byLevel", BYTE),
+        ("byAlarmInfoType", BYTE),
+        ("byRetAlarmTypeV40", BYTE),
+        ("byRetDevInfoVersion", BYTE),
+        ("byRetVQDAlarmType", BYTE),
+        ("byFaceAlarmDetection", BYTE),
+        ("bySupport", BYTE),
+        ("byBrokenNetHttp", BYTE),
+        ("wTaskNo", WORD),
+        ("byDeployType", BYTE),
+        ("byRes1", BYTE * 3),
+        ("byAlarmTypeURL", BYTE),
+        ("byCustomCtrl", BYTE)
+    ]
+
+class NET_DVR_SETUPALARM_PARAM_V50(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("byLevel", BYTE),
+        ("byAlarmInfoType", BYTE),
+        ("byRetAlarmTypeV40", BYTE),
+        ("byRetDevInfoVersion", BYTE),
+        ("byRetVQDAlarmType", BYTE),
+        ("byFaceAlarmDetection", BYTE),
+        ("bySupport", BYTE),
+        ("byBrokenNetHttp", BYTE),
+        ("wTaskNo", WORD),
+        ("byDeployType", BYTE),
+        ("bySubScription", BYTE),
+        ("byBrokenNetHttpV60", BYTE),
+        ("byRes1", BYTE),
+        ("byAlarmTypeURL", BYTE),
+        ("byCustomCtrl", BYTE),
+        ("byRes4", BYTE * 128),
+    ]
+
+
+class NET_DVR_ALARMINFO_V30(Structure):
+    _fields_ = [
+        ("dwAlarmType", DWORD),
+        ("dwAlarmInputNumber", DWORD),
+        ("byAlarmOutputNumber", BYTE * MAX_ALARMOUT_V30),
+        ("byAlarmRelateChannel", BYTE * MAX_CHANNUM_V30),
+        ("byChannel", BYTE * MAX_CHANNUM_V30),
+        ("byDiskNumber", BYTE * MAX_DISKNUM_V30)
+    ]
+
+
+class NET_DVR_TIME(Structure):
+    _fields_ = [
+        ("dwYear", WORD),
+        ("dwMonth", BYTE),
+        ("dwDay", BYTE),
+        ("dwHour", BYTE),
+        ("dwMinute", BYTE),
+        ("bySecond", BYTE),
+        ("dwSecond", BYTE)
+    ]
+
+class NET_DVR_TIME_EX(Structure):
+    _fields_ = [
+        ("wYear", WORD),
+        ("byMonth", BYTE),
+        ("byDay", BYTE),
+        ("byHour", BYTE),
+        ("byMinute", BYTE),
+        ("bySecond", BYTE),
+        ("byRes", BYTE)
+    ]
+
+
+class NET_DVR_TIME_V30(Structure):
+    _fields_ = [
+        ("wYear", WORD),
+        ("byMonth", BYTE),
+        ("byDay", BYTE),
+        ("byHour", BYTE),
+        ("byMinute", BYTE),
+        ("bySecond", BYTE),
+        ("byISO8601", BYTE),
+        ("wMilliSec", WORD),
+        ("cTimeDifferenceH", char),
+        ("cTimeDifferenceM", char),
+    ]
+
+
+class NET_DVR_ALARMINFO(Structure):
+    _fields_ = [
+        ("dwAlarmType", DWORD),
+        ("dwAlarmInputNumber", DWORD),
+        ("dwAlarmOutputNumber", DWORD * MAX_ALARMOUT),
+        ("dwAlarmRelateChannel", DWORD * MAX_CHANNUM),
+        ("dwChannel", DWORD * MAX_CHANNUM),
+        ("dwDiskNumber", DWORD * MAX_DISKNUM),
+    ]
+
+
+class NET_DVR_ALARM_UNION(Union):
+    _fields_ = [
+        ("byUnionLen", BYTE * 116),
+    ]
+
+
+class NET_DVR_ALRAM_FIXED_HEADER(Structure):
+    _fields_ = [
+        ("dwAlarmType", DWORD),
+        ("struAlarmTime", NET_DVR_TIME_EX),
+        ("uStruAlarm", NET_DVR_ALARM_UNION),
+        ("pRes", c_void_p),
+        ("byTimeDiffFlag", BYTE),
+        ("cTimeDifferenceH", char),
+        ("cTimeDifferenceM", char),
+        ("byRes", BYTE),
+        ("wDevInfoIvmsChannel", WORD),
+        ("byRes2", BYTE * 2),
+    ]
+
+
+class NET_DVR_ALARMINFO_V40(Structure):
+    _fields_ = [
+        ("struAlarmFixedHeader", NET_DVR_ALRAM_FIXED_HEADER),
+        ("pAlarmData", c_void_p),
+    ]
+
+
+class NET_DVR_ZONE_ALARM_INFO(Structure):
+    _fields_ = [
+        ("byZoneName", BYTE * NAME_LEN),
+        ("dwZonendex", DWORD),
+        ("byZoneType", BYTE),
+        ("byRes", BYTE * 219),
+    ]
+
+class NET_DVR_VIDEO_INTERCOM_ALARM_INFO_UNION(Union):
+    _fields_ = [
+        ("byLen", BYTE * 256),
+        ("struZoneAlarm", NET_DVR_ZONE_ALARM_INFO),
+    ]
+
+class NET_DVR_VIDEO_INTERCOM_ALARM(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("struTime", NET_DVR_TIME_EX),
+        ("byDevNumber", BYTE * MAX_DEV_NUMBER_LEN),
+        ("byAlarmType", BYTE),
+        ("byRes1", BYTE * 3),
+        ("uAlarmInfo", NET_DVR_VIDEO_INTERCOM_ALARM_INFO_UNION),
+        ("wLockID", WORD),
+        ("byRes3", BYTE * 2),
+        ("dwIOTChannelNo", DWORD),
+        ("byRes2", BYTE * 248),
+    ]
+
+class NET_DVR_UNLOCK_RECORD_INFO(Structure):
+    _fields_ = [
+        ("byUnlockType", BYTE),
+        ("byRes1", BYTE * 3),
+        ("byControlSrc", BYTE * NAME_LEN),
+        ("dwPicDataLen", DWORD),
+        ("pImage", POINTER(BYTE)),
+        ("dwCardUserID", DWORD),
+        ("nFloorNumber", SHORT),
+        ("wRoomNumber", WORD),
+        ("wLockID", WORD),
+        ("byRes2", BYTE * 2),
+        ("byLockName", BYTE * LOCK_NAME_LEN),
+        ("byRes", BYTE * 168),
+    ]
+
+    def controlSource(self):
+        """Return the controls source number as a string representation, removing the ending `0`s"""
+        serial = "".join([str(number) for number in self.byControlSrc[:]])
+        return re.sub(r"0*$", "0", serial)
+
+    def controlSource_decoded(self):
+        """Return the control source as a decoded string (e.g., Card No. or Username)"""
+        # Convert bytes to a string and strip null bytes (\x00)
+        try:
+            return bytes(self.byControlSrc).split(b'\x00')[0].decode('utf-8').strip()
+        except UnicodeDecodeError:
+            # Fallback if there are non-UTF8 characters
+            return "".join([chr(b) for b in self.byControlSrc if b != 0])
+
+
+class NET_DVR_NOTICEDATA_RECEIPT_INFO(Structure):
+    _fields_ = [
+        ("byNoticeNumber", BYTE * MAX_NOTICE_NUMBER_LEN),
+        ("byRes", BYTE * 224)
+    ]
+
+class NET_DVR_SEND_CARD_INFO(Structure):
+    _fields_ = [
+        ("byCardNo", BYTE * ACS_CARD_NO_LEN),
+        ("byRes", BYTE * 224)
+    ]
+
+class NET_DVR_AUTH_INFO(Structure):
+    _fields_ = [
+        ("byAuthResult", BYTE),
+        ("byAuthType", BYTE),
+        ("byRes1", BYTE * 2),
+        ("byCardNo", BYTE * ACS_CARD_NO_LEN),
+        ("dwPicDataLen", DWORD),
+        ("pImage", POINTER(BYTE)),
+        ("byRes", BYTE * 212),
+    ]
+
+    def cardNo(self):
+        """Return the card number as a string representation, removing the ending `0`s"""
+        serial = "".join([str(number) for number in self.byCardNo[:]])
+        return re.sub(r"0*$", "0", serial)
+
+class NET_DVR_VIDEO_INTERCOM_EVENT_INFO_UINON(Union):
+    _fields_ = [
+        ("byLen", BYTE),
+        ("struUnlockRecord", NET_DVR_UNLOCK_RECORD_INFO),
+        ("struNoticedataReceipt", NET_DVR_NOTICEDATA_RECEIPT_INFO),
+        ("struAuthInfo", NET_DVR_AUTH_INFO),
+        ("struSendCardInfo", NET_DVR_SEND_CARD_INFO),
+    ]
+
+class GatewayCommand(IntEnum):
+    CLOSE = 0
+    OPEN = 1
+    NORMALLY_OPEN = 2
+    RESTORE_NORMAL = 3
+
+
+class NET_DVR_CONTROL_GATEWAY(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("dwGatewayIndex", DWORD),
+        ("byCommand", BYTE),
+        ("byLockType", BYTE),
+        ("wLockID", WORD),
+        ("byControlSrc", BYTE * NAME_LEN),
+        ("byControlType", BYTE),
+        ("byRes3", BYTE * 3),
+        ("byPassword", BYTE * 16),
+        ("byRes2", BYTE * 108),
+    ]
+
+class NET_DVR_XML_CONFIG_INPUT(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("lpRequestUrl", c_void_p),
+        ("dwRequestUrlLen", DWORD),
+        ("lpInBuffer", c_void_p),
+        ("dwInBufferSize", DWORD),
+        ("dwRecvTimeOut", DWORD),
+        ("byForceEncrpt", BYTE),
+        ("byRes", BYTE * 31),
+    ]
+
+class NET_DVR_XML_CONFIG_OUTPUT(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("lpOutBuffer", c_void_p),
+        ("dwOutBufferSize", DWORD),
+        ("dwReturnedXMLSize", DWORD),
+        ("lpStatusBuffer", c_void_p),
+        ("dwStatusSize", DWORD),
+        ("byRes", BYTE * 31),
+    ]
+class NET_DVR_CALL_STATUS(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("byCallStatus", BYTE),
+        ("byRes", BYTE * 127),
+    ]
+
+
+class NET_DVR_VIDEO_CALL_COND(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("byRes", BYTE * 128),
+    ]
+
+
+class NET_DVR_CALLER_INFO(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("wBuildingNo", WORD),
+        ("wFloorNo", SHORT),
+        ("byZoneNo", BYTE),
+        ("byUnitNo", BYTE),
+        ("byDevNo", BYTE),
+        ("byDevType", BYTE),
+        ("byLockNum", BYTE),
+        ("byHighDevNo", BYTE),
+        ("byRes1", BYTE * 2),
+        ("byVoipNo", BYTE * 16),
+        ("byRes", BYTE * 80),
+    ]
+
+
+class NET_DVR_VIDEO_CALL_PARAM(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("dwCmdType", DWORD),
+        ("wPeriod", WORD),
+        ("wBuildingNumber", WORD),
+        ("wUnitNumber", WORD),
+        ("wFloorNumber", SHORT),
+        ("wRoomNumber", WORD),
+        ("wDevIndex", WORD),
+        ("byUnitType", BYTE),
+        ("byRes", BYTE * 115),
+    ]
+
+class NET_DVR_MIME_UNIT(Structure):
+    _fields_ = [
+        ("szContentType", char * 32),
+        ("szName", char * MAX_FILE_PATH_LEN),
+        ("szFilename", char * MAX_FILE_PATH_LEN),
+        ("dwContentLen", DWORD),
+        ("pContent", c_char_p),
+        ("byRes", BYTE * 16),
+    ]
+
+class NET_DVR_JPEGPARA(Structure):
+    _fields_ = [
+        ("wPicSize", WORD),
+        ("wPicQuality", WORD)
+    ]
+
+class NET_DVR_CLIENTINFO(Structure):
+    """
+    Client information structure for NET_DVR_RealPlay_V40
+    """
+    _fields_ = [
+        ("lChannel", c_long),             # Channel number
+        ("lLinkMode", c_long),            # Link mode: 0-TCP, 1-UDP, 2-MCAST
+        ("hPlayWnd", c_void_p),           # Play window handle, can be 0
+        ("sMultiCastIP", c_char_p),       # Multicast IP address, NULL for TCP/UDP
+        ("byProtoType", c_byte),          # Protocol type: 0-private, 1-RTSP
+        ("byKey", c_byte),                # Not used, set to 0
+        ("byRes", c_byte * 2),            # Reserved
+        ("byStreamType", c_byte),         # Stream type: 0-main stream, 1-sub stream, 2-stream 3, 3-transcode
+        ("byDisplayBufNum", c_byte),      # Display buffer frame number, 0-default
+        ("byNPQMode", c_byte),            # NPQ mode: 0-off, 1-on
+        ("byRes1", c_byte * 209),         # Reserved
+    ]
+
+class NET_DVR_PREVIEWINFO(Structure):
+    """Preview information structure - FIXED for DS-KD8003"""
+    _fields_ = [
+        ("lChannel", c_long),           # CHANGED: Use c_long instead of c_int for 64-bit compatibility
+        ("dwStreamType", c_uint),       # 0: Main stream, 1: Sub-stream
+        ("dwLinkMode", c_uint),         # 0: TCP, 1: UDP, 2: Multicast, 3: RTP, 4: RTP/RTSP, 5: RTP/HTTP
+        ("hPlayWnd", c_void_p),         # Handle to the display window (None for background capture)
+        ("bBlocked", c_int),            # 0: Non-blocking, 1: Blocking
+        ("bPassbackRecord", c_int),     # 0: Do not record, 1: Record
+        ("byPreviewMode", c_byte),      # 0: Normal, 1: Delayed
+        ("byStreamID", c_byte * 32),    # Stream ID (Used if lChannel is 0xFFFFFFFF)
+        ("byProtoType", c_byte),        # 0: Private, 1: RTSP
+        ("byRes1", c_byte),             # Additional reserved
+        ("byVideoCodingType", c_byte),  # Video coding type
+        ("dwDisplayBufNum", c_uint),    # Display buffer number
+        ("byNPQMode", c_byte),          # NPQ mode
+        ("byRes", c_byte * 215)         # Adjusted reserved padding for exact size
+    ]
+
+class NET_DVR_VIDEO_INTERCOM_EVENT(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("struTime", NET_DVR_TIME_EX),
+        ("byDevNumber", BYTE * MAX_DEV_NUMBER_LEN),
+        ("byEventType", BYTE),
+        ("byRes1", BYTE * 3),
+        ("uEventInfo", NET_DVR_VIDEO_INTERCOM_EVENT_INFO_UINON),
+        ("byRes2", BYTE * 256),
+    ]
+
+class NET_DVR_ALARM_ISAPI_PICDATA(Structure):
+    _fields_ = [
+        ("dwPicLen", DWORD),
+        ("byRes", BYTE * 4),
+        ("szFilename", char * MAX_FILE_PATH_LEN),
+        ("pPicData", BYTE),
+    ]
+
+class NET_DVR_ALARM_ISAPI_INFO(Structure):
+    _fields_ = [
+        ("pAlarmData", c_char_p),
+        ("dwAlarmDataLen", DWORD),
+        ("byDataType", BYTE),
+        ("byPicturesNumber", BYTE),
+        ("byRes", BYTE * 2),
+        ("pPicPackData", c_void_p),
+        ("byRes2", BYTE * 32),
+    ]
+
+class NET_DVR_IPADDR(Structure):
+    _fields_ = [
+        ("sIpV4", char * 16),
+        ("sIpV6", BYTE * 128),
+    ]
+
+
+class NET_VCA_POINT(Structure):
+    _fields_ = [
+        ("fX", c_float),
+        ("fY", c_float),
+    ]
+
+
+class NET_VCA_RECT(Structure):
+    _fields_ = [
+        ("fX", c_float),
+        ("fY", c_float),
+        ("fWidth", c_float),
+        ("fHeight", c_float),
+    ]
+
+
+class NET_VCA_EVENT_UNION(Union):
+    _fields_ = [
+        ("uLen", DWORD * 23),
+    ]
+
+
+class NET_VCA_RULE_INFO(Structure):
+    _fields_ = [
+        ("byRuleID", BYTE),
+        ("bySceneID", BYTE),
+        ("wEventTypeEx", WORD),
+        ("byRuleName", BYTE * NAME_LEN),
+        ("dwEventType", DWORD),
+        ("uEventParam", NET_VCA_EVENT_UNION),
+    ]
+
+
+class NET_VCA_TARGET_INFO(Structure):
+    _fields_ = [
+        ("dwID", DWORD),
+        ("struRect", NET_VCA_RECT),
+        ("byRes", BYTE * 4),
+    ]
+
+
+class NET_VCA_DEV_INFO(Structure):
+    _fields_ = [
+        ("struDevIP", NET_DVR_IPADDR),
+        ("wPort", WORD),
+        ("byChannel", BYTE),
+        ("byIvmsChannel", BYTE),
+    ]
+
+
+class NET_VCA_HUMAN_FEATURE(Structure):
+    _fields_ = [
+        ("byGroup", BYTE),
+        ("bySex", BYTE),
+        ("byEyeGlass", BYTE),
+        ("byRes3", BYTE),
+        ("byDeviation", BYTE),
+        ("byRes0", BYTE),
+        ("byMask", BYTE),
+        ("bySmile", BYTE),
+        ("byFaceExpression", BYTE),
+        ("byRes1", BYTE),
+        ("byRes2", BYTE),
+        ("byHat", BYTE),
+        ("byRes", BYTE * 4),
+    ]
+
+
+class NET_VCA_RULE_ALARM(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("dwRelativeTime", DWORD),
+        ("dwAbsTime", DWORD),
+        ("struRuleInfo", NET_VCA_RULE_INFO),
+        ("struTargetInfo", NET_VCA_TARGET_INFO),
+        ("struDevInfo", NET_VCA_DEV_INFO),
+        ("dwPicDataLen", DWORD),
+        ("byPicType", BYTE),
+        ("byRelAlarmPicNum", BYTE),
+        ("bySmart", BYTE),
+        ("byPicTransType", BYTE),
+        ("dwAlarmID", DWORD),
+        ("wDevInfoIvmsChannelEx", WORD),
+        ("byRelativeTimeFlag", BYTE),
+        ("byAppendInfoUploadEnabled", BYTE),
+        ("pAppendInfo", c_void_p),
+        ("pImage", c_void_p),
+    ]
+
+
+class NET_VCA_FACESNAP_RESULT(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("dwRelativeTime", DWORD),
+        ("dwAbsTime", DWORD),
+        ("dwFacePicID", DWORD),
+        ("dwFaceScore", DWORD),
+        ("struTargetInfo", NET_VCA_TARGET_INFO),
+        ("struRect", NET_VCA_RECT),
+        ("struDevInfo", NET_VCA_DEV_INFO),
+        ("dwFacePicLen", DWORD),
+        ("dwBackgroundPicLen", DWORD),
+        ("bySmart", BYTE),
+        ("byAlarmEndMark", BYTE),
+        ("byRepeatTimes", BYTE),
+        ("byUploadEventDataType", BYTE),
+        ("struFeature", NET_VCA_HUMAN_FEATURE),
+        ("fStayDuration", c_float),
+        ("sStorageIP", char * 16),
+        ("wStoragePort", WORD),
+        ("wDevInfoIvmsChannelEx", WORD),
+        ("byFacePicQuality", BYTE),
+        ("byUIDLen", BYTE),
+        ("byLivenessDetectionStatus", BYTE),
+        ("byAddInfo", BYTE),
+        ("pUIDBuffer", c_void_p),
+        ("pAddInfoBuffer", c_void_p),
+        ("byTimeDiffFlag", BYTE),
+        ("cTimeDifferenceH", char),
+        ("cTimeDifferenceM", char),
+        ("byBrokenNetHttp", BYTE),
+        ("pBuffer1", c_void_p),
+        ("pBuffer2", c_void_p),
+    ]
+
+
+class NET_DVR_AREAINFOCFG(Structure):
+    _fields_ = [
+        ("wNationalityID", WORD),
+        ("wProvinceID", WORD),
+        ("wCityID", WORD),
+        ("wCountyID", WORD),
+        ("dwCode", DWORD),
+    ]
+
+
+class NET_VCA_HUMAN_ATTRIBUTE(Structure):
+    _fields_ = [
+        ("bySex", BYTE),
+        ("byCertificateType", BYTE),
+        ("byBirthDate", BYTE * MAX_HUMAN_BIRTHDATE_LEN),
+        ("byName", BYTE * NAME_LEN),
+        ("struNativePlace", NET_DVR_AREAINFOCFG),
+        ("byCertificateNumber", BYTE * NAME_LEN),
+        ("dwPersonInfoExtendLen", DWORD),
+        ("pPersonInfoExtend", c_void_p),
+        ("byGroup", BYTE),
+        ("byRes2", BYTE * 3),
+        ("pThermalData", c_void_p),
+    ]
+
+
+class NET_VCA_BLOCKLIST_INFO(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("dwRegisterID", DWORD),
+        ("dwGroupNo", DWORD),
+        ("byType", BYTE),
+        ("byLevel", BYTE),
+        ("byRes1", BYTE * 2),
+        ("struAttribute", NET_VCA_HUMAN_ATTRIBUTE),
+        ("byRemark", BYTE * NAME_LEN),
+        ("dwFDDescriptionLen", DWORD),
+        ("pFDDescriptionBuffer", c_void_p),
+        ("dwFCAdditionInfoLen", DWORD),
+        ("pFCAdditionInfoBuffer", c_void_p),
+        ("dwThermalDataLen", DWORD),
+    ]
+
+
+class NET_VCA_BLOCKLIST_INFO_ALARM(Structure):
+    _fields_ = [
+        ("struBlockListInfo", NET_VCA_BLOCKLIST_INFO),
+        ("dwBlockListPicLen", DWORD),
+        ("dwFDIDLen", DWORD),
+        ("pFDID", c_void_p),
+        ("dwPIDLen", DWORD),
+        ("pPID", c_void_p),
+        ("wThresholdValue", WORD),
+        ("byIsNoSaveFDPicture", BYTE),
+        ("byRealTimeContrast", BYTE),
+        ("pBuffer1", c_void_p),
+    ]
+
+
+class NET_VCA_FACESNAP_INFO_ALARM(Structure):
+    _fields_ = [
+        ("dwRelativeTime", DWORD),
+        ("dwAbsTime", DWORD),
+        ("dwSnapFacePicID", DWORD),
+        ("dwSnapFacePicLen", DWORD),
+        ("struDevInfo", NET_VCA_DEV_INFO),
+        ("byFaceScore", BYTE),
+        ("bySex", BYTE),
+        ("byGlasses", BYTE),
+        ("byRes1", BYTE),
+        ("byDeviation", BYTE),
+        ("byGroup", BYTE),
+        ("byFacePicQuality", BYTE),
+        ("byRes", BYTE),
+        ("dwUIDLen", DWORD),
+        ("pUIDBuffer", c_void_p),
+        ("fStayDuration", c_float),
+        ("pBuffer1", c_void_p),
+    ]
+
+
+class NET_VCA_FACESNAP_MATCH_ALARM(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("fSimilarity", c_float),
+        ("struSnapInfo", NET_VCA_FACESNAP_INFO_ALARM),
+        ("struBlockListInfo", NET_VCA_BLOCKLIST_INFO_ALARM),
+        ("sStorageIP", char * 16),
+        ("wStoragePort", WORD),
+        ("byMatchPicNum", BYTE),
+        ("byPicTransType", BYTE),
+        ("dwSnapPicLen", DWORD),
+        ("pSnapPicBuffer", c_void_p),
+        ("struRegion", NET_VCA_RECT),
+        ("dwModelDataLen", DWORD),
+        ("pModelDataBuffer", c_void_p),
+        ("byModelingStatus", BYTE),
+        ("byLivenessDetectionStatus", BYTE),
+        ("cTimeDifferenceH", char),
+        ("cTimeDifferenceM", char),
+        ("byMask", BYTE),
+        ("bySmile", BYTE),
+        ("byContrastStatus", BYTE),
+        ("byBrokenNetHttp", BYTE),
+    ]
+
+
+class NET_DVR_GATE_VEHICLE_INFO(Structure):
+    _fields_ = [
+        ("sLicense", BYTE * MAX_LICENSE_LEN),
+        ("byVehicleType", BYTE),
+        ("byRes1", BYTE * 111),
+    ]
+
+
+class NET_DVR_GATE_ALARMINFO_UNION(Union):
+    _fields_ = [
+        ("uLen", BYTE * 128),
+        ("struVehicleInfo", NET_DVR_GATE_VEHICLE_INFO),
+    ]
+
+
+class NET_DVR_GATE_ALARMINFO(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("byAlarmType", BYTE),
+        ("byExternalDevType", BYTE),
+        ("byExternalDevStatus", BYTE),
+        ("byExternalDevCtrlType", BYTE),
+        ("struAlarmTime", NET_DVR_TIME_V30),
+        ("uAlarmInfo", NET_DVR_GATE_ALARMINFO_UNION),
+        ("byRes2", BYTE * 64),
+    ]
+
+
+class NET_DVR_INDOOR_UNIT_RELATEDEV(Structure):
+    _fields_ = [
+        ("struOutdoorUnit", NET_DVR_IPADDR),
+        ("struManageUnit", NET_DVR_IPADDR),
+        ("struSIPServer", NET_DVR_IPADDR),
+        ("struAgainUnit", NET_DVR_IPADDR),
+        ("byOutDoorType", c_ubyte),
+        ("byOutInConnectMode", c_ubyte),
+        ("byIndoorConnectMode", c_ubyte),
+        ("byRes1", c_ubyte),
+        ("struIndoorUnit", NET_DVR_IPADDR),
+        ("byRes", c_ubyte * 300),
+    ]
+
+class NET_DVR_OUTDOOR_UNIT_RELATEDEV(Structure):
+    _fields_ = [
+        ("struSIPServer", NET_DVR_IPADDR),
+        ("struManageUnit", NET_DVR_IPADDR),
+        ("struAgainUnit", NET_DVR_IPADDR),
+        ("byRes", c_ubyte * 400),
+    ]
+
+class NET_DVR_AGAIN_RELATEDEV(Structure):
+    _fields_ = [
+        ("struSIPServer", NET_DVR_IPADDR),
+        ("struCenterAddr", NET_DVR_IPADDR),
+        ("wCenterPort", c_uint16),
+        ("byRes1", c_ubyte * 2),
+        ("struIndoorUnit", NET_DVR_IPADDR),
+        ("struAgainAddr", NET_DVR_IPADDR),
+        ("byRes", c_ubyte * 444),            # [cite: 115]
+    ]
+
+class NET_DVR_VIDEO_INTERCOM_UNIT_RELATEDEV_UNION(Union):
+    _fields_ = [
+        ("dwRes", c_uint32 * 256),
+        ("struIndoorUnit", NET_DVR_INDOOR_UNIT_RELATEDEV),
+        ("struOutdoorUnit", NET_DVR_OUTDOOR_UNIT_RELATEDEV),
+        ("struAgainUnit", NET_DVR_AGAIN_RELATEDEV),
+    ]
+
+class NET_DVR_VIDEO_INTERCOM_RELATEDEV_CFG(Structure):
+    _fields_ = [
+        ("dwSize", c_uint32),
+        ("dwNum", c_uint32),
+        ("struuRelatedDev", NET_DVR_VIDEO_INTERCOM_UNIT_RELATEDEV_UNION * 16),
+        ("byRes", c_ubyte * 256),
+    ]
+
+class NET_DVR_ACS_EVENT_INFO(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("byCardNo", BYTE * ACS_CARD_NO_LEN),
+        ("byCardType", BYTE),
+        ("byWhiteListNo", BYTE),
+        ("byReportChannel", BYTE),
+        ("byCardReaderKind", BYTE),
+        ("dwCardReaderNo", DWORD),
+        ("dwDoorNo", DWORD),
+        ("dwVerifyNo", DWORD),
+        ("dwAlarmInNo", DWORD),
+        ("dwAlarmOutNo", DWORD),
+        ("dwCaseSensorNo", DWORD),
+        ("dwRs485No", DWORD),
+        ("dwMultiCardGroupNo", DWORD),
+        ("wAccessChannel", WORD),
+        ("byDeviceNo", BYTE),
+        ("byDistractControlNo", BYTE),
+        ("dwEmployeeNo", DWORD),
+        ("wLocalControllerID", WORD),
+        ("byInternetAccess", BYTE),
+        ("byType", BYTE),
+        ("byMACAddr", BYTE * MACADDR_LEN),
+        ("bySwipeCardType", BYTE),
+        ("byRes2", BYTE),
+        ("dwSerialNo", DWORD),
+        ("byChannelControllerID", BYTE),
+        ("byChannelControllerLampID", BYTE),
+        ("byChannelControllerIRAdaptorID", BYTE),
+        ("byChannelControllerIREmitterID", BYTE),
+        ("byRes", BYTE * 4),
+    ]
+
+
+class NET_DVR_ACS_EVENT_INFO_EXTEND(Structure):
+    _fields_ = [
+        ("dwFrontSerialNo", DWORD),
+        ("byUserType", BYTE),
+        ("byCurrentVerifyMode", BYTE),
+        ("byCurrentEvent", BYTE),
+        ("byPurePwdVerifyEnable", BYTE),
+        ("byEmployeeNo", BYTE * NET_SDK_EMPLOYEE_NO_LEN),
+        ("byAttendanceStatus", BYTE),
+        ("byStatusValue", BYTE),
+        ("byRes2", BYTE * 2),
+        ("byUUID", BYTE * NET_SDK_UUID_LEN),
+        ("byDeviceName", BYTE * NET_DEV_NAME_LEN),
+        ("byRes", BYTE * 24),
+    ]
+
+
+class NET_DVR_ACS_EVENT_INFO_EXTEND_V20(Structure):
+    _fields_ = [
+        ("byRemoteCheck", BYTE),
+        ("byThermometryUnit", BYTE),
+        ("byIsAbnomalTemperature", BYTE),
+        ("byRes2", BYTE),
+        ("fCurrTemperature", c_float),
+        ("struRegionCoordinates", NET_VCA_POINT),
+        ("dwQRCodeInfoLen", DWORD),
+        ("dwVisibleLightDataLen", DWORD),
+        ("dwThermalDataLen", DWORD),
+        ("pQRCodeInfo", c_void_p),
+        ("pVisibleLightData", c_void_p),
+        ("pThermalData", c_void_p),
+        ("byAttendanceLabel", BYTE * 64),
+        ("wXCoordinate", WORD),
+        ("wYCoordinate", WORD),
+        ("wWidth", WORD),
+        ("wHeight", WORD),
+        ("byHealthCode", BYTE),
+        ("byNADCode", BYTE),
+        ("byTravelCode", BYTE),
+        ("byVaccineStatus", BYTE),
+        ("byRes", BYTE * 948),
+    ]
+
+
+class NET_DVR_ACS_ALARM_INFO(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("dwMajor", DWORD),
+        ("dwMinor", DWORD),
+        ("struTime", NET_DVR_TIME),
+        ("sNetUser", BYTE * MAX_NAMELEN),
+        ("struRemoteHostAddr", NET_DVR_IPADDR),
+        ("struAcsEventInfo", NET_DVR_ACS_EVENT_INFO),
+        ("dwPicDataLen", DWORD),
+        ("pPicData", c_void_p),
+        ("wInductiveEventType", WORD),
+        ("byPicTransType", BYTE),
+        ("byRes1", BYTE),
+        ("dwIOTChannelNo", DWORD),
+        ("pAcsEventInfoExtend", c_void_p),
+        ("byAcsEventInfoExtend", BYTE),
+        ("byTimeType", BYTE),
+        ("byRes2", BYTE),
+        ("byAcsEventInfoExtendV20", BYTE),
+        ("pAcsEventInfoExtendV20", c_void_p),
+        ("byRes", BYTE * 4),
+    ]
+
+class NET_DVR_VEHICLE_CONTROL_LIST_DSALARM(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("dwDataIndex", DWORD),
+        ("sOperateIndex", char * MAX_OPERATE_INDEX_LEN),
+        ("byRes", BYTE * 32),
+    ]
+
+
+MAX_CATEGORY_LEN = 8
+
+
+class NET_DVR_PLATE_INFO(Structure):
+    _fields_ = [
+        ("byPlateType", BYTE),
+        ("byColor", BYTE),
+        ("byBright", BYTE),
+        ("byLicenseLen", BYTE),
+        ("byEntireBelieve", BYTE),
+        ("byRegion", BYTE),
+        ("byCountry", BYTE),
+        ("byArea", BYTE),
+        ("byPlateSize", BYTE),
+        ("byAddInfoFlag", BYTE),
+        ("wCRIndex", WORD),
+        ("byRes", BYTE * 4),
+        ("pAddInfoBuffer", c_void_p),
+        ("sPlateCategory", char * MAX_CATEGORY_LEN),
+        ("dwXmlLen", DWORD),
+        ("pXmlBuf", c_void_p),
+        ("struPlateRect", NET_VCA_RECT),
+        ("sLicense", char * MAX_LICENSE_LEN),
+        ("byBelieve", BYTE * MAX_LICENSE_LEN),
+    ]
+
+
+class NET_DVR_VEHICLE_INFO(Structure):
+    _fields_ = [
+        ("dwIndex", DWORD),
+        ("byVehicleType", BYTE),
+        ("byColorDepth", BYTE),
+        ("byColor", BYTE),
+        ("byRadarState", BYTE),
+        ("wSpeed", WORD),
+        ("wLength", WORD),
+        ("byIllegalType", BYTE),
+        ("byVehicleLogoRecog", BYTE),
+        ("byVehicleSubLogoRecog", BYTE),
+        ("byVehicleModel", BYTE),
+        ("byCustomInfo", BYTE * 16),
+        ("wVehicleLogoRecog", WORD),
+        ("byIsParking", BYTE),
+        ("byRes", BYTE),
+        ("dwParkingTime", DWORD),
+        ("byBelieve", BYTE),
+        ("byCurrentWorkerNumber", BYTE),
+        ("byCurrentGoodsLoadingRate", BYTE),
+        ("byDoorsStatus", BYTE),
+        ("byRes3", BYTE * 4),
+    ]
+
+
+class NET_DVR_PLATE_RESULT(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("byResultType", BYTE),
+        ("byChanIndex", BYTE),
+        ("wAlarmRecordID", WORD),
+        ("dwRelativeTime", DWORD),
+        ("byAbsTime", BYTE * 32),
+        ("dwPicLen", DWORD),
+        ("dwPicPlateLen", DWORD),
+        ("dwVideoLen", DWORD),
+        ("byTrafficLight", BYTE),
+        ("byPicNum", BYTE),
+        ("byDriveChan", BYTE),
+        ("byVehicleType", BYTE),
+        ("dwBinPicLen", DWORD),
+        ("dwCarPicLen", DWORD),
+        ("dwFarCarPicLen", DWORD),
+        ("pBuffer3", c_void_p),
+        ("pBuffer4", c_void_p),
+        ("pBuffer5", c_void_p),
+        ("byRelaLaneDirectionType", BYTE),
+        ("byCarDirectionType", BYTE),
+        ("byRes3", BYTE * 6),
+        ("struPlateInfo", NET_DVR_PLATE_INFO),
+        ("struVehicleInfo", NET_DVR_VEHICLE_INFO),
+        ("pBuffer1", c_void_p),
+        ("pBuffer2", c_void_p),
+    ]
+
+
+class NET_ITS_PLATE_RESULT(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("dwMatchNo", DWORD),
+        ("byGroupNum", BYTE),
+        ("byPicNo", BYTE),
+        ("bySecondCam", BYTE),
+        ("byFeaturePicNo", BYTE),
+        ("byDriveChan", BYTE),
+        ("byVehicleType", BYTE),
+        ("byDetSceneID", BYTE),
+        ("byVehicleAttribute", BYTE),
+        ("wIllegalType", WORD),
+        ("byIllegalSubType", BYTE * 8),
+        ("byPostPicNo", BYTE),
+        ("byChanIndex", BYTE),
+        ("wSpeedLimit", WORD),
+        ("byChanIndexEx", BYTE),
+        ("byVehiclePositionControl", BYTE),
+        ("struPlateInfo", NET_DVR_PLATE_INFO),
+    ]
+
+
+class NET_DVR_VEHICLE_CONTROL_COND(Structure):
+    _fields_ = [
+        ("dwChannel", DWORD),
+        ("dwOperateType", DWORD),
+        ("sLicense", char * MAX_LICENSE_LEN),
+        ("sCardNo", char * MAX_CARDNO_LEN),
+        ("byListType", BYTE),
+        ("byRes1", BYTE * 3),
+        ("dwDataIndex", DWORD),
+        ("byRes", BYTE * 116),
+    ]
+
+
+class NET_DVR_VEHICLE_CONTROL_LIST_INFO(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("dwChannel", DWORD),
+        ("dwDataIndex", DWORD),
+        ("sLicense", char * MAX_LICENSE_LEN),
+        ("byListType", BYTE),
+        ("byPlateType", BYTE),
+        ("byPlateColor", BYTE),
+        ("byRes", BYTE * 21),
+        ("sCardNo", char * MAX_CARDNO_LEN),
+        ("struStartTime", NET_DVR_TIME_V30),
+        ("struStopTime", NET_DVR_TIME_V30),
+        ("sOperateIndex", char * MAX_OPERATE_INDEX_LEN),
+        ("byRes1", BYTE * 224),
+    ]
+
+
+class NET_DVR_VEHICLE_CONTROL_ALARM(Structure):
+    _fields_ = [
+        ("dwSize", DWORD),
+        ("byListType", BYTE),
+        ("byPlateType", BYTE),
+        ("byPlateColor", BYTE),
+        ("byRes1", BYTE),
+        ("sLicense", BYTE * MAX_LICENSE_LEN),
+        ("sCardNo", BYTE * MAX_CARDNO_LEN),
+        ("struAlarmTime", NET_DVR_TIME_V30),
+        ("dwChannel", DWORD),
+        ("dwPicDataLen", DWORD),
+        ("byPicType", BYTE),
+        ("byPicTransType", BYTE),
+        ("byRes3", BYTE * 2),
+        ("pPicData", c_char_p),
+        ("byRes2", BYTE * 48),
+    ]
+
+class MessageCallbackAlarmInfoUnion(Union):
+    _fields_ = [
+        ("NET_DVR_ALARMINFO_V30", NET_DVR_ALARMINFO_V30),
+        ("NET_DVR_VIDEO_INTERCOM_ALARM", NET_DVR_VIDEO_INTERCOM_ALARM),
+        ("NET_DVR_VIDEO_INTERCOM_EVENT", NET_DVR_VIDEO_INTERCOM_EVENT),
+        ("NET_DVR_ALARM_ISAPI_INFO", NET_DVR_ALARM_ISAPI_INFO)
+    ]
+
+fRemoteConfigCallback = CFUNCTYPE(None, DWORD, c_void_p, DWORD, c_void_p)
+
+fMessageCallBack = CFUNCTYPE(BOOL, LONG, POINTER(
+    NET_DVR_ALARMER), POINTER(MessageCallbackAlarmInfoUnion), DWORD, c_void_p)
+
