@@ -7,6 +7,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.const import STATE_IDLE
 from homeassistant.components.camera.helper import get_camera_from_entity_id
 from homeassistant.components.camera import DOMAIN as CAMERA_DOMAIN
+from homeassistant.components.stream import CONF_RTSP_TRANSPORT, CONF_USE_WALLCLOCK_AS_TIMESTAMPS
 from custom_components.hikvision_next.hikvision_device import HikvisionDevice
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from tests.conftest import load_fixture
@@ -29,6 +30,10 @@ async def test_camera(hass: HomeAssistant, init_integration: MockConfigEntry) ->
 
     stream_url = await camera_entity.stream_source()
     assert stream_url == "rtsp://u1:%2A%2A%2A@1.0.0.255:10554/Streaming/channels/101"
+    assert camera_entity.stream_options == {
+        CONF_RTSP_TRANSPORT: "tcp",
+        CONF_USE_WALLCLOCK_AS_TIMESTAMPS: True,
+    }
 
     entity_registry = er.async_get(hass)
     entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_102"
