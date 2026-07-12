@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from contextlib import suppress
 import datetime
 from http import HTTPStatus
@@ -233,8 +234,32 @@ class ISAPIClient:
                 if self.rtsp_port_forced:
                     self.protocols.rtsp_port = str(self.rtsp_port_forced)
                 else:
-                    self.protocols.rtsp_port = item.get("portNo")
+                    rtsp_port = int(item["portNo"])
+                    if rtsp_port != 554 and not await self._is_rtsp_port_open(rtsp_port):
+                        if await self._is_rtsp_port_open(554):
+                            _LOGGER.warning(
+                                "RTSP port %s is unreachable on %s; falling back to port 554",
+                                rtsp_port,
+                                self.device_info.ip_address,
+                            )
+                            rtsp_port = 554
+                    self.protocols.rtsp_port = str(rtsp_port)
                 break
+
+    async def _is_rtsp_port_open(self, port: int) -> bool:
+        """Check whether an RTSP TCP port is reachable before using it."""
+        try:
+            _, writer = await asyncio.wait_for(
+                asyncio.open_connection(self.device_info.ip_address, port),
+                timeout=1,
+            )
+        except (OSError, asyncio.TimeoutError):
+            return False
+
+        writer.close()
+        with suppress(Exception):
+            await writer.wait_closed()
+        return True
 
     async def get_supported_events(self, system_capabilities: dict) -> list[EventInfo]:
         """Get list of all supported events available."""
@@ -734,7 +759,7 @@ class ISAPIClient:
         """Get stream source."""
         u = quote(self.username, safe="")
         p = quote(self.password, safe="")
-        url = f"{self.device_info.ip_address}:{self.protocols.rtsp_port}/Streaming/channels/{stream.id}"
+        url = f"{self.device_info.ip_address}:{self.protocols.rtsp_port}/ISAPI/Streaming/channels/{stream.id}"
         return f"rtsp://{u}:{p}@{url}"
 
     async def _detect_auth_method(self):

@@ -1,7 +1,7 @@
 """Tests for the hikvision_next integration."""
 
 import pytest
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 from homeassistant.core import HomeAssistant
 from custom_components.hikvision_next.const import DOMAIN
 from custom_components.hikvision_next.hikvision_device import HikvisionDevice
@@ -81,6 +81,17 @@ async def test_async_setup_entry_nvr(hass: HomeAssistant, init_integration: Mock
     await hass.async_block_till_done()
 
     assert not hass.data.get(DOMAIN)
+
+
+@pytest.mark.parametrize("init_integration", ["DS-7608NXI-I2"], indirect=True)
+async def test_rtsp_port_falls_back_to_554(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
+    """Use the standard RTSP port when the advertised port is unreachable."""
+    device: HikvisionDevice = init_integration.runtime_data
+    device._is_rtsp_port_open = AsyncMock(side_effect=[False, True])
+
+    await device.get_protocols()
+
+    assert device.protocols.rtsp_port == "554"
 
 
 @pytest.mark.parametrize("init_integration", ["DS-2CD2386G2-IU"], indirect=True)

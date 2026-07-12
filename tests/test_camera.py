@@ -29,7 +29,7 @@ async def test_camera(hass: HomeAssistant, init_integration: MockConfigEntry) ->
     assert camera_entity.name == "garden"
 
     stream_url = await camera_entity.stream_source()
-    assert stream_url == "rtsp://u1:%2A%2A%2A@1.0.0.255:10554/Streaming/channels/101"
+    assert stream_url == "rtsp://u1:%2A%2A%2A@1.0.0.255:10554/ISAPI/Streaming/channels/101"
     assert camera_entity.stream_options == {
         CONF_RTSP_TRANSPORT: "tcp",
         CONF_USE_WALLCLOCK_AS_TIMESTAMPS: True,
@@ -128,7 +128,7 @@ async def test_camera_stream_info(hass: HomeAssistant, init_integration: MockCon
     assert camera_entity.stream_info.height == data["height"]
 
     stream_url = await camera_entity.stream_source()
-    assert stream_url == f"rtsp://u1:%2A%2A%2A@1.0.0.255:{data['rtsp_port']}/Streaming/channels/101"
+    assert stream_url == f"rtsp://u1:%2A%2A%2A@1.0.0.255:{data['rtsp_port']}/ISAPI/Streaming/channels/101"
 
 @pytest.mark.parametrize("init_integration", ["DS-2TD1228-2-QA"], indirect=True)
 async def test_camera_multichannel(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
