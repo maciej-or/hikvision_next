@@ -182,19 +182,21 @@ class ISAPIClient:
                         # serial no is not always recognized correcly by NVR
                         serial_no = f"{self.device_info.serial_no}_{source.get("proxyProtocol")}_{camera_id}"
 
-                    self.cameras.append(
-                        IPCamera(
-                            id=int(camera_id),
-                            name=digital_camera.get("name"),
-                            model=source.get("model", "Unknown"),
-                            serial_no=serial_no,
-                            firmware=source.get("firmwareVersion"),
-                            input_port=int(source.get("srcInputPort")),
-                            connection_type=CONNECTION_TYPE_PROXIED,
-                            ip_addr=source.get("ipAddress"),
-                            ip_port=source.get("managePortNo"),
-                            streams=await self.get_camera_streams(camera_id),
-                        )
+                    camera = IPCamera(
+                        id=int(camera_id),
+                        name=digital_camera.get("name"),
+                        model=source.get("model", "Unknown"),
+                        serial_no=serial_no,
+                        firmware=source.get("firmwareVersion"),
+                        input_port=int(source.get("srcInputPort")),
+                        connection_type=CONNECTION_TYPE_PROXIED,
+                        ip_addr=source.get("ipAddress"),
+                        ip_port=source.get("managePortNo"),
+                        streams=await self.get_camera_streams(camera_id),
+                    )
+                    self.cameras.append(camera)
+                    self.cameras.extend(
+                        await self.get_proxied_thermal_channels(camera, source.get("proxyProtocol", "HIKVISION"))
                     )
 
             # Get analog cameras
@@ -401,6 +403,80 @@ class ISAPIClient:
                 )
             )
         return streams
+
+    async def get_proxied_thermal_channels(
+        self, camera: IPCamera, proxy_protocol: str
+    ) -> list[IPCamera]:
+        """Discover extra sensor channels exposed directly by a proxied thermal camera."""
+        if not camera.model.upper().startswith(("DS-2TD", "IDS-2TD", "HM-TD")) or not camera.ip_addr:
+            return []
+
+        source_host = f"http://{camera.ip_addr}"
+        client = ISAPIClient(
+            source_host,
+            self.username,
+            self.password,
+            self.verify_ssl,
+            session=self._session,
+        )
+        client.timeout = min(self.timeout, 5)
+        client.pending_initialization = True
+
+        try:
+            response = await client.request(GET, "Streaming/channels")
+            streaming_channels = deep_get(response, "StreamingChannelList.StreamingChannel", [])
+            await client.get_protocols()
+        except Exception as ex:
+            _LOGGER.debug("Unable to discover extra thermal channels on %s: %s", camera.ip_addr, ex)
+            return []
+
+        streams_by_channel: dict[int, list[CameraStreamInfo]] = {}
+        names_by_channel: dict[int, str] = {}
+        for stream_info in streaming_channels:
+            channel_id = int(deep_get(stream_info, "Video.videoInputChannelID", camera.input_port))
+            if channel_id == camera.input_port:
+                continue
+
+            stream_id = int(stream_info["id"])
+            stream_type_id = stream_id % 100
+            if stream_type_id not in STREAM_TYPE:
+                continue
+
+            names_by_channel[channel_id] = stream_info.get("channelName", f"Camera {channel_id:02}")
+            streams_by_channel.setdefault(channel_id, []).append(
+                CameraStreamInfo(
+                    id=stream_id,
+                    name=stream_info.get("channelName", STREAM_TYPE[stream_type_id]),
+                    type_id=stream_type_id,
+                    type=STREAM_TYPE[stream_type_id],
+                    enabled=str_to_bool(stream_info.get("enabled", "false")),
+                    codec=deep_get(stream_info, "Video.videoCodecType"),
+                    width=deep_get(stream_info, "Video.videoResolutionWidth", 0),
+                    height=deep_get(stream_info, "Video.videoResolutionHeight", 0),
+                    audio=str_to_bool(deep_get(stream_info, "Audio.enabled", "false")),
+                    source_host=source_host,
+                    source_rtsp_port=int(client.protocols.rtsp_port),
+                    unique_id=f"{camera.id}_{stream_id}",
+                )
+            )
+
+        cameras = []
+        for channel_id, streams in sorted(streams_by_channel.items()):
+            virtual_channel_id = camera.id + channel_id - camera.input_port
+            cameras.append(
+                IPCamera(
+                    id=camera.id * 100 + channel_id,
+                    name=names_by_channel[channel_id],
+                    model=camera.model,
+                    serial_no=f"{self.device_info.serial_no}_{proxy_protocol}_{virtual_channel_id}",
+                    firmware=camera.firmware,
+                    input_port=channel_id,
+                    connection_type=CONNECTION_TYPE_DIRECT,
+                    ip_addr=camera.ip_addr,
+                    streams=streams,
+                )
+            )
+        return cameras
 
     def get_camera_by_id(self, camera_id: int) -> IPCamera | AnalogCamera | None:
         """Get camera object by id."""
@@ -734,11 +810,19 @@ class ISAPIClient:
 
         if stream.use_alternate_picture_url:
             url = f"ContentMgmt/StreamingProxy/channels/{stream.id}/picture"
-            full_url = self.get_isapi_url(url)
+            full_url = (
+                f"{stream.source_host.rstrip('/')}/{self.isapi_prefix}/{url}"
+                if stream.source_host
+                else self.get_isapi_url(url)
+            )
             chunks = self.request_bytes(GET, full_url, params=params)
         else:
             url = f"Streaming/channels/{stream.id}/picture"
-            full_url = self.get_isapi_url(url)
+            full_url = (
+                f"{stream.source_host.rstrip('/')}/{self.isapi_prefix}/{url}"
+                if stream.source_host
+                else self.get_isapi_url(url)
+            )
             chunks = self.request_bytes(GET, full_url, params=params)
         data = b"".join([chunk async for chunk in chunks])
 
@@ -759,7 +843,9 @@ class ISAPIClient:
         """Get stream source."""
         u = quote(self.username, safe="")
         p = quote(self.password, safe="")
-        url = f"{self.device_info.ip_address}:{self.protocols.rtsp_port}/ISAPI/Streaming/channels/{stream.id}"
+        source_ip = urlparse(stream.source_host).hostname if stream.source_host else self.device_info.ip_address
+        source_port = stream.source_rtsp_port or self.protocols.rtsp_port
+        url = f"{source_ip}:{source_port}/ISAPI/Streaming/channels/{stream.id}"
         return f"rtsp://{u}:{p}@{url}"
 
     async def _detect_auth_method(self):

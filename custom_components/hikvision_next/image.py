@@ -5,8 +5,7 @@ import logging
 
 import voluptuous as vol
 
-from homeassistant.components.camera import Camera
-from homeassistant.components.image import ImageEntity
+from homeassistant.components.image import DOMAIN as IMAGE_DOMAIN, ImageEntity
 from homeassistant.const import ATTR_ENTITY_ID, CONF_FILENAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
@@ -17,7 +16,7 @@ from homeassistant.util import slugify
 from . import HikvisionConfigEntry
 from .const import ACTION_UPDATE_SNAPSHOT
 from .hikvision_device import HikvisionDevice
-from .isapi import CameraStreamInfo
+from .isapi import AnalogCamera, CameraStreamInfo, IPCamera
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -55,15 +54,16 @@ class SnapshotFile(ImageEntity):
         self,
         hass: HomeAssistant,
         device: HikvisionDevice,
-        camera: Camera,
+        camera: AnalogCamera | IPCamera,
         stream_info: CameraStreamInfo,
     ) -> None:
         """Initialize the snapshot file."""
 
         ImageEntity.__init__(self, hass)
 
-        self._attr_unique_id = slugify(f"{device.device_info.serial_no.lower()}_{stream_info.id}_snapshot")
-        self.entity_id = f"camera.{self.unique_id}"
+        stream_unique_id = stream_info.unique_id or stream_info.id
+        self._attr_unique_id = slugify(f"{device.device_info.serial_no.lower()}_{stream_unique_id}_snapshot")
+        self.entity_id = f"{IMAGE_DOMAIN}.{self.unique_id}"
         self._attr_translation_key = "snapshot"
         self._attr_translation_placeholders = {"camera": camera.name}
 

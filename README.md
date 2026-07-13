@@ -7,6 +7,7 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 ## Features
 
 - Camera entities for main and sub streams
+- Secondary sensor streams for multi-channel thermal cameras connected through an NVR
 - Real-time Acusense events notifications through binary sensors and HA events (hikvision_next_event)
 - Switches for Acusense events detection
 - Switches for NVR Outputs and PIR sensor
@@ -78,6 +79,7 @@ The scope supported features depends on device model, setup and firmware version
 
 - Network settings
   - enabled ISAPI access
+  - for secondary thermal sensor streams, the camera IP must be directly reachable and accept the NVR integration credentials
 - User Management - create user with permissions:
   - Remote: Parameters Settings
   - Remote: Log Search / Interrogate Working Status
@@ -121,10 +123,12 @@ Download logs from `Settings / System / Logs`
 - DS-7608NXI-K1/8P
 - DS-7616NI-E2/16P
 - DS-7616NI-I2/16P
+- DS-7616NI-M2
 - DS-7616NI-Q2
 - DS-7616NI-Q2/16P
 - DS-7616NXI-I2/16P/S
 - DS-7716NI-I4/16P
+- DS-7732NI-E4
 - DS-7732NI-M4
 - ERI-K104-P4
 
@@ -158,3 +162,5 @@ Download logs from `Settings / System / Logs`
 - DS-2CD2T87G2P-LSU/SL
 - DS-2DE4425IW-DE (PTZ)
 - DS-2SE4C425MWG-E/26
+- DS-2TD1228-2/QA
+- DS-2TD2628-3/QA
