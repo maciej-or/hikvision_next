@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from homeassistant.components.camera import Camera, CameraEntityFeature
+from homeassistant.components.stream import CONF_RTSP_TRANSPORT, CONF_USE_WALLCLOCK_AS_TIMESTAMPS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
@@ -41,8 +42,13 @@ class HikvisionCamera(Camera):
         """Initialize Hikvision camera stream."""
         Camera.__init__(self)
 
-        self._attr_device_info = device.hass_device_info(camera.id)
-        self._attr_unique_id = slugify(f"{device.device_info.serial_no.lower()}_{stream_info.id}")
+        self.stream_options = {
+            CONF_RTSP_TRANSPORT: "tcp",
+            CONF_USE_WALLCLOCK_AS_TIMESTAMPS: True,
+        }
+        self._attr_device_info = device.hass_camera_device_info(camera)
+        stream_unique_id = stream_info.unique_id or stream_info.id
+        self._attr_unique_id = slugify(f"{device.device_info.serial_no.lower()}_{stream_unique_id}")
         if stream_info.type_id > 1:
             self._attr_has_entity_name = True
             self._attr_translation_key = f"stream{stream_info.type_id}"

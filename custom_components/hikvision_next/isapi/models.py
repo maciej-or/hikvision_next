@@ -61,6 +61,9 @@ class CameraStreamInfo:
     height: int
     audio: bool
     use_alternate_picture_url: bool = False
+    source_host: str = ""
+    source_rtsp_port: int = 0
+    unique_id: str = ""
 
 
 @dataclass

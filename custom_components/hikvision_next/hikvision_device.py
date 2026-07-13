@@ -25,6 +25,7 @@ from .const import (
 )
 from .coordinator import EventsCoordinator, SecondaryCoordinator
 from .isapi import (
+    AnalogCamera,
     EventInfo,
     IPCamera,
     ISAPIClient,
@@ -103,16 +104,19 @@ class HikvisionDevice(ISAPIClient):
             )
         else:
             camera_info = self.get_camera_by_id(camera_id)
-            is_ip_camera = isinstance(camera_info, IPCamera)
+            return self.hass_camera_device_info(camera_info)
 
-            return DeviceInfo(
-                manufacturer=self.device_info.manufacturer,
-                identifiers={(DOMAIN, camera_info.serial_no)},
-                model=camera_info.model,
-                name=camera_info.name,
-                sw_version=camera_info.firmware if is_ip_camera else "Unknown",
-                via_device=(DOMAIN, self.device_info.serial_no) if self.device_info.is_nvr else None,
-            )
+    def hass_camera_device_info(self, camera: AnalogCamera | IPCamera) -> DeviceInfo:
+        """Return Home Assistant device information for a camera object."""
+        is_ip_camera = isinstance(camera, IPCamera)
+        return DeviceInfo(
+            manufacturer=self.device_info.manufacturer,
+            identifiers={(DOMAIN, camera.serial_no)},
+            model=camera.model,
+            name=camera.name,
+            sw_version=camera.firmware if is_ip_camera else "Unknown",
+            via_device=(DOMAIN, self.device_info.serial_no) if self.device_info.is_nvr else None,
+        )
 
     def get_device_event_capabilities(
         self,
