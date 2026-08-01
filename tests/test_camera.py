@@ -20,7 +20,7 @@ async def test_camera(hass: HomeAssistant, init_integration: MockConfigEntry) ->
 
     assert len(hass.states.async_entity_ids(CAMERA_DOMAIN)) == 3
 
-    entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_101"
+    entity_id = "camera.garden"
     assert hass.states.get(entity_id)
 
     camera_entity = get_camera_from_entity_id(hass, entity_id)
@@ -31,12 +31,12 @@ async def test_camera(hass: HomeAssistant, init_integration: MockConfigEntry) ->
     assert stream_url == "rtsp://u1:%2A%2A%2A@1.0.0.255:10554/Streaming/channels/101"
 
     entity_registry = er.async_get(hass)
-    entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_102"
+    entity_id = "camera.home_sub_stream"
     camera_entity = entity_registry.async_get(entity_id)
     assert camera_entity.disabled
     assert camera_entity.original_name == "Sub-Stream"
 
-    entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_104"
+    entity_id = "camera.home_transcoded_stream"
     camera_entity = entity_registry.async_get(entity_id)
     assert camera_entity.disabled
     assert camera_entity.original_name == "Transcoded Stream"
@@ -47,7 +47,7 @@ async def test_camera(hass: HomeAssistant, init_integration: MockConfigEntry) ->
 async def test_camera_snapshot(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test camera snapshot."""
 
-    entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_101"
+    entity_id = "camera.garden"
     camera_entity = get_camera_from_entity_id(hass, entity_id)
 
     image_url = f"{TEST_HOST}/ISAPI/Streaming/channels/101/picture"
@@ -61,7 +61,7 @@ async def test_camera_snapshot(hass: HomeAssistant, init_integration: MockConfig
 async def test_camera_snapshot_device_error(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test camera snapshot with 2 attempts."""
 
-    entity_id = "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_101"
+    entity_id = "camera.garden"
     camera_entity = get_camera_from_entity_id(hass, entity_id)
 
     image_url = f"{TEST_HOST}/ISAPI/Streaming/channels/101/picture"
@@ -81,7 +81,7 @@ async def test_camera_snapshot_device_error(hass: HomeAssistant, init_integratio
 async def test_camera_snapshot_alternate_url(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test camera snapshot with alternate url."""
 
-    entity_id = "camera.ds_7616ni_q2_00p0000000000ccrre00000000wcvu_101"
+    entity_id = "camera.garage"
     camera_entity = get_camera_from_entity_id(hass, entity_id)
 
     error_response = load_fixture("ISAPI/Streaming.channels.x0y.picture", "badXmlContent")
@@ -95,14 +95,14 @@ async def test_camera_snapshot_alternate_url(hass: HomeAssistant, init_integrati
 
 device_data = {
     "DS-7608NXI-I2": {
-        "entity_id": "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_101",
+        "entity_id": "camera.garden",
         "codec": "H.264",
         "width": "3840",
         "height": "2160",
         "rtsp_port": 10554,
     },
     "DS-7616NI-Q2": {
-        "entity_id": "camera.ds_7616ni_q2_00p0000000000ccrre00000000wcvu_101",
+        "entity_id": "camera.garage",
         "codec": "H.265",
         "width": "2560",
         "height": "1440",
