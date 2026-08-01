@@ -6,7 +6,7 @@ import logging
 import voluptuous as vol
 
 from homeassistant.components.camera import Camera
-from homeassistant.components.image import ImageEntity
+from homeassistant.components.image import ENTITY_ID_FORMAT, ImageEntity
 from homeassistant.const import ATTR_ENTITY_ID, CONF_FILENAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
@@ -23,7 +23,9 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: HikvisionConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: HikvisionConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Add images with snapshots."""
 
@@ -62,8 +64,9 @@ class SnapshotFile(ImageEntity):
 
         ImageEntity.__init__(self, hass)
 
-        self._attr_unique_id = slugify(f"{device.device_info.serial_no.lower()}_{stream_info.id}_snapshot")
-        self.entity_id = f"camera.{self.unique_id}"
+        self._attr_unique_id = ENTITY_ID_FORMAT.format(
+            slugify(f"{device.device_info.serial_no.lower()}_{stream_info.id}_snapshot")
+        )
         self._attr_translation_key = "snapshot"
         self._attr_translation_placeholders = {"camera": camera.name}
 
@@ -86,6 +89,8 @@ class SnapshotFile(ImageEntity):
         filename: Template,
     ) -> None:
         """Update the file_path."""
-        self.file_path = filename.async_render(variables={ATTR_ENTITY_ID: self.entity_id})
+        self.file_path = filename.async_render(
+            variables={ATTR_ENTITY_ID: self.entity_id}
+        )
         self._attr_image_last_updated = datetime.now()
         self.schedule_update_ha_state()

@@ -59,8 +59,8 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
     def __init__(self, device_id: int, event: EventInfo, coordinator) -> None:
         """Initialize."""
         super().__init__(coordinator)
-        self.entity_id = ENTITY_ID_FORMAT.format(event.unique_id)
-        self._attr_unique_id = self.entity_id
+        self._attr_unique_id = ENTITY_ID_FORMAT.format(slugify(f"{event.unique_id}"))
+
         self._attr_device_info = coordinator.device.hass_device_info(device_id)
         self._attr_translation_key = event.id
         if event.id == EVENT_IO:
@@ -77,7 +77,9 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on."""
         try:
-            await self.coordinator.device.set_event_enabled_state(self.device_id, self.event, True)
+            await self.coordinator.device.set_event_enabled_state(
+                self.device_id, self.event, True
+            )
         except ISAPISetEventStateMutexError as ex:
             raise HomeAssistantError(ex.message)
         except Exception as ex:
@@ -88,7 +90,9 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn off."""
         try:
-            await self.coordinator.device.set_event_enabled_state(self.device_id, self.event, False)
+            await self.coordinator.device.set_event_enabled_state(
+                self.device_id, self.event, False
+            )
         except Exception:
             raise
         finally:
@@ -105,10 +109,11 @@ class NVROutputSwitch(CoordinatorEntity, SwitchEntity):
     def __init__(self, coordinator, port_no: int) -> None:
         """Initialize."""
         super().__init__(coordinator)
-        self.entity_id = ENTITY_ID_FORMAT.format(
-            f"{slugify(coordinator.device.device_info.serial_no.lower())}_{port_no}_alarm_output"
+        self._attr_unique_id = ENTITY_ID_FORMAT.format(
+            slugify(
+                f"{coordinator.device.device_info.serial_no.lower()}_{port_no}_alarm_output"
+            )
         )
-        self._attr_unique_id = self.entity_id
         self._attr_device_info = coordinator.device.hass_device_info(0)
         self._attr_translation_placeholders = {"port_no": port_no}
         self._port_no = port_no
@@ -146,8 +151,11 @@ class HolidaySwitch(CoordinatorEntity, SwitchEntity):
     def __init__(self, coordinator) -> None:
         """Initialize."""
         super().__init__(coordinator)
-        self._attr_unique_id = f"{slugify(coordinator.device.device_info.serial_no.lower())}_{HOLIDAY_MODE}"
-        self.entity_id = ENTITY_ID_FORMAT.format(self.unique_id)
+        self._attr_unique_id = ENTITY_ID_FORMAT.format(
+            slugify(
+                f"{coordinator.device.device_info.serial_no.lower()}_{HOLIDAY_MODE}"
+            )
+        )
         self._attr_device_info = coordinator.device.hass_device_info()
 
     @property
