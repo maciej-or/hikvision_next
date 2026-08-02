@@ -31,7 +31,7 @@
             "type": "docker-run",
             "dependsOn": ["docker-build phcc"],
             "python": {
-              "args": ["./tests/test_sensor.py"],
+              "args": ["./tests/test_switch.py"],
               "module": "pytest"
             },
             "dockerRun":{
