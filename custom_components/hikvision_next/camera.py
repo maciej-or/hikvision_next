@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from homeassistant.components.camera import Camera, CameraEntityFeature
+from homeassistant.components.camera import (
+    ENTITY_ID_FORMAT,
+    Camera,
+    CameraEntityFeature,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
@@ -13,7 +17,9 @@ from .isapi import AnalogCamera, CameraStreamInfo, IPCamera
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: HikvisionConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant,
+    entry: HikvisionConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up a Hikvision IP Camera."""
 
@@ -42,7 +48,9 @@ class HikvisionCamera(Camera):
         Camera.__init__(self)
 
         self._attr_device_info = device.hass_device_info(camera.id)
-        self._attr_unique_id = slugify(f"{device.device_info.serial_no.lower()}_{stream_info.id}")
+        self._attr_unique_id = ENTITY_ID_FORMAT.format(
+            slugify(f"{device.device_info.serial_no.lower()}_{stream_info.id}")
+        )
         if stream_info.type_id > 1:
             self._attr_has_entity_name = True
             self._attr_translation_key = f"stream{stream_info.type_id}"
@@ -50,7 +58,6 @@ class HikvisionCamera(Camera):
         else:
             # for the main stream use just its name
             self._attr_name = camera.name
-        self.entity_id = f"camera.{self.unique_id}"
         self.device = device
         self.stream_info = stream_info
 
@@ -58,6 +65,8 @@ class HikvisionCamera(Camera):
         """Return the source of the stream."""
         return self.device.get_stream_source(self.stream_info)
 
-    async def async_camera_image(self, width: int | None = None, height: int | None = None) -> bytes | None:
+    async def async_camera_image(
+        self, width: int | None = None, height: int | None = None
+    ) -> bytes | None:
         """Return a still image response from the camera."""
         return await self.device.get_camera_image(self.stream_info, width, height)

@@ -21,29 +21,29 @@ async def test_event_switch_state(
     """Test switch state."""
 
     for entity_id, state in [
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_videoloss", STATE_ON),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_fielddetection", STATE_OFF),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_linedetection", STATE_ON),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_scenechangedetection", STATE_OFF),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_motiondetection", STATE_OFF),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_videoloss", STATE_ON),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_fielddetection", STATE_OFF),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_linedetection", STATE_ON),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_regionentrance", STATE_ON),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_scenechangedetection", STATE_OFF),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_videoloss", STATE_ON),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_fielddetection", STATE_ON),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_alarm_output", STATE_OFF),
-        ("switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_holiday_mode", STATE_OFF),
+        ("switch.garden_video_loss_detection", STATE_ON),
+        ("switch.garden_intrusion_detection", STATE_OFF),
+        ("switch.garden_line_crossing_detection", STATE_ON),
+        ("switch.garden_scene_change_detection", STATE_OFF),
+        ("switch.home_motion_detection", STATE_OFF),
+        ("switch.home_video_loss_detection", STATE_ON),
+        ("switch.home_intrusion_detection", STATE_OFF),
+        ("switch.home_line_crossing_detection", STATE_ON),
+        ("switch.home_region_entrance_detection", STATE_ON),
+        ("switch.home_scene_change_detection", STATE_OFF),
+        ("switch.road_video_loss_detection", STATE_ON),
+        ("switch.road_intrusion_detection", STATE_ON),
+        ("switch.nvr_alarm_output_1", STATE_OFF),
+        ("switch.nvr_holiday_mode", STATE_OFF),
     ]:
         assert (switch := hass.states.get(entity_id))
         assert switch.state == state
 
     entity_registry = er.async_get(hass)
     for entity_id in [
-        "switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_regionexiting",
-        "switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_motiondetection",
-        "switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_3_linedetection",
+        "switch.home_region_exiting_detection",
+        "switch.road_motion_detection",
+        "switch.road_line_crossing_detection",
     ]:
         switch_entity = entity_registry.async_get(entity_id)
         assert switch_entity.disabled
@@ -57,10 +57,10 @@ async def test_event_switch_state_of_a_camera(
     """Test switch state of a camera."""
 
     for entity_id, state in [
-        ("switch.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_fielddetection", STATE_ON),
-        ("switch.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_scenechangedetection", STATE_ON),
-        ("switch.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_io", STATE_OFF),
-        ("switch.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_alarm_output", STATE_OFF)
+        ("switch.camera_3_intrusion_detection", STATE_ON),
+        ("switch.camera_3_scene_change_detection", STATE_ON),
+        ("switch.camera_3_alarm_input_1", STATE_OFF),
+        ("switch.camera_3_alarm_output_1", STATE_OFF)
     ]:
         assert (switch := hass.states.get(entity_id))
         assert switch.state == state
@@ -70,7 +70,7 @@ async def test_event_switch_state_of_a_camera(
 async def test_event_switch_payload(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test event switch."""
 
-    entity_id = "switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_1_videoloss"
+    entity_id = "switch.garden_video_loss_detection"
     assert (switch := hass.states.get(entity_id))
     assert switch.state == STATE_ON
 
@@ -110,7 +110,7 @@ async def test_alarm_output_switch(
     """Test alarm output switch."""
 
     port_no = 1
-    entity_id = f"switch.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_{port_no}_alarm_output"
+    entity_id = f"switch.nvr_alarm_output_{port_no}"
     assert (switch := hass.states.get(entity_id))
     assert switch.state == STATE_OFF
 
@@ -200,10 +200,10 @@ async def test_ipc_multichannel_event_switch(
     assert len(device.cameras[1].events_info) == 4
 
     switch_entities = [
-        'switch.ds_2se4c425mwg_e_0000000000aawrfc0000000_1_motiondetection',
-        'switch.ds_2se4c425mwg_e_0000000000aawrfc0000000_1_tamperdetection',
-        'switch.ds_2se4c425mwg_e_0000000000aawrfc0000000_2_fielddetection',
-        'switch.ds_2se4c425mwg_e_0000000000aawrfc0000000_2_linedetection',
+        'switch.ip_dome_channel_1_motion_detection',
+        'switch.ip_dome_channel_1_video_tampering_detection',
+        'switch.ip_dome_channel_2_intrusion_detection',
+        'switch.ip_dome_channel_2_line_crossing_detection',
         # 2 events are diabled
     ]
     for entity_id in switch_entities:

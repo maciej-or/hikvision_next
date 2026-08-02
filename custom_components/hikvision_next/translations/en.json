@@ -54,6 +54,9 @@
       },
       "io": {
         "name": "Alarm Input {io_port_id}"
+      },
+      "pir": {
+        "name": "Pir"
       }
     },
     "switch": {
@@ -89,6 +92,9 @@
       },
       "io": {
         "name": "Alarm Input {io_port_id}"
+      },
+      "pir": {
+        "name": "Pir Detection"
       }
     },
     "camera": {

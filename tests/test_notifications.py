@@ -35,7 +35,7 @@ async def test_nvr_intrusion_detection_alert(
 ) -> None:
     """Test incoming intrusion detection event alert from nvr."""
 
-    entity_id = "binary_sensor.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_fielddetection"
+    entity_id = "binary_sensor.home_intrusion"
     bus_events = []
     def bus_event_listener(event: Event) -> None:
         bus_events.append(event)
@@ -45,7 +45,7 @@ async def test_nvr_intrusion_detection_alert(
     assert sensor.state == STATE_OFF
 
     view = EventNotificationsView(hass)
-    mock_request = mock_event_notification("nvr_2_fielddetection")
+    mock_request = mock_event_notification("nvr_home_fielddetection")
     response = await view.post(mock_request)
 
     assert response.status == HTTPStatus.OK
@@ -66,13 +66,13 @@ async def test_ipc_intrusion_detection_alert(
 ) -> None:
     """Test incoming intrusion detection event alert from ip camera."""
 
-    entity_id = "binary_sensor.ds_2cd2386g2_iu00000000aawrj00000000_1_fielddetection"
+    entity_id = "binary_sensor.yard_intrusion"
 
     assert (sensor := hass.states.get(entity_id))
     assert sensor.state == STATE_OFF
 
     view = EventNotificationsView(hass)
-    mock_request = mock_event_notification("ipc_1_fielddetection")
+    mock_request = mock_event_notification("ipc_yard_fielddetection")
     response = await view.post(mock_request)
 
     assert response.status == HTTPStatus.OK
@@ -86,7 +86,7 @@ async def test_ipc_motion_detection_on_thermometry_channel_alert(
 ) -> None:
     """Test incoming motion detection event alert on thermometry channel from ip multi channel camera."""
 
-    entity_id = "binary_sensor.ds_2td1228_2_qa_xxxxxxxxxxxxxxxxxx_2_motiondetection"
+    entity_id = "binary_sensor.camera_channel_2_motion"
 
     assert (sensor := hass.states.get(entity_id))
     assert sensor.state == STATE_OFF
@@ -106,7 +106,7 @@ async def test_field_detection_alert(
 ) -> None:
     """Test incoming field detection event with detection target."""
 
-    entity_id = "binary_sensor.ds_2cd2146g2_isu00000000aawrg00000000_1_fielddetection"
+    entity_id = "binary_sensor.ip_camera_intrusion"
     bus_events = []
     def bus_event_listener(event: Event) -> None:
         bus_events.append(event)
@@ -149,9 +149,9 @@ async def test_field_detection_alert(
     [
         [
             {"model": "DS-7608NXI-I2", "config": TEST_CONFIG},
-            {"model": "DS-2CD2T46G2-ISU", "config": TEST_CONFIG_OUTSIDE_NETWORK},
-            {"model": "DS-2CD2346G2-ISU", "config": {**TEST_CONFIG_OUTSIDE_NETWORK, RTSP_PORT_FORCED: 5152}},
-            {"model": "DS-2CD2T86G2-ISU", "config": {**TEST_CONFIG_OUTSIDE_NETWORK, RTSP_PORT_FORCED: 5153}},
+            {"model": "DS-2CD2346G2-ISU", "config": {**TEST_CONFIG_OUTSIDE_NETWORK, RTSP_PORT_FORCED: 5152}}, #CAMERA 1
+            {"model": "DS-2CD2T46G2-ISU", "config": TEST_CONFIG_OUTSIDE_NETWORK}, #CAMERA 2
+            {"model": "DS-2CD2T86G2-ISU", "config": {**TEST_CONFIG_OUTSIDE_NETWORK, RTSP_PORT_FORCED: 5153}}, #CAMERA 3
         ]
     ],
     indirect=True,
@@ -163,12 +163,12 @@ async def test_nvr_and_cam_notification_alert(
     """Test incoming multiple notifications with 1 NVR in the same network et 3 cameras outside."""
 
     """A NVR IN THE SAME NETWORK without macAddress in notification"""
-    entity_nvr_1_id = "binary_sensor.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_2_fielddetection"
+    entity_nvr_1_id = "binary_sensor.home_intrusion"
 
     """ANOTHER CAMERAS OUTSIDE THE NETWORK with macAddress in notification"""
-    entity_cam_1_id = "binary_sensor.ds_2cd2t46g2_isu_sl00000000aawrg00000000_1_io"
-    entity_cam_2_id = "binary_sensor.ds_2cd2346g2_isu_sl00000000aawrj00000000_1_io"
-    entity_cam_3_id = "binary_sensor.ds_2cd2t86g2_isu_sl00000000aawrae0000000_1_io"
+    entity_cam_1_id = "binary_sensor.camera_1_alarm_input_1"
+    entity_cam_2_id = "binary_sensor.camera_2_alarm_input_1"
+    entity_cam_3_id = "binary_sensor.camera_3_alarm_input_1"
 
     bus_events = []
 
@@ -204,7 +204,7 @@ async def test_nvr_and_cam_notification_alert(
 
     """NOTIFICATION ON CAM 1 SENSOR"""
     view = EventNotificationsView(hass)
-    mock_request = mock_event_notification("cam1_DS-2CD2T46G2-ISU_io_notification")
+    mock_request = mock_event_notification("cam1_DS-2CD2346G2-ISU_io_notification")
     response = await view.post(mock_request)
 
     assert response.status == HTTPStatus.OK
@@ -220,7 +220,7 @@ async def test_nvr_and_cam_notification_alert(
 
     """NOTIFICATION WITHOUT MAC ADDRESS ON NVR"""
     view = EventNotificationsView(hass)
-    mock_request = mock_event_notification("nvr_2_fielddetection")
+    mock_request = mock_event_notification("nvr_home_fielddetection")
     response = await view.post(mock_request)
 
     assert response.status == HTTPStatus.OK
