@@ -31,7 +31,7 @@
             "type": "docker-run",
             "dependsOn": ["docker-build phcc"],
             "python": {
-              "args": ["./tests/test_camera.py"],
+              "args": ["./tests/test_pir.py"],
               "module": "pytest"
             },
             "dockerRun":{

@@ -27,8 +27,8 @@ async def test_pir_entities(
     """Test PIR entities creation """
 
     entities = [
-        "binary_sensor.ds_2cd2443g0_iw00000000aawre00000000_1_pir",
-        "switch.ds_2cd2443g0_iw00000000aawre00000000_1_pir"
+        "binary_sensor.pietro_pir",
+        "switch.pietro_pir_detection"
     ]
 
     entity_registry = er.async_get(hass)
@@ -43,7 +43,7 @@ async def test_pir_alert(
 ) -> None:
     """Test incoming PIR alarm."""
 
-    entity_id = "binary_sensor.ds_2cd2443g0_iw00000000aawre00000000_1_pir"
+    entity_id = "binary_sensor.pietro_pir"
     assert (sensor := hass.states.get(entity_id))
     assert sensor.state == STATE_OFF
 
@@ -60,7 +60,7 @@ async def test_pir_alert(
 async def test_pir_switch(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
     """Test PIR switch."""
 
-    entity_id = "switch.ds_2cd2443g0_iw00000000aawre00000000_1_pir"
+    entity_id = "switch.pietro_pir_detection"
     assert (switch := hass.states.get(entity_id))
     assert switch.state == STATE_ON
 
