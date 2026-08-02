@@ -149,9 +149,9 @@ async def test_field_detection_alert(
     [
         [
             {"model": "DS-7608NXI-I2", "config": TEST_CONFIG},
-            {"model": "DS-2CD2T46G2-ISU", "config": TEST_CONFIG_OUTSIDE_NETWORK},
-            {"model": "DS-2CD2346G2-ISU", "config": {**TEST_CONFIG_OUTSIDE_NETWORK, RTSP_PORT_FORCED: 5152}},
-            {"model": "DS-2CD2T86G2-ISU", "config": {**TEST_CONFIG_OUTSIDE_NETWORK, RTSP_PORT_FORCED: 5153}},
+            {"model": "DS-2CD2346G2-ISU", "config": {**TEST_CONFIG_OUTSIDE_NETWORK, RTSP_PORT_FORCED: 5152}}, #CAMERA 1
+            {"model": "DS-2CD2T46G2-ISU", "config": TEST_CONFIG_OUTSIDE_NETWORK}, #CAMERA 2
+            {"model": "DS-2CD2T86G2-ISU", "config": {**TEST_CONFIG_OUTSIDE_NETWORK, RTSP_PORT_FORCED: 5153}}, #CAMERA 3
         ]
     ],
     indirect=True,
@@ -204,7 +204,7 @@ async def test_nvr_and_cam_notification_alert(
 
     """NOTIFICATION ON CAM 1 SENSOR"""
     view = EventNotificationsView(hass)
-    mock_request = mock_event_notification("cam2_DS-2CD2346G2-ISU_io_notification")
+    mock_request = mock_event_notification("cam1_DS-2CD2346G2-ISU_io_notification")
     response = await view.post(mock_request)
 
     assert response.status == HTTPStatus.OK
@@ -213,8 +213,8 @@ async def test_nvr_and_cam_notification_alert(
     assert (sensor_cam_2 := hass.states.get(entity_cam_2_id))
     assert (sensor_cam_3 := hass.states.get(entity_cam_3_id))
     assert (sensor_nvr_1 := hass.states.get(entity_nvr_1_id))
-    assert sensor_cam_1.state == STATE_OFF
-    assert sensor_cam_2.state == STATE_ON
+    assert sensor_cam_1.state == STATE_ON
+    assert sensor_cam_2.state == STATE_OFF
     assert sensor_cam_3.state == STATE_ON
     assert sensor_nvr_1.state == STATE_OFF
 
@@ -230,7 +230,7 @@ async def test_nvr_and_cam_notification_alert(
     assert (sensor_cam_2 := hass.states.get(entity_cam_2_id))
     assert (sensor_cam_3 := hass.states.get(entity_cam_3_id))
     assert (sensor_nvr_1 := hass.states.get(entity_nvr_1_id))
-    assert sensor_cam_1.state == STATE_OFF
-    assert sensor_cam_2.state == STATE_ON
+    assert sensor_cam_1.state == STATE_ON
+    assert sensor_cam_2.state == STATE_OFF
     assert sensor_cam_3.state == STATE_ON
     assert sensor_nvr_1.state == STATE_ON
