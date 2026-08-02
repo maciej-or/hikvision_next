@@ -1,6 +1,6 @@
 <EventNotificationAlert version="2.0" 
 xmlns="http://www.hikvision.com/ver20/XMLSchema">
-<ipAddress>192.168.1.152</ipAddress>
+<ipAddress>192.168.1.151</ipAddress>
 <portNo>443</portNo>
 <protocol>HTTPS</protocol>
 <macAddress>e0:2c:37:93:d9:54</macAddress>
