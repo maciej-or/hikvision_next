@@ -1,8 +1,11 @@
 """Tests for specific ISAPI responses."""
 
-import respx
-import httpx
 from contextlib import suppress
+from unittest.mock import AsyncMock
+
+import httpx
+import respx
+
 from custom_components.hikvision_next.isapi import StorageInfo
 from tests.conftest import mock_endpoint, load_fixture
 
@@ -36,6 +39,45 @@ async def test_storage(mock_isapi):
     with suppress(Exception):
         storage_list = await isapi.get_storage_devices()
         assert len(storage_list) == 0
+
+
+async def test_single_channel_event_fallback(mock_isapi):
+    """Test event discovery when a single-channel camera omits Event/triggers."""
+    responses = {
+        "Event/triggers": {},
+        "Event/channels/capabilities": {
+            "ChannelEventCapList": {
+                "ChannelEventCap": {
+                    "eventType": {"@opt": "fielddetection"},
+                    "channelID": "1",
+                }
+            }
+        },
+        "Event/triggers/fielddetection-1": {
+            "EventTrigger": {
+                "eventType": "fielddetection",
+                "videoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                    "EventTriggerNotification": {
+                        "notificationMethod": "center",
+                    }
+                },
+            }
+        },
+    }
+    mock_isapi.request = AsyncMock(side_effect=lambda _, endpoint: responses[endpoint])
+
+    events = await mock_isapi.get_supported_events({})
+
+    assert mock_isapi.capabilities.is_multi_channel is False
+    assert [(event.id, event.channel_id, event.notifications) for event in events] == [
+        ("fielddetection", 1, ["center"])
+    ]
+    assert [awaited.args[1] for awaited in mock_isapi.request.await_args_list] == [
+        "Event/triggers",
+        "Event/channels/capabilities",
+        "Event/triggers/fielddetection-1",
+    ]
 
 
 @respx.mock
