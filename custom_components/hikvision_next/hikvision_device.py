@@ -9,7 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.httpx_client import get_async_client
 from homeassistant.util import slugify
 
@@ -64,6 +64,7 @@ class HikvisionDevice(ISAPIClient):
         super().__init__(host, username, password, verify_ssl, rtsp_port_forced, session)
 
         self.events_info: list[EventInfo] = []
+        self.root_device_id: str | None = None
 
     async def init_coordinators(self):
         """Initialize coordinators."""
@@ -103,16 +104,31 @@ class HikvisionDevice(ISAPIClient):
             )
         else:
             camera_info = self.get_camera_by_id(camera_id)
+            if camera_info is None:
+                return DeviceInfo(identifiers={(DOMAIN, self.device_info.serial_no)})
+
             is_ip_camera = isinstance(camera_info, IPCamera)
 
-            return DeviceInfo(
+            device_info = DeviceInfo(
                 manufacturer=self.device_info.manufacturer,
                 identifiers={(DOMAIN, camera_info.serial_no)},
                 model=camera_info.model,
                 name=camera_info.name,
                 sw_version=camera_info.firmware if is_ip_camera else "Unknown",
-                via_device=(DOMAIN, self.device_info.serial_no) if self.device_info.is_nvr else None,
             )
+
+            # Nest the camera under the NVR. The deprecated via_device key must be absent,
+            # not None - the device registry reports it as soon as it is passed.
+            if (
+                self.device_info.is_nvr
+                and self.root_device_id
+                # A device cannot be its own via device. NVRs sometimes report the recorder
+                # serial for a channel, see get_cameras() serial number fallbacks.
+                and camera_info.serial_no != self.device_info.serial_no
+            ):
+                device_info["via_device_id"] = self.root_device_id
+
+            return device_info
 
     def get_device_event_capabilities(
         self,

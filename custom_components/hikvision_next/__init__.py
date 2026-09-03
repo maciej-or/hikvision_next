@@ -53,7 +53,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) ->
         await device.get_hardware_info()
         device_info = device.hass_device_info()
         device_registry = dr.async_get(hass)
-        device_registry.async_get_or_create(config_entry_id=entry.entry_id, **device_info)
+        device_entry = device_registry.async_get_or_create(config_entry_id=entry.entry_id, **device_info)
+        device.root_device_id = device_entry.id
     except ISAPIUnauthorizedError as ex:
         raise ConfigEntryAuthFailed from ex
     except Exception as ex:  # pylint: disable=broad-except
@@ -121,14 +122,14 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     if config_entry.version == 1:
         unique_id = config_entry.unique_id
         if isinstance(unique_id, list) and len(unique_id) == 1 and isinstance(unique_id[0], list):
-            new_unique_id = unique_id[0][1]
-            hass.config_entries.async_update_entry(
-                config_entry,
-                data={**config_entry.data},
-                unique_id=new_unique_id,
-            )
+            unique_id = unique_id[0][1]
 
-        config_entry.version = 2
+        hass.config_entries.async_update_entry(
+            config_entry,
+            data={**config_entry.data},
+            unique_id=unique_id,
+            version=2,
+        )
 
     # 2 -> 3: Delete previous alaram server sensor entities
     if config_entry.version == 2:

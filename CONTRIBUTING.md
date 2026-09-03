@@ -22,7 +22,7 @@ NOTE: the first container build and launch Home Assistant may take longer.
 
 ## Test Environment
 
-Install python 3.12 or later and project dependencies:
+Install python 3.14 or later and project dependencies:
 ```
 pip install -r requirements.test.txt
 ```

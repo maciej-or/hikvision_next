@@ -1,4 +1,4 @@
-FROM python:3.12
+FROM python:3.14
 ENV PIP_DISABLE_ROOT_WARNING=1
 RUN python -m pip install --upgrade pip
 COPY requirements.test.txt requirements.txt

@@ -1,7 +1,8 @@
 """Tests for sensor platform."""
 
 import pytest
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, valid_entity_id
+from homeassistant.util import slugify
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 import homeassistant.helpers.entity_registry as er
 
@@ -69,3 +70,27 @@ async def test_scenechange_support(
     for entity_id in entities:
         assert (entity := entity_registry.async_get(entity_id))
         assert entity.disabled == data["disabled"]
+
+
+@pytest.mark.parametrize(
+    "init_integration",
+    ["DS-7608NXI-I2", "DS-2CD2T86G2-ISU", "iDS-7208HQHI-M1"],
+    indirect=True,
+)
+async def test_sensor_entity_ids_are_valid(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
+    """Test sensor entity ids are valid for serial numbers with slashes and parentheses.
+
+    The unique_id keeps the raw serial number, only the entity_id is slugified.
+    """
+
+    entity_registry = er.async_get(hass)
+    entities = [
+        entity
+        for entity in er.async_entries_for_config_entry(entity_registry, init_integration.entry_id)
+        if entity.domain == "sensor"
+    ]
+    assert entities
+
+    for entity in entities:
+        assert valid_entity_id(entity.entity_id)
+        assert entity.entity_id == f"sensor.{slugify(entity.unique_id)}"

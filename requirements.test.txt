@@ -6,10 +6,12 @@ requests-toolbelt==1.0.0
 pytest
 pytest-asyncio
 pytest-cov>=4.1.0
-pytest-homeassistant-custom-component>=0.13.179
+pytest-homeassistant-custom-component>=0.13.363
 
 #
 async-timeout
 httpx
 respx
 aiohttp_cors
+# required by homeassistant.components.camera since HA 2026.9
+PyTurboJPEG==1.8.3
