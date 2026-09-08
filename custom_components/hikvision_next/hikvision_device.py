@@ -105,14 +105,40 @@ class HikvisionDevice(ISAPIClient):
             camera_info = self.get_camera_by_id(camera_id)
             is_ip_camera = isinstance(camera_info, IPCamera)
 
-            return DeviceInfo(
+            device_info = DeviceInfo(
                 manufacturer=self.device_info.manufacturer,
                 identifiers={(DOMAIN, camera_info.serial_no)},
                 model=camera_info.model,
                 name=camera_info.name,
                 sw_version=camera_info.firmware if is_ip_camera else "Unknown",
-                via_device=(DOMAIN, self.device_info.serial_no) if self.device_info.is_nvr else None,
             )
+
+            if self.device_info.is_nvr:
+                self._link_to_nvr(device_info)
+
+            return device_info
+
+    def _link_to_nvr(self, device_info: DeviceInfo) -> None:
+        """Link a camera device to the NVR it belongs to.
+
+        Home Assistant 2026.9 removed `via_device` from DeviceInfo and made the device registry
+        raise on it, so on those cores the key must be absent rather than None: the registry
+        reports it as soon as it is passed, whatever its value. Its replacement `via_device_id`,
+        and the lookup needed to fill it, only arrived in 2026.8, so both spellings are kept
+        while older cores are supported.
+        """
+        registry = dr.async_get(self.hass)
+        identifier = (DOMAIN, self.device_info.serial_no)
+
+        if hasattr(registry, "async_get_device_by_identifier"):
+            # async_setup_entry registers the NVR before it forwards the platforms, so the
+            # lookup finds it. Without a match the camera is still created, only unlinked.
+            if self.entry:
+                nvr_device = registry.async_get_device_by_identifier(identifier, self.entry.entry_id)
+                if nvr_device:
+                    device_info["via_device_id"] = nvr_device.id
+        else:
+            device_info["via_device"] = identifier
 
     def get_device_event_capabilities(
         self,
