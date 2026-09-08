@@ -80,7 +80,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) ->
 
 async def async_remove_config_entry_device(hass: HomeAssistant, config_entry, device_entry) -> bool:
     """Delete device if not entities."""
-    if not device_entry.via_device_id:
+    if not getattr(device_entry, "via_device_id", None) and not getattr(device_entry, "via_device", None):
         _LOGGER.error(
             "You cannot delete the NVR device via the device delete method.  Please remove the integration instead"
         )
