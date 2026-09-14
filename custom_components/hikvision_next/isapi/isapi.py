@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-from contextlib import suppress
 import datetime
-from http import HTTPStatus
 import ipaddress
 import json
 import logging
+from contextlib import suppress
+from http import HTTPStatus
 from typing import Any, AsyncIterator
 from urllib.parse import quote, urljoin, urlparse
 
 import httpx
-from httpx import HTTPStatusError
 import xmltodict
+from httpx import HTTPStatusError
 
 from .const import (
     CONNECTION_TYPE_DIRECT,
@@ -34,6 +34,7 @@ from .models import (
     AlarmServer,
     AlertInfo,
     AnalogCamera,
+    BehaviorRuleInfo,
     CameraStreamInfo,
     CapabilitiesInfo,
     EventInfo,
@@ -41,10 +42,10 @@ from .models import (
     ISAPIDeviceInfo,
     MutexIssue,
     ProtocolsInfo,
-    BehaviorRuleInfo,
     StorageInfo,
 )
 from .utils import bool_to_str, deep_get, parse_isapi_response, str_to_bool
+
 
 # Helper to sanitize channel IDs (e.g. converting "I-1" to 1)
 def clean_int(value):
@@ -54,6 +55,7 @@ def clean_int(value):
     except (ValueError, TypeError):
         # Extract digits from string (e.g. "I-1" -> "1")
         return int("".join(filter(str.isdigit, str(value))))
+
 
 Node = dict[str, Any]
 
@@ -251,43 +253,34 @@ class ISAPIClient:
                     self.protocols.rtsp_port = item.get("portNo")
                 break
 
-    async def get_behavior_rules(self) -> list[EventInfo]:
-        
-        rules  = []
-
+    async def get_behavior_rules(self) -> list[BehaviorRuleInfo]:
+        """Get the behavior rules on channels supporting intrusion detection."""
+        rules = []
         for camera in self.cameras:
-
             channel_id = camera.id
-            channels_capabilities = await self.request(GET, f"Event/channels/{channel_id}/capabilities")
-            _LOGGER.debug("Capabilities for channel %s: %s", channel_id, channels_capabilities)
-            if "fieldDetection" not in deep_get(channels_capabilities, "ChannelEventCap.eventType", {}).get("@opt", "").split(","):
+            try:
+                capabilities = await self.request(GET, f"Event/channels/{channel_id}/capabilities")
+                event_types = deep_get(capabilities, "ChannelEventCap.eventType", {}) or {}
+                if "fielddetection" not in event_types.get("@opt", "").lower().split(","):
+                    continue
+                response = await self.request(GET, f"Intelligent/channels/{channel_id}/behaviorRule/1")
+            except ISAPIForbiddenError:
+                # An unsupported channel must not prevent other channels from updating.
                 continue
 
-            camera_rules_raw = await self.request(GET, f"Intelligent/channels/{channel_id}/behaviorRule/1")
-            _LOGGER.debug("Behavior rules for channel %s: %s", channel_id, camera_rules_raw)
-            camera_rules = deep_get(camera_rules_raw, "BehaviorRule.RuleInfoList.RuleInfo", [])
-            for rule in camera_rules:
-                rule_id = rule.get("ruleId")
-                rule_name = rule.get("ruleName")
-                event_type = rule.get("eventType", "")
-                rule_type = rule.get("ruleType", "")
-                en=str_to_bool(rule.get("enabled", "false"))
-
-                _LOGGER.debug("Rule name: %s, id: %s, type: %s, enabled: %s", rule_name, rule_id, rule_type, en)
-
-                if not rule_id or not rule_name:
+            for rule in deep_get(response, "BehaviorRule.RuleInfoList.RuleInfo", []):
+                if not rule or not rule.get("ruleId") or not rule.get("ruleName"):
                     continue
-
-                rules.append(BehaviorRuleInfo(
-                    id=rule_id,
-                    name=rule_name,
-                    channel_id=channel_id,
-                    event_type=event_type.lower(),
-                    rule_type=rule_type.lower(),
-                    enabled=en,
-                ))
-                _LOGGER.debug("Behavior rule added %s for channel %s: %s", rule_id, channel_id, rule)
-
+                rules.append(
+                    BehaviorRuleInfo(
+                        id=int(rule["ruleId"]),
+                        channel_id=channel_id,
+                        name=rule["ruleName"],
+                        event_type=rule.get("eventType", "").lower(),
+                        rule_type=rule.get("ruleType", "").lower(),
+                        enabled=str_to_bool(rule.get("enabled", "false")),
+                    )
+                )
         return rules
 
     async def get_supported_events(self, system_capabilities: dict) -> list[EventInfo]:
@@ -454,7 +447,9 @@ class ISAPIClient:
                         # Use the original ID prefix from Event/triggers response if available
                         # e.g., ChannelEventCapList has "motionDetection" but camera expects "VMD-1"
                         # Try both the original_id and the translated event_id for lookup
-                        url_prefix = event_url_prefix_map.get(original_id) or event_url_prefix_map.get(event_id, original_id)
+                        url_prefix = event_url_prefix_map.get(original_id) or event_url_prefix_map.get(
+                            event_id, original_id
+                        )
                         event_trigger = await self.request(GET, f"Event/triggers/{url_prefix}-{channel_id}")
                         event_trigger = deep_get(event_trigger, "EventTrigger", {})
                         if event := create_event_info(event_trigger):
@@ -700,7 +695,9 @@ class ISAPIClient:
             data["IOPortData"] = {"outputState": "low"}
 
         xml = xmltodict.unparse(data)
-        await self.request(PUT, f"System/IO/outputs/{port_no}/trigger", present="xml", data=xml, use_forbidden_cache=False)
+        await self.request(
+            PUT, f"System/IO/outputs/{port_no}/trigger", present="xml", data=xml, use_forbidden_cache=False
+        )
 
     async def set_behavior_rule_enabled(self, rule: BehaviorRuleInfo, enabled: bool):
         """Enable or disable a behavior rule."""
@@ -713,14 +710,20 @@ class ISAPIClient:
                     "RuleInfo": {
                         "ruleId": str(rule.id),
                         "ruleName": rule.name,
-                        "enabled": "true" if enabled else "false"
+                        "enabled": "true" if enabled else "false",
                     }
-                }
+                },
             }
         }
 
         xml = xmltodict.unparse(data, full_document=True)
-        await self.request(PUT, f"Intelligent/channels/{rule.channel_id}/behaviorRule/1", present="xml", data=xml)
+        await self.request(
+            PUT,
+            f"Intelligent/channels/{rule.channel_id}/behaviorRule/1",
+            present="xml",
+            data=xml,
+            use_forbidden_cache=False,
+        )
 
     async def get_holiday_enabled_state(self, holiday_index=0) -> bool:
         """Get holiday state."""
@@ -1010,8 +1013,8 @@ class ISAPISetEventStateMutexError(Exception):
         """Initialize exception."""
         self.event = event
         self.mutex_issues = mutex_issues
-        self.message = f"""You cannot enable {EVENTS[event.id]['label']} events.
-            Please disable {EVENTS[mutex_issues[0].event_id]['label']}
+        self.message = f"""You cannot enable {EVENTS[event.id]["label"]} events.
+            Please disable {EVENTS[mutex_issues[0].event_id]["label"]}
             on channels {mutex_issues[0].channels} first"""
 
 

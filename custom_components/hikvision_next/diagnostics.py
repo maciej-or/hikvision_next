@@ -98,6 +98,11 @@ async def _async_get_diagnostics(
 
     # channels
     for camera in device.cameras:
+        for endpoint in (
+            f"Event/channels/{camera.id}/capabilities",
+            f"Intelligent/channels/{camera.id}/behaviorRule/1",
+        ):
+            responses[endpoint] = await get_isapi_data(device, endpoint)
         for stream_type_id in STREAM_TYPE:
             endpoint = f"Streaming/channels/{camera.id}0{stream_type_id}"
             responses[endpoint] = await get_isapi_data(device, endpoint)

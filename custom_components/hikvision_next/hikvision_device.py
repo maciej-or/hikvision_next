@@ -4,7 +4,6 @@ import logging
 from typing import Any
 
 import httpx
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
 from homeassistant.core import HomeAssistant
@@ -15,6 +14,7 @@ from homeassistant.util import slugify
 
 from .const import (
     ALARM_SERVER_PATH,
+    BEHAVIOR_RULES_COORDINATOR,
     CONF_ALARM_SERVER_HOST,
     CONF_SET_ALARM_SERVER,
     DOMAIN,
@@ -22,12 +22,11 @@ from .const import (
     EVENTS_COORDINATOR,
     RTSP_PORT_FORCED,
     SECONDARY_COORDINATOR,
-    BEHAVIOR_RULES_COORDINATOR
 )
-from .coordinator import EventsCoordinator, SecondaryCoordinator, BehaviorRulesCoordinator
+from .coordinator import BehaviorRulesCoordinator, EventsCoordinator, SecondaryCoordinator
 from .isapi import (
-    EventInfo,
     BehaviorRuleInfo,
+    EventInfo,
     IPCamera,
     ISAPIClient,
     ISAPIForbiddenError,

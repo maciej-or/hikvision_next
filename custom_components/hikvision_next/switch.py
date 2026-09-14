@@ -19,6 +19,7 @@ from .isapi.const import EVENT_IO
 
 _LOGGER = logging.getLogger(__name__)
 
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: HikvisionConfigEntry,
@@ -53,7 +54,7 @@ async def async_setup_entry(
     # Behavior rules switch
     for rule in device.behavior_rules:
         _LOGGER.debug("Adding behavior rule switch for %s", rule.id)
-        entities.append(BehaviorRuleSwitch(camera.id, rule, behavior_rules_coordinator))
+        entities.append(BehaviorRuleSwitch(rule.channel_id, rule, behavior_rules_coordinator))
 
     async_add_entities(entities)
 
@@ -108,6 +109,7 @@ class EventSwitch(CoordinatorEntity, SwitchEntity):
         finally:
             await self.coordinator.async_request_refresh()
 
+
 class BehaviorRuleSwitch(CoordinatorEntity, SwitchEntity):
     """Behavior rule switch."""
 
@@ -121,29 +123,28 @@ class BehaviorRuleSwitch(CoordinatorEntity, SwitchEntity):
             f"{slugify(coordinator.device.device_info.serial_no.lower())}_{rule.channel_id}_{rule.id}_behavior_rule"
         )
         self._attr_unique_id = self.entity_id
-        self._attr_translation_key = rule.name
+        self._attr_name = rule.name
         self._attr_device_info = coordinator.device.hass_device_info(device_id)
         self.device_id = device_id
         self.rule = rule
-        
+
     @property
     def is_on(self) -> bool | None:
-        return self.coordinator.data.get(self.unique_id).enabled
+        """Return the latest polled state, or unknown if the rule is unavailable."""
+        rule = self.coordinator.data.get(self.unique_id)
+        return rule.enabled if rule else None
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on."""
         try:
             await self.coordinator.device.set_behavior_rule_enabled(self.rule, True)
-        except Exception as ex:
-            raise ex
         finally:
             await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn off."""
         try:
             await self.coordinator.device.set_behavior_rule_enabled(self.rule, False)
-        except Exception as ex:
-            raise ex
         finally:
             await self.coordinator.async_request_refresh()
 

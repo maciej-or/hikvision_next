@@ -1,6 +1,30 @@
 {
   "data": {
     "ISAPI": {
+      "Event/channels/1/capabilities": {
+        "status_code": 403
+      },
+      "Intelligent/channels/1/behaviorRule/1": {
+        "status_code": 403
+      },
+      "Event/channels/2/capabilities": {
+        "status_code": 403
+      },
+      "Intelligent/channels/2/behaviorRule/1": {
+        "status_code": 403
+      },
+      "Event/channels/3/capabilities": {
+        "status_code": 403
+      },
+      "Intelligent/channels/3/behaviorRule/1": {
+        "status_code": 403
+      },
+      "Event/channels/4/capabilities": {
+        "status_code": 403
+      },
+      "Intelligent/channels/4/behaviorRule/1": {
+        "status_code": 403
+      },
       "System/deviceInfo": {
         "response": {
           "DeviceInfo": {
