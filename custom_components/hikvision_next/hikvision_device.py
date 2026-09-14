@@ -4,7 +4,6 @@ import logging
 from typing import Any
 
 import httpx
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
 from homeassistant.core import HomeAssistant
@@ -15,6 +14,7 @@ from homeassistant.util import slugify
 
 from .const import (
     ALARM_SERVER_PATH,
+    BEHAVIOR_RULES_COORDINATOR,
     CONF_ALARM_SERVER_HOST,
     CONF_SET_ALARM_SERVER,
     DOMAIN,
@@ -23,8 +23,9 @@ from .const import (
     RTSP_PORT_FORCED,
     SECONDARY_COORDINATOR,
 )
-from .coordinator import EventsCoordinator, SecondaryCoordinator
+from .coordinator import BehaviorRulesCoordinator, EventsCoordinator, SecondaryCoordinator
 from .isapi import (
+    BehaviorRuleInfo,
     EventInfo,
     IPCamera,
     ISAPIClient,
@@ -64,6 +65,7 @@ class HikvisionDevice(ISAPIClient):
         super().__init__(host, username, password, verify_ssl, rtsp_port_forced, session)
 
         self.events_info: list[EventInfo] = []
+        self.behavior_rules: list[BehaviorRuleInfo] = []
 
     async def init_coordinators(self):
         """Initialize coordinators."""
@@ -82,6 +84,9 @@ class HikvisionDevice(ISAPIClient):
             or self.capabilities.storage
         ):
             self.coordinators[SECONDARY_COORDINATOR] = SecondaryCoordinator(self.hass, self)
+
+        if self.behavior_rules:
+            self.coordinators[BEHAVIOR_RULES_COORDINATOR] = BehaviorRulesCoordinator(self.hass, self)
 
         if self.control_alarm_server_host and self.capabilities.support_alarm_server:
             await self.set_alarm_server(self.alarm_server_host, ALARM_SERVER_PATH)

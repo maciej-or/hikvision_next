@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
 import logging
+from datetime import timedelta
 
 from homeassistant.components.switch import ENTITY_ID_FORMAT
 from homeassistant.core import HomeAssistant
@@ -71,9 +71,38 @@ class EventsCoordinator(DataUpdateCoordinator):
         except Exception as ex:  # pylint: disable=broad-except
             self.device.handle_exception(ex, "Cannot fetch storage state")
 
-
         if self.device.auth_token_expired:
             self.device.auth_token_expired = False
+
+        return data
+
+
+class BehaviorRulesCoordinator(DataUpdateCoordinator):
+    """Manage fetching behavior rules state."""
+
+    def __init__(self, hass: HomeAssistant, device) -> None:
+        """Initialize."""
+        self.device = device
+
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=DOMAIN,
+            update_interval=SCAN_INTERVAL_EVENTS,
+        )
+
+    async def _async_update_data(self):
+        """Update data via ISAPI."""
+        data = {}
+        try:
+            current_states = await self.device.get_behavior_rules()
+            for rule in current_states:
+                _id = ENTITY_ID_FORMAT.format(
+                    f"{slugify(self.device.device_info.serial_no.lower())}_{rule.channel_id}_{rule.id}_behavior_rule"
+                )
+                data[_id] = rule
+        except Exception as ex:  # noqa: BLE001
+            self.device.handle_exception(ex, "Cannot fetch state for behavior rules")
 
         return data
 
@@ -108,7 +137,6 @@ class SecondaryCoordinator(DataUpdateCoordinator):
                     "address": alarm_server.ip_address or alarm_server.host_name,
                     "port_no": alarm_server.port_no,
                     "path": alarm_server.url,
-
                 }
         except Exception as ex:  # pylint: disable=broad-except
             self.device.handle_exception(ex, f"Cannot fetch state for {CONF_ALARM_SERVER_HOST}")

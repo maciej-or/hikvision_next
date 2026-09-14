@@ -7,6 +7,7 @@ from .isapi import (  # noqa: F401
 from .models import (  # noqa: F401
     AlertInfo,
     AnalogCamera,
+    BehaviorRuleInfo,
     CameraStreamInfo,
     EventInfo,
     IPCamera,

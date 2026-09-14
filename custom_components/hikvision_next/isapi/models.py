@@ -49,6 +49,18 @@ class EventInfo:
 
 
 @dataclass
+class BehaviorRuleInfo:
+    """Holds info of a behavior rule."""
+
+    id: int
+    channel_id: int
+    name: str
+    event_type: str
+    rule_type: str
+    enabled: bool
+
+
+@dataclass
 class CameraStreamInfo:
     """Holds info of a camera stream."""
 

@@ -1,6 +1,60 @@
 {
   "data": {
     "ISAPI": {
+      "Event/channels/1/capabilities": {
+        "status_code": 403
+      },
+      "Intelligent/channels/1/behaviorRule/1": {
+        "status_code": 403
+      },
+      "Event/channels/2/capabilities": {
+        "status_code": 403
+      },
+      "Intelligent/channels/2/behaviorRule/1": {
+        "status_code": 403
+      },
+      "Event/channels/3/capabilities": {
+        "status_code": 403
+      },
+      "Intelligent/channels/3/behaviorRule/1": {
+        "status_code": 403
+      },
+      "Event/channels/4/capabilities": {
+        "status_code": 403
+      },
+      "Intelligent/channels/4/behaviorRule/1": {
+        "status_code": 403
+      },
+      "Event/channels/5/capabilities": {
+        "status_code": 403
+      },
+      "Intelligent/channels/5/behaviorRule/1": {
+        "status_code": 403
+      },
+      "Event/channels/6/capabilities": {
+        "status_code": 403
+      },
+      "Intelligent/channels/6/behaviorRule/1": {
+        "status_code": 403
+      },
+      "Event/channels/7/capabilities": {
+        "status_code": 403
+      },
+      "Intelligent/channels/7/behaviorRule/1": {
+        "status_code": 403
+      },
+      "Event/channels/8/capabilities": {
+        "status_code": 403
+      },
+      "Intelligent/channels/8/behaviorRule/1": {
+        "status_code": 403
+      },
+      "Event/channels/9/capabilities": {
+        "status_code": 403
+      },
+      "Intelligent/channels/9/behaviorRule/1": {
+        "status_code": 403
+      },
       "System/deviceInfo": {
         "response": {
           "DeviceInfo": {
