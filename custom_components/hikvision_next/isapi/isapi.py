@@ -114,6 +114,8 @@ class ISAPIClient:
 
         self.capabilities.analog_cameras_inputs = int(deep_get(capabilities, "SysCap.VideoCap.videoInputPortNums", 0))
         self.capabilities.digital_cameras_inputs = int(deep_get(capabilities, "RacmCap.inputProxyNums", 0))
+        if not self.capabilities.analog_cameras_inputs and self.capabilities.digital_cameras_inputs:
+            self.capabilities.analog_cameras_inputs = await self.get_analog_inputs_count()
         self.capabilities.support_holiday_mode = str_to_bool(deep_get(capabilities, "SysCap.isSupportHolidy", "false"))
         self.capabilities.support_channel_zero = str_to_bool(
             deep_get(capabilities, "RacmCap.isSupportZeroChan", "false")
@@ -138,6 +140,22 @@ class ISAPIClient:
 
         with suppress(Exception):
             self.storage = await self.get_storage_devices()
+
+    async def get_analog_inputs_count(self) -> int:
+        """Count analog inputs of a recorder from its video input channel list.
+
+        Some hybrid DVR firmwares (e.g. HiWatch DVR-108P-G/N V3.4.892) report
+        videoInputPortNums=0 in capabilities while having analog inputs.
+        IP-only NVRs answer this endpoint with 403, so they keep 0.
+        """
+        channels = deep_get(
+            await self.request(GET, "System/Video/inputs/channels"),
+            "VideoInputChannelList.VideoInputChannel",
+            [],
+        )
+        if isinstance(channels, dict):
+            channels = [channels]
+        return len(channels)
 
     async def get_cameras(self):
         """Get camera objects for all connected cameras."""

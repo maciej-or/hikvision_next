@@ -53,7 +53,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) ->
         await device.get_hardware_info()
         device_info = device.hass_device_info()
         device_registry = dr.async_get(hass)
-        device_registry.async_get_or_create(config_entry_id=entry.entry_id, **device_info)
+        nvr_device = device_registry.async_get_or_create(config_entry_id=entry.entry_id, **device_info)
+        device.nvr_device_id = nvr_device.id
     except ISAPIUnauthorizedError as ex:
         raise ConfigEntryAuthFailed from ex
     except Exception as ex:  # pylint: disable=broad-except

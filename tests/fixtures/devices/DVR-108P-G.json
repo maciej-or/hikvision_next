@@ -1,0 +1,3141 @@
+{
+  "data": {
+    "ISAPI": {
+      "System/deviceInfo": {
+        "response": {
+          "DeviceInfo": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "deviceName": "Embedded Net DVR",
+            "deviceID": "48453636-3830-0000-0000-accb00f000bb",
+            "model": "DVR-108P-G/N",
+            "serialNumber": "DVR-108P-G/N0000000000CCWRE00000000WCVU",
+            "macAddress": "6f:21:95:2b:a5:ce",
+            "firmwareVersion": "V3.4.892",
+            "firmwareReleasedDate": "build 200212",
+            "encoderVersion": "V5.0",
+            "encoderReleasedDate": "build 190119",
+            "deviceType": "IPC",
+            "telecontrolID": "255",
+            "customizedInfo": "DZP20191227129"
+          }
+        }
+      },
+      "System/capabilities": {
+        "response": {
+          "DeviceCap": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "SysCap": {
+              "isSupportDst": "true",
+              "NetworkCap": {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "isSupportWireless": "false",
+                "isSupportWAN": "false",
+                "isSupportPPPoE": "true",
+                "isSupportBond": "false",
+                "isSupport802_1x": "false",
+                "isSupportNtp": "true",
+                "isSupportFtp": "false",
+                "isSupportUpnp": "true",
+                "isSupportPNP": "false",
+                "isSupportDdns": "true",
+                "isSupportHttps": "true",
+                "SnmpCap": {
+                  "isSupport": "false"
+                },
+                "isSupportExtNetCfg": "true",
+                "isSupportNetPreviewStrategy": "true",
+                "isSupportEZVIZ": "true",
+                "GB28181Cap": {
+                  "isSupportGB28181Service": "false"
+                },
+                "VerificationCodeModification": {
+                  "verificationCodeType": {
+                    "@opt": "normal,empty",
+                    "#text": "empty"
+                  },
+                  "isSupportDeclarationURL": "true",
+                  "isSupportPrivacyPolicyURL": "true",
+                  "verificationCodeModify": "false",
+                  "Hyperlinks": {
+                    "declarationURL": "https://www.guardingvision.com/views/terms/gv_termsofservice.html",
+                    "privacyPolicyURL": "https://www.guardingvision.com/views/terms/gv_privacypolicy.html"
+                  },
+                  "isSupportVerificationCodeCheck": "true"
+                },
+                "isSupportIntegrate": "true",
+                "isSupportGenetec": "true"
+              },
+              "IOCap": {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "IOInputPortNums": "0",
+                "IOOutputPortNums": "0"
+              },
+              "SerialCap": {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "rs485PortNums": "1",
+                "rs422PortNums": "0",
+                "rs232PortNums": "0",
+                "supportRS232Config": "false"
+              },
+              "VideoCap": {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "videoInputPortNums": "0",
+                "videoOutputPortNums": "2",
+                "menuNums": "1"
+              },
+              "AudioCap": {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "audioInputNums": "1",
+                "audioOutputNums": "1"
+              },
+              "isSupportHolidy": "true"
+            },
+            "voicetalkNums": "1",
+            "isSupportSnapshot": "false",
+            "SecurityCap": {
+              "@version": "1.0",
+              "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+              "supportUserNums": "32",
+              "userBondIpNums": "1",
+              "userBondMacNums": "1",
+              "securityVersion": {
+                "@opt": "1"
+              },
+              "keyIterateNum": "100",
+              "isSupportUserCheck": "true",
+              "isSupportGetOnlineUserListSC": "true",
+              "RSAKeyLength": {
+                "@opt": "512,1024,2048",
+                "@def": "2048"
+              },
+              "isSupportONVIFUserManagement": "true",
+              "WebCertificateCap": {
+                "CertificateType": {
+                  "@opt": "digest,digest/basic",
+                  "#text": "digest"
+                }
+              },
+              "isSupportConfigFileImport": "true",
+              "isSupportConfigFileExport": "true",
+              "cfgFileSecretKeyLenLimit": {
+                "@min": "1",
+                "@max": "16"
+              },
+              "isSupportSecurityEmail": "true"
+            },
+            "EventCap": {
+              "@version": "1.0",
+              "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+              "isSupportHDFull": "true",
+              "isSupportHDError": "true",
+              "isSupportNicBroken": "true",
+              "isSupportIpConflict": "true",
+              "isSupportIllAccess": "true",
+              "isSupportViException": "false",
+              "isSupportViMismatch": "false",
+              "isSupportRecordException": "true",
+              "isSupportRaidException": "false",
+              "isSupportViResMismatch": "true",
+              "isSupportSmartDetection": "false",
+              "isSupportSpareException": "false"
+            },
+            "RacmCap": {
+              "@version": "1.0",
+              "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+              "isSupportZeroChan": "false",
+              "inputProxyNums": "10",
+              "eSATANums": "0",
+              "miniSASNums": "0",
+              "nasNums": "8",
+              "ipSanNums": "8",
+              "isSupportRaid": "false",
+              "isSupportExtHdCfg": "true",
+              "isSupportTransCode": "false",
+              "isSupportIpcImport": "true",
+              "isSupportIpcStreamType": "true",
+              "isSupportIOInputProxy": "true",
+              "isSupportIOOutputProxy": "true",
+              "isSupportPTZRs485Proxy": "true",
+              "isSupportSMARTTest": "true",
+              "recordSearchType": {
+                "@opt": "CMR,MOTION,ALARM,EDR,ALARMANDMOTION,Command,manual,AllEvent"
+              },
+              "isSupportActivateIpc": "true",
+              "isSupportCheckIpcSecurity": {
+                "isSupportCheckPassword": "true"
+              },
+              "isSupportSyncIPCPassword": "true",
+              "isSupportTransferIPC": "true",
+              "isSupportMainAndSubRecord": "false",
+              "isSupportSmartSearch": "true"
+            },
+            "PTZCtrlCap": {
+              "@version": "1.0",
+              "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+              "isSupportPatrols": "true"
+            },
+            "SmartCap": {
+              "@version": "1.0",
+              "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+              "isSupportROI": "false",
+              "isSupportFaceDetect": "true",
+              "isSupportIntelliTrace": "false",
+              "isSupportFieldDetection": "true",
+              "isSupportDefocusDetection": "true",
+              "isSupportAudioDetection": "true",
+              "isSupportSceneChangeDetection": "true",
+              "isSupportLineDetection": "true",
+              "isSupportRegionEntrance": "true",
+              "isSupportRegionExiting": "true",
+              "isSupportLoitering": "true",
+              "isSupportGroup": "true",
+              "isSupportRapidMove": "true",
+              "isSupportParking": "true",
+              "isSupportUnattendedBaggage": "true",
+              "isSupportAttendedBaggage": "true"
+            },
+            "isSupportStreamingEncrypt": "true",
+            "isSupportCloud": "false",
+            "TestCap": {
+              "isSupportEmailTest": "true"
+            },
+            "isSupportGetmutexFuncErrMsg": "true",
+            "isSupportTokenAuthenticate": "true",
+            "isSupportDiagnosedData": "true",
+            "isSupportDiagnosedDataParameter": "true"
+          }
+        }
+      },
+      "System/IO/inputs/1/status": {
+        "status_code": 403
+      },
+      "System/IO/outputs/1/status": {
+        "status_code": 403
+      },
+      "System/Holidays": {
+        "response": {
+          "HolidayList": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "holiday": [
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "1",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday1",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "2",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday2",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "3",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday3",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "4",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday4",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "5",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday5",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "6",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday6",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "7",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday7",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "8",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday8",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "9",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday9",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "10",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday10",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "11",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday11",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "12",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday12",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "13",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday13",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "14",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday14",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "15",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday15",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "16",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday16",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "17",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday17",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "18",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday18",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "19",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday19",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "20",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday20",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "21",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday21",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "22",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday22",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "23",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday23",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "24",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday24",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "25",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday25",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "26",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday26",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "27",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday27",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "28",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday28",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "29",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday29",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "30",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday30",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "31",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday31",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "32",
+                "enabled": {
+                  "@opt": "true,false",
+                  "#text": "false"
+                },
+                "holidayName": "Holiday32",
+                "holidayMode": {
+                  "@opt": "date,week,month",
+                  "#text": "month"
+                },
+                "holidayMonth": {
+                  "startMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  },
+                  "endMonth": {
+                    "monthOfYear": "1",
+                    "dayOfMonth": "1"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "System/Video/inputs/channels": {
+        "response": {
+          "VideoInputChannelList": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "VideoInputChannel": [
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "1",
+                "inputPort": "1",
+                "videoInputEnabled": "true",
+                "name": "Camera 01",
+                "videoFormat": "PAL",
+                "resDesc": "1080P25 Lite"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "2",
+                "inputPort": "2",
+                "videoInputEnabled": "true",
+                "name": "Camera 02",
+                "videoFormat": "PAL",
+                "resDesc": "NO VIDEO"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "3",
+                "inputPort": "3",
+                "videoInputEnabled": "true",
+                "name": "Camera 03",
+                "videoFormat": "PAL",
+                "resDesc": "NO VIDEO"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "4",
+                "inputPort": "4",
+                "videoInputEnabled": "true",
+                "name": "Camera 04",
+                "videoFormat": "PAL",
+                "resDesc": "NO VIDEO"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "5",
+                "inputPort": "5",
+                "videoInputEnabled": "true",
+                "name": "Camera 05",
+                "videoFormat": "PAL",
+                "resDesc": "NO VIDEO"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "6",
+                "inputPort": "6",
+                "videoInputEnabled": "true",
+                "name": "Camera 06",
+                "videoFormat": "PAL",
+                "resDesc": "NO VIDEO"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "7",
+                "inputPort": "7",
+                "videoInputEnabled": "true",
+                "name": "Camera 07",
+                "videoFormat": "PAL",
+                "resDesc": "NO VIDEO"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "8",
+                "inputPort": "8",
+                "videoInputEnabled": "true",
+                "name": "Camera 08",
+                "videoFormat": "PAL",
+                "resDesc": "NO VIDEO"
+              }
+            ]
+          }
+        }
+      },
+      "ContentMgmt/InputProxy/channels": {
+        "response": {
+          "InputProxyChannelList": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "@size": "10"
+          }
+        }
+      },
+      "ContentMgmt/Storage": {
+        "response": {
+          "storage": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "hddList": {
+              "hdd": {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "1",
+                "hddName": "hdda",
+                "hddPath": null,
+                "hddType": "SATA",
+                "status": "ok",
+                "capacity": "114473",
+                "freeSpace": "0",
+                "property": "RW"
+              }
+            },
+            "nasList": null,
+            "workMode": "quota"
+          }
+        }
+      },
+      "Security/adminAccesses": {
+        "response": {
+          "AdminAccessProtocolList": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "AdminAccessProtocol": [
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "1",
+                "enabled": "true",
+                "protocol": "HTTP",
+                "portNo": "80"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "2",
+                "enabled": "false",
+                "protocol": "HTTPS",
+                "portNo": "443"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "3",
+                "enabled": "true",
+                "protocol": "RTSP",
+                "portNo": "554"
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "4",
+                "protocol": "DEV_MANAGE",
+                "portNo": "8000"
+              }
+            ]
+          }
+        }
+      },
+      "Event/triggers": {
+        "response": {
+          "EventTriggerList": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "EventTrigger": [
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "VMD-1",
+                "eventType": "VMD",
+                "videoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "record-1",
+                    "notificationMethod": "record",
+                    "videoInputID": "1"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "VMD-2",
+                "eventType": "VMD",
+                "videoInputChannelID": "2",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "record-2",
+                    "notificationMethod": "record",
+                    "videoInputID": "2"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "VMD-3",
+                "eventType": "VMD",
+                "videoInputChannelID": "3",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "record-3",
+                    "notificationMethod": "record",
+                    "videoInputID": "3"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "VMD-4",
+                "eventType": "VMD",
+                "videoInputChannelID": "4",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "record-4",
+                    "notificationMethod": "record",
+                    "videoInputID": "4"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "VMD-5",
+                "eventType": "VMD",
+                "videoInputChannelID": "5",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "record-5",
+                    "notificationMethod": "record",
+                    "videoInputID": "5"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "VMD-6",
+                "eventType": "VMD",
+                "videoInputChannelID": "6",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "record-6",
+                    "notificationMethod": "record",
+                    "videoInputID": "6"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "VMD-7",
+                "eventType": "VMD",
+                "videoInputChannelID": "7",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "record-7",
+                    "notificationMethod": "record",
+                    "videoInputID": "7"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "VMD-8",
+                "eventType": "VMD",
+                "videoInputChannelID": "8",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "record-8",
+                    "notificationMethod": "record",
+                    "videoInputID": "8"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "tamper-1",
+                "eventType": "tamperdetection",
+                "videoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "tamper-2",
+                "eventType": "tamperdetection",
+                "videoInputChannelID": "2",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "tamper-3",
+                "eventType": "tamperdetection",
+                "videoInputChannelID": "3",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "tamper-4",
+                "eventType": "tamperdetection",
+                "videoInputChannelID": "4",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "tamper-5",
+                "eventType": "tamperdetection",
+                "videoInputChannelID": "5",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "tamper-6",
+                "eventType": "tamperdetection",
+                "videoInputChannelID": "6",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "tamper-7",
+                "eventType": "tamperdetection",
+                "videoInputChannelID": "7",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "tamper-8",
+                "eventType": "tamperdetection",
+                "videoInputChannelID": "8",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "videoloss-1",
+                "eventType": "videoloss",
+                "videoInputChannelID": "1",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "videoloss-2",
+                "eventType": "videoloss",
+                "videoInputChannelID": "2",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "videoloss-3",
+                "eventType": "videoloss",
+                "videoInputChannelID": "3",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "videoloss-4",
+                "eventType": "videoloss",
+                "videoInputChannelID": "4",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "videoloss-5",
+                "eventType": "videoloss",
+                "videoInputChannelID": "5",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "videoloss-6",
+                "eventType": "videoloss",
+                "videoInputChannelID": "6",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "videoloss-7",
+                "eventType": "videoloss",
+                "videoInputChannelID": "7",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "videoloss-8",
+                "eventType": "videoloss",
+                "videoInputChannelID": "8",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "diskfull",
+                "eventType": "diskfull",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "diskerror",
+                "eventType": "diskerror",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "beep",
+                    "notificationMethod": "beep"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "nicbroken",
+                "eventType": "nicbroken",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "ipconflict",
+                "eventType": "ipconflict",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "beep",
+                    "notificationMethod": "beep"
+                  }
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "illaccess",
+                "eventType": "illaccess",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "badvideo",
+                "eventType": "badvideo",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "resolutionmismatch",
+                "eventType": "resolutionmismatch",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "recordingfailure",
+                "eventType": "recordingfailure",
+                "EventTriggerNotificationList": {
+                  "@version": "1.0",
+                  "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                  "EventTriggerNotification": {
+                    "id": "beep",
+                    "notificationMethod": "beep"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "Event/channels/capabilities": {
+        "status_code": 404
+      },
+      "Event/triggers/scenechangedetection-1": {
+        "status_code": 403
+      },
+      "Event/notification/httpHosts": {
+        "response": {
+          "HttpHostNotificationList": {
+            "@version": "1.0",
+            "@xmlns": "urn:psialliance-org",
+            "HttpHostNotification": {
+              "@version": "1.0",
+              "@xmlns": "urn:psialliance-org",
+              "id": "1",
+              "url": "/api/hikvision",
+              "protocolType": "HTTP",
+              "parameterFormatType": "XML",
+              "addressingFormatType": "ipaddress",
+              "ipAddress": "1.0.0.9",
+              "portNo": "8123",
+              "httpAuthenticationMethod": "none",
+              "Extensions": {
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "intervalBetweenEvents": "0"
+              }
+            }
+          }
+        }
+      },
+      "Streaming/channels": {
+        "response": {
+          "StreamingChannelList": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "StreamingChannel": [
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "101",
+                "channelName": "101",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "1",
+                  "videoCodecType": "H.264",
+                  "videoResolutionWidth": "960",
+                  "videoResolutionHeight": "1080",
+                  "videoQualityControlType": "VBR",
+                  "fixedQuality": "60",
+                  "vbrUpperCap": "1280",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "1024"
+                },
+                "Audio": {
+                  "enabled": "true",
+                  "audioInputChannelID": "1",
+                  "audioCompressionType": "G.711ulaw"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "102",
+                "channelName": "102",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "1",
+                  "videoCodecType": "H.264",
+                  "videoResolutionWidth": "352",
+                  "videoResolutionHeight": "288",
+                  "videoQualityControlType": "CBR",
+                  "constantBitRate": "512",
+                  "fixedQuality": "60",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "464"
+                },
+                "Audio": {
+                  "enabled": "false",
+                  "audioInputChannelID": "1",
+                  "audioCompressionType": "G.711ulaw"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "201",
+                "channelName": "201",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "2",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "1280",
+                  "videoResolutionHeight": "720",
+                  "videoQualityControlType": "VBR",
+                  "fixedQuality": "60",
+                  "vbrUpperCap": "1280",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "1024"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "202",
+                "channelName": "202",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "2",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "352",
+                  "videoResolutionHeight": "288",
+                  "videoQualityControlType": "CBR",
+                  "constantBitRate": "512",
+                  "fixedQuality": "60",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "464"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "301",
+                "channelName": "301",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "3",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "1280",
+                  "videoResolutionHeight": "720",
+                  "videoQualityControlType": "VBR",
+                  "fixedQuality": "60",
+                  "vbrUpperCap": "1280",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "1024"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "302",
+                "channelName": "302",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "3",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "352",
+                  "videoResolutionHeight": "288",
+                  "videoQualityControlType": "CBR",
+                  "constantBitRate": "512",
+                  "fixedQuality": "60",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "464"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "401",
+                "channelName": "401",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "4",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "1280",
+                  "videoResolutionHeight": "720",
+                  "videoQualityControlType": "VBR",
+                  "fixedQuality": "60",
+                  "vbrUpperCap": "1280",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "1024"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "402",
+                "channelName": "402",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "4",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "352",
+                  "videoResolutionHeight": "288",
+                  "videoQualityControlType": "CBR",
+                  "constantBitRate": "512",
+                  "fixedQuality": "60",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "464"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "501",
+                "channelName": "501",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "5",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "1280",
+                  "videoResolutionHeight": "720",
+                  "videoQualityControlType": "VBR",
+                  "fixedQuality": "60",
+                  "vbrUpperCap": "1280",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "1024"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "502",
+                "channelName": "502",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "5",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "352",
+                  "videoResolutionHeight": "288",
+                  "videoQualityControlType": "CBR",
+                  "constantBitRate": "512",
+                  "fixedQuality": "60",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "464"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "601",
+                "channelName": "601",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "6",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "1280",
+                  "videoResolutionHeight": "720",
+                  "videoQualityControlType": "VBR",
+                  "fixedQuality": "60",
+                  "vbrUpperCap": "1280",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "1024"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "602",
+                "channelName": "602",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "6",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "352",
+                  "videoResolutionHeight": "288",
+                  "videoQualityControlType": "CBR",
+                  "constantBitRate": "512",
+                  "fixedQuality": "60",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "464"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "701",
+                "channelName": "701",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "7",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "1280",
+                  "videoResolutionHeight": "720",
+                  "videoQualityControlType": "VBR",
+                  "fixedQuality": "60",
+                  "vbrUpperCap": "1280",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "1024"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "702",
+                "channelName": "702",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "7",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "352",
+                  "videoResolutionHeight": "288",
+                  "videoQualityControlType": "CBR",
+                  "constantBitRate": "512",
+                  "fixedQuality": "60",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "464"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "801",
+                "channelName": "801",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "8",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "1280",
+                  "videoResolutionHeight": "720",
+                  "videoQualityControlType": "VBR",
+                  "fixedQuality": "60",
+                  "vbrUpperCap": "1280",
+                  "vbrLowerCap": "32",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "1024"
+                }
+              },
+              {
+                "@version": "1.0",
+                "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+                "id": "802",
+                "channelName": "802",
+                "enabled": "true",
+                "Transport": {
+                  "ControlProtocolList": {
+                    "ControlProtocol": {
+                      "streamingTransport": "RTSP"
+                    }
+                  }
+                },
+                "Video": {
+                  "enabled": "true",
+                  "videoInputChannelID": "8",
+                  "videoCodecType": "H.264",
+                  "videoScanType": "progressive",
+                  "videoResolutionWidth": "352",
+                  "videoResolutionHeight": "288",
+                  "videoQualityControlType": "CBR",
+                  "constantBitRate": "512",
+                  "fixedQuality": "60",
+                  "maxFrameRate": "1200",
+                  "snapShotImageType": "JPEG",
+                  "SmartCodec": {
+                    "enabled": "true"
+                  },
+                  "vbrAverageCap": "464"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "Streaming/channels/101": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "101",
+            "channelName": "101",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "H.264",
+              "videoResolutionWidth": "960",
+              "videoResolutionHeight": "1080",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "60",
+              "vbrUpperCap": "1280",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "true"
+              },
+              "vbrAverageCap": "1024"
+            },
+            "Audio": {
+              "enabled": "true",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/102": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "102",
+            "channelName": "102",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "1",
+              "videoCodecType": "H.264",
+              "videoResolutionWidth": "352",
+              "videoResolutionHeight": "288",
+              "videoQualityControlType": "CBR",
+              "constantBitRate": "512",
+              "fixedQuality": "60",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "464"
+            },
+            "Audio": {
+              "enabled": "false",
+              "audioInputChannelID": "1",
+              "audioCompressionType": "G.711ulaw"
+            }
+          }
+        }
+      },
+      "Streaming/channels/103": {
+        "status_code": 400
+      },
+      "Streaming/channels/104": {
+        "status_code": 403
+      },
+      "Streaming/channels/201": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "201",
+            "channelName": "201",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "2",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "1280",
+              "videoResolutionHeight": "720",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "60",
+              "vbrUpperCap": "1280",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "true"
+              },
+              "vbrAverageCap": "1024"
+            }
+          }
+        }
+      },
+      "Streaming/channels/202": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "202",
+            "channelName": "202",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "2",
+              "videoCodecType": "H.264",
+              "videoResolutionWidth": "352",
+              "videoResolutionHeight": "288",
+              "videoQualityControlType": "CBR",
+              "constantBitRate": "512",
+              "fixedQuality": "60",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "464"
+            }
+          }
+        }
+      },
+      "Streaming/channels/203": {
+        "status_code": 400
+      },
+      "Streaming/channels/204": {
+        "status_code": 403
+      },
+      "Streaming/channels/301": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "301",
+            "channelName": "301",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "3",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "1280",
+              "videoResolutionHeight": "720",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "60",
+              "vbrUpperCap": "1280",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "true"
+              },
+              "vbrAverageCap": "1024"
+            }
+          }
+        }
+      },
+      "Streaming/channels/302": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "302",
+            "channelName": "302",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "3",
+              "videoCodecType": "H.264",
+              "videoResolutionWidth": "352",
+              "videoResolutionHeight": "288",
+              "videoQualityControlType": "CBR",
+              "constantBitRate": "512",
+              "fixedQuality": "60",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "464"
+            }
+          }
+        }
+      },
+      "Streaming/channels/303": {
+        "status_code": 400
+      },
+      "Streaming/channels/304": {
+        "status_code": 403
+      },
+      "Streaming/channels/401": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "401",
+            "channelName": "401",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "4",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "1280",
+              "videoResolutionHeight": "720",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "60",
+              "vbrUpperCap": "1280",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "true"
+              },
+              "vbrAverageCap": "1024"
+            }
+          }
+        }
+      },
+      "Streaming/channels/402": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "402",
+            "channelName": "402",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "4",
+              "videoCodecType": "H.264",
+              "videoResolutionWidth": "352",
+              "videoResolutionHeight": "288",
+              "videoQualityControlType": "CBR",
+              "constantBitRate": "512",
+              "fixedQuality": "60",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "464"
+            }
+          }
+        }
+      },
+      "Streaming/channels/403": {
+        "status_code": 400
+      },
+      "Streaming/channels/404": {
+        "status_code": 403
+      },
+      "Streaming/channels/501": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "501",
+            "channelName": "501",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "5",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "1280",
+              "videoResolutionHeight": "720",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "60",
+              "vbrUpperCap": "1280",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "true"
+              },
+              "vbrAverageCap": "1024"
+            }
+          }
+        }
+      },
+      "Streaming/channels/502": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "502",
+            "channelName": "502",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "5",
+              "videoCodecType": "H.264",
+              "videoResolutionWidth": "352",
+              "videoResolutionHeight": "288",
+              "videoQualityControlType": "CBR",
+              "constantBitRate": "512",
+              "fixedQuality": "60",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "464"
+            }
+          }
+        }
+      },
+      "Streaming/channels/503": {
+        "status_code": 400
+      },
+      "Streaming/channels/504": {
+        "status_code": 403
+      },
+      "Streaming/channels/601": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "601",
+            "channelName": "601",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "6",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "1280",
+              "videoResolutionHeight": "720",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "60",
+              "vbrUpperCap": "1280",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "true"
+              },
+              "vbrAverageCap": "1024"
+            }
+          }
+        }
+      },
+      "Streaming/channels/602": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "602",
+            "channelName": "602",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "6",
+              "videoCodecType": "H.264",
+              "videoResolutionWidth": "352",
+              "videoResolutionHeight": "288",
+              "videoQualityControlType": "CBR",
+              "constantBitRate": "512",
+              "fixedQuality": "60",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "464"
+            }
+          }
+        }
+      },
+      "Streaming/channels/603": {
+        "status_code": 400
+      },
+      "Streaming/channels/604": {
+        "status_code": 403
+      },
+      "Streaming/channels/701": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "701",
+            "channelName": "701",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "7",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "1280",
+              "videoResolutionHeight": "720",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "60",
+              "vbrUpperCap": "1280",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "true"
+              },
+              "vbrAverageCap": "1024"
+            }
+          }
+        }
+      },
+      "Streaming/channels/702": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "702",
+            "channelName": "702",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "7",
+              "videoCodecType": "H.264",
+              "videoResolutionWidth": "352",
+              "videoResolutionHeight": "288",
+              "videoQualityControlType": "CBR",
+              "constantBitRate": "512",
+              "fixedQuality": "60",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "464"
+            }
+          }
+        }
+      },
+      "Streaming/channels/703": {
+        "status_code": 400
+      },
+      "Streaming/channels/704": {
+        "status_code": 403
+      },
+      "Streaming/channels/801": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "801",
+            "channelName": "801",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "8",
+              "videoCodecType": "H.264",
+              "videoScanType": "progressive",
+              "videoResolutionWidth": "1280",
+              "videoResolutionHeight": "720",
+              "videoQualityControlType": "VBR",
+              "fixedQuality": "60",
+              "vbrUpperCap": "1280",
+              "vbrLowerCap": "32",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "true"
+              },
+              "vbrAverageCap": "1024"
+            }
+          }
+        }
+      },
+      "Streaming/channels/802": {
+        "response": {
+          "StreamingChannel": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "id": "802",
+            "channelName": "802",
+            "enabled": "true",
+            "Transport": {
+              "ControlProtocolList": {
+                "ControlProtocol": {
+                  "streamingTransport": "RTSP"
+                }
+              }
+            },
+            "Video": {
+              "enabled": "true",
+              "videoInputChannelID": "8",
+              "videoCodecType": "H.264",
+              "videoResolutionWidth": "352",
+              "videoResolutionHeight": "288",
+              "videoQualityControlType": "CBR",
+              "constantBitRate": "512",
+              "fixedQuality": "60",
+              "maxFrameRate": "1200",
+              "snapShotImageType": "JPEG",
+              "SmartCodec": {
+                "enabled": "false"
+              },
+              "vbrAverageCap": "464"
+            }
+          }
+        }
+      },
+      "Streaming/channels/803": {
+        "status_code": 400
+      },
+      "Streaming/channels/804": {
+        "status_code": 403
+      },
+      "System/Video/inputs/channels/1/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "true",
+            "enableHighlight": "false",
+            "samplingInterval": "5",
+            "startTriggerTime": "1000",
+            "endTriggerTime": "1000",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "1.0",
+              "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+              "sensitivityLevel": "2",
+              "layout": {
+                "gridMap": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+              }
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/1/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "tampersensitivityLevel": "1",
+            "TamperDetectionRegionList": null
+          }
+        }
+      },
+      "System/Video/inputs/channels/1/videoLoss": {
+        "response": {
+          "VideoLoss": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false"
+          }
+        }
+      },
+      "System/Video/inputs/channels/2/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "true",
+            "enableHighlight": "false",
+            "samplingInterval": "5",
+            "startTriggerTime": "1000",
+            "endTriggerTime": "1000",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "1.0",
+              "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+              "sensitivityLevel": "2",
+              "layout": {
+                "gridMap": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+              }
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/2/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "tampersensitivityLevel": "1",
+            "TamperDetectionRegionList": null
+          }
+        }
+      },
+      "System/Video/inputs/channels/2/videoLoss": {
+        "response": {
+          "VideoLoss": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false"
+          }
+        }
+      },
+      "System/Video/inputs/channels/3/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "true",
+            "enableHighlight": "false",
+            "samplingInterval": "5",
+            "startTriggerTime": "1000",
+            "endTriggerTime": "1000",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "1.0",
+              "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+              "sensitivityLevel": "2",
+              "layout": {
+                "gridMap": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+              }
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/3/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "tampersensitivityLevel": "1",
+            "TamperDetectionRegionList": null
+          }
+        }
+      },
+      "System/Video/inputs/channels/3/videoLoss": {
+        "response": {
+          "VideoLoss": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false"
+          }
+        }
+      },
+      "System/Video/inputs/channels/4/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "true",
+            "enableHighlight": "false",
+            "samplingInterval": "5",
+            "startTriggerTime": "1000",
+            "endTriggerTime": "1000",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "1.0",
+              "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+              "sensitivityLevel": "2",
+              "layout": {
+                "gridMap": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+              }
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/4/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "tampersensitivityLevel": "1",
+            "TamperDetectionRegionList": null
+          }
+        }
+      },
+      "System/Video/inputs/channels/4/videoLoss": {
+        "response": {
+          "VideoLoss": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false"
+          }
+        }
+      },
+      "System/Video/inputs/channels/5/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "true",
+            "enableHighlight": "false",
+            "samplingInterval": "5",
+            "startTriggerTime": "1000",
+            "endTriggerTime": "1000",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "1.0",
+              "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+              "sensitivityLevel": "2",
+              "layout": {
+                "gridMap": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+              }
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/5/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "tampersensitivityLevel": "1",
+            "TamperDetectionRegionList": null
+          }
+        }
+      },
+      "System/Video/inputs/channels/5/videoLoss": {
+        "response": {
+          "VideoLoss": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false"
+          }
+        }
+      },
+      "System/Video/inputs/channels/6/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "true",
+            "enableHighlight": "false",
+            "samplingInterval": "5",
+            "startTriggerTime": "1000",
+            "endTriggerTime": "1000",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "1.0",
+              "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+              "sensitivityLevel": "2",
+              "layout": {
+                "gridMap": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+              }
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/6/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "tampersensitivityLevel": "1",
+            "TamperDetectionRegionList": null
+          }
+        }
+      },
+      "System/Video/inputs/channels/6/videoLoss": {
+        "response": {
+          "VideoLoss": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false"
+          }
+        }
+      },
+      "System/Video/inputs/channels/7/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "true",
+            "enableHighlight": "false",
+            "samplingInterval": "5",
+            "startTriggerTime": "1000",
+            "endTriggerTime": "1000",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "1.0",
+              "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+              "sensitivityLevel": "2",
+              "layout": {
+                "gridMap": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+              }
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/7/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "tampersensitivityLevel": "1",
+            "TamperDetectionRegionList": null
+          }
+        }
+      },
+      "System/Video/inputs/channels/7/videoLoss": {
+        "response": {
+          "VideoLoss": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false"
+          }
+        }
+      },
+      "System/Video/inputs/channels/8/motionDetection": {
+        "response": {
+          "MotionDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "true",
+            "enableHighlight": "false",
+            "samplingInterval": "5",
+            "startTriggerTime": "1000",
+            "endTriggerTime": "1000",
+            "regionType": "grid",
+            "Grid": {
+              "rowGranularity": "18",
+              "columnGranularity": "22"
+            },
+            "MotionDetectionLayout": {
+              "@version": "1.0",
+              "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+              "sensitivityLevel": "2",
+              "layout": {
+                "gridMap": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+              }
+            }
+          }
+        }
+      },
+      "System/Video/inputs/channels/8/tamperDetection": {
+        "response": {
+          "TamperDetection": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false",
+            "normalizedScreenSize": {
+              "normalizedScreenWidth": "704",
+              "normalizedScreenHeight": "576"
+            },
+            "tampersensitivityLevel": "1",
+            "TamperDetectionRegionList": null
+          }
+        }
+      },
+      "System/Video/inputs/channels/8/videoLoss": {
+        "response": {
+          "VideoLoss": {
+            "@version": "1.0",
+            "@xmlns": "http://www.std-cgi.com/ver20/XMLSchema",
+            "enabled": "false"
+          }
+        }
+      }
+    }
+  }
+}

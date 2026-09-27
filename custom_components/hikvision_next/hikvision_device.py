@@ -35,6 +35,10 @@ from .isapi.const import EVENT_IO
 
 _LOGGER = logging.getLogger(__name__)
 
+# HA 2026.9 deprecated DeviceInfo `via_device` and rejects it for entities added
+# outside the integration's call stack; `via_device_id` replaces it.
+SUPPORTS_VIA_DEVICE_ID = "via_device_id" in DeviceInfo.__annotations__
+
 
 class HikvisionDevice(ISAPIClient):
     """Hikvision device for Home Assistant integration."""
@@ -50,6 +54,7 @@ class HikvisionDevice(ISAPIClient):
         config = entry.data if entry else data
         self.entry = entry
         self.hass = hass
+        self.nvr_device_id: str | None = None  # device registry id of the NVR, set on setup
         self.auth_token_expired = False
         self.control_alarm_server_host = config[CONF_SET_ALARM_SERVER]
         self.alarm_server_host = config[CONF_ALARM_SERVER_HOST]
@@ -111,8 +116,17 @@ class HikvisionDevice(ISAPIClient):
                 model=camera_info.model,
                 name=camera_info.name,
                 sw_version=camera_info.firmware if is_ip_camera else "Unknown",
-                via_device=(DOMAIN, self.device_info.serial_no) if self.device_info.is_nvr else None,
+                **self._nvr_link(),
             )
+
+    def _nvr_link(self) -> DeviceInfo:
+        """Link a camera device to its NVR device."""
+
+        if not self.device_info.is_nvr:
+            return DeviceInfo()
+        if SUPPORTS_VIA_DEVICE_ID and self.nvr_device_id:
+            return DeviceInfo(via_device_id=self.nvr_device_id)
+        return DeviceInfo(via_device=(DOMAIN, self.device_info.serial_no))
 
     def get_device_event_capabilities(
         self,

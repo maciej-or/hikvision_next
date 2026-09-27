@@ -3,6 +3,7 @@
 import pytest
 from unittest.mock import patch
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 from custom_components.hikvision_next.const import DOMAIN
 from custom_components.hikvision_next.hikvision_device import HikvisionDevice
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -27,7 +28,8 @@ from tests.conftest import TEST_CONFIG, TEST_CONFIG_WITH_ALARM_SERVER, TEST_CONF
     "DS-7616NI-Q2",
     "DS-7732NI-M4",
     "iDS-7204HUHI-M1",
-    "iDS-7208HQHI-M1"
+    "iDS-7208HQHI-M1",
+    "DVR-108P-G"
 ], indirect=True)
 
 async def test_basic_init(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
@@ -188,3 +190,32 @@ async def test_async_setup_entry_nvr_outside_network(hass: HomeAssistant, init_i
     await hass.async_block_till_done()
 
     assert not hass.data.get(DOMAIN)
+
+
+@pytest.mark.parametrize("init_integration", ["DVR-108P-G"], indirect=True)
+async def test_async_setup_entry_dvr_reporting_no_analog_inputs(
+    hass: HomeAssistant, init_integration: MockConfigEntry
+) -> None:
+    """Hybrid DVR whose capabilities report videoInputPortNums=0 despite 8 analog inputs."""
+
+    entry = init_integration
+    assert entry.state == ConfigEntryState.LOADED
+
+    device: HikvisionDevice = entry.runtime_data
+    capabilities = device.capabilities
+    assert device.device_info.model == "DVR-108P-G/N"
+    assert device.device_info.is_nvr is True
+    assert capabilities.digital_cameras_inputs == 10
+    # counted from System/Video/inputs/channels
+    assert capabilities.analog_cameras_inputs == 8
+    assert [camera.id for camera in device.cameras] == list(range(1, 9))
+
+    # cameras are linked to the DVR device in the device registry
+    devices = {
+        identifier: registry_device
+        for registry_device in dr.async_entries_for_config_entry(dr.async_get(hass), entry.entry_id)
+        for identifier in registry_device.identifiers
+    }
+    dvr_device = devices[(DOMAIN, device.device_info.serial_no)]
+    camera_device = devices[(DOMAIN, device.cameras[0].serial_no)]
+    assert camera_device.via_device_id == dvr_device.id
