@@ -58,6 +58,15 @@ class HikvisionCamera(Camera):
         """Return the source of the stream."""
         return self.device.get_stream_source(self.stream_info)
 
+    @property
+    def use_stream_for_stills(self) -> bool:
+        """Generate stills from the stream when the device does not support snapshots."""
+        return self.stream_info.snapshot_not_supported
+
     async def async_camera_image(self, width: int | None = None, height: int | None = None) -> bytes | None:
         """Return a still image response from the camera."""
-        return await self.device.get_camera_image(self.stream_info, width, height)
+        image = await self.device.get_camera_image(self.stream_info, width, height)
+        if image.startswith(b"<?xml"):
+            # ISAPI error document, not an image
+            return None
+        return image

@@ -93,6 +93,46 @@ async def test_camera_snapshot_alternate_url(hass: HomeAssistant, init_integrati
     assert image == b"binary image data"
 
 
+@respx.mock
+@pytest.mark.parametrize("init_integration", ["DS-7616NI-Q2"], indirect=True)
+async def test_camera_snapshot_not_supported(hass: HomeAssistant, init_integration: MockConfigEntry) -> None:
+    """Test fallback to stream stills when the device does not support snapshots."""
+
+    entity_id = "camera.ds_7616ni_q2_00p0000000000ccrre00000000wcvu_101"
+    camera_entity = get_camera_from_entity_id(hass, entity_id)
+    assert not camera_entity.use_stream_for_stills
+
+    error_response = load_fixture("ISAPI/Streaming.channels.x0y.picture", "notSupport")
+    image_url = f"{TEST_HOST}/ISAPI/Streaming/channels/101/picture"
+    respx.get(image_url).respond(status_code=403, content=error_response)
+    image_url = f"{TEST_HOST}/ISAPI/ContentMgmt/StreamingProxy/channels/101/picture"
+    respx.get(image_url).respond(status_code=403, content=error_response)
+    image = await camera_entity.async_camera_image()
+    assert image is None
+    assert camera_entity.use_stream_for_stills
+
+
+@respx.mock
+@pytest.mark.parametrize("init_integration", ["DS-7616NI-Q2"], indirect=True)
+async def test_camera_snapshot_not_supported_alternate_url(
+    hass: HomeAssistant,
+    init_integration: MockConfigEntry,
+) -> None:
+    """Test alternate url is tried before falling back to stream stills."""
+
+    entity_id = "camera.ds_7616ni_q2_00p0000000000ccrre00000000wcvu_101"
+    camera_entity = get_camera_from_entity_id(hass, entity_id)
+
+    error_response = load_fixture("ISAPI/Streaming.channels.x0y.picture", "notSupport")
+    image_url = f"{TEST_HOST}/ISAPI/Streaming/channels/101/picture"
+    respx.get(image_url).respond(status_code=403, content=error_response)
+    image_url = f"{TEST_HOST}/ISAPI/ContentMgmt/StreamingProxy/channels/101/picture"
+    respx.get(image_url).respond(content=b"binary image data")
+    image = await camera_entity.async_camera_image()
+    assert image == b"binary image data"
+    assert not camera_entity.use_stream_for_stills
+
+
 device_data = {
     "DS-7608NXI-I2": {
         "entity_id": "camera.ds_7608nxi_i0_0p_s0000000000ccrrj00000000wcvu_101",

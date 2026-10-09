@@ -841,6 +841,13 @@ class ISAPIClient:
             if status_code == 3 and attempt < 2:
                 # handle 'Device Error', try again
                 return await self.get_camera_image(stream, width, height, attempt + 1)
+            if status_code == 4 and deep_get(error, "ResponseStatus.subStatusCode") == "notSupport":
+                # handle 'Invalid Operation / notSupport', e.g. PoE channels of DS-7104NI-Q1 NVRs
+                if not stream.use_alternate_picture_url:
+                    stream.use_alternate_picture_url = True
+                    return await self.get_camera_image(stream, width, height)
+                # no snapshot endpoint at all: stills will be generated from the stream
+                stream.snapshot_not_supported = True
 
         return data
 

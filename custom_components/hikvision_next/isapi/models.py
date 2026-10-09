@@ -62,6 +62,7 @@ class CameraStreamInfo:
     height: int
     audio: bool
     use_alternate_picture_url: bool = False
+    snapshot_not_supported: bool = False
 
 
 @dataclass
