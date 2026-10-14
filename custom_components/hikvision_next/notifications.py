@@ -5,6 +5,7 @@ from __future__ import annotations
 from http import HTTPStatus
 import ipaddress
 import logging
+import re
 import socket
 from urllib.parse import urlparse
 
@@ -17,10 +18,11 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_registry import async_get
 from homeassistant.util import slugify
 
-from .const import ALARM_SERVER_PATH, DOMAIN, HIKVISION_EVENT
+from .const import ALARM_SERVER_PATH, DOMAIN, HIKVISION_EVENT, SECURITY_COORDINATOR
 from .hikvision_device import HikvisionDevice
 from .isapi import AlertInfo, IPCamera, ISAPIClient
 from .isapi.const import EVENT_IO
+from .isapi.utils import deep_get
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,6 +34,11 @@ CONTENT_TYPE_XML = (
 )
 CONTENT_TYPE_TEXT_HTML = "text/html"
 CONTENT_TYPE_IMAGE = "image/jpeg"
+
+
+def _normalize_serial(value: str | None) -> str:
+    """Strip non-alphanumeric characters for tolerant serial number comparison."""
+    return re.sub(r"[^A-Za-z0-9]", "", value or "").upper()
 
 
 class EventNotificationsView(HomeAssistantView):
@@ -53,19 +60,34 @@ class EventNotificationsView(HomeAssistantView):
             _LOGGER.debug("Source: %s", request.remote)
             xml = await self.parse_event_request(request)
             _LOGGER.debug("alert info: %s", xml)
-            alert = ISAPIClient.parse_event_notification(xml)
-            self.device = self.get_isapi_device(request.remote, alert)
-            self.update_alert_channel(alert)
-            self.trigger_sensor(alert)
+            raw = ISAPIClient.parse_event_notification_raw(xml)
+            serial_no = deep_get(raw, "Extensions.serialNumber.#text")
+            self.device = self.get_isapi_device(request.remote, raw.get("macAddress"), serial_no)
+
+            if self.device.device_info.is_security_panel:
+                self.handle_security_cp_event(raw)
+            else:
+                alert = ISAPIClient.parse_event_notification(xml)
+                self.update_alert_channel(alert)
+                self.trigger_sensor(alert)
         except Exception as ex:  # pylint: disable=broad-except
             _LOGGER.warning("Cannot process incoming event %s", ex)
 
         response = web.Response(status=HTTPStatus.OK, content_type=CONTENT_TYPE_TEXT_PLAIN)
         return response
 
-    def get_isapi_device(self, device_ip, alert: AlertInfo) -> HikvisionDevice:
+    def get_isapi_device(self, device_ip, mac: str | None, serial_no: str | None = None) -> HikvisionDevice:
         """Get integration instance for device sending alert."""
-        integration_entries = self.hass.config_entries.async_entries(DOMAIN)
+        # Only consider entries that have actually finished their own setup. A config entry
+        # that's mid-(re)load (e.g. another device reconnecting/reloading at the same moment)
+        # hasn't reached "entry.runtime_data = device" yet, and accessing runtime_data on it
+        # raises AttributeError -- which previously crashed this whole lookup and dropped the
+        # incoming event for every device, not just the one that was reloading.
+        integration_entries = [
+            item
+            for item in self.hass.config_entries.async_entries(DOMAIN)
+            if not item.disabled_by and getattr(item, "runtime_data", None) is not None
+        ]
         instance_identifiers = []
         entry = None
         if len(integration_entries) == 1:
@@ -73,22 +95,29 @@ class EventNotificationsView(HomeAssistantView):
         else:
             # Search device by mac_address
             for item in integration_entries:
-                if item.disabled_by:
-                    continue
-
                 item_mac_address = item.runtime_data.device_info.mac_address
                 instance_identifiers.append(item_mac_address)
 
-                if item_mac_address == alert.mac:
+                if item_mac_address == mac:
                     entry = item
                     break
+
+            # Search device by serial number. Not every event includes a macAddress, and the
+            # source IP can't be trusted behind NAT/port-forwarding (e.g. a Docker host publishing
+            # port 8123 typically reports the container gateway as the peer address, not the real
+            # device IP) -- the serial number is a stable identifier unaffected by either. Compare
+            # normalized (alphanumeric-only) values: some NVR firmware reports its own serial
+            # slightly differently in event notifications than in System/deviceInfo (e.g. missing
+            # a hyphen), so an exact match would silently fail.
+            if not entry and serial_no:
+                for item in integration_entries:
+                    if _normalize_serial(item.runtime_data.device_info.serial_no) == _normalize_serial(serial_no):
+                        entry = item
+                        break
 
             # Search device by ip_address
             if not entry:
                 for item in integration_entries:
-                    if item.disabled_by:
-                        continue
-
                     url = item.runtime_data.host
                     instance_identifiers.append(url)
 
@@ -213,4 +242,32 @@ class EventNotificationsView(HomeAssistantView):
         self.hass.bus.fire(
             HIKVISION_EVENT,
             message,
+        )
+
+    def handle_security_cp_event(self, raw: dict) -> None:
+        """Handle a push event from a security control panel (SecurityCP).
+
+        The exact payload schema for zone/partition events is not documented by
+        Hikvision (only the generic transport is), so instead of guessing field
+        names we log the raw payload for later calibration and trigger an
+        immediate coordinator refresh, so entity state reflects the change
+        within one HTTP round-trip rather than waiting for the next poll.
+        """
+        event_type = raw.get("eventType")
+        event_state = raw.get("eventState")
+        _LOGGER.info(
+            "Security control panel event from %s (eventType=%s, eventState=%s): %s",
+            self.device.host,
+            event_type,
+            event_state,
+            raw,
+        )
+
+        coordinator = self.device.coordinators.get(SECURITY_COORDINATOR)
+        if coordinator:
+            self.hass.async_create_task(coordinator.async_request_refresh())
+
+        self.hass.bus.fire(
+            HIKVISION_EVENT,
+            {"event_type": event_type, "event_state": event_state},
         )

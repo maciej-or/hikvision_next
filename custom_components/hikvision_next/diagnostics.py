@@ -7,10 +7,9 @@ import json
 import random
 from typing import Any
 
-from httpx import HTTPStatusError
-
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntry
+from httpx import HTTPStatusError
 
 from . import HikvisionConfigEntry
 from .isapi import ISAPIForbiddenError, ISAPIUnauthorizedError
@@ -93,6 +92,15 @@ async def _async_get_diagnostics(
         "Streaming/channels",
     ]
 
+    if device.device_info.is_security_panel:
+        endpoints += [
+            "SecurityCP/capabilities",
+            "SecurityCP/Configuration/subSys",
+            "SecurityCP/status/subSystems",
+            "SecurityCP/Configuration/zones",
+            "SecurityCP/status/zones",
+        ]
+
     for endpoint in endpoints:
         responses[endpoint] = await get_isapi_data(device, endpoint)
 
@@ -115,11 +123,15 @@ async def get_isapi_data(isapi, endpoint: str) -> dict:
     """Get data from ISAPI."""
     entry = {}
     try:
-        response = await isapi.request(GET, endpoint)
+        if endpoint.startswith("SecurityCP/"):
+            # SecurityCP only returns JSON, unlike the rest of ISAPI
+            response = await isapi._security_cp_request(GET, endpoint)
+        else:
+            response = await isapi.request(GET, endpoint)
         entry["response"] = anonymise_data(response)
     except (HTTPStatusError, ISAPIUnauthorizedError, ISAPIForbiddenError) as ex:
         entry["status_code"] = ex.response.status_code
-    except Exception as ex:  # noqa: BLE001
+    except Exception as ex:
         entry["error"] = ex
     return entry
 

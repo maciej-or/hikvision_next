@@ -1,0 +1,204 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "El dispositivo ya está configurado",
+      "reauth_successful": "La reautenticación se realizó correctamente",
+      "reconfigure_successful": "La reconfiguración se realizó correctamente"
+    },
+    "step": {
+      "user": {
+        "description": "Ingresá las credenciales del NVR o cámara IP",
+        "data": {
+          "host": "URL",
+          "password": "Contraseña",
+          "username": "Usuario",
+          "verify_ssl": "Verificar certificado SSL (desmarcar para certificados autofirmados)",
+          "rtsp_port_forced": "Forzar puerto RTSP (Opcional)",
+          "polling_interval": "Intervalo de consulta en segundos (Opcional. 0 desactiva la consulta periódica. Dejar vacío para el valor por defecto: 30s para paneles de alarma, 120s para NVR/DVR/cámaras)",
+          "set_alarm_server": "Configurar el host de notificaciones usando la siguiente dirección:",
+          "alarm_server": "Dirección de Home Assistant accesible por el dispositivo Hikvision"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No se pudo conectar",
+      "invalid_auth": "Autenticación inválida",
+      "insufficient_permission": "Acceso denegado, revisá los permisos del usuario",
+      "unknown": "Error inesperado"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "motiondetection": {
+        "name": "Movimiento"
+      },
+      "tamperdetection": {
+        "name": "Sabotaje de video"
+      },
+      "videoloss": {
+        "name": "Pérdida de video"
+      },
+      "scenechangedetection": {
+        "name": "Cambio de escena"
+      },
+      "fielddetection": {
+        "name": "Intrusión"
+      },
+      "linedetection": {
+        "name": "Cruce de línea"
+      },
+      "regionentrance": {
+        "name": "Entrada a región"
+      },
+      "regionexiting": {
+        "name": "Salida de región"
+      },
+      "io": {
+        "name": "Entrada de alarma {io_port_id}"
+      },
+      "panel_ac_power": {
+        "name": "Alimentación 220V"
+      },
+      "panel_tamper": {
+        "name": "Sabotaje"
+      },
+      "peripheral_tamper": {
+        "name": "Sabotaje"
+      },
+      "peripheral_online": {
+        "name": "En línea"
+      },
+      "peripheral_battery_low": {
+        "name": "Batería baja"
+      },
+      "peripheral_mains_power": {
+        "name": "Alimentación 220V"
+      },
+      "zone_tamper": {
+        "name": "Sabotaje"
+      },
+      "zone_armed": {
+        "name": "Armada"
+      },
+      "zone_alarm": {
+        "name": "Alarma"
+      },
+      "zone_stay_away": {
+        "name": "Anulación en armado parcial"
+      },
+      "zone_is_via_repeater": {
+        "name": "Vía repetidor"
+      }
+    },
+    "switch": {
+      "alarm_output": {
+        "name": "Salida de alarma {port_no}"
+      },
+      "holiday_mode": {
+        "name": "Modo vacaciones"
+      },
+      "zone_bypassed": {
+        "name": "Anulada"
+      },
+      "zone_chime": {
+        "name": "Timbre"
+      },
+      "zone_silent": {
+        "name": "Silenciosa"
+      },
+      "motiondetection": {
+        "name": "Detección de movimiento"
+      },
+      "tamperdetection": {
+        "name": "Detección de sabotaje de video"
+      },
+      "videoloss": {
+        "name": "Detección de pérdida de video"
+      },
+      "scenechangedetection": {
+        "name": "Detección de cambio de escena"
+      },
+      "fielddetection": {
+        "name": "Detección de intrusión"
+      },
+      "linedetection": {
+        "name": "Detección de cruce de línea"
+      },
+      "regionentrance": {
+        "name": "Detección de entrada a región"
+      },
+      "regionexiting": {
+        "name": "Detección de salida de región"
+      },
+      "io": {
+        "name": "Entrada de alarma {io_port_id}"
+      }
+    },
+    "camera": {
+      "stream1": {
+        "name": "Transmisión principal"
+      },
+      "stream2": {
+        "name": "Subtransmisión"
+      },
+      "stream3": {
+        "name": "Transmisión principal (evento)"
+      },
+      "stream4": {
+        "name": "Transmisión transcodificada"
+      }
+    },
+    "sensor": {
+      "notifications_host_protocol_type": {
+        "name": "Protocolo del host de notificaciones"
+      },
+      "notifications_host_address": {
+        "name": "Host de notificaciones"
+      },
+      "notifications_host_port_no": {
+        "name": "Puerto del host de notificaciones"
+      },
+      "notifications_host_path": {
+        "name": "Ruta del host de notificaciones"
+      },
+      "zone_battery": {
+        "name": "Batería"
+      },
+      "zone_signal": {
+        "name": "Señal"
+      },
+      "zone_temperature": {
+        "name": "Temperatura"
+      },
+      "zone_humidity": {
+        "name": "Humedad"
+      },
+      "panel_battery": {
+        "name": "Batería"
+      },
+      "panel_battery_voltage": {
+        "name": "Voltaje de batería"
+      },
+      "panel_fault_count": {
+        "name": "Cantidad de fallas"
+      },
+      "panel_ip_address": {
+        "name": "Dirección IP"
+      },
+      "peripheral_battery": {
+        "name": "Batería"
+      },
+      "peripheral_signal": {
+        "name": "Señal"
+      },
+      "peripheral_temperature": {
+        "name": "Temperatura"
+      }
+    },
+    "image": {
+      "snapshot": {
+        "name": "Captura {camera}"
+      }
+    }
+  }
+}

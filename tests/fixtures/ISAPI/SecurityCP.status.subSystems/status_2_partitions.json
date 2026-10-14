@@ -1,0 +1,24 @@
+{
+  "SubSysList": [
+    {
+      "SubSys": {
+        "id": 1,
+        "arming": "away",
+        "alarm": false,
+        "enabled": true,
+        "name": "Home",
+        "delayTime": 0
+      }
+    },
+    {
+      "SubSys": {
+        "id": 2,
+        "arming": "disarm",
+        "alarm": false,
+        "enabled": true,
+        "name": "Garage",
+        "delayTime": 0
+      }
+    }
+  ]
+}

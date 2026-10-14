@@ -1,0 +1,44 @@
+{
+  "ZoneList": [
+    {
+      "Zone": {
+        "id": 1,
+        "name": "Front Door",
+        "status": "online",
+        "alarm": false,
+        "bypassed": false,
+        "tamperEvident": false,
+        "armed": true,
+        "charge": "normal",
+        "detectorType": "magneticContact",
+        "magnetOpenStatus": true
+      }
+    },
+    {
+      "Zone": {
+        "id": 2,
+        "name": "Living Room PIR",
+        "status": "trigger",
+        "alarm": true,
+        "bypassed": false,
+        "tamperEvident": false,
+        "armed": true,
+        "charge": "normal",
+        "detectorType": "passiveInfraredDetector"
+      }
+    },
+    {
+      "Zone": {
+        "id": 3,
+        "name": "Garage Smoke",
+        "status": "online",
+        "alarm": false,
+        "bypassed": true,
+        "tamperEvident": false,
+        "armed": false,
+        "charge": "lowPower",
+        "detectorType": "smokeDetector"
+      }
+    }
+  ]
+}

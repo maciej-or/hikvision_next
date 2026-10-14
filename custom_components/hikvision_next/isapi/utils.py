@@ -38,6 +38,13 @@ def bool_to_str(value: bool) -> str:
     return "true" if value else "false"
 
 
+def json_bool(value: bool | str) -> bool:
+    """Coerce a JSON boolean field to bool, tolerating 'true'/'false' strings."""
+    if isinstance(value, bool):
+        return value
+    return str_to_bool(value)
+
+
 def get_stream_id(channel_id: str, stream_type: int = 1) -> int:
     """Get stream id."""
     return int(channel_id) * 100 + stream_type

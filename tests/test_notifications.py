@@ -283,3 +283,65 @@ async def test_nvr_and_cam_notification_alert(
     assert sensor_cam_2.state == STATE_OFF
     assert sensor_cam_3.state == STATE_ON
     assert sensor_nvr_1.state == STATE_ON
+
+
+def test_get_isapi_device_matches_by_normalized_serial_number():
+    """Match by serial number when neither the source IP nor macAddress can be trusted.
+
+    Some NVR firmware reports its own serial number slightly differently in event
+    notifications (e.g. missing a hyphen) than in System/deviceInfo, and the source IP seen
+    by HA can be rewritten by NAT/port-forwarding (e.g. Docker publishing a container port
+    reports the bridge gateway as the peer, not the real device IP).
+    """
+
+    nvr_device = MagicMock()
+    nvr_device.host = "http://10.100.199.62"
+    nvr_device.device_info.mac_address = "08:cc:81:23:1d:d2"
+    nvr_device.device_info.serial_no = "DS-7616NXI-I2/VPro-1620250716CCRRGC9285990WCVU"
+
+    panel_device = MagicMock()
+    panel_device.host = "http://10.100.199.58"
+    panel_device.device_info.mac_address = "aa:bb:cc:dd:ee:ff"
+    panel_device.device_info.serial_no = "DS-PHA96-MM-0000000000"
+
+    nvr_entry = MagicMock(disabled_by=None, runtime_data=nvr_device)
+    panel_entry = MagicMock(disabled_by=None, runtime_data=panel_device)
+
+    view = EventNotificationsView(MagicMock())
+    view.hass.config_entries.async_entries.return_value = [nvr_entry, panel_entry]
+
+    device = view.get_isapi_device(
+        "172.17.0.1",  # NAT-mangled source IP, matches neither configured device
+        None,  # this event type doesn't include a macAddress
+        "DS-7616NXI-I2/VPro1620250716CCRRGC9285990WCVU",  # missing hyphen vs. stored serial
+    )
+
+    assert device is nvr_device
+
+
+class _EntryStillLoading:
+    """A config entry that exists but hasn't reached "entry.runtime_data = device" yet
+    (e.g. it's mid-(re)load at the exact moment another device's event arrives).
+    """
+
+    disabled_by = None
+
+
+def test_get_isapi_device_skips_entries_without_runtime_data_yet():
+    """A config entry mid-setup/reload has no "runtime_data" attribute at all, and accessing
+    it directly used to raise AttributeError -- crashing this lookup and dropping the
+    incoming event for every device, not just the one that was reloading.
+    """
+
+    nvr_device = MagicMock()
+    nvr_device.host = "http://10.100.199.62"
+    nvr_device.device_info.mac_address = "08:cc:81:23:1d:d2"
+    nvr_device.device_info.serial_no = "DS-7616NXI-I2/VPro-1620250716CCRRGC9285990WCVU"
+    nvr_entry = MagicMock(disabled_by=None, runtime_data=nvr_device)
+
+    view = EventNotificationsView(MagicMock())
+    view.hass.config_entries.async_entries.return_value = [nvr_entry, _EntryStillLoading()]
+
+    device = view.get_isapi_device("10.100.199.62", "08:cc:81:23:1d:d2")
+
+    assert device is nvr_device

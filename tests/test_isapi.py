@@ -1,10 +1,12 @@
 """Tests for specific ISAPI responses."""
 
-import respx
-import httpx
 from contextlib import suppress
-from custom_components.hikvision_next.isapi import StorageInfo
-from tests.conftest import mock_endpoint, load_fixture
+
+import httpx
+import respx
+
+from custom_components.hikvision_next.isapi import ISAPIClient, Partition, StorageInfo, Zone
+from tests.conftest import load_fixture, mock_endpoint
 
 
 @respx.mock
@@ -85,3 +87,125 @@ async def test_update_notification_hosts_from_ipaddress_to_hostname(mock_isapi):
     await isapi.set_alarm_server("https://ha.hostname.domain", "/api/hikvision")
 
     assert endpoint.called
+
+
+@respx.mock
+async def test_get_partitions(mock_isapi):
+    isapi = mock_isapi
+
+    mock_endpoint("SecurityCP/Configuration/subSys", "subsys_2_partitions", ext="json")
+    mock_endpoint("SecurityCP/status/subSystems", "status_2_partitions", ext="json")
+
+    partitions = await isapi.get_partitions()
+
+    assert partitions == [
+        Partition(id=1, name="Home", enabled=True, arming="away", alarm=False, delay_time=0),
+        Partition(id=2, name="Garage", enabled=True, arming="disarm", alarm=False, delay_time=0),
+    ]
+
+
+@respx.mock
+async def test_get_partitions_skips_disabled(mock_isapi):
+    """The panel always reports every possible partition slot regardless of how many are
+    actually configured/in use -- get_partitions() should skip the disabled ones rather than
+    returning an entry (and eventually an alarm_control_panel entity) for every unused slot.
+    """
+    isapi = mock_isapi
+
+    mock_endpoint("SecurityCP/Configuration/subSys", "subsys_with_disabled", ext="json")
+    mock_endpoint("SecurityCP/status/subSystems", "status_with_disabled", ext="json")
+
+    partitions = await isapi.get_partitions()
+
+    assert partitions == [
+        Partition(id=1, name="Home", enabled=True, arming="away", alarm=False, delay_time=0),
+    ]
+
+
+@respx.mock
+async def test_get_zones(mock_isapi):
+    isapi = mock_isapi
+
+    mock_endpoint("SecurityCP/Configuration/zones", "zones_3", ext="json")
+    mock_endpoint("SecurityCP/status/zones", "status_3_zones", ext="json")
+
+    zones = await isapi.get_zones()
+
+    assert zones == [
+        Zone(
+            id=1,
+            name="Front Door",
+            partition_id=1,
+            detector_type="magneticContact",
+            zone_type="Instant",
+            status="online",
+            alarm=False,
+            bypassed=False,
+            tamper_evident=False,
+            armed=True,
+            charge="normal",
+            magnet_open_status=True,
+        ),
+        Zone(
+            id=2,
+            name="Living Room PIR",
+            partition_id=1,
+            detector_type="passiveInfraredDetector",
+            zone_type="Delay",
+            status="trigger",
+            alarm=True,
+            bypassed=False,
+            tamper_evident=False,
+            armed=True,
+            charge="normal",
+        ),
+        Zone(
+            id=3,
+            name="Garage Smoke",
+            partition_id=2,
+            detector_type="smokeDetector",
+            zone_type="24hSound",
+            status="online",
+            alarm=False,
+            bypassed=True,
+            tamper_evident=False,
+            armed=False,
+            charge="lowPower",
+        ),
+    ]
+
+
+@respx.mock
+async def test_arm_disarm_partition(mock_isapi):
+    isapi = mock_isapi
+
+    url = f"{isapi.host}/ISAPI/SecurityCP/control/arm/1"
+    endpoint = respx.put(url, params={"ways": "away"}).respond(200)
+    await isapi.arm_partition(1, "away")
+    assert endpoint.called
+
+    url = f"{isapi.host}/ISAPI/SecurityCP/control/disarm/1"
+    endpoint = respx.put(url).respond(200)
+    await isapi.disarm_partition(1)
+    assert endpoint.called
+
+    url = f"{isapi.host}/ISAPI/SecurityCP/control/clearAlarm/1"
+    endpoint = respx.put(url).respond(200)
+    await isapi.clear_partition_alarm(1)
+    assert endpoint.called
+
+
+def test_decode_arming_part_falls_back_on_invalid_utf8():
+    """A zone/partition name with accented characters can arrive mis-encoded (not UTF-8).
+
+    The device's Content-Type claims charset="UTF-8", but some firmware embeds
+    user-configured names (e.g. "Área") using the device's own locale codepage instead. This
+    must not raise -- the field should decode via a fallback encoding rather than the whole
+    event being silently dropped.
+    """
+    valid_utf8 = b'{"zoneName": "Zona 3"}'
+    assert ISAPIClient._decode_arming_part(valid_utf8) == '{"zoneName": "Zona 3"}'
+
+    # "Área" encoded as Latin-1 is not valid UTF-8 (0xC1 is not a valid UTF-8 lead byte here)
+    mis_encoded = '{"zoneName": "Área"}'.encode("latin-1")
+    assert ISAPIClient._decode_arming_part(mis_encoded) == '{"zoneName": "Área"}'

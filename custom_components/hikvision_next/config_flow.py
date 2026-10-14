@@ -20,6 +20,7 @@ from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VE
 from . import HikvisionConfigEntry
 from .const import (
     CONF_ALARM_SERVER_HOST,
+    CONF_POLLING_INTERVAL,
     CONF_SET_ALARM_SERVER,
     DOMAIN,
     RTSP_PORT_FORCED,
@@ -33,7 +34,7 @@ _LOGGER = logging.getLogger(__name__)
 class HikvisionConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for hikvision device."""
 
-    VERSION = 3
+    VERSION = 4
     _entry: HikvisionConfigEntry
 
     async def get_schema(self, user_input: dict[str, Any]):
@@ -47,6 +48,7 @@ class HikvisionConfigFlow(ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_SET_ALARM_SERVER, default=True): bool,
                 vol.Required(CONF_ALARM_SERVER_HOST): str,
                 vol.Optional(RTSP_PORT_FORCED): vol.And(int, vol.Range(min=1)),
+                vol.Optional(CONF_POLLING_INTERVAL): vol.And(int, vol.Range(min=0)),
             }
         )
         if self.source in (SOURCE_RECONFIGURE, SOURCE_REAUTH):

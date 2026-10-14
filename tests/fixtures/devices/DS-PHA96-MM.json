@@ -1,0 +1,231 @@
+{
+  "data": {
+    "ISAPI": {
+      "System/deviceInfo": {
+        "response": {
+          "DeviceInfo": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "deviceName": "Security Control Panel",
+            "deviceID": "d2d94000-f70b-00b0-00a0-acb00f000001",
+            "model": "DS-PHA96-MM",
+            "serialNumber": "DS-PHA96-MM000000000000000000000",
+            "macAddress": "aa:bb:cc:dd:ee:ff",
+            "firmwareVersion": "V1.2.3",
+            "firmwareReleasedDate": "build 240101",
+            "deviceType": "SecurityControlPanel",
+            "manufacturer": "hikvision"
+          }
+        }
+      },
+      "System/capabilities": {
+        "response": {
+          "DeviceCap": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema"
+          }
+        }
+      },
+      "Event/notification/httpHosts": {
+        "response": {
+          "HttpHostNotificationList": {
+            "@version": "2.0",
+            "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+            "HttpHostNotification": {
+              "@version": "2.0",
+              "@xmlns": "http://www.hikvision.com/ver20/XMLSchema",
+              "id": "1",
+              "url": "/api/hikvision",
+              "protocolType": "HTTP",
+              "parameterFormatType": "XML",
+              "addressingFormatType": "ipaddress",
+              "ipAddress": "1.0.0.144",
+              "portNo": "8123",
+              "userName": null,
+              "httpAuthenticationMethod": "none",
+              "httpBroken": "true"
+            }
+          }
+        }
+      },
+      "SecurityCP/capabilities": {
+        "response": {
+          "SecurityCPCap": {
+            "partitionNum": 2,
+            "localZoneNum": 8,
+            "extendZoneNum": 0,
+            "wirelessZoneNum": 0,
+            "localRelayNum": 1,
+            "userNum": 1
+          }
+        }
+      },
+      "SecurityCP/Configuration/subSys": {
+        "response": {
+          "List": [
+            {
+              "SubSys": {
+                "id": 1,
+                "enabled": true,
+                "name": "Home"
+              }
+            },
+            {
+              "SubSys": {
+                "id": 2,
+                "enabled": true,
+                "name": "Garage"
+              }
+            },
+            {
+              "SubSys": {
+                "id": 3,
+                "enabled": false,
+                "name": "Unused"
+              }
+            }
+          ]
+        }
+      },
+      "SecurityCP/status/subSystems": {
+        "response": {
+          "SubSysList": [
+            {
+              "SubSys": {
+                "id": 1,
+                "arming": "away",
+                "alarm": false,
+                "enabled": true,
+                "name": "Home",
+                "delayTime": 0
+              }
+            },
+            {
+              "SubSys": {
+                "id": 2,
+                "arming": "disarm",
+                "alarm": false,
+                "enabled": true,
+                "name": "Garage",
+                "delayTime": 0
+              }
+            },
+            {
+              "SubSys": {
+                "id": 3,
+                "arming": "disarm",
+                "alarm": false,
+                "enabled": false,
+                "name": "Unused",
+                "delayTime": 0
+              }
+            }
+          ]
+        }
+      },
+      "SecurityCP/Configuration/zones": {
+        "response": {
+          "List": [
+            {
+              "Zone": {
+                "id": 1,
+                "zoneName": "Front Door",
+                "zoneType": "Instant",
+                "detectorType": "magneticContact",
+                "subSystemNo": 1
+              }
+            },
+            {
+              "Zone": {
+                "id": 2,
+                "zoneName": "Living Room PIR",
+                "zoneType": "Delay",
+                "detectorType": "passiveInfraredDetector",
+                "subSystemNo": 1
+              }
+            },
+            {
+              "Zone": {
+                "id": 3,
+                "zoneName": "Garage Smoke",
+                "zoneType": "24hSound",
+                "detectorType": "smokeDetector",
+                "subSystemNo": 2
+              }
+            }
+          ]
+        }
+      },
+      "SecurityCP/status/zones": {
+        "response": {
+          "ZoneList": [
+            {
+              "Zone": {
+                "id": 1,
+                "name": "Front Door",
+                "status": "trigger",
+                "alarm": false,
+                "bypassed": false,
+                "tamperEvident": false,
+                "armed": true,
+                "charge": "normal",
+                "chargeValue": 88,
+                "signal": 121,
+                "temperature": 24,
+                "detectorType": "magneticContact",
+                "magnetOpenStatus": false
+              }
+            },
+            {
+              "Zone": {
+                "id": 2,
+                "name": "Living Room PIR",
+                "status": "trigger",
+                "alarm": true,
+                "bypassed": false,
+                "tamperEvident": false,
+                "armed": true,
+                "charge": "normal",
+                "detectorType": "passiveInfraredDetector"
+              }
+            },
+            {
+              "Zone": {
+                "id": 3,
+                "name": "Garage Smoke",
+                "status": "online",
+                "alarm": false,
+                "bypassed": true,
+                "tamperEvident": false,
+                "armed": false,
+                "charge": "lowPower",
+                "detectorType": "smokeDetector"
+              }
+            }
+          ]
+        }
+      },
+      "SecurityCP/status/host": {
+        "response": {
+          "AlarmHostStatus": {
+            "HostStatus": {
+              "tamperEvident": true,
+              "ACConnect": true,
+              "faultNum": 2
+            },
+            "BatteryList": [
+              {
+                "Battery": {
+                  "id": 1,
+                  "status": "normal",
+                  "percent": 95,
+                  "voltage": 13.6
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

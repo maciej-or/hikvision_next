@@ -49,19 +49,19 @@ def mock_config_entry(request) -> MockConfigEntry:
     )
 
 
-def load_fixture(path, file):
-    with open(f"tests/fixtures/{path}/{file}.xml", "r") as f:
+def load_fixture(path, file, ext="xml"):
+    with open(f"tests/fixtures/{path}/{file}.{ext}", "r") as f:
         return f.read()
 
 
-def mock_endpoint(endpoint, file=None, status_code=200):
+def mock_endpoint(endpoint, file=None, status_code=200, ext="xml"):
     """Mock ISAPI endpoint."""
 
     url = f"{TEST_HOST}/ISAPI/{endpoint}"
     path = f"ISAPI/{endpoint.replace('/', '.')}"
     if not file:
         return respx.get(url).respond(status_code=status_code)
-    return respx.get(url).respond(text=load_fixture(path, file))
+    return respx.get(url).respond(text=load_fixture(path, file, ext))
 
 
 def mock_device_endpoints(model, device_url=TEST_HOST):
@@ -70,13 +70,33 @@ def mock_device_endpoints(model, device_url=TEST_HOST):
     f = open(f"tests/fixtures/devices/{model}.json", "r")
     diagnostics = json.load(f)
     f.close()
-    for endpoint, data in diagnostics["data"]["ISAPI"].items():
+    endpoints = diagnostics["data"]["ISAPI"]
+
+    # SecurityCP/capabilities is probed on every device to detect security control
+    # panels. Default to 404 (not a panel) unless the fixture defines its own response.
+    if "SecurityCP/capabilities" not in endpoints:
+        respx.get(f"{device_url}/ISAPI/SecurityCP/capabilities").respond(status_code=404)
+    else:
+        # Security panels open a persistent "arming with subscription" connection for
+        # real-time events (SecurityArmingListener). Respond with an immediately-empty
+        # multipart stream so the background task's first connection attempt completes
+        # cleanly in tests.
+        respx.post(f"{device_url}/ISAPI/Event/notification/subscribeEvent").respond(
+            status_code=200,
+            headers={"Content-Type": 'multipart/mixed; boundary="test-boundary"'},
+            content=b"",
+        )
+
+    for endpoint, data in endpoints.items():
         url = f"{device_url}/ISAPI/{endpoint}"
         if status_code := data.get("status_code"):
             respx.get(url).respond(status_code=status_code)
         elif response := data.get("response"):
-            xml = xmltodict.unparse(response)
-            respx.get(url).respond(text=xml)
+            if endpoint.startswith("SecurityCP/"):
+                respx.get(url).respond(json=response)
+            else:
+                xml = xmltodict.unparse(response)
+                respx.get(url).respond(text=xml)
 
 
 @pytest.fixture

@@ -1,0 +1,18 @@
+{
+  "List": [
+    {
+      "SubSys": {
+        "id": 1,
+        "enabled": true,
+        "name": "Home"
+      }
+    },
+    {
+      "SubSys": {
+        "id": 2,
+        "enabled": true,
+        "name": "Garage"
+      }
+    }
+  ]
+}

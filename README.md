@@ -2,7 +2,7 @@
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/maciej-or/hikvision_next?style=flat-square) [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/hacs/integration)
 
-The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and switches detection of alarm events. Provides video streams.
+The Home Assistant integration for Hikvision NVRs, IP cameras and security control panels (SecurityCP). Receives and switches detection of alarm events. Provides video streams.
 
 ## Features
 
@@ -16,6 +16,14 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 - Tracking Notifications Host settings for diagnostic purposes
 - Remote reboot device
 - Basic and digest authentication support
+- Configurable polling interval per device (0 to disable automatic polling entirely)
+- **Security control panels (AX Hybrid PRO / AX Hybrid / AX PRO and other `SecurityCP` panels)**: automatically detected on setup, no separate config flow needed
+  - Partitions (areas) as `alarm_control_panel` entities (arm away/home, disarm), updated in real time via a persistent push connection
+  - Zones as `binary_sensor` entities (door/motion/smoke/gas/moisture/heat/vibration/tamper/safety, mapped from the detector type), each modeled as its own HA device (assignable to its own Area). Armed/alarm/tamper/stay-arming-bypass are its own diagnostic entities (reported for every zone), plus battery/signal/temperature/humidity/via-repeater diagnostics grouped on it for wireless zones only
+  - Each zone also gets `switch` entities: Bypass (excludes the zone from the next arming cycle), Chime (doorbell chime on open) and Silent (mute the siren for that zone specifically)
+  - Peripherals (keypads, sirens, remotes/keyfobs, repeaters, extension modules) are also modeled as their own HA devices, each with diagnostics for whatever it actually reports (online, tamper, battery/battery low, signal, temperature, mains power) -- e.g. repeaters are only present on fully-wireless AX PRO panels, not the wired-first AX Hybrid PRO, and are simply skipped on panels that don't support them
+  - Panel-level diagnostics: AC power, tamper, backup battery level/voltage, active fault count, IP address
+  - See [Security control panels](#security-control-panels) below for important notes on real-time updates
 
 ### Supported events
 
@@ -32,6 +40,14 @@ The Home Assistant integration for Hikvision NVRs and IP cameras. Receives and s
 
 **NOTE**
 Events must be set to alert the surveillance center in Linkage Action for Home Assistant to be notified. Otherwise related binary sensors and switches will appear as disabled entities.
+
+## Security control panels
+
+Security control panels (SecurityCP: AX Hybrid PRO, AX Hybrid, AX PRO and similar) are auto-detected using the same config flow as NVRs and IP cameras -- just add the panel like any other device.
+
+- **Arm/disarm is real-time**: the integration keeps a persistent connection to the panel (ISAPI "arming with subscription") and reflects arm/disarm changes within about a second.
+- **Zone state (door/window/motion/etc.) is polling-based**, not push. This panel family does not deliver a push notification for a zone opening/closing on its own -- only for events it considers alarm-worthy (arm/disarm, tamper, faults). This was confirmed against real hardware and appears to be a limitation of the panel's own CID/ARC event model, not something the integration can influence. Zones update every 30 seconds by default; lower `Polling interval in seconds` in the device options if you want them to feel more responsive (5-10s works well for a panel on a local network).
+- Some detector/module combinations have been found to report `magnetOpenStatus` unreliably (stuck at a fixed value regardless of actual door state) -- the integration relies on the zone's own `status` field instead, which was confirmed to track real state correctly.
 
 ### Blueprints
 
@@ -63,16 +79,16 @@ The scope supported features depends on device model, setup and firmware version
 
 ### With HACS
 
-1. This integration you will find in the default HACS store. Search for `Hikvision NVR / IP Camera` on `HACS / Integrations` page and press `Download` button
+1. This integration you will find in the default HACS store. Search for `Hikvision NVR / IP Camera / Alarm Panel` on `HACS / Integrations` page and press `Download` button
 2. on `Settings / Devices & Services` page press `+ Add Integration`
-3. Search for `Hikvision NVR / IP Camera` and add your Hikvision device using config dialog, repeat the last 2 steps for more devices
+3. Search for `Hikvision NVR / IP Camera / Alarm Panel` and add your Hikvision device using config dialog, repeat the last 2 steps for more devices
 
 ### Manual
 
 1. copy `custom_components/hikvision_next` folder into `conifg/custom_components`
 2. restart Home Assistant
 3. on `Settings / Devices & Services` page press `+ Add Integration`
-4. search for `Hikvision NVR / IP Camera` and add your Hikvision device using config dialog, repeat the last 2 steps for more devices
+4. search for `Hikvision NVR / IP Camera / Alarm Panel` and add your Hikvision device using config dialog, repeat the last 2 steps for more devices
 
 ## Hikvision device setup checklist
 
@@ -158,3 +174,7 @@ Download logs from `Settings / System / Logs`
 - DS-2CD2T87G2P-LSU/SL
 - DS-2DE4425IW-DE (PTZ)
 - DS-2SE4C425MWG-E/26
+
+### Security Control Panel
+
+- DS-PHA48-EP (AX Hybrid PRO)

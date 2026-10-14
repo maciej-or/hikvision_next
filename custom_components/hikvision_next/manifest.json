@@ -1,6 +1,6 @@
 {
   "domain": "hikvision_next",
-  "name": "Hikvision NVR / IP Camera",
+  "name": "Hikvision NVR / IP Camera / Alarm Panel",
   "after_dependencies": ["http", "network"],
   "codeowners": ["@maciej-or"],
   "config_flow": true,

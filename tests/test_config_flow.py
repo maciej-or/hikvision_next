@@ -56,6 +56,8 @@ async def test_invalid_auth_config_flow(hass, mock_isapi):
     assert result["step_id"] == "user"
 
     respx.get(f"{TEST_HOST}/ISAPI/System/deviceInfo").respond(status_code=401)
+    # sessionLogin fallback: a device without it must still surface invalid_auth
+    respx.get(f"{TEST_HOST}/ISAPI/Security/sessionLogin/capabilities").respond(status_code=404)
     result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=TEST_CONFIG)
     assert result.get("type") == FlowResultType.FORM
     assert result.get("errors") == {"base": "invalid_auth"}

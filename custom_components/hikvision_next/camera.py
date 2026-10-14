@@ -41,6 +41,13 @@ class HikvisionCamera(Camera):
         """Initialize Hikvision camera stream."""
         Camera.__init__(self)
 
+        # Force RTSP over TCP for the native HLS/stream pipeline. HA already prefers TCP
+        # for any rtsp:// source, but only as a soft hint (rtsp_flags=prefer_tcp); forcing
+        # it outright avoids UDP fallback attempts, which are especially unreliable when
+        # HA runs behind extra network layers (e.g. a devcontainer/WSL2/Docker network
+        # stack) between the RTSP source and the client.
+        self.stream_options["rtsp_transport"] = "tcp"
+
         self._attr_device_info = device.hass_device_info(camera.id)
         self._attr_unique_id = slugify(f"{device.device_info.serial_no.lower()}_{stream_info.id}")
         if stream_info.type_id > 1:

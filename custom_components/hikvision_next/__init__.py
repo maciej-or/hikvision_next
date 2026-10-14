@@ -7,6 +7,7 @@ from contextlib import suppress
 import logging
 import traceback
 from homeassistant.util import slugify
+from homeassistant.components.alarm_control_panel import ENTITY_ID_FORMAT as ALARM_ENTITY_ID_FORMAT
 from homeassistant.components.binary_sensor import (
     ENTITY_ID_FORMAT as BINARY_SENSOR_ENTITY_ID_FORMAT,
 )
@@ -27,6 +28,7 @@ from .services import setup_services
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = [
+    Platform.ALARM_CONTROL_PANEL,
     Platform.BINARY_SENSOR,
     Platform.CAMERA,
     Platform.SENSOR,
@@ -73,9 +75,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) ->
     if get_first_instance_unique_id(hass) == entry.unique_id:
         hass.http.register_view(EventNotificationsView(hass))
 
-    refresh_disabled_entities_in_registry(hass, device)
+    if device.device_info.is_security_panel:
+        remove_orphaned_partition_entities(hass, entry, device)
+    else:
+        refresh_disabled_entities_in_registry(hass, device)
 
     return True
+
+
+def remove_orphaned_partition_entities(hass: HomeAssistant, entry: HikvisionConfigEntry, device: HikvisionDevice):
+    """Remove alarm_control_panel entities for partitions no longer configured/enabled.
+
+    The panel always reports every possible partition slot (e.g. 16), regardless of how many
+    are actually in use, and get_partitions() only keeps the enabled ones -- so a partition
+    that gets disabled on the panel, or was previously included by mistake, needs its stale
+    entity removed here rather than just left "unavailable" forever.
+    """
+    known_unique_ids = {ALARM_ENTITY_ID_FORMAT.format(partition.unique_id) for partition in device.partitions}
+    entity_registry = er.async_get(hass)
+    for entity_entry in er.async_entries_for_config_entry(entity_registry, entry.entry_id):
+        if entity_entry.domain == "alarm_control_panel" and entity_entry.unique_id not in known_unique_ids:
+            entity_registry.async_remove(entity_entry.entity_id)
 
 
 async def async_remove_config_entry_device(hass: HomeAssistant, config_entry, device_entry) -> bool:
@@ -91,6 +111,10 @@ async def async_remove_config_entry_device(hass: HomeAssistant, config_entry, de
 async def async_unload_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) -> bool:
     """Unload a config entry."""
 
+    device = entry.runtime_data
+    if device.arming_listener:
+        await device.arming_listener.async_stop()
+
     # Unload a config entry
     unload_ok = all(
         await asyncio.gather(
@@ -99,7 +123,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) -
     )
 
     # Reset alarm server after it has been set
-    device = entry.runtime_data
     if device.control_alarm_server_host:
         with suppress(Exception):
             await device.set_alarm_server("http://0.0.0.0:80", "/")
@@ -145,6 +168,20 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             version=3,
         )
 
+    # 3 -> 4: Force-recreate sensor entities so they pick up entity_category=DIAGNOSTIC.
+    # Registry entries created before this category was consistently applied don't get
+    # it retroactively just because the entity is re-added on a later setup.
+    if config_entry.version == 3:
+        entity_registry = er.async_get(hass)
+        for entry_entity in er.async_entries_for_config_entry(entity_registry, config_entry.entry_id):
+            if entry_entity.domain == "sensor":
+                entity_registry.async_remove(entry_entity.entity_id)
+
+        hass.config_entries.async_update_entry(
+            config_entry,
+            version=4,
+        )
+
     _LOGGER.debug(
         "Migration to version %s.%s successful",
         config_entry.version,
@@ -163,6 +200,16 @@ def refresh_disabled_entities_in_registry(hass: HomeAssistant, device: Hikvision
         if not entity:
             return
         if entity.disabled != event.disabled:
+            _LOGGER.warning(
+                "refresh_disabled_entities_in_registry: %s registry.disabled=%s (disabled_by=%s) "
+                "-> event.disabled=%s (notifications=%s); writing disabled_by=%s",
+                entity_id,
+                entity.disabled,
+                entity.disabled_by,
+                event.disabled,
+                event.notifications,
+                er.RegistryEntryDisabler.INTEGRATION if event.disabled else None,
+            )
             disabled_by = er.RegistryEntryDisabler.INTEGRATION if event.disabled else None
             entity_registry.async_update_entity(entity_id, disabled_by=disabled_by)
 

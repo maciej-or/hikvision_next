@@ -14,6 +14,7 @@
           "username": "Username",
           "verify_ssl": "Verify SSL certificate (uncheck for self-signed certificate)",
           "rtsp_port_forced": "Force RTSP port (Optional)",
+          "polling_interval": "Polling interval in seconds (Optional. 0 disables polling. Leave empty for the default: 30s for security panels, 120s for NVR/DVR/cameras)",
           "set_alarm_server": "Set notifications host using following address:",
           "alarm_server": "Home Assistant address accessible by Hikvison device"
         }
@@ -60,6 +61,39 @@
       },
       "thermometry": {
         "name": "Thermometry"
+      },
+      "panel_ac_power": {
+        "name": "AC Power"
+      },
+      "panel_tamper": {
+        "name": "Tamper"
+      },
+      "peripheral_tamper": {
+        "name": "Tamper"
+      },
+      "peripheral_online": {
+        "name": "Online"
+      },
+      "peripheral_battery_low": {
+        "name": "Battery Low"
+      },
+      "peripheral_mains_power": {
+        "name": "Mains Power"
+      },
+      "zone_tamper": {
+        "name": "Tamper"
+      },
+      "zone_armed": {
+        "name": "Armed"
+      },
+      "zone_alarm": {
+        "name": "Alarm"
+      },
+      "zone_stay_away": {
+        "name": "Stay-Arming Bypass"
+      },
+      "zone_is_via_repeater": {
+        "name": "Via Repeater"
       }
     },
     "switch": {
@@ -68,6 +102,15 @@
       },
       "holiday_mode": {
         "name": "Holiday Mode"
+      },
+      "zone_bypassed": {
+        "name": "Bypassed"
+      },
+      "zone_chime": {
+        "name": "Chime"
+      },
+      "zone_silent": {
+        "name": "Silent"
       },
       "motiondetection": {
         "name": "Motion Detection"
@@ -129,6 +172,39 @@
       },
       "notifications_host_path": {
         "name": "Notifications Host Path"
+      },
+      "zone_battery": {
+        "name": "Battery"
+      },
+      "zone_signal": {
+        "name": "Signal"
+      },
+      "zone_temperature": {
+        "name": "Temperature"
+      },
+      "zone_humidity": {
+        "name": "Humidity"
+      },
+      "panel_battery": {
+        "name": "Battery"
+      },
+      "panel_battery_voltage": {
+        "name": "Battery Voltage"
+      },
+      "panel_fault_count": {
+        "name": "Fault Count"
+      },
+      "panel_ip_address": {
+        "name": "IP Address"
+      },
+      "peripheral_battery": {
+        "name": "Battery"
+      },
+      "peripheral_signal": {
+        "name": "Signal"
+      },
+      "peripheral_temperature": {
+        "name": "Temperature"
       }
     },
     "image": {

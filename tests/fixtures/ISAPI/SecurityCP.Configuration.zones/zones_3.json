@@ -1,0 +1,31 @@
+{
+  "List": [
+    {
+      "Zone": {
+        "id": 1,
+        "zoneName": "Front Door",
+        "zoneType": "Instant",
+        "detectorType": "magneticContact",
+        "subSystemNo": 1
+      }
+    },
+    {
+      "Zone": {
+        "id": 2,
+        "zoneName": "Living Room PIR",
+        "zoneType": "Delay",
+        "detectorType": "passiveInfraredDetector",
+        "subSystemNo": 1
+      }
+    },
+    {
+      "Zone": {
+        "id": 3,
+        "zoneName": "Garage Smoke",
+        "zoneType": "24hSound",
+        "detectorType": "smokeDetector",
+        "subSystemNo": 2
+      }
+    }
+  ]
+}

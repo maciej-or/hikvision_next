@@ -91,6 +91,7 @@ class ISAPIDeviceInfo:
     ip_address: str = ""
     device_type: str = ""
     is_nvr: bool = False
+    is_security_panel: bool = False  # True for AX Hybrid/Hybrid PRO/PRO intrusion alarm panels
 
 
 @dataclass
@@ -106,6 +107,102 @@ class CapabilitiesInfo:
     support_event_mutex_checking: bool = False
     input_ports: int = 0
     output_ports: int = 0
+    partitions: int = 0  # number of partitions (areas) on a security control panel
+    zones: int = 0  # number of zones on a security control panel
+
+
+@dataclass
+class Partition:
+    """Holds info of a security control panel partition (area)."""
+
+    id: int
+    name: str
+    unique_id: str = None
+    enabled: bool = True
+    arming: str = "disarm"  # "stay", "away", "disarm", "arming"
+    alarm: bool = False
+    delay_time: int = 0
+
+
+@dataclass
+class Zone:
+    """Holds info of a security control panel zone."""
+
+    id: int
+    name: str
+    unique_id: str = None
+    partition_id: int = 0
+    detector_type: str = "other"
+    zone_type: str = "Instant"
+    status: str = "notRelated"  # online/offline/trigger/breakDown/heartbeatAbnormal
+    alarm: bool = False
+    bypassed: bool = False
+    tamper_evident: bool = False
+    armed: bool = False
+    charge: str = "normal"  # "normal"/"lowPower"
+    # Real-time open/closed state, only reported for magnetic contact (door/window)
+    # detectors. Confirmed against real hardware to be unreliable on some wireless
+    # zones (stuck at a fixed value regardless of actual open/close) -- kept only as an
+    # informational attribute; "status" == "trigger" is what actually drives the
+    # binary_sensor now (see coordinator._zone_is_triggered).
+    magnet_open_status: bool | None = None
+    # Telemetry only reported by wireless zones (battery-powered, RF-connected); wired
+    # zones don't return these fields at all.
+    charge_value: int | None = None  # remaining battery percentage, 0-100
+    signal: int | None = None  # RF signal quality/strength
+    temperature: int | None = None  # detector-reported temperature
+    humidity: int | None = None  # humidity detector reading, 10-90%
+    # "wired"/"wireless" -- the authoritative signal for whether this zone is a physical
+    # wired input on the panel/an expansion module (no battery/signal/repeater at all) vs an
+    # RF-paired wireless detector. Confirmed against real hardware: a purely mechanical wired
+    # zone (e.g. a hardwired panel input) never reports this field at all.
+    zone_attrib: str | None = None
+    is_via_repeater: bool | None = None  # wireless only: whether signal is relayed via a repeater
+    stay_away: bool | None = None  # whether stay-arming bypass is enabled for the zone
+    model: str | None = None  # detector model, e.g. "DS-PDMC-EG2"
+    version: str | None = None  # detector firmware version
+    # Detector's own serial number ("detectorSeq") -- only reported by the Configuration
+    # endpoint (not status), and only for wireless zones with a paired physical detector.
+    serial_no: str | None = None
+    chime_enabled: bool | None = None  # whether a doorbell chime sounds when the zone opens
+    silent_enabled: bool | None = None  # whether the siren is muted for this zone specifically
+
+
+@dataclass
+class Peripheral:
+    """Holds info of a security control panel peripheral (keypad, siren, remote/keyfob,
+    repeater or extension module) -- anything that isn't a zone or partition but is a
+    distinct physical unit paired to the panel, reported by its own SecurityCP/status/*
+    endpoint. Not every field applies to every kind (e.g. remotes/keyfobs don't report
+    status/tamper/signal/temperature) -- absent fields stay None.
+    """
+
+    kind: str  # "keypad", "siren", "remote", "repeater", "extension_module"
+    id: int
+    name: str
+    unique_id: str = None
+    serial_no: str | None = None  # peripheral's own serial number ("seq")
+    model: str | None = None
+    version: str | None = None
+    status: str | None = None  # online/offline/notRelated/heartbeatAbnormal
+    tamper_evident: bool | None = None
+    charge: str | None = None  # "normal"/"lowPower"
+    charge_value: int | None = None  # remaining battery percentage, 0-100
+    signal: int | None = None  # RF signal quality/strength, 0-255
+    temperature: int | None = None
+    mains_power: bool | None = None  # external/AC power connected (wireless units)
+
+
+@dataclass
+class SecurityHostStatus:
+    """Holds security control panel host-level status (not specific to any zone/partition)."""
+
+    tamper_evident: bool = False  # panel cover/case open
+    ac_connected: bool = True  # mains (220V) power present
+    fault_count: int = 0  # total number of active faults reported by the panel
+    battery_status: str = "normal"  # "normal"/"lowPower"/"miss" (backup battery missing)
+    battery_percent: int | None = None
+    battery_voltage: float | None = None
 
 
 @dataclass
