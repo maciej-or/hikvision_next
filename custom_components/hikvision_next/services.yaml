@@ -26,6 +26,104 @@ reboot:
         config_entry:
           integration: hikvision_next
 
+ptz_move:
+  name: PTZ move
+  description: Start continuous PTZ movement on a channel. Pair with ptz_stop on release.
+  fields:
+    config_entry_id:
+      required: true
+      name: Device
+      selector:
+        config_entry:
+          integration: hikvision_next
+    channel_id:
+      required: true
+      name: Channel
+      selector:
+        number:
+          min: 1
+          max: 256
+          mode: box
+    pan:
+      required: false
+      default: 0
+      name: Pan speed
+      selector:
+        number:
+          min: -100
+          max: 100
+          mode: box
+    tilt:
+      required: false
+      default: 0
+      name: Tilt speed
+      selector:
+        number:
+          min: -100
+          max: 100
+          mode: box
+    zoom:
+      required: false
+      default: 0
+      name: Zoom speed
+      selector:
+        number:
+          min: -100
+          max: 100
+          mode: box
+
+ptz_stop:
+  name: PTZ stop
+  description: Stop PTZ movement on a channel.
+  fields:
+    config_entry_id:
+      required: true
+      name: Device
+      selector:
+        config_entry:
+          integration: hikvision_next
+    channel_id:
+      required: true
+      name: Channel
+      selector:
+        number:
+          min: 1
+          max: 256
+          mode: box
+
+intercom_answer:
+  name: Intercom answer
+  description: Answer an incoming video intercom call via SDK RemoteConfig.
+  fields:
+    config_entry_id:
+      required: true
+      name: Device
+      selector:
+        config_entry:
+          integration: hikvision_next
+
+intercom_reject:
+  name: Intercom reject
+  description: Reject an incoming video intercom call via SDK RemoteConfig.
+  fields:
+    config_entry_id:
+      required: true
+      name: Device
+      selector:
+        config_entry:
+          integration: hikvision_next
+
+intercom_hangup:
+  name: Intercom hangup
+  description: End the active video intercom call via SDK RemoteConfig.
+  fields:
+    config_entry_id:
+      required: true
+      name: Device
+      selector:
+        config_entry:
+          integration: hikvision_next
+
 isapi_request:
   name: ISAPI request
   description: "Send a custom ISAPI request to the device."

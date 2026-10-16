@@ -1,6 +1,7 @@
 # manifest.json
 xmltodict==0.13.0
 requests-toolbelt==1.0.0
+aiortc==1.14.0
 
 # tests
 pytest

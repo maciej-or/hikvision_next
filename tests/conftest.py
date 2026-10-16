@@ -4,7 +4,15 @@ import json
 import pytest
 import respx
 import xmltodict
-from custom_components.hikvision_next.const import DOMAIN, CONF_SET_ALARM_SERVER, CONF_ALARM_SERVER_HOST, RTSP_PORT_FORCED
+from custom_components.hikvision_next.const import (
+    CONF_CONNECTION_HTTP_CALLBACK,
+    CONF_CONNECTION_HTTP_NOTIFY,
+    CONF_CONNECTION_TYPE,
+    CONF_SET_ALARM_SERVER,
+    CONF_ALARM_SERVER_HOST,
+    DOMAIN,
+    RTSP_PORT_FORCED,
+)
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.hikvision_next.isapi import ISAPIClient
@@ -18,10 +26,17 @@ TEST_CLIENT = {
     CONF_PASSWORD: "***"
 }
 
-TEST_CONFIG = {**TEST_CLIENT, CONF_VERIFY_SSL: True, CONF_SET_ALARM_SERVER: False, CONF_ALARM_SERVER_HOST: ""}
+TEST_CONFIG = {
+    **TEST_CLIENT,
+    CONF_VERIFY_SSL: True,
+    CONF_CONNECTION_TYPE: CONF_CONNECTION_HTTP_NOTIFY,
+    CONF_SET_ALARM_SERVER: False,
+    CONF_ALARM_SERVER_HOST: "",
+}
 TEST_CONFIG_WITH_ALARM_SERVER = {
     **TEST_CLIENT,
     CONF_VERIFY_SSL: True,
+    CONF_CONNECTION_TYPE: CONF_CONNECTION_HTTP_CALLBACK,
     CONF_SET_ALARM_SERVER: True,
     CONF_ALARM_SERVER_HOST: "http://1.0.0.11:8123",
 }
@@ -45,7 +60,7 @@ def mock_config_entry(request) -> MockConfigEntry:
     return MockConfigEntry(
         domain=DOMAIN,
         data=config,
-        version=3
+        version=4
     )
 
 
@@ -64,19 +79,45 @@ def mock_endpoint(endpoint, file=None, status_code=200):
     return respx.get(url).respond(text=load_fixture(path, file))
 
 
+def _mock_isapi_response(device_url: str, endpoint: str, response: dict) -> None:
+    url = f"{device_url}/ISAPI/{endpoint}"
+    xml = xmltodict.unparse(response)
+    respx.get(url).respond(text=xml)
+
+
 def mock_device_endpoints(model, device_url=TEST_HOST):
     """Mock all ISAPI requests used for device initialization."""
 
     f = open(f"tests/fixtures/devices/{model}.json", "r")
     diagnostics = json.load(f)
     f.close()
-    for endpoint, data in diagnostics["data"]["ISAPI"].items():
+    isapi_endpoints = diagnostics["data"]["ISAPI"]
+
+    for endpoint, data in isapi_endpoints.items():
         url = f"{device_url}/ISAPI/{endpoint}"
         if status_code := data.get("status_code"):
             respx.get(url).respond(status_code=status_code)
         elif response := data.get("response"):
             xml = xmltodict.unparse(response)
             respx.get(url).respond(text=xml)
+
+    device_cap = isapi_endpoints.get("System/capabilities", {}).get("response", {})
+    if "Event/capabilities" not in isapi_endpoints:
+        event_cap = device_cap.get("DeviceCap", {}).get("EventCap")
+        if event_cap:
+            _mock_isapi_response(device_url, "Event/capabilities", {"EventCap": event_cap})
+
+    if "Smart/capabilities" not in isapi_endpoints:
+        smart_cap = device_cap.get("DeviceCap", {}).get("SmartCap")
+        if smart_cap:
+            _mock_isapi_response(device_url, "Smart/capabilities", {"SmartCap": smart_cap})
+
+    if "Event/notification/subscribeEventCap" not in isapi_endpoints:
+        _mock_isapi_response(
+            device_url,
+            "Event/notification/subscribeEventCap",
+            {"SubscribeEventCap": {"isSupportSubscribeEvent": "false"}},
+        )
 
 
 @pytest.fixture
@@ -150,7 +191,7 @@ async def init_multi_device_integration(respx_mock, request, mock_isapi, hass: H
         config_entry = MockConfigEntry(
             domain=DOMAIN,
             data=device['config'],
-            version=3
+            version=4
         )
         model = device['model']
         mock_device_endpoints(model, device['config'][CONF_HOST])

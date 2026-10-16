@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-
+from homeassistant.const import STATE_ON
 
 @dataclass
 class AlarmServer:
@@ -23,6 +23,13 @@ class AlertInfo:
     mac: str = ""
     region_id: int = 0
     detection_target: str = field(default=None)
+    state: str = STATE_ON
+    anpr_license_plate: str = field(default=None)
+    anpr_direction: str = field(default=None)
+    anpr_confidence_level: int = 0
+    face_person_name: str = field(default=None)
+    face_employee_no: str = field(default=None)
+    face_card_no: str = field(default=None)
 
 
 @dataclass
@@ -41,6 +48,8 @@ class EventInfo:
     channel_id: int
     io_port_id: int
     unique_id: str = None
+    anpr_plate_unique_id: str = None
+    anpr_image_unique_id: str = None
     url: str = None  # URL to fetch the event status (enabled/disabled)
     is_proxy: bool = False  # True if the event comes from device connected via NVR
     disabled: bool = False
@@ -61,6 +70,19 @@ class CameraStreamInfo:
     height: int
     audio: bool
     use_alternate_picture_url: bool = False
+    audio_codec: str = ""
+    audio_sample_rate: int = 8000
+
+
+def parse_audio_sample_rate(value) -> int:
+    """ISAPI normally returns kHz, but some firmwares return Hz or units."""
+    try:
+        rate = float(str(value).lower().replace("khz", "").replace("hz", "").strip())
+    except (TypeError, ValueError):
+        return 8000
+    if rate < 1000:
+        rate *= 1000
+    return int(rate) if rate in (8000, 16000, 22050, 24000, 32000, 44100, 48000) else 8000
 
 
 @dataclass
@@ -105,6 +127,34 @@ class CapabilitiesInfo:
     support_event_mutex_checking: bool = False
     input_ports: int = 0
     output_ports: int = 0
+    support_storage: bool = False
+    support_anpr: bool = False
+    support_video_intercom: bool = False
+    support_subscribe_event: bool = False  # whether device supports long-lived subscribeEvent connections
+    subscribe_event_cap: "SubscribeEventCapInfo" = field(default_factory=lambda: SubscribeEventCapInfo())
+
+
+@dataclass
+class SubscribeEventCapInfo:
+    """Parsed SubscribeEvent capability from Event/notification/subscribeEventCap.
+
+    This is the authoritative source for building correct, device-supported
+    subscription payloads for the generic multi-event EventSubscription.
+    """
+
+    supports_subscribe: bool = False
+    formats: list[str] = field(default_factory=list)           # e.g. ['xml', 'json']
+    channel_modes: list[str] = field(default_factory=list)     # ['all', 'list']
+    event_modes: list[str] = field(default_factory=list)       # ['all', 'list']
+    supported_event_types: list[str] = field(default_factory=list)
+    # Global picture upload preference
+    picture_url_types: list[str] = field(default_factory=list)
+    default_picture_url_type: str = ""
+    # Per-event preferences (type -> list of allowed picture types)
+    event_picture_types: dict[str, list[str]] = field(default_factory=dict)
+    # Whether the device requires explicit EventList even for "all"
+    requires_event_list: bool = False
+    raw_caps: dict = None
 
 
 @dataclass
@@ -119,6 +169,7 @@ class AnalogCamera:
     connection_type: str
     streams: list[CameraStreamInfo] = field(default_factory=list)
     events_info: list[EventInfo] = field(default_factory=list)
+    support_ptz: bool = False
 
 
 @dataclass

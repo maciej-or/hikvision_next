@@ -11,8 +11,19 @@ from homeassistant.core import (
 )
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import ACTION_ISAPI_REQUEST, ACTION_REBOOT, ATTR_CONFIG_ENTRY_ID, DOMAIN
+from .const import (
+    ACTION_INTERCOM_ANSWER,
+    ACTION_INTERCOM_HANGUP,
+    ACTION_INTERCOM_REJECT,
+    ACTION_ISAPI_REQUEST,
+    ACTION_PTZ_MOVE,
+    ACTION_PTZ_STOP,
+    ACTION_REBOOT,
+    ATTR_CONFIG_ENTRY_ID,
+    DOMAIN,
+)
 from .isapi import ISAPIForbiddenError, ISAPIUnauthorizedError
+from .sdk.utils import SDKError
 
 ACTION_ISAPI_REQUEST_SCHEMA = vol.Schema(
     {
@@ -20,6 +31,29 @@ ACTION_ISAPI_REQUEST_SCHEMA = vol.Schema(
         vol.Required("method"): str,
         vol.Required("path"): str,
         vol.Optional("payload"): str,
+    }
+)
+
+ACTION_PTZ_MOVE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): str,
+        vol.Required("channel_id"): vol.Coerce(int),
+        vol.Optional("pan", default=0): vol.Coerce(int),
+        vol.Optional("tilt", default=0): vol.Coerce(int),
+        vol.Optional("zoom", default=0): vol.Coerce(int),
+    }
+)
+
+ACTION_PTZ_STOP_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): str,
+        vol.Required("channel_id"): vol.Coerce(int),
+    }
+)
+
+ACTION_INTERCOM_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CONFIG_ENTRY_ID): str,
     }
 )
 
@@ -65,4 +99,71 @@ def setup_services(hass: HomeAssistant) -> None:
         handle_isapi_request,
         schema=ACTION_ISAPI_REQUEST_SCHEMA,
         supports_response=SupportsResponse.ONLY,
+    )
+
+    async def handle_ptz_move(call: ServiceCall) -> None:
+        entry = hass.config_entries.async_get_entry(call.data[ATTR_CONFIG_ENTRY_ID])
+        device = entry.runtime_data
+        camera = device.get_camera_by_id(call.data["channel_id"])
+        if camera is None or not camera.support_ptz:
+            raise HomeAssistantError(f"Channel {call.data['channel_id']} does not support PTZ")
+        await device.ptz_start(
+            camera,
+            pan=call.data.get("pan", 0),
+            tilt=call.data.get("tilt", 0),
+            zoom=call.data.get("zoom", 0),
+        )
+
+    async def handle_ptz_stop(call: ServiceCall) -> None:
+        entry = hass.config_entries.async_get_entry(call.data[ATTR_CONFIG_ENTRY_ID])
+        device = entry.runtime_data
+        camera = device.get_camera_by_id(call.data["channel_id"])
+        if camera is None or not camera.support_ptz:
+            raise HomeAssistantError(f"Channel {call.data['channel_id']} does not support PTZ")
+        await device.ptz_stop(camera)
+
+    hass.services.async_register(DOMAIN, ACTION_PTZ_MOVE, handle_ptz_move, schema=ACTION_PTZ_MOVE_SCHEMA)
+    hass.services.async_register(DOMAIN, ACTION_PTZ_STOP, handle_ptz_stop, schema=ACTION_PTZ_STOP_SCHEMA)
+
+    async def handle_intercom_answer(call: ServiceCall) -> None:
+        await _handle_intercom(call, ACTION_INTERCOM_ANSWER)
+
+    async def handle_intercom_reject(call: ServiceCall) -> None:
+        await _handle_intercom(call, ACTION_INTERCOM_REJECT)
+
+    async def handle_intercom_hangup(call: ServiceCall) -> None:
+        await _handle_intercom(call, ACTION_INTERCOM_HANGUP)
+
+    async def _handle_intercom(call: ServiceCall, action: str) -> None:
+        entry = hass.config_entries.async_get_entry(call.data[ATTR_CONFIG_ENTRY_ID])
+        device = entry.runtime_data
+        if not device.capabilities.support_video_intercom:
+            raise HomeAssistantError("Device does not support video intercom")
+        try:
+            if action == ACTION_INTERCOM_ANSWER:
+                await device.intercom_answer()
+            elif action == ACTION_INTERCOM_REJECT:
+                await device.intercom_reject()
+            else:
+                await device.intercom_hangup()
+        except (ValueError, SDKError) as ex:
+            raise HomeAssistantError(str(ex)) from ex
+
+    hass.services.async_register(
+        DOMAIN,
+        ACTION_INTERCOM_ANSWER,
+        handle_intercom_answer,
+        schema=ACTION_INTERCOM_SCHEMA,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        ACTION_INTERCOM_REJECT,
+        handle_intercom_reject,
+        schema=ACTION_INTERCOM_SCHEMA,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        ACTION_INTERCOM_HANGUP,
+        handle_intercom_hangup,
+        schema=ACTION_INTERCOM_SCHEMA,
     )
