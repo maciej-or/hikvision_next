@@ -1,0 +1,9 @@
+{
+  "name": "hikvision-next-card-tests",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/frontend/*.test.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "devDependencies": { "happy-dom": "21.0.3" }
+}

@@ -14,7 +14,8 @@
           "username": "用户名",
           "verify_ssl": "验证 SSL 证书（自签名证书请取消勾选）",
           "rtsp_port_forced": "强制 RTSP 端口（可选）",
-          "connection_type": "连接类型"
+          "connection_type": "连接类型",
+          "sdk_webrtc": "SDK WebRTC 低延迟视频（需选择 SDK 连接模式，H.264）"
         }
       },
       "alarm_server": {
@@ -29,7 +30,8 @@
       "cannot_connect": "连接失败",
       "invalid_auth": "认证无效",
       "insufficient_permission": "访问被拒绝，请检查用户权限",
-      "unknown": "未知错误"
+      "unknown": "未知错误",
+      "sdk_required": "低延迟视频需要使用 SDK 连接模式"
     }
   },
   "entity": {

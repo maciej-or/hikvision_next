@@ -30,6 +30,7 @@ from .const import (
     resolve_connection_type,
 )
 from .hikvision_device import HikvisionDevice
+from .frontend import async_register_card
 from .isapi import ISAPIUnauthorizedError
 from .notifications import EventNotificationsView
 from .services import setup_services
@@ -59,6 +60,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Hikvision component."""
 
     setup_services(hass)
+    await async_register_card(hass)
 
     return True
 
@@ -146,6 +148,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: HikvisionConfigEntry) -
 
     # Reset alarm server after it has been set
     device = entry.runtime_data
+    if device.webrtc_manager is not None:
+        await device.webrtc_manager.close()
+        device.webrtc_manager = None
     if device.control_alarm_server_host:
         with suppress(Exception):
             await device.set_alarm_server("http://0.0.0.0:80", "/")

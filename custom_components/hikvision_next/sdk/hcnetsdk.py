@@ -789,12 +789,12 @@ class NET_DVR_CLIENTINFO(Structure):
     ]
 
 class NET_DVR_PREVIEWINFO(Structure):
-    """Preview information structure - FIXED for DS-KD8003"""
+    """HCNetSDK preview ABI (LONG/DWORD remain 32 bits on LP64)."""
     _fields_ = [
-        ("lChannel", c_long),           # CHANGED: Use c_long instead of c_int for 64-bit compatibility
+        ("lChannel", LONG),
         ("dwStreamType", c_uint),       # 0: Main stream, 1: Sub-stream
         ("dwLinkMode", c_uint),         # 0: TCP, 1: UDP, 2: Multicast, 3: RTP, 4: RTP/RTSP, 5: RTP/HTTP
-        ("hPlayWnd", c_void_p),         # Handle to the display window (None for background capture)
+        ("hPlayWnd", DWORD),            # Linux HCNetSDK HWND is unsigned int, even on LP64
         ("bBlocked", c_int),            # 0: Non-blocking, 1: Blocking
         ("bPassbackRecord", c_int),     # 0: Do not record, 1: Record
         ("byPreviewMode", c_byte),      # 0: Normal, 1: Delayed
@@ -804,7 +804,9 @@ class NET_DVR_PREVIEWINFO(Structure):
         ("byVideoCodingType", c_byte),  # Video coding type
         ("dwDisplayBufNum", c_uint),    # Display buffer number
         ("byNPQMode", c_byte),          # NPQ mode
-        ("byRes", c_byte * 215)         # Adjusted reserved padding for exact size
+        ("byRecvMetaData", c_byte),
+        ("byDataType", c_byte),
+        ("byRes", c_byte * 213)
     ]
 
 class NET_DVR_VIDEO_INTERCOM_EVENT(Structure):

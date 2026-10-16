@@ -7,9 +7,11 @@ from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from .isapi.const import EVENTS as ISAPI_EVENTS, FACE_SNAP_EVENT_IDS
 
 DOMAIN: Final = "hikvision_next"
+CONTROL_PANEL_URL: Final = "hikvision-next-control"
 
 RTSP_PORT_FORCED: Final = "rtsp_port_forced"
 CONF_CONNECTION_TYPE: Final = "connection_type"
+CONF_SDK_WEBRTC: Final = "sdk_webrtc"
 CONF_USE_HTTP_NOTIFY: Final = "use_http_notify"
 CONF_SET_ALARM_SERVER: Final = "set_alarm_server"
 CONF_ALARM_SERVER_HOST: Final = "alarm_server"

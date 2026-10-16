@@ -45,6 +45,7 @@ from .models import (
     AlertInfo,
     AnalogCamera,
     CameraStreamInfo,
+    parse_audio_sample_rate,
     CapabilitiesInfo,
     EventInfo,
     IPCamera,
@@ -869,6 +870,8 @@ class ISAPIClient:
             width=int(deep_get(stream_info, "Video.videoResolutionWidth", 0) or 0),
             height=int(deep_get(stream_info, "Video.videoResolutionHeight", 0) or 0),
             audio=str_to_bool(deep_get(stream_info, "Audio.enabled", "false")),
+            audio_codec=deep_get(stream_info, "Audio.audioCompressionType", ""),
+            audio_sample_rate=parse_audio_sample_rate(deep_get(stream_info, "Audio.audioSamplingRate", 8)),
         )
 
     async def _load_streaming_channel_list(self) -> list[dict]:

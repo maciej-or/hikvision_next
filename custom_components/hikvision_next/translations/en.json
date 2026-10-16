@@ -14,7 +14,8 @@
           "username": "Username",
           "verify_ssl": "Verify SSL certificate (uncheck for self-signed certificate)",
           "rtsp_port_forced": "Force RTSP port (Optional)",
-          "connection_type": "Connection type"
+          "connection_type": "Connection type",
+          "sdk_webrtc": "SDK WebRTC low-latency video (SDK connection mode, H.264)"
         }
       },
       "alarm_server": {
@@ -29,7 +30,8 @@
       "cannot_connect": "Failed to connect",
       "invalid_auth": "Invalid authentication",
       "insufficient_permission": "Access forbidden, check user permissions",
-      "unknown": "Unexpected error"
+      "unknown": "Unexpected error",
+      "sdk_required": "SDK WebRTC requires the SDK connection type"
     }
   },
   "entity": {

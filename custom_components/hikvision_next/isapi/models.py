@@ -70,6 +70,19 @@ class CameraStreamInfo:
     height: int
     audio: bool
     use_alternate_picture_url: bool = False
+    audio_codec: str = ""
+    audio_sample_rate: int = 8000
+
+
+def parse_audio_sample_rate(value) -> int:
+    """ISAPI normally returns kHz, but some firmwares return Hz or units."""
+    try:
+        rate = float(str(value).lower().replace("khz", "").replace("hz", "").strip())
+    except (TypeError, ValueError):
+        return 8000
+    if rate < 1000:
+        rate *= 1000
+    return int(rate) if rate in (8000, 16000, 22050, 24000, 32000, 44100, 48000) else 8000
 
 
 @dataclass

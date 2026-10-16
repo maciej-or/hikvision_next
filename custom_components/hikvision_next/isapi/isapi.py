@@ -12,6 +12,7 @@ import json
 import logging
 from typing import TYPE_CHECKING, Any, AsyncIterator
 from urllib.parse import quote, urljoin, urlparse
+from xml.parsers.expat import ExpatError
 
 import httpx
 from httpx import HTTPStatusError
@@ -21,6 +22,7 @@ import time
 from homeassistant.const import (
     STATE_ON, STATE_OFF
 )
+from homeassistant.exceptions import HomeAssistantError
 from ..door_control import DoorControlAction, ISAPI_REMOTE_CONTROL_DOOR_CMD
 from .const import (
     CONNECTION_TYPE_DIRECT,
@@ -45,6 +47,7 @@ from .models import (
     AlertInfo,
     AnalogCamera,
     CameraStreamInfo,
+    parse_audio_sample_rate,
     CapabilitiesInfo,
     EventInfo,
     IPCamera,
@@ -376,6 +379,24 @@ class ISAPIClient:
             )
         )
 
+    @staticmethod
+    def _validate_ptz_response(response: str) -> None:
+        """Transport/SDK success does not imply the device accepted the action."""
+        try:
+            payload = xmltodict.parse(response)
+        except (ExpatError, TypeError, ValueError) as err:
+            raise HomeAssistantError("PTZ endpoint returned an empty or invalid XML response") from err
+        status = payload.get("ResponseStatus", {})
+        if not isinstance(status, dict):
+            return
+        code = status.get("statusCode")
+        subcode = status.get("subStatusCode")
+        if (code is not None and str(code) != "1") or (subcode and str(subcode).lower() != "ok"):
+            raise HomeAssistantError(
+                f"Device rejected PTZ command: statusCode={code}, subStatusCode={subcode}, "
+                f"statusString={status.get('statusString', '')}"
+            )
+
     def _ptz_continuous_paths(self, base_url: str) -> list[str]:
         return list(dict.fromkeys([f"{base_url}/continuous", f"{base_url}/Continuous"]))
 
@@ -397,11 +418,13 @@ class ISAPIClient:
         for path in self._ptz_continuous_paths(base_url):
             for payload in self._ptz_payload_variants(pan, tilt, zoom):
                 try:
-                    await self.request(PUT, path, present="xml", data=payload)
+                    response = await self.request(PUT, path, present="xml", data=payload)
+                    self._validate_ptz_response(response)
                     _LOGGER.debug("PTZ continuous ok on %s", path)
                     return
                 except Exception as ex:
-                    last_error = ex
+                    if last_error is None or isinstance(ex, HomeAssistantError):
+                        last_error = ex
         if last_error:
             raise last_error
 
@@ -411,7 +434,8 @@ class ISAPIClient:
         stop_payload = self._ptz_data_xml_plain(0, 0, 0)
         for path in self._ptz_stop_paths(base_url):
             try:
-                await self.request(PUT, path, present="xml", data=stop_payload)
+                response = await self.request(PUT, path, present="xml", data=stop_payload)
+                self._validate_ptz_response(response)
                 _LOGGER.debug("PTZ stop ok on %s", path)
                 return
             except Exception:
@@ -909,6 +933,8 @@ class ISAPIClient:
             width=int(deep_get(stream_info, "Video.videoResolutionWidth", 0) or 0),
             height=int(deep_get(stream_info, "Video.videoResolutionHeight", 0) or 0),
             audio=str_to_bool(deep_get(stream_info, "Audio.enabled", "false")),
+            audio_codec=deep_get(stream_info, "Audio.audioCompressionType", ""),
+            audio_sample_rate=parse_audio_sample_rate(deep_get(stream_info, "Audio.audioSamplingRate", 8)),
         )
 
     async def _load_streaming_channel_list(self) -> list[dict]:

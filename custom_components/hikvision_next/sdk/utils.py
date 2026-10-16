@@ -94,6 +94,7 @@ def setupFunctionTypes(lib: CDLL):
     lib.NET_DVR_RemoteControl.argtypes = [LONG, DWORD, c_void_p, DWORD]
     lib.NET_DVR_RemoteControl.restype = BOOL
     lib.NET_DVR_STDXMLConfig.argtypes = [LONG, POINTER(NET_DVR_XML_CONFIG_INPUT), POINTER(NET_DVR_XML_CONFIG_OUTPUT)]
+    lib.NET_DVR_STDXMLConfig.restype = c_int
     lib.NET_DVR_GetDeviceAbility.argtypes = [LONG, DWORD, c_char_p, DWORD, c_char_p, DWORD]
     lib.NET_DVR_PTZControl_Other.argtypes = [LONG, LONG, DWORD, DWORD]
     lib.NET_DVR_PTZControlWithSpeed_Other.argtypes = [LONG, LONG, DWORD, DWORD, DWORD]
@@ -162,7 +163,7 @@ def call_ISAPI(sdk: CDLL, user_id: int, http_method: str, url: str, requestBody:
     # e.g.: `GET /ISAPI/System/IO/outputs`
     inUrl = f"{http_method} {url}"
 
-    logger.debug("Call ISAPI request method url body: {} {} {} ", http_method, url, requestBody)
+    logger.debug("SDK ISAPI %s %s", http_method, url)
 
     # Input information
     inputStruct = NET_DVR_XML_CONFIG_INPUT()
@@ -171,7 +172,7 @@ def call_ISAPI(sdk: CDLL, user_id: int, http_method: str, url: str, requestBody:
     inputStruct.lpRequestUrl = cast(c_char_p(requestUrlBuffer), c_void_p)
     inputStruct.dwRequestUrlLen = len(requestUrlBuffer)
 
-    inputBuffer = bytes(requestBody, "ascii")
+    inputBuffer = (requestBody or "").encode("utf-8")
 
     inputStruct.lpInBuffer = cast(c_char_p(inputBuffer), c_void_p)
     inputStruct.dwInBufferSize = len(inputBuffer)
@@ -196,17 +197,19 @@ def call_ISAPI(sdk: CDLL, user_id: int, http_method: str, url: str, requestBody:
     result = sdk.NET_DVR_STDXMLConfig(user_id, inputStruct, outputStruct)
 
     if not result:
-        # The response status is populated only in case of error
-        logger.debug("Response status: {}", responseStatusBuffer.value.decode("utf-8"))
+        logger.debug("SDK ISAPI error status: %s", responseStatusBuffer.value.decode("utf-8", errors="replace"))
         raise SDKError(sdk, f"Error while calling ISAPI {url}")
 
-    size = outputStruct.dwReturnedXMLSize
-    if size == 0 or not outputStruct.lpOutBuffer:
-        response_body = bytearray()
-    else:
-        response_body = bytearray(string_at(outputStruct.lpOutBuffer, size))
+    # PUT/POST ResponseStatus can live in lpStatusBuffer even on SDK success.
+    # dwReturnedXMLSize then describes that XML while lpOutBuffer is all zeros.
+    # Read only the owned allocations; never trust a returned length past them.
+    size = min(int(outputStruct.dwReturnedXMLSize), outputSize)
+    body = bytes(outputBuffer[:size])
+    if not body.strip(b"\0"):
+        body = responseStatusBuffer.value
+    response_body = bytearray(body)
 
-    logger.debug("Response output: {}", response_body.decode("utf-8", errors="replace"))
+    logger.debug("SDK ISAPI response: %d bytes", len(response_body))
 
     return response_body
 

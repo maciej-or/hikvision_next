@@ -62,8 +62,18 @@ def ptz_command_from_action(action: str) -> int | None:
     return PTZ_ACTION_COMMANDS.get(action)
 
 
-def ptz_sdk_channel_candidates(camera: AnalogCamera | IPCamera, *, is_nvr: bool) -> list[int]:
+def ptz_sdk_channel_candidates(
+    camera: AnalogCamera | IPCamera,
+    *,
+    is_nvr: bool,
+    digital_channel_start: int = 0,
+    analog_channels: int = 0,
+) -> list[int]:
     """Return SDK lChannel values to try for PTZ on a camera."""
+    if is_nvr and isinstance(camera, IPCamera) and digital_channel_start:
+        # Same numbering as SDK preview. srcInputPort belongs to the remote
+        # camera, not the NVR; never try other cameras when this mapping is known.
+        return [digital_channel_start + camera.id - analog_channels - 1]
     candidates = [camera.id]
     if is_nvr and isinstance(camera, IPCamera):
         if camera.input_port:
@@ -74,7 +84,7 @@ def ptz_sdk_channel_candidates(camera: AnalogCamera | IPCamera, *, is_nvr: bool)
 
 
 def ptz_prefers_isapi(camera: AnalogCamera | IPCamera, *, is_nvr: bool) -> bool:
-    """NVR proxied IP cameras require ISAPI PTZCtrlProxy instead of SDK PTZ APIs."""
+    """Identify NVR proxied channels which have an ISAPI PTZ fallback path."""
     return is_nvr and isinstance(camera, IPCamera) and camera.connection_type == CONNECTION_TYPE_PROXIED
 
 

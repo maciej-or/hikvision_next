@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 import logging
+from collections.abc import Mapping
 from typing import Any
 
 import voluptuous as vol
-
 from homeassistant.components.network import async_get_source_ip
 from homeassistant.config_entries import (
     SOURCE_REAUTH,
@@ -25,6 +24,7 @@ from .const import (
     CONF_CONNECTION_HTTP_NOTIFY,
     CONF_CONNECTION_SDK,
     CONF_CONNECTION_TYPE,
+    CONF_SDK_WEBRTC,
     CONF_SET_ALARM_SERVER,
     CONF_USE_HTTP_NOTIFY,
     DOMAIN,
@@ -89,6 +89,7 @@ class HikvisionConfigFlow(ConfigFlow, domain=DOMAIN):
         """Build schema for credentials and connection type."""
         suggested = self._get_user_suggested(user_input)
         suggested[CONF_CONNECTION_TYPE] = resolve_connection_type(suggested)
+        suggested.setdefault(CONF_SDK_WEBRTC, False)
 
         schema = vol.Schema(
             {
@@ -97,6 +98,7 @@ class HikvisionConfigFlow(ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_USERNAME): str,
                 vol.Required(CONF_PASSWORD): str,
                 vol.Required(CONF_CONNECTION_TYPE, default=CONF_CONNECTION_HTTP_NOTIFY): CONNECTION_TYPE_SELECTOR,
+                vol.Optional(CONF_SDK_WEBRTC): bool,
                 vol.Optional(RTSP_PORT_FORCED): vol.And(int, vol.Range(min=1)),
             }
         )
@@ -124,6 +126,11 @@ class HikvisionConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str],
     ) -> ConfigFlowResult:
         """Validate input and create or update the config entry."""
+        if user_input.get(CONF_SDK_WEBRTC) and resolve_connection_type(user_input) != CONF_CONNECTION_SDK:
+            return self.async_show_form(
+                step_id="user", data_schema=await self._get_user_schema(user_input),
+                errors={CONF_SDK_WEBRTC: "sdk_required"},
+            )
         try:
             host = user_input[CONF_HOST].rstrip("/")
             user_input_validated = self._normalize_user_input({

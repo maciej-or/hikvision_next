@@ -1,28 +1,44 @@
 """Tests for the config flow."""
 
-import respx
-import pytest
 from unittest.mock import patch
+
+import httpx
+import pytest
+import respx
+from homeassistant.config_entries import SOURCE_USER, ConfigEntryState
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
+from homeassistant.core import HomeAssistant
+from homeassistant.data_entry_flow import FlowResultType
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+
 from custom_components.hikvision_next.const import (
     CONF_ALARM_SERVER_HOST,
     CONF_CONNECTION_HTTP_CALLBACK,
     CONF_CONNECTION_TYPE,
+    CONF_SDK_WEBRTC,
     CONF_SET_ALARM_SERVER,
     DOMAIN,
 )
-from homeassistant.data_entry_flow import FlowResultType
-from homeassistant.config_entries import SOURCE_USER, ConfigEntryState
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_VERIFY_SSL
 from tests.conftest import (
     TEST_CONFIG,
+    TEST_CONFIG_OUTSIDE_NETWORK,
     TEST_CONFIG_WITH_ALARM_SERVER,
     TEST_HOST,
-    TEST_CONFIG_OUTSIDE_NETWORK,
     load_fixture,
     mock_endpoint,
 )
-from homeassistant.core import HomeAssistant
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+# The first form no longer contains the second-step alarm server fields.
+USER_INPUT = {key: value for key, value in TEST_CONFIG.items() if key not in (CONF_SET_ALARM_SERVER, "alarm_server")}
+
+
+async def test_webrtc_requires_sdk_connection(hass):
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], user_input={**USER_INPUT, CONF_SDK_WEBRTC: True}
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["errors"] == {CONF_SDK_WEBRTC: "sdk_required"}
 
 
 @pytest.mark.parametrize("mock_isapi_device", ["DS-7608NXI-I2"], indirect=True)
@@ -34,7 +50,7 @@ async def test_successful_config_flow_for_nvr(hass, mock_isapi_device):
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
 
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=TEST_CONFIG)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=USER_INPUT)
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["data"] == TEST_CONFIG
@@ -51,7 +67,7 @@ async def test_successful_config_flow_for_ipc(hass, mock_isapi_device):
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
 
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=TEST_CONFIG)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=USER_INPUT)
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert result["data"] == TEST_CONFIG
@@ -68,8 +84,8 @@ async def test_invalid_auth_config_flow(hass, mock_isapi):
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
 
-    respx.get(f"{TEST_HOST}/ISAPI/System/deviceInfo").respond(status_code=401)
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=TEST_CONFIG)
+    respx.get(f"{TEST_HOST}/ISAPI/System/deviceInfo").respond(status_code=401, headers={"WWW-Authenticate": 'Basic realm="Hikvision"'})
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=USER_INPUT)
     assert result.get("type") == FlowResultType.FORM
     assert result.get("errors") == {"base": "invalid_auth"}
 
@@ -83,8 +99,11 @@ async def test_insufficient_permission_config_flow(hass, mock_isapi):
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
 
-    respx.get(f"{TEST_HOST}/ISAPI/System/deviceInfo").respond(status_code=403)
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=TEST_CONFIG)
+    respx.get(f"{TEST_HOST}/ISAPI/System/deviceInfo").mock(side_effect=[
+        httpx.Response(401, headers={"WWW-Authenticate": 'Basic realm="Hikvision"'}),
+        httpx.Response(403),
+    ])
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=USER_INPUT)
     assert result.get("type") == FlowResultType.FORM
     assert result.get("errors") == {"base": "insufficient_permission"}
 
@@ -99,7 +118,7 @@ async def test_unexpeced_exception_config_flow(get_device_info_mock, hass, mock_
     assert result["step_id"] == "user"
 
     get_device_info_mock.side_effect = Exception("Something went wrong")
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=TEST_CONFIG)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=USER_INPUT)
     assert result.get("type") == FlowResultType.FORM
     assert result.get("errors") == {"base": "Unexpected Exception: Something went wrong"}
 
@@ -114,7 +133,7 @@ async def test_user_input_validation(hass, mock_isapi_device):
     assert result["step_id"] == "user"
 
     user_input = {
-        **TEST_CONFIG,
+        **USER_INPUT,
         CONF_HOST: TEST_HOST + "/"
     }
     result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=user_input)
@@ -133,7 +152,7 @@ async def test_http_callback_two_step_config_flow(hass, mock_isapi_device):
     assert result["step_id"] == "user"
 
     step1_input = {
-        **TEST_CONFIG,
+        **USER_INPUT,
         CONF_CONNECTION_TYPE: CONF_CONNECTION_HTTP_CALLBACK,
     }
     step1_input.pop(CONF_SET_ALARM_SERVER, None)
@@ -166,7 +185,7 @@ async def test_user_input_validation_with_rtsp_port(hass, mock_isapi_device):
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "user"
 
-    user_input = TEST_CONFIG_OUTSIDE_NETWORK
+    user_input = {key: value for key, value in TEST_CONFIG_OUTSIDE_NETWORK.items() if key not in (CONF_SET_ALARM_SERVER, "alarm_server")}
     result = await hass.config_entries.flow.async_configure(result["flow_id"], user_input=user_input)
 
     assert result["type"] == FlowResultType.CREATE_ENTRY
@@ -195,7 +214,7 @@ async def test_reconfiguration(hass: HomeAssistant, init_integration: MockConfig
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
         {
-            **TEST_CONFIG,
+            **USER_INPUT,
             CONF_HOST: TEST_HOST2,
             CONF_VERIFY_SSL: False
         },
@@ -212,7 +231,7 @@ async def test_reconfiguration(hass: HomeAssistant, init_integration: MockConfig
 async def test_reauth(hass, mock_isapi, mock_config_entry: MockConfigEntry):
     """Test re-auth flow."""
 
-    respx.get(f"{TEST_HOST}/ISAPI/System/deviceInfo").respond(status_code=401)
+    respx.get(f"{TEST_HOST}/ISAPI/System/deviceInfo").respond(status_code=401, headers={"WWW-Authenticate": 'Basic realm="Hikvision"'})
 
     mock_config_entry.add_to_hass(hass)
 
@@ -230,7 +249,7 @@ async def test_reauth(hass, mock_isapi, mock_config_entry: MockConfigEntry):
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
         {
-            **TEST_CONFIG,
+            **USER_INPUT,
         },
     )
 

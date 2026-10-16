@@ -3,10 +3,11 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import replace
+from functools import partial
 import json
 import logging
 from typing import Any, Callable
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 import httpx
 
@@ -24,6 +25,7 @@ from .const import (
     ANPR_IMAGE_SUFFIX,
     ANPR_LICENSE_PLATE_SENSOR_SUFFIX,
     CONF_ALARM_SERVER_HOST,
+    CONTROL_PANEL_URL,
     CONF_CONNECTION_HTTP_NOTIFY,
     CONF_SET_ALARM_SERVER,
     DEVICE_LEVEL_EVENT_IDS,
@@ -242,8 +244,10 @@ class HikvisionDevice(ISAPIClient):
         self.intercom_coordinator: IntercomStatusCoordinator | None = None
         self.sdk_subscription: Any = None
         self.sdk_user: Any = None
+        self.sdk_device_info = None
         self.sdk_handle: LONG | None = None
         self.sdk_callback_func = None
+        self.webrtc_manager = None
         self._ptz_active: dict[int, dict[str, int]] = {}
         self._video_intercom: VideoIntercomRemoteConfig | None = None
         self._intercom_call_state = IntercomCallState.IDLE
@@ -315,6 +319,7 @@ class HikvisionDevice(ISAPIClient):
                 raise SDKError(self.sdk_subscription, f"NET_DVR_Login_V30 failed")
             _LOGGER.info(f"Logged in with {user_id}")
             self.sdk_user = user_id
+            self.sdk_device_info = device_info
 
             if not self.hass.data[DOMAIN].get("sdk_callback_registered"):
                 _LOGGER.debug("Registering global SDK callback function")
@@ -694,13 +699,20 @@ class HikvisionDevice(ISAPIClient):
         command: int,
         *,
         stop: bool,
+        speed: int = 4,
     ) -> int:
         """Try SDK PTZ on candidate channel numbers until one succeeds."""
         last_error: SDKError | None = None
-        for channel in ptz_sdk_channel_candidates(camera, is_nvr=self.device_info.is_nvr):
+        start = (int(self.sdk_device_info.byStartDChan) & 0xFF) if self.sdk_device_info is not None else 0
+        for channel in ptz_sdk_channel_candidates(
+            camera,
+            is_nvr=self.device_info.is_nvr,
+            digital_channel_start=start,
+            analog_channels=self.capabilities.analog_cameras_inputs,
+        ):
             try:
                 await self.hass.async_add_executor_job(
-                    self._sdk_ptz_control,
+                    partial(self._sdk_ptz_control, speed=speed),
                     channel,
                     command,
                     stop,
@@ -712,6 +724,15 @@ class HikvisionDevice(ISAPIClient):
         if last_error:
             raise last_error
         raise SDKError(self.sdk_subscription, f"PTZ command {command} failed on channel {camera.id}")
+
+    def _has_sdk_ptz_mapping(self, camera: AnalogCamera | IPCamera) -> bool:
+        """Native NVR PTZ is safe when the login reports digital numbering."""
+        return (
+            self.device_info.is_nvr
+            and isinstance(camera, IPCamera)
+            and self.sdk_device_info is not None
+            and bool(int(self.sdk_device_info.byStartDChan) & 0xFF)
+        )
 
     async def ptz_start(
         self,
@@ -726,8 +747,20 @@ class HikvisionDevice(ISAPIClient):
         if not camera.support_ptz:
             raise ValueError(f"Camera channel {camera.id} does not support PTZ")
 
-        if self.connection_type == CONF_CONNECTION_SDK and ptz_prefers_isapi(
-            camera, is_nvr=self.device_info.is_nvr
+        if action and not any((pan, tilt, zoom)):
+            pan, tilt, zoom = {
+                "ptz_up": (0, 60, 0),
+                "ptz_down": (0, -60, 0),
+                "ptz_left": (-60, 0, 0),
+                "ptz_right": (60, 0, 0),
+                "ptz_zoom_in": (0, 0, 60),
+                "ptz_zoom_out": (0, 0, -60),
+            }.get(action, (0, 0, 0))
+
+        if (
+            self.connection_type == CONF_CONNECTION_SDK
+            and ptz_prefers_isapi(camera, is_nvr=self.device_info.is_nvr)
+            and not self._has_sdk_ptz_mapping(camera)
         ):
             _LOGGER.debug("PTZ start via ISAPI proxy for NVR channel %s", camera.id)
             await self.ptz_continuous(camera, pan=pan, tilt=tilt, zoom=zoom)
@@ -736,15 +769,24 @@ class HikvisionDevice(ISAPIClient):
             else:
                 command = ptz_command_from_velocities(pan, tilt, zoom)
             if command is not None:
-                self._ptz_active[camera.id] = {"channel": camera.id, "command": command}
+                self._ptz_active[camera.id] = {"channel": camera.id, "command": command, "isapi": True}
             return
 
         if self.connection_type == CONF_CONNECTION_SDK:
             command = ptz_command_from_action(action) if action else ptz_command_from_velocities(pan, tilt, zoom)
             if command is None:
                 raise ValueError("No PTZ direction specified")
-            channel = await self._sdk_ptz_try_channels(camera, command, stop=False)
-            self._ptz_active[camera.id] = {"channel": channel, "command": command}
+            speed = max(1, min(7, round(max(abs(pan), abs(tilt), abs(zoom)) * 7 / 100)))
+            try:
+                channel = await self._sdk_ptz_try_channels(camera, command, stop=False, speed=speed)
+            except SDKError:
+                if not ptz_prefers_isapi(camera, is_nvr=self.device_info.is_nvr):
+                    raise
+                _LOGGER.debug("Native PTZ unavailable for NVR channel %s; trying ISAPI proxy", camera.id)
+                await self.ptz_continuous(camera, pan=pan, tilt=tilt, zoom=zoom)
+                self._ptz_active[camera.id] = {"channel": camera.id, "command": command, "isapi": True}
+                return
+            self._ptz_active[camera.id] = {"channel": channel, "command": command, "speed": speed}
             _LOGGER.info("SDK PTZ start channel=%s command=%s", channel, command)
             return
 
@@ -755,8 +797,14 @@ class HikvisionDevice(ISAPIClient):
         if not camera.support_ptz:
             raise ValueError(f"Camera channel {camera.id} does not support PTZ")
 
-        if self.connection_type == CONF_CONNECTION_SDK and ptz_prefers_isapi(
-            camera, is_nvr=self.device_info.is_nvr
+        active = self._ptz_active.get(camera.id, {})
+        if self.connection_type == CONF_CONNECTION_SDK and (
+            active.get("isapi")
+            or (
+                not active
+                and ptz_prefers_isapi(camera, is_nvr=self.device_info.is_nvr)
+                and not self._has_sdk_ptz_mapping(camera)
+            )
         ):
             _LOGGER.debug("PTZ stop via ISAPI proxy for NVR channel %s", camera.id)
             await super().ptz_stop(camera)
@@ -773,7 +821,7 @@ class HikvisionDevice(ISAPIClient):
                 channel = await self._sdk_ptz_try_channels(camera, command, stop=True)
             else:
                 await self.hass.async_add_executor_job(
-                    self._sdk_ptz_control,
+                    partial(self._sdk_ptz_control, speed=active.get("speed", 4)),
                     channel,
                     command,
                     True,
@@ -787,6 +835,12 @@ class HikvisionDevice(ISAPIClient):
 
     def hass_device_info(self, camera_id: int = 0) -> DeviceInfo:
         """Return Home Assistant entity device information."""
+        control_url = None
+        if self.entry is not None:
+            query = {"entry": self.entry.entry_id}
+            if camera_id:
+                query["channel"] = str(camera_id)
+            control_url = f"homeassistant://{CONTROL_PANEL_URL}/0?{urlencode(query)}"
         if camera_id == 0:
             return DeviceInfo(
                 manufacturer=self.device_info.manufacturer,
@@ -795,6 +849,7 @@ class HikvisionDevice(ISAPIClient):
                 model=self.device_info.model,
                 name=self.device_info.name,
                 sw_version=self.device_info.firmware,
+                configuration_url=control_url,
             )
         else:
             camera_info = self.get_camera_by_id(camera_id)
@@ -806,6 +861,7 @@ class HikvisionDevice(ISAPIClient):
                 model=camera_info.model,
                 name=camera_info.name,
                 sw_version=camera_info.firmware if is_ip_camera else "Unknown",
+                configuration_url=control_url,
                 via_device=(DOMAIN, self.device_info.serial_no) if self.device_info.is_nvr else None,
             )
 

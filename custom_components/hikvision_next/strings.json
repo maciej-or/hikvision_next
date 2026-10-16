@@ -3,7 +3,8 @@
     "step": {
       "user": {
         "data": {
-          "host": "[%key:common::config_flow::data::host%]"
+          "host": "[%key:common::config_flow::data::host%]",
+          "sdk_webrtc": "SDK WebRTC low-latency video (SDK connection mode, H.264)"
         }
       }
     },
@@ -11,7 +12,8 @@
       "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
       "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
       "insufficient_permission": "[%key:common::config_flow::error::insufficient_permission%]",
-      "unknown": "[%key:common::config_flow::error::unknown%]"
+      "unknown": "[%key:common::config_flow::error::unknown%]",
+      "sdk_required": "SDK WebRTC requires the SDK connection type"
     }
   }
 }
