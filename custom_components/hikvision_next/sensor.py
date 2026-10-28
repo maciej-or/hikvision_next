@@ -9,15 +9,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import HikvisionConfigEntry
-from .const import CONF_ALARM_SERVER_HOST, SECONDARY_COORDINATOR
+from .const import CONF_ALARM_SERVER_HOST, NOTIFICATION_HOST_KEYS, SECONDARY_COORDINATOR
 from .isapi import StorageInfo
-
-NOTIFICATION_HOST_KEYS = [
-    "protocol_type",
-    "address", # ip_address or host_name
-    "port_no",
-    "path",
-]
 
 
 async def async_setup_entry(

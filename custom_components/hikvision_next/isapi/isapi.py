@@ -359,22 +359,30 @@ class ISAPIClient:
         streams = []
         for stream_type_id, stream_type in STREAM_TYPE.items():
             stream_id = f"{channel_id}0{stream_type_id}"
-            stream_info = (await self.request(GET, f"Streaming/channels/{stream_id}")).get("StreamingChannel")
-            if not stream_info:
-                continue
-            streams.append(
-                CameraStreamInfo(
-                    id=int(stream_info["id"]),
-                    name=stream_info["channelName"],
-                    type_id=stream_type_id,
-                    type=stream_type,
-                    enabled=stream_info["enabled"],
-                    codec=deep_get(stream_info, "Video.videoCodecType"),
-                    width=deep_get(stream_info, "Video.videoResolutionWidth", 0),
-                    height=deep_get(stream_info, "Video.videoResolutionHeight", 0),
-                    audio=str_to_bool(deep_get(stream_info, "Audio.enabled", "false")),
+            try:
+                stream_info = (await self.request(GET, f"Streaming/channels/{stream_id}")).get("StreamingChannel")
+                if not stream_info:
+                    continue
+                streams.append(
+                    CameraStreamInfo(
+                        id=int(stream_info["id"]),
+                        name=stream_info["channelName"],
+                        type_id=stream_type_id,
+                        type=stream_type,
+                        enabled=stream_info["enabled"],
+                        codec=deep_get(stream_info, "Video.videoCodecType"),
+                        width=deep_get(stream_info, "Video.videoResolutionWidth", 0),
+                        height=deep_get(stream_info, "Video.videoResolutionHeight", 0),
+                        audio=str_to_bool(deep_get(stream_info, "Audio.enabled", "false")),
+                    )
                 )
-            )
+            except Exception as ex:
+                _LOGGER.debug(
+                    "Failed to retrieve stream info for channel %s (stream type %s): %s",
+                    channel_id,
+                    stream_type,
+                    ex,
+                )
         return streams
 
     def get_camera_by_id(self, camera_id: int) -> IPCamera | AnalogCamera | None:

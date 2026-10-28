@@ -22,6 +22,13 @@ ACTION_REBOOT = "reboot"
 ACTION_ISAPI_REQUEST = "isapi_request"
 ACTION_UPDATE_SNAPSHOT = "update_snapshot"
 
+NOTIFICATION_HOST_KEYS = [
+    "protocol_type",
+    "address",  # ip_address or host_name
+    "port_no",
+    "path",
+]
+
 HIKVISION_EVENT = f"{DOMAIN}_event"
 
 EVENTS = {

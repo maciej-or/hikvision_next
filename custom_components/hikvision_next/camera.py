@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+
 from homeassistant.components.camera import Camera, CameraEntityFeature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -10,6 +12,8 @@ from homeassistant.util import slugify
 from . import HikvisionConfigEntry
 from .hikvision_device import HikvisionDevice
 from .isapi import AnalogCamera, CameraStreamInfo, IPCamera
+
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
@@ -20,9 +24,32 @@ async def async_setup_entry(
     device = entry.runtime_data
 
     entities = []
+    cameras_without_streams = []
+
     for camera in device.cameras:
+        if not camera.streams:
+            cameras_without_streams.append(camera)
+            _LOGGER.warning(
+                "Camera %s (ID: %s, Model: %s) has no available streams. "
+                "This may indicate: 1) Connection issue with camera, "
+                "2) Insufficient permissions for streaming channels, "
+                "3) Device requires different stream configuration. "
+                "Check device connectivity, credentials, and stream settings on the device.",
+                camera.name,
+                camera.id,
+                getattr(camera, 'model', 'Unknown'),
+            )
+            continue
+
         for stream in camera.streams:
             entities.append(HikvisionCamera(device, camera, stream))
+
+    if cameras_without_streams:
+        _LOGGER.info(
+            "Skipped %d camera(s) due to missing stream information. "
+            "Check device logs and integration diagnostics for details.",
+            len(cameras_without_streams),
+        )
 
     async_add_entities(entities)
 

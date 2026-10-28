@@ -63,7 +63,7 @@ class SnapshotFile(ImageEntity):
         ImageEntity.__init__(self, hass)
 
         self._attr_unique_id = slugify(f"{device.device_info.serial_no.lower()}_{stream_info.id}_snapshot")
-        self.entity_id = f"camera.{self.unique_id}"
+        self.entity_id = f"image.{self.unique_id}"
         self._attr_translation_key = "snapshot"
         self._attr_translation_placeholders = {"camera": camera.name}
 
