@@ -12,10 +12,12 @@ from aiohttp import web
 from requests_toolbelt.multipart import MultipartDecoder
 
 from homeassistant.components.http import HomeAssistantView
-from homeassistant.const import CONTENT_TYPE_TEXT_PLAIN, STATE_ON, Platform
+from homeassistant.const import CONF_HOST, CONTENT_TYPE_TEXT_PLAIN, STATE_ON, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_registry import async_get
+from homeassistant.helpers.network import is_cloud_connection
 from homeassistant.util import slugify
+from homeassistant.util.network import is_local
 
 from .const import ALARM_SERVER_PATH, DOMAIN, HIKVISION_EVENT
 from .hikvision_device import HikvisionDevice
@@ -48,6 +50,10 @@ class EventNotificationsView(HomeAssistantView):
     async def post(self, request: web.Request):
         """Accept the POST request from NVR or IP Camera."""
 
+        if not await self.is_trusted_source(request.remote):
+            _LOGGER.warning("Rejected event notification from untrusted source %s", request.remote)
+            return web.Response(status=HTTPStatus.FORBIDDEN, content_type=CONTENT_TYPE_TEXT_PLAIN)
+
         try:
             _LOGGER.debug("--- Incoming event notification ---")
             _LOGGER.debug("Source: %s", request.remote)
@@ -62,6 +68,35 @@ class EventNotificationsView(HomeAssistantView):
 
         response = web.Response(status=HTTPStatus.OK, content_type=CONTENT_TYPE_TEXT_PLAIN)
         return response
+
+    async def is_trusted_source(self, remote: str | None) -> bool:
+        """Accept notifications only from the local network or from a configured device host.
+
+        The view requires no authentication, so without this check anyone who can reach
+        Home Assistant (e.g. via Nabu Casa remote UI or a port forward) could inject events.
+        """
+        try:
+            source_ip = ipaddress.ip_address(remote)
+        except (TypeError, ValueError):
+            return False
+        if source_ip.version == 6 and source_ip.ipv4_mapped:
+            source_ip = source_ip.ipv4_mapped
+
+        if is_local(source_ip) and not is_cloud_connection(self.hass):
+            return True
+
+        for entry in self.hass.config_entries.async_entries(DOMAIN):
+            hostname = urlparse(entry.data[CONF_HOST]).hostname
+            if entry.disabled_by or not hostname:
+                continue
+            try:
+                device_ip = await self.hass.async_add_executor_job(self.get_ip, hostname)
+            except OSError:
+                continue
+            if ipaddress.ip_address(device_ip) == source_ip:
+                return True
+
+        return False
 
     def get_isapi_device(self, device_ip, alert: AlertInfo) -> HikvisionDevice:
         """Get integration instance for device sending alert."""
