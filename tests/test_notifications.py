@@ -6,7 +6,7 @@ from homeassistant.core import HomeAssistant, Event
 from custom_components.hikvision_next.notifications import EventNotificationsView
 from custom_components.hikvision_next.const import HIKVISION_EVENT, RTSP_PORT_FORCED
 from pytest_homeassistant_custom_component.common import MockConfigEntry
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from tests.conftest import load_fixture, TEST_HOST_IP, TEST_CONFIG, TEST_CONFIG_OUTSIDE_NETWORK
 from homeassistant.const import (
     STATE_ON,
@@ -283,3 +283,71 @@ async def test_nvr_and_cam_notification_alert(
     assert sensor_cam_2.state == STATE_OFF
     assert sensor_cam_3.state == STATE_ON
     assert sensor_nvr_1.state == STATE_ON
+
+
+IPC_FIELD_DETECTION = "binary_sensor.ds_2cd2386g2_iu00000000aawrj00000000_1_fielddetection"
+
+
+@pytest.mark.parametrize("init_integration", ["DS-2CD2386G2-IU"], indirect=True)
+@pytest.mark.parametrize(
+    ("remote", "expected_status", "expected_state"),
+    [
+        ("192.168.1.50", HTTPStatus.OK, STATE_ON),
+        ("fe80::1", HTTPStatus.OK, STATE_ON),
+        ("::ffff:1.0.0.255", HTTPStatus.OK, STATE_ON),
+        ("203.0.113.7", HTTPStatus.FORBIDDEN, STATE_OFF),
+        (None, HTTPStatus.FORBIDDEN, STATE_OFF),
+    ],
+)
+async def test_notification_source_filter(
+    hass: HomeAssistant, init_integration: MockConfigEntry, remote, expected_status, expected_state
+) -> None:
+    """Test notifications are accepted only from local network or configured device."""
+
+    view = EventNotificationsView(hass)
+    mock_request = mock_event_notification("ipc_1_fielddetection")
+    mock_request.remote = remote
+    response = await view.post(mock_request)
+
+    assert response.status == expected_status
+    assert hass.states.get(IPC_FIELD_DETECTION).state == expected_state
+
+
+@pytest.mark.parametrize("init_integration", ["DS-2CD2386G2-IU"], indirect=True)
+async def test_notification_from_local_address_via_cloud_rejected(
+    hass: HomeAssistant, init_integration: MockConfigEntry
+) -> None:
+    """Test a local source address is not trusted for requests coming through Nabu Casa remote UI."""
+
+    view = EventNotificationsView(hass)
+    mock_request = mock_event_notification("ipc_1_fielddetection")
+    mock_request.remote = "192.168.1.50"
+    with patch("custom_components.hikvision_next.notifications.is_cloud_connection", return_value=True):
+        response = await view.post(mock_request)
+
+    assert response.status == HTTPStatus.FORBIDDEN
+    assert hass.states.get(IPC_FIELD_DETECTION).state == STATE_OFF
+
+
+@pytest.mark.parametrize("mock_config_entry", [TEST_CONFIG_OUTSIDE_NETWORK], indirect=True)
+@pytest.mark.parametrize("init_integration", ["DS-2CD2386G2-IU"], indirect=True)
+@pytest.mark.parametrize(
+    ("remote", "expected_status", "expected_state"),
+    [
+        ("198.51.100.20", HTTPStatus.OK, STATE_ON),
+        ("203.0.113.7", HTTPStatus.FORBIDDEN, STATE_OFF),
+    ],
+)
+async def test_notification_from_device_outside_network(
+    hass: HomeAssistant, init_integration: MockConfigEntry, remote, expected_status, expected_state
+) -> None:
+    """Test a device outside the local network is trusted by its resolved host address."""
+
+    view = EventNotificationsView(hass)
+    mock_request = mock_event_notification("ipc_1_fielddetection")
+    mock_request.remote = remote
+    with patch("custom_components.hikvision_next.notifications.socket.gethostbyname", return_value="198.51.100.20"):
+        response = await view.post(mock_request)
+
+    assert response.status == expected_status
+    assert hass.states.get(IPC_FIELD_DETECTION).state == expected_state
